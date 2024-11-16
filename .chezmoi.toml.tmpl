@@ -3,3 +3,11 @@
   autoPush = true
 [onepassword]
     mode = "service"
+[edit]
+{{- if eq .chezmoi.os "darwin" }}
+    command = "open"
+    args = ["-a", "/Applications/Visual Studio Code.app", "--wait"]
+{{- else if eq .chezmoi.os "linux" }}
+    command = "code"
+    args = ["--wait"]
+{{- end }}
