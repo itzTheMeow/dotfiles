@@ -11,7 +11,7 @@
 [gpg "ssh"]
 {{- if eq .chezmoi.os "darwin" }}
 	program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-{{ else if eq .chezmoi.os "linux" }}
+{{- else if eq .chezmoi.os "linux" }}
 	program = "/opt/1Password/op-ssh-sign"
 {{- end }}
 [commit]
