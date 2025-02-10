@@ -1,10 +1,10 @@
-{{- if eq .chezmoi.os "darwin" }}
+{{- if eq .chezmoi.os "darwin" -}}
 export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/macbook
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
-{{- else if eq .chezmoi.hostname "meow-pc" }}
+{{- else if eq .chezmoi.hostname "meow-pc" -}}
 export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/meow-pc
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/we4fxvwyhtjrwzkadghpw5llje/password" }}
-{{- else if eq .chezmoi.hostname "hetzner" }}
+{{- else if eq .chezmoi.hostname "hetzner" -}}
 # todo
 {{- end }}
 
