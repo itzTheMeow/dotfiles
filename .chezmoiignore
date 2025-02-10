@@ -1,7 +1,7 @@
-{{- if and (ne .chezmoi.os "linux") (not .headless)  }}
+{{- if eq .box "home"  }}
 discord-updater.sh
 {{- end }}
-{{- if .headless }}
+{{- if eq .box "hetzner" }}
 .config/activitywatch
 {{- end }}
 {{- if ne .chezmoi.os "linux" }}
