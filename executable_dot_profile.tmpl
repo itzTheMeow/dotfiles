@@ -74,6 +74,15 @@ alias l='ls -CF'
 alias git-clear="{{ .chezmoi.homeDir }}/bin/git-clear.sh"
 alias txz="tar -cJf"
 
+###########
+## Misc. ##
+###########
+{{- if eq .box "mac" }}
+# Setting PATH for Python 3.12
+PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:${PATH}"
+export PATH
+{{- end }}
+
 #############################
 # Interactive Shell Options #
 #############################
