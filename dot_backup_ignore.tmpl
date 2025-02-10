@@ -12,18 +12,18 @@
 /var/log
 
 # Restic
-/root/.cache/restic
+{{ .chezmoi.homeDir }}/.cache/restic
 
 # pCloud
-*/pCloudDrive
-*/.pcloud
+{{ .chezmoi.homeDir }}/pCloudDrive
+{{ .chezmoi.homeDir }}/.pcloud
 /home/pcloud # should be temporary- change when mount is changed to pCloudDrive
 
 # rclone
-*/.cache/rclone
+{{ .chezmoi.homeDir }}/.cache/rclone
 
 # Node/NPM
 node_modules
-*/.npm
-*/.local/share/pnpm
+{{ .chezmoi.homeDir }}/.npm
+{{ .chezmoi.homeDir }}/.local/share/pnpm
 
