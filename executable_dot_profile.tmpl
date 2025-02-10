@@ -39,7 +39,7 @@ fi
 
 # Restic
 {{- if eq .box "mac" }}
-export RESTIC_REPOSITORY=/Users/meow/pCloud Drive/Misc/Backups/macbook
+export RESTIC_REPOSITORY="/Users/meow/pCloud Drive/Misc/Backups/macbook"
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
 {{- else if eq .box "home" }}
 export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/meow-pc
