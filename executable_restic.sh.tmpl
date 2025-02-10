@@ -1,11 +1,3 @@
-{{- if eq .chezmoi.os "darwin" -}}
-export RESTIC_REPOSITORY=/Users/meow/pCloud Drive/Misc/Backups/macbook
-export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
-{{- else if eq .chezmoi.hostname "meow-pc" -}}
-export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/meow-pc
-export RESTIC_PASSWORD={{ onepasswordRead "op://Private/we4fxvwyhtjrwzkadghpw5llje/password" }}
-{{- else if eq .chezmoi.hostname "hetzner" -}}
-# todo
-{{- end }}
+source /etc/profile.d/restic.sh
 
 restic backup / --exclude-file=~/.backup_ignore
