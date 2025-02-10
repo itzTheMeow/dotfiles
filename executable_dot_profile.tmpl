@@ -94,7 +94,7 @@ if [[ $- == *i* ]]; then
     [ -x "$(command -v oh-my-posh)" ] && eval "$(oh-my-posh init bash --config 'https://github.com/itzTheMeow/itzTheMeow/raw/main/theme.omp.json')"
 
     # Startup Message
-    {{ if eq .chezmoi.os "linux" }}
+    {{- if eq .chezmoi.os "linux" }}
     [ "$TERM_PROGRAM" != "vscode" ] && {{ .chezmoi.homeDir }}/.bin/startup-message.sh
-    {{ end }}
+    {{- end }}
 fi
