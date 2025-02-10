@@ -41,6 +41,7 @@ fi
 {{- if eq .box "mac" }}
 export RESTIC_REPOSITORY="/Users/meow/pCloud Drive/Misc/Backups/macbook"
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
+export RESTIC_COMPRESSION=max
 {{- else if eq .box "home" }}
 export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/meow-pc
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/we4fxvwyhtjrwzkadghpw5llje/password" }}
