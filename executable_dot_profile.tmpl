@@ -20,7 +20,7 @@ if [ -d "$HOME/.local/bin" ] ; then
 fi
 
 # Homebrew ENV
-[ -f "/home/linuxbrew/.linuxbrew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[ -d "/home/linuxbrew/.linuxbrew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # Rust/Cargo ENV
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
@@ -45,6 +45,7 @@ export RESTIC_COMPRESSION=max
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias git-clear="~/.git-clear"
 
 # Interactive shells only.
 if [[ $- == *i* ]]; then
