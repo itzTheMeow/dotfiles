@@ -1,3 +1,11 @@
-source /etc/profile.d/restic.sh
+source {{ .chezmoi.homeDir }}/.profile
 
-restic backup / --exclude-file=~/.backup_ignore
+LOG_FILE="/tmp/restic_$(date +"%Y-%m-%d_%H-%M-%S").log"
+
+# Back up root and push to log file
+restic backup / --exclude-file={{ .chezmoi.homeDir }}/.backup_ignore 2>&1 | tee -a $LOG_FILE
+
+{{- if and (eq .chezmoi.hostname "hetzner") (.headless) }}
+jq -n --arg msg "$(cat $LOG_FILE)" '{ embeds: [{ description: $msg, title: "Restic Backup Complete", color: 182138 }] }' > "$LOG_FILE.txt"
+curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "@$LOG_FILE.txt" {{ onepasswordRead "op://Private/nwc5nliaaxa4rq64jeplaijsdi/Logging Webhook URL" }}
+{{- end }}
