@@ -11,6 +11,9 @@
 /swapfile
 /var/log
 
+# Restic
+/root/.cache/restic
+
 # pCloud
 /home/meow/pCloudDrive
 /home/meow/.pcloud
