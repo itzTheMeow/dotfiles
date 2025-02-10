@@ -1,4 +1,5 @@
 #######################################################
+#                                                     #
 #                      Credits                        #
 #                    Made by Meow                     #
 #                                                     #
@@ -6,8 +7,8 @@
 #                                                     #
 #######################################################
 
-# Run With
-# bash <(curl -sS "https://raw.githubusercontent.com/itzTheMeow/itzTheMeow/main/prompt.sh?$(date +%s)")
+# If you want to use this in your own setup, and don't want to copy the files, you can use this one-liner.
+# bash <(curl -sS "https://raw.githubusercontent.com/itzTheMeow/dotfiles/refs/heads/master/dot_bin/executable_startup-message.sh?$(date +%s)")
 
 # Works On
 # DEBIAN/UBUNTU BASED DISTROS ONLY
