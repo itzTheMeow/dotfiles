@@ -3,9 +3,12 @@
 [user]
 	name = Meow
 	email = me@itsmeow.cat
+{{- if not .headless }}
 	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUZNxXcceFgiGEGJlvFM1DLaYFMOYO+oVfVmCcUqXRw
+{{- end }}
 [pull]
 	rebase = false
+{{- if not .headless }}
 [gpg]
 	format = ssh
 [gpg "ssh"]
@@ -16,3 +19,4 @@
 {{- end }}
 [commit]
 	gpgsign = true
+{{- end }}
