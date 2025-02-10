@@ -1,6 +1,6 @@
 {{ if and (ne .chezmoi.os "linux") (not .headless)  }}
 discord-updater.sh
 {{ end }}
-{{ if not .headless }}
-
+{{ if .headless }}
+.config/activitywatch
 {{ end }}
