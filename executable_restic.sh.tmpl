@@ -1,4 +1,11 @@
+{{ if eq .chezmoi.hostname "meow-pc" }}
 export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/meow-pc
 export RESTIC_PASSWORD=
+{{ else if eq .chezmoi.hostname "hetzner" }}
+# todo
+{{ else if eq .chezmoi.hostname "meowsmacbookpro.local" }}
+export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/mac
+export RESTIC_PASSWORD=
+{{ end }}
 
-restic backup / --exclude-file=/home/meow/.backup_ignore
+restic backup / --exclude-file=~/.backup_ignore
