@@ -19,6 +19,9 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Homebrew ENV
+[ -f "/home/linuxbrew/.linuxbrew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 # Rust/Cargo ENV
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
@@ -37,3 +40,13 @@ export RESTIC_REPOSITORY=/home/bak
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/nwc5nliaaxa4rq64jeplaijsdi/password" }}
 export RESTIC_COMPRESSION=max
 {{- end }}
+
+# Aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Interactive shells only.
+if [ $- == *i* ]; then
+    clear
+fi
