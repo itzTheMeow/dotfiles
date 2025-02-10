@@ -11,16 +11,22 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Homebrew ENV
-[ -d "/home/linuxbrew/.linuxbrew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-# Rust/Cargo ENV
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-
 # Disable Terminal Messaging
 mesg n 2> /dev/null || true
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# Restic ENV
+###########################
+## Environment Variables ##
+###########################
+
+# Homebrew
+[ -d "/home/linuxbrew/.linuxbrew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# Rust/Cargo
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# Restic
 {{- if eq .box "mac" }}
 export RESTIC_REPOSITORY=/Users/meow/pCloud Drive/Misc/Backups/macbook
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
@@ -33,17 +39,33 @@ export RESTIC_PASSWORD={{ onepasswordRead "op://Private/nwc5nliaaxa4rq64jeplaijs
 export RESTIC_COMPRESSION=max
 {{- end }}
 
-# Aliases
+# Node/NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Misc.
+export THEOS=~/theos
+
+#############
+## Aliases ##
+#############
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias git-clear="{{ .chezmoi.homeDir }}/bin/git-clear.sh"
 alias txz="tar -cJf"
 
-# Interactive shells only.
+#############################
+# Interactive Shell Options #
+#############################
 if [[ $- == *i* ]]; then
     clear
 
+    # Tab Completion
+    [ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
+
+    # History Settings
     if [[ -n "$ZSH_VERSION" ]]; then
         HISTSIZE=10000
         SAVEHIST=10000
@@ -56,5 +78,23 @@ if [[ $- == *i* ]]; then
         HISTFILESIZE=10000
         shopt -s histappend
         shopt -s checkwinsize
+    fi
+
+    # LS Color Support
+    if [ -x /usr/bin/dircolors ]; then
+        test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+        alias ls='ls --color=auto'
+
+        alias grep='grep --color=auto'
+        alias fgrep='fgrep --color=auto'
+        alias egrep='egrep --color=auto'
+    fi
+
+    # Init Oh-My-Posh
+    [ -x "$(command -v oh-my-posh)" ] && eval "$(oh-my-posh init bash --config 'https://github.com/itzTheMeow/itzTheMeow/raw/main/theme.omp.json')"
+
+    # Startup Message
+    if [ "$TERM_PROGRAM" != "vscode" ]; then
+        bash <(curl -sS "https://raw.githubusercontent.com/itzTheMeow/itzTheMeow/main/prompt.sh?$(date +%s)")
     fi
 fi
