@@ -187,9 +187,10 @@
                 "Email"
             ],
             "rule": {
-                "regex": "Gmail|Thunderbird|mutt|alpine",
+                "regex": "Gmail|Thunderbird|SOgo|MeowMail|Roundcube",
                 "type": "regex"
-            }
+            },
+            "data": {}
         },
         {
             "data": {
