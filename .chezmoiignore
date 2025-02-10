@@ -3,6 +3,7 @@ discord-updater.sh
 {{- end }}
 {{- if .headless }}
 .config/activitywatch
+.config/kitty
 {{- end }}
 {{- if ne .chezmoi.os "linux" }}
 .bashrc
