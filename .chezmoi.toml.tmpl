@@ -1,5 +1,5 @@
 [data]
-    headless = {{ promptBoolOnce "Headless" "headless" false }}
+    headless = {{ promptBoolOnce . "headless" "Headless" }}
 {{ if eq .chezmoi.hostname "nvst" }}
     box = "hetzner"
 {{ else if eq .chezmoi.hostname "meow-pc" }}
