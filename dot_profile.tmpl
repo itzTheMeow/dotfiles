@@ -26,3 +26,16 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 . "$HOME/.cargo/env"
+
+# Restic ENV
+{{- if eq .chezmoi.os "darwin" -}}
+export RESTIC_REPOSITORY=/Users/meow/pCloud Drive/Misc/Backups/macbook
+export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
+{{- else if eq .chezmoi.hostname "meow-pc" -}}
+export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/meow-pc
+export RESTIC_PASSWORD={{ onepasswordRead "op://Private/we4fxvwyhtjrwzkadghpw5llje/password" }}
+{{- else if eq .chezmoi.hostname "hetzner" -}}
+export RESTIC_REPOSITORY=/home/bak
+export RESTIC_PASSWORD={{ onepasswordRead "op://Private/nwc5nliaaxa4rq64jeplaijsdi/password" }}
+export RESTIC_COMPRESSION=max
+{{- end }}
