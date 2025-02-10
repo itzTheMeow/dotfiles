@@ -25,7 +25,10 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
+
 . "$HOME/.cargo/env"
+
+mesg n 2> /dev/null || true
 
 # Restic ENV
 {{- if eq .chezmoi.os "darwin" -}}
