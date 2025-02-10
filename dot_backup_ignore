@@ -1,0 +1,25 @@
+# System Files
+/dev
+/proc
+/sys
+/tmp
+/run
+/mnt
+/media
+/cdrom
+/lost+found
+/swapfile
+/var/log
+
+# pCloud
+/home/meow/pCloudDrive
+/home/meow/.pcloud
+
+# rclone
+/home/*/.cache/rclone
+
+# Node/NPM
+node_modules
+/home/*/.npm
+/home/*/.local/share/pnpm
+
