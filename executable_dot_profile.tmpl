@@ -119,7 +119,7 @@ if [[ $- == *i* ]]; then
 
     # Tab Completion
     [ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
-    if [ -x "$(command pm2)" ]; then
+    if [ -x "$(command -v pm2)" ]; then
       ###-begin-pm2-completion-###
       ### credits to npm for the completion file model
       #
