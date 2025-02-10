@@ -37,7 +37,8 @@ export RESTIC_COMPRESSION=max
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias git-clear="~/.git-clear"
+alias git-clear="{{ .chezmoi.homeDir }}/bin/git-clear.sh"
+alias txz="tar -cJf"
 
 # Interactive shells only.
 if [[ $- == *i* ]]; then
