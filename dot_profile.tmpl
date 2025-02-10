@@ -2,11 +2,6 @@
 # This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
 # exists.
 # see /usr/share/doc/bash/examples/startup-files for examples.
-# the files are located in the bash-doc package.
-
-# the default umask is set in /etc/profile; for setting the umask
-# for ssh logins, install and configure the libpam-umask package.
-#umask 022
 
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
@@ -20,24 +15,24 @@ fi
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
-
-# set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-. "$HOME/.cargo/env"
+# Rust/Cargo ENV
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
+# Disable Terminal Messaging
 mesg n 2> /dev/null || true
 
 # Restic ENV
-{{- if eq .chezmoi.os "darwin" }}
+{{- if eq .box "mac" }}
 export RESTIC_REPOSITORY=/Users/meow/pCloud Drive/Misc/Backups/macbook
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
-{{- else if eq .chezmoi.hostname "meow-pc" }}
+{{- else if eq .box "home" }}
 export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/meow-pc
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/we4fxvwyhtjrwzkadghpw5llje/password" }}
-{{- else if eq .chezmoi.hostname "hetzner" }}
+{{- else if eq .box "hetzner" }}
 export RESTIC_REPOSITORY=/home/bak
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/nwc5nliaaxa4rq64jeplaijsdi/password" }}
 export RESTIC_COMPRESSION=max
