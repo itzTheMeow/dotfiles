@@ -1,14 +1,14 @@
 [data]
     headless = {{ promptBoolOnce . "headless" "Headless" }}
-{{ if eq .chezmoi.hostname "nvst" }}
+{{- if eq .chezmoi.hostname "nvst" }}
     box = "hetzner"
-{{ else if eq .chezmoi.hostname "meow-pc" }}
+{{- else if eq .chezmoi.hostname "meow-pc" }}
     box = "home"
-{{ else if eq .chezmoi.os "darwin" }}
+{{- else if eq .chezmoi.os "darwin" }}
     box = "mac"
-{{ else }}
+{{- else }}
     box = "-"
-{{ end }}
+{{- end }}
 [git]
     autoCommit = true
     autoPush = true
