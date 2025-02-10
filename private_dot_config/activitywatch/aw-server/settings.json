@@ -177,8 +177,7 @@
                 "Messaging"
             ],
             "rule": {
-                "regex": "Element",
-                "type": "regex"
+                "type": "none"
             }
         },
         {
@@ -264,48 +263,48 @@
             }
         },
         {
+            "data": {
+                "color": "#FFFC00"
+            },
+            "id": 20,
             "name": [
                 "Comms",
                 "Messaging",
                 "Snapchat"
             ],
             "rule": {
-                "type": "regex",
-                "regex": "Snapchat|FFPWA-01HNWYAY349GVZDZ8P40SQ2JZS"
-            },
-            "id": 20,
-            "data": {
-                "color": "#FFFC00"
+                "regex": "Snapchat|FFPWA-01HNWYAY349GVZDZ8P40SQ2JZS",
+                "type": "regex"
             }
         },
         {
+            "data": {
+                "color": "#ff005c"
+            },
+            "id": 21,
             "name": [
                 "Comms",
                 "Messaging",
                 "Revolt"
             ],
             "rule": {
-                "type": "regex",
-                "regex": "Svolte|Revolt|revolt-desktop"
-            },
-            "id": 21,
-            "data": {
-                "color": "#ff005c"
+                "regex": "Svolte|Revolt|revolt-desktop",
+                "type": "regex"
             }
         },
         {
+            "data": {
+                "color": "#5865F2"
+            },
+            "id": 22,
             "name": [
                 "Comms",
                 "Messaging",
                 "Discord"
             ],
             "rule": {
-                "type": "regex",
-                "regex": "Discord|discord"
-            },
-            "id": 22,
-            "data": {
-                "color": "#5865F2"
+                "regex": "Discord|discord",
+                "type": "regex"
             }
         }
     ],
