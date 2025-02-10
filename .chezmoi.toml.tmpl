@@ -1,5 +1,12 @@
 [data]
     headless = {{ promptBool "Headless" false }}
+{{ if and (eq .chezmoi.hostname "nvst") .headless }}
+    box = "hetzner"
+{{ else if eq .chezmoi.hostname "meow-pc" }}
+    box = "home"
+{{ else if eq .chezmoi.os "darwin" }}
+    box = "mac"
+{{ end }}
 [git]
     autoCommit = true
     autoPush = true
