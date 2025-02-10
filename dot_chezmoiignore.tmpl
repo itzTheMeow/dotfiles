@@ -1,6 +1,12 @@
-{{ if and (ne .chezmoi.os "linux") (not .headless)  }}
+{{- if and (ne .chezmoi.os "linux") (not .headless)  }}
 discord-updater.sh
-{{ end }}
-{{ if .headless }}
+{{- end }}
+{{- if .headless }}
 .config/activitywatch
-{{ end }}
+{{- end }}
+{{- if ne .chezmoi.os "linux" }}
+.bashrc
+{{- end }}
+{{- if ne .chezmoi.os "darwin" }}
+.zprofile
+{{- end }}
