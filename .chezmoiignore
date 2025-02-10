@@ -8,5 +8,5 @@ discord-updater.sh
 .bashrc
 {{- end }}
 {{- if ne .chezmoi.os "darwin" }}
-.zprofile
+.zshrc
 {{- end }}
