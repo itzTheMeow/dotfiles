@@ -24,6 +24,11 @@ then
 fi
 
 format_bytes() {
+  # Check if the input contains a non-numeric character
+  case "$1" in
+    (*[!0-9]*) echo "$1"; return ;;
+  esac
+  
   echo "$1" | awk '{ 
     units = "B KB MB GB TB PB EB ZB YB"; 
     split(units, u); 
