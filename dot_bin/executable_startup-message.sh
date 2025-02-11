@@ -29,7 +29,7 @@ format_bytes() {
     split(units, u); 
     sum = $1; 
     for (i = 1; sum >= 1024 && i < 9; i++) sum /= 1024; 
-    print int(sum), u[i] 
+    printf "%s%s", int(sum), u[i] 
   }'
 }
 
@@ -58,7 +58,8 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
       echo "$1" | grep -o '[0-9]\+' | awk 'BEGIN {ORS="\n"} {sum += $1} END {print sum}'
     }
     LISTED_DISKS=$(diskutil list -plist /)
-    DISK_USAGE=$(extract_disk $(echo "$LISTED_DISKS" | awk '/<key>CapacityInUse<\/key>/ {getline; print $1}'))
+    EXTRACTED_DISKS=$(echo "$LISTED_DISKS" | awk '/<key>CapacityInUse<\/key>/ {getline; print $1}')
+    DISK_USAGE=$(extract_disk $EXTRACTED_DISKS)
     DISK_TOTAL=$(df -H / | awk 'NR==2 {print $2}')
     DISK_PERC=$(df -H / | awk 'NR==2 {print $5}')
     PKG_COUNT=$(brew list --formula | wc -l)
