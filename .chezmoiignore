@@ -11,3 +11,6 @@ discord-updater.sh
 {{- if ne .chezmoi.os "darwin" }}
 .zshrc
 {{- end }}
+{{- if and .headless (ne .box "hetzner") }}
+.git-credentials
+{{- end }}
