@@ -16,7 +16,9 @@
     prompt = true
 [edit]
     apply = true
-{{- if eq .chezmoi.os "darwin" }}
+{{- if .headless }}
+    command = "nano"
+{{- else if eq .chezmoi.os "darwin" }}
     command = "open"
     args = ["-a", "/Applications/Visual Studio Code.app", "--wait"]
 {{- else if eq .chezmoi.os "linux" }}
