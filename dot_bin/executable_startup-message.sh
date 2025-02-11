@@ -53,5 +53,5 @@ echo -e "
    \(__)|   DSK: ${DISK_USAGE}B/${DISK_TOTAL}B
 
   Uptime: ${UP}
-  Packages: ${PKG_COUNT}
+  Packages: $(echo "${PKG_COUNT}" | awk '{printf "%'\''d\n", $1}')
 " | lolcat
