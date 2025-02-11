@@ -166,7 +166,7 @@ if [[ $- == *i* ]]; then
     # Init Oh-My-Posh
     [ -x "$(command -v oh-my-posh)" ] && eval "$(oh-my-posh init $(oh-my-posh get shell) --config '{{ .chezmoi.homeDir }}/.bin/theme.omp.json')"
 
-    {{- if eq .chezmoi.os "linux" }}
+    {{- if ne .box "-" }}
     # Startup Message
     [ "$TERM_PROGRAM" != "vscode" ] && {{ .chezmoi.homeDir }}/.bin/startup-message.sh
     {{- end }}
