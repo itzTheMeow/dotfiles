@@ -54,7 +54,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     MEM_USED=$(vm_stat | awk '/Pages active/ {print $3}' | sed 's/\.//' | awk '{print int($1 * 4096 / 1024 / 1024 + 0.5)}')
     MEM_PERC=$(( (MEM_USED * 100) / MEM_TOTAL ))
     LISTED_DISKS=$(diskutil list -plist /)
-    DISK_USAGE=$(echo "$LISTED_DISKS" | awk '/<key>CapacityInUse<\/key>/ {getline; match($1, /[0-9]+/, m); sum += m[0]} END {print sum}')
+    DISK_USAGE=$(echo "$LISTED_DISKS" | awk '/<key>CapacityInUse<\/key>/ {getline; print $1}' | grep -o '[0-9]\+' | awk 'BEGIN {ORS="\n"} {sum += $1} END {print sum}')
     DISK_USAGE=$(df -H / | awk 'NR==2 {print $3}')
     DISK_TOTAL=$(df -H / | awk 'NR==2 {print $2}')
     DISK_PERC=$(df -H / | awk 'NR==2 {print $5}')
