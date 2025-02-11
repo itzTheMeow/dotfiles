@@ -55,7 +55,6 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     MEM_PERC=$(( (MEM_USED * 100) / MEM_TOTAL ))
     LISTED_DISKS=$(diskutil list -plist /)
     DISK_USAGE=$(echo "$LISTED_DISKS" | awk '/<key>CapacityInUse<\/key>/ {getline; print $1}' | grep -o '[0-9]\+' | awk 'BEGIN {ORS="\n"} {sum += $1} END {print sum}')
-    DISK_USAGE=$(df -H / | awk 'NR==2 {print $3}')
     DISK_TOTAL=$(df -H / | awk 'NR==2 {print $2}')
     DISK_PERC=$(df -H / | awk 'NR==2 {print $5}')
     PKG_COUNT=$(brew list --formula | wc -l)
