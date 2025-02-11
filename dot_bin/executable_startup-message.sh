@@ -31,8 +31,10 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     MEM_FREE=$(awk '/^MemAvailable/ {print $2}' /proc/meminfo)
     MEM_USED=$(( (MEM_TOTAL - MEM_FREE) / 1024 ))
     MEM_TOTAL=$((MEM_TOTAL / 1024))
+    MEM_PERC=$(( (MEM_USED * 100) / MEM_TOTAL ))
     DISK_USAGE=$(df -H / | awk 'NR==2 {print $3}')
     DISK_TOTAL=$(df -H / | awk 'NR==2 {print $2}')
+    DISK_PERC=$(df -H / | awk 'NR==2 {print $5}')
     PKG_COUNT=$(dpkg --list 2>/dev/null | wc -l || rpm -qa | wc -l)
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     REL=$(sw_vers -productName) $(sw_vers -productVersion)
@@ -41,17 +43,19 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     MEM_TOTAL=$(sysctl -n hw.memsize)
     MEM_TOTAL=$((MEM_TOTAL / 1024 / 1024))
     MEM_USED=$(vm_stat | awk '/Pages active/ {print $3}' | sed 's/\.//' | awk '{print $1 * 4096 / 1024 / 1024}')
+    MEM_PERC=$(( (MEM_USED * 100) / MEM_TOTAL ))
     DISK_USAGE=$(df -H / | awk 'NR==2 {print $3}')
     DISK_TOTAL=$(df -H / | awk 'NR==2 {print $2}')
+    DISK_PERC=$(df -H / | awk 'NR==2 {print $5}')
     PKG_COUNT=$(brew list --formula | wc -l)
 fi
 
 echo -e "
   \    /\   $(whoami)@$(hostname) on ${REL}
    )  ( ')  CPU: ${CPU_USAGE}
-  (  /  )   MEM: ${MEM_USED}MB/${MEM_TOTAL}MB
-   \(__)|   DSK: ${DISK_USAGE}B/${DISK_TOTAL}B
+  (  /  )   MEM: ${MEM_USED}MB/${MEM_TOTAL}MB (${MEM_PERC}%)
+   \(__)|   DSK: ${DISK_USAGE}B/${DISK_TOTAL}B (${DISK_PERC})
 
   Uptime: ${UP}
-  Packages: $(echo "${PKG_COUNT}" | awk '{printf "%'\''d\n", $1}')
+  Packages: $(echo "${PKG_COUNT}" | awk '{printf "%'''d\n", $1}')
 " | lolcat
