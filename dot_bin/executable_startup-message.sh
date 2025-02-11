@@ -50,6 +50,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     PKG_COUNT=$(brew list --formula | wc -l)
 fi
 
+# Calculates the length of each string for alignment of percentages.
 MEM_TEXT="${MEM_USED}MB/${MEM_TOTAL}MB"
 DISK_TEXT="${DISK_USAGE}B/${DISK_TOTAL}B"
 TXT_LENGTH=$(( ${#MEM_TEXT} > ${#DISK_TEXT} ? ${#MEM_TEXT} : ${#DISK_TEXT} ))
