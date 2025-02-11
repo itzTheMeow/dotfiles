@@ -1,5 +1,7 @@
+{{- $headless:= promptBoolOnce . "headless" "Headless" -}}
+
 [data]
-    headless = {{ promptBoolOnce . "headless" "Headless" }}
+    headless = {{ $headless }}
 {{- if eq .chezmoi.hostname "nvst" }}
     box = "hetzner"
 {{- else if eq .chezmoi.hostname "meow-pc" }}
@@ -16,7 +18,7 @@
     prompt = true
 [edit]
     apply = true
-{{- if .headless }}
+{{- if $headless }}
     command = "nano"
 {{- else if eq .chezmoi.os "darwin" }}
     command = "open"
