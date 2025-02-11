@@ -164,7 +164,7 @@ if [[ $- == *i* ]]; then
     fi
 
     # Init Oh-My-Posh
-    [ -x "$(command -v oh-my-posh)" ] && eval "$(oh-my-posh init bash --config '{{ .chezmoi.homeDir }}/.bin/theme.omp.json')"
+    [ -x "$(command -v oh-my-posh)" ] && eval "$(oh-my-posh init $(oh-my-posh get shell) --config '{{ .chezmoi.homeDir }}/.bin/theme.omp.json')"
 
     {{- if eq .chezmoi.os "linux" }}
     # Startup Message
