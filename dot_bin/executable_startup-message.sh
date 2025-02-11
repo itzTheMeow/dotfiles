@@ -23,6 +23,15 @@ then
   fi
 fi
 
+format_bytes() {
+  echo "$1" | awk '{
+    units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    sum = $1;
+    for (i = 0; sum >= 1024 && i < 8; i++) sum /= 1024;
+    print sum " " units[i]
+  }'
+}
+
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     REL=$(lsb_release -d | cut -f2-)
     UP=$(uptime -p | cut -d " " -f2-)
@@ -44,6 +53,8 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     MEM_TOTAL=$((MEM_TOTAL / 1024 / 1024))
     MEM_USED=$(vm_stat | awk '/Pages active/ {print $3}' | sed 's/\.//' | awk '{print int($1 * 4096 / 1024 / 1024 + 0.5)}')
     MEM_PERC=$(( (MEM_USED * 100) / MEM_TOTAL ))
+    LISTED_DISKS=$(diskutil list -plist /)
+    DISK_USAGE=$(echo "$LISTED_DISKS" | awk '/<key>CapacityInUse<\/key>/ {getline; match($1, /[0-9]+/, m); sum += m[0]} END {print sum}')
     DISK_USAGE=$(df -H / | awk 'NR==2 {print $3}')
     DISK_TOTAL=$(df -H / | awk 'NR==2 {print $2}')
     DISK_PERC=$(df -H / | awk 'NR==2 {print $5}')
