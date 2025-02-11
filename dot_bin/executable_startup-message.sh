@@ -59,7 +59,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     }
     LISTED_DISKS=$(diskutil list -plist /)
     DISK_USAGE=$(extract_disk "$(echo "$LISTED_DISKS" | awk '/<key>CapacityInUse<\/key>/ {getline; print $1}')")
-    DISK_TOTAL=$(df -k / | awk 'NR==2 {print ($2 + $3) * 1024}')
+    DISK_TOTAL=$(df -k / | awk 'NR==2 {print int(($2 * 1024) * 1.07374)}')
     DISK_PERC=$(echo "$DISK_USAGE $DISK_TOTAL" | awk '{print int(($1 / $2) * 100)"%"}')
     PKG_COUNT=$(brew list --formula | wc -l)
 fi
