@@ -8,6 +8,8 @@
     box = "home"
 {{- else if eq .chezmoi.os "darwin" }}
     box = "mac"
+{{- else if and (eq .chezmoi.hostname "th") (eq .chezmoi.username "thazure") }}
+    box = "azure"
 {{- else }}
     box = "-"
 {{- end }}
