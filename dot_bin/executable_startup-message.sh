@@ -39,7 +39,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     REL="$(sw_vers -productName) $(sw_vers -productVersion)"
     UP=$(uptime | awk -F'(up |,)' '{print $2}')
-    CPU_USAGE=$(ps -A -o %cpu | awk '{s+=$1} END {print 100-s"%"}')
+    CPU_USAGE=$(top -l 1 -n 0 -s 0 | grep -E "^CPU" | awk '{ print $3 + $5"%" }')
     MEM_TOTAL=$(sysctl -n hw.memsize)
     MEM_TOTAL=$((MEM_TOTAL / 1024 / 1024))
     MEM_USED=$(vm_stat | awk '/Pages active/ {print $3}' | sed 's/\.//' | awk '{print int($1 * 4096 / 1024 / 1024 + 0.5)}')
