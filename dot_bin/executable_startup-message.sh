@@ -50,11 +50,14 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     PKG_COUNT=$(brew list --formula | wc -l)
 fi
 
+MEM_TEXT="${MEM_USED}MB/${MEM_TOTAL}MB"
+DISK_TEXT="${DISK_USAGE}B/${DISK_TOTAL}B"
+
 echo -e "
   \    /\   $(whoami)@$(hostname) on ${REL}
    )  ( ')  CPU: ${CPU_USAGE}
-  (  /  )   MEM: ${MEM_USED}MB/${MEM_TOTAL}MB (${MEM_PERC}%)
-   \(__)|   DSK: ${DISK_USAGE}B/${DISK_TOTAL}B (${DISK_PERC})
+  (  /  )   MEM: ${MEM_TEXT} (${MEM_PERC}%)
+   \(__)|   DSK: ${DISK_TEXT} (${DISK_PERC})
 
   Uptime: ${UP}
   Packages: $(echo "${PKG_COUNT}" | awk '{printf "%'\''d\n", $1}')
