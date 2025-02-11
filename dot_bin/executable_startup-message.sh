@@ -57,7 +57,7 @@ TXT_LENGTH=$(( ${#MEM_TEXT} > ${#DISK_TEXT} ? ${#MEM_TEXT} : ${#DISK_TEXT} ))
 MEM_SPACES=$(( TXT_LENGTH - ${#MEM_TEXT} + 1 ))
 DISK_SPACES=$(( TXT_LENGTH - ${#DISK_TEXT} + 1 ))
 
-echo -e "
+echo "
   \    /\   $(whoami)@$(hostname) on ${REL}
    )  ( ')  CPU: ${CPU_USAGE}
   (  /  )   MEM: ${MEM_TEXT}$(printf '%*s' "$MEM_SPACES")(${MEM_PERC}%)
