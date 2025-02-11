@@ -10,31 +10,48 @@
 # If you want to use this in your own setup, and don't want to copy the files, you can use this one-liner.
 # bash <(curl -sS "https://raw.githubusercontent.com/itzTheMeow/dotfiles/refs/heads/master/dot_bin/executable_startup-message.sh?$(date +%s)")
 
-# Works On
-# DEBIAN/UBUNTU BASED DISTROS ONLY
-# YOU CAN ADAPT IT YOURSELF TO USE YOUR OWN DISTRO
+# This script is meant to work on at least debian/ubuntu based distros and MacOS (with homebrew).
+# If you find any issues, submit an issue or PR.
 
 if ! command -v lolcat &> /dev/null
 then
     echo "Couldn't find lolcat, installing..."
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     sudo apt-get install -y lolcat > /dev/null
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    brew install lolcat
+  fi
 fi
 
-if ! command -v mpstat &> /dev/null
-then
-    echo "Couldn't find sysstat, installing..."
-    sudo apt-get install -y sysstat > /dev/null
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    REL=$(lsb_release -d | cut -f2-)
+    UP=$(uptime -p | cut -d " " -f2-)
+    CPU_USAGE=$(mpstat | awk 'END{print 100-$NF"%"}')
+    MEM_TOTAL=$(awk '/^MemTotal/ {print $2}' /proc/meminfo)
+    MEM_FREE=$(awk '/^MemAvailable/ {print $2}' /proc/meminfo)
+    MEM_USED=$(( (MEM_TOTAL - MEM_FREE) / 1024 ))
+    MEM_TOTAL=$((MEM_TOTAL / 1024))
+    DISK_USAGE=$(df -H / | awk 'NR==2 {print $3}')
+    DISK_TOTAL=$(df -H / | awk 'NR==2 {print $2}')
+    PKG_COUNT=$(dpkg --list 2>/dev/null | wc -l || rpm -qa | wc -l)
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    REL=$(sw_vers -productName) $(sw_vers -productVersion)
+    UP=$(uptime | awk -F'(up |,)' '{print $2}')
+    CPU_USAGE=$(ps -A -o %cpu | awk '{s+=$1} END {print 100-s"%"}')
+    MEM_TOTAL=$(sysctl -n hw.memsize)
+    MEM_TOTAL=$((MEM_TOTAL / 1024 / 1024))
+    MEM_USED=$(vm_stat | awk '/Pages active/ {print $3}' | sed 's/\.//' | awk '{print $1 * 4096 / 1024 / 1024}')
+    DISK_USAGE=$(df -H / | awk 'NR==2 {print $3}')
+    DISK_TOTAL=$(df -H / | awk 'NR==2 {print $2}')
+    PKG_COUNT=$(brew list --formula | wc -l)
 fi
-
-REL="$(lsb_release -d)"
-UP="$(uptime -p)"
 
 echo -e "
-  \    /\   $(whoami)@$(hostname) on ${REL:13}
-   )  ( ')  CPU: $(mpstat | awk 'END{print 100-$NF"%"}')
-  (  /  )   MEM: $(awk '/^Mem/ {print $3}' <(free -m))mb/$(awk '/^Mem/ {print $2}' <(free -m))mb
-   \(__)|   DSK: $(awk '/^\/dev/ {print $3}' <(df -H | grep " /$"))B/$(awk '/^\/dev/ {print $2}' <(df -H | grep " /$"))B
+  \    /\   $(whoami)@$(hostname) on ${REL}
+   )  ( ')  CPU: ${CPU_USAGE}
+  (  /  )   MEM: ${MEM_USED}MB/${MEM_TOTAL}MB
+   \(__)|   DSK: ${DISK_USAGE}/${DISK_TOTAL}
 
-  Uptime: ${UP:3}
-  Packages: $(dpkg --list | wc --lines)
+  Uptime: ${UP}
+  Packages: ${PKG_COUNT}
 " | lolcat
