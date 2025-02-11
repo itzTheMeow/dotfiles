@@ -52,12 +52,15 @@ fi
 
 MEM_TEXT="${MEM_USED}MB/${MEM_TOTAL}MB"
 DISK_TEXT="${DISK_USAGE}B/${DISK_TOTAL}B"
+TXT_LENGTH=$(( ${#MEM_TEXT} > ${#DISK_TEXT} ? ${#MEM_TEXT} : ${#DISK_TEXT} ))
+MEM_SPACES=$(( TXT_LENGTH - ${#MEM_TEXT} + 1 ))
+DISK_SPACES=$(( TXT_LENGTH - ${#DISK_TEXT} + 1 ))
 
 echo -e "
   \    /\   $(whoami)@$(hostname) on ${REL}
    )  ( ')  CPU: ${CPU_USAGE}
-  (  /  )   MEM: ${MEM_TEXT} (${MEM_PERC}%)
-   \(__)|   DSK: ${DISK_TEXT} (${DISK_PERC})
+  (  /  )   MEM: ${MEM_TEXT}$(printf '%*s' "$MEM_SPACES")(${MEM_PERC}%)
+   \(__)|   DSK: ${DISK_TEXT}$(printf '%*s' "$DISK_SPACES")(${DISK_PERC})
 
   Uptime: ${UP}
   Packages: $(echo "${PKG_COUNT}" | awk '{printf "%'\''d\n", $1}')
