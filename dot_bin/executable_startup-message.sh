@@ -24,11 +24,12 @@ then
 fi
 
 format_bytes() {
-  echo "$1" | awk '{
-    units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-    sum = $1;
-    for (i = 0; sum >= 1024 && i < 8; i++) sum /= 1024;
-    print sum " " units[i]
+  echo "$1" | awk '{ 
+    units = "B KB MB GB TB PB EB ZB YB"; 
+    split(units, u); 
+    sum = $1; 
+    for (i = 1; sum >= 1024 && i < 9; i++) sum /= 1024; 
+    print int(sum), u[i] 
   }'
 }
 
