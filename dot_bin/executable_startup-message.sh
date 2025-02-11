@@ -66,7 +66,7 @@ fi
 
 # Calculates the length of each string for alignment of percentages.
 MEM_TEXT="${MEM_USED}MB/${MEM_TOTAL}MB"
-DISK_TEXT="$(format_bytes $DISK_USAGE)/${DISK_TOTAL}B"
+DISK_TEXT="$(format_bytes $DISK_USAGE)/$(format_bytes $DISK_TOTAL)"
 TXT_LENGTH=$(( ${#MEM_TEXT} > ${#DISK_TEXT} ? ${#MEM_TEXT} : ${#DISK_TEXT} ))
 MEM_SPACES=$(( TXT_LENGTH - ${#MEM_TEXT} + 1 ))
 DISK_SPACES=$(( TXT_LENGTH - ${#DISK_TEXT} + 1 ))
