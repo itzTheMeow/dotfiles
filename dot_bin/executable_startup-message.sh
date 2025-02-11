@@ -29,7 +29,7 @@ format_bytes() {
     split(units, u); 
     sum = $1; 
     for (i = 1; sum >= 1024 && i < 9; i++) sum /= 1024; 
-    printf "%s%s", int(sum), u[i] 
+    printf "%s%s", int(sum + 0.5), u[i] 
   }'
 }
 
