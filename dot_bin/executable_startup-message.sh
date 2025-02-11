@@ -50,7 +50,7 @@ echo -e "
   \    /\   $(whoami)@$(hostname) on ${REL}
    )  ( ')  CPU: ${CPU_USAGE}
   (  /  )   MEM: ${MEM_USED}MB/${MEM_TOTAL}MB
-   \(__)|   DSK: ${DISK_USAGE}/${DISK_TOTAL}
+   \(__)|   DSK: ${DISK_USAGE}B/${DISK_TOTAL}B
 
   Uptime: ${UP}
   Packages: ${PKG_COUNT}
