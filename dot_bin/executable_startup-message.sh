@@ -37,7 +37,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     DISK_PERC=$(df -H / | awk 'NR==2 {print $5}')
     PKG_COUNT=$(dpkg --list 2>/dev/null | wc -l || rpm -qa | wc -l)
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-    REL=$(sw_vers -productName) $(sw_vers -productVersion)
+    REL="$(sw_vers -productName) $(sw_vers -productVersion)"
     UP=$(uptime | awk -F'(up |,)' '{print $2}')
     CPU_USAGE=$(ps -A -o %cpu | awk '{s+=$1} END {print 100-s"%"}')
     MEM_TOTAL=$(sysctl -n hw.memsize)
