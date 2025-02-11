@@ -24,7 +24,7 @@ then
 fi
 
 format_bytes() {
-  # Check if the input contains a non-numeric character
+  # Check if the input contains a non-numeric character and return
   case "$1" in
     (*[!0-9]*) echo "$1"; return ;;
   esac
