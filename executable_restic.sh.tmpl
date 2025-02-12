@@ -3,7 +3,7 @@ source {{ .chezmoi.homeDir }}/.profile
 LOG_FILE="/tmp/restic_$(date +"%Y-%m-%d_%H-%M-%S").log"
 
 # Back up root and push to log file
-restic backup / --exclude-file={{ .chezmoi.homeDir }}/.backup_ignore 2>&1 | tee -a $LOG_FILE
+restic backup / --exclude-file={{ .chezmoi.homeDir }}/.backup_ignore "$@" 2>&1 | tee -a $LOG_FILE
 
 {{- if eq .box "hetzner" }}
 jq -n --arg msg "$(cat $LOG_FILE)" '{ embeds: [{ description: $msg, title: "Restic Backup Complete", color: 182138 }] }' > "$LOG_FILE.txt"
