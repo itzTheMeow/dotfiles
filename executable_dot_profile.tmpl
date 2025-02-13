@@ -37,6 +37,9 @@ fi
 # Rust/Cargo
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
+# Deno
+[ -f "$HOME/.deno/env" ] && . "$HOME/.deno/env"
+
 # Restic
 {{- if eq .box "mac" }}
 export RESTIC_REPOSITORY="/Users/meow/pCloud Drive/Misc/Backups/macbook"
@@ -120,6 +123,7 @@ if [[ $- == *i* ]]; then
 
     # Tab Completion
     [ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
+    [ -f ~/.local/share/bash-completion/completions/deno.bash ] && . ~/.local/share/bash-completion/completions/deno.bash
     if [ -x "$(command -v pm2)" ]; then
       ###-begin-pm2-completion-###
       ### credits to npm for the completion file model
