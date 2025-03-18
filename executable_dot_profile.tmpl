@@ -65,6 +65,9 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+{{- if eq .box "home" }}
+export PATH=$(echo $PATH | sed 's|:/root/.local/share/pnpm||')
+{{- end }}
 
 # Misc.
 export THEOS=~/theos
