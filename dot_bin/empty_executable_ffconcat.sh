@@ -8,6 +8,6 @@ fi
 output_file="$1"
 shift
 
-ffmpeg -f concat -safe 0 -i <(for f in "$@"; do echo "file '$f'"; done) "$output_file"
+printf "%s\n" "$@" | sed "s/^/file '/;s/\$/\'/" | ffmpeg -f concat -safe 0 -i pipe:0 "$output_file"
 
 echo "Videos combined successfully into $output_file"
