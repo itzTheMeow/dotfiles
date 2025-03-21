@@ -11,7 +11,7 @@ shift
 temp_list=$(mktemp)
 
 for input in "$@"; do
-    echo "file: '$(realpath "$input")'" >> "$temp_list"
+    echo "file '$(realpath "$input")'" >> "$temp_list"
 done
 
 ffmpeg -f concat -safe 0 -i "$temp_list" "$output_file"
