@@ -1,4 +1,4 @@
-# Use socks5 proxy.
 {{- if eq .box "hetzner" }}
+# Use socks5 proxy.
 --proxy "socks5://{{ onepasswordRead "op://Private/SOCKS5 Proxy on Ubuntu/username" }}:{{ onepasswordRead "op://Private/SOCKS5 Proxy on Ubuntu/password" }}@127.0.0.1:49998/"
 {{- end }}
