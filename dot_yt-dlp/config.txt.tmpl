@@ -1,4 +1,6 @@
 {{- if eq .box "hetzner" }}
 # Use socks5 proxy.
 --proxy "socks5://{{ onepasswordRead "op://Private/SOCKS5 Proxy on Ubuntu/username" }}:{{ onepasswordRead "op://Private/SOCKS5 Proxy on Ubuntu/password" }}@127.0.0.1:49998/"
+# Use native downloader for playlists.
+--downloader "m3u8:native"
 {{- end }}
