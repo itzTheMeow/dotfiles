@@ -1,2 +1,4 @@
-# Use cookies.
---cookies ~/.yt-dlp/cookies.txt
+# Use socks5 proxy.
+{{- if eq .box "hetzner" }}
+--proxy "socks5://{{ onePasswordRead "op://Private/SOCKS5 Proxy on Ubuntu/username" }}:{{ onePasswordRead "op://Private/SOCKS5 Proxy on Ubuntu/password" }}@127.0.0.1:49998/"
+{{- end }}
