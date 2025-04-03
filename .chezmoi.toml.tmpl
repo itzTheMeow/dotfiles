@@ -4,6 +4,8 @@
     headless = {{ $headless }}
 {{- if eq .chezmoi.hostname "nvst" }}
     box = "hetzner"
+{{- else if eq .chezmoi.hostname "hyzenberg" }}
+    box = "hyzen"
 {{- else if eq .chezmoi.hostname "meow-pc" }}
     box = "home"
 {{- else if eq .chezmoi.os "darwin" }}
