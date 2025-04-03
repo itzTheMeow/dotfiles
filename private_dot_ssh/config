@@ -6,6 +6,12 @@ Host hyzen.xela.codes
   IdentityFile ~/.ssh/hyzenberg.pub
   IdentitiesOnly yes
 
+Host hyz
+  HostName hyzen.xela.codes
+  User root
+  IdentityFile ~/.ssh/hyzenberg.pub
+  IdentitiesOnly yes
+
 Host pi.nvst.ng
   IdentityFile ~/.ssh/pi.pub
   IdentitiesOnly yes
