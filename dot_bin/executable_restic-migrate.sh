@@ -10,7 +10,7 @@ echo
 # Set environment variables
 export RESTIC_PASSWORD
 export RESTIC_COMPRESSION=max
-export RESTIC_REPOSITORY="$(pwd)/${BACKUP_NAME}_restic_repo"
+export RESTIC_REPOSITORY="$(pwd)/${BACKUP_NAME}"
 
 # Initialize the repository if it doesn't exist
 if [ ! -d "$RESTIC_REPOSITORY" ]; then
