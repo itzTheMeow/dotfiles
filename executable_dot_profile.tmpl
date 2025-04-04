@@ -82,14 +82,17 @@ export THEOS=~/theos
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias txz="tar -cJf"
+alias python="python3"
+alias pip="python3 -m pip"
+
 alias ffconcat="{{ .chezmoi.homeDir }}/.bin/ffconcat.sh"
 alias git-clear="{{ .chezmoi.homeDir }}/.bin/git-clear.sh"
-alias txz="tar -cJf"
+alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
+
 {{- if eq .chezmoi.os "darwin" }}
 alias code="open -a /Applications/Visual\ Studio\ Code.app"
 {{- end }}
-alias python="python3"
-alias pip="python3 -m pip"
 
 ###########
 ## Misc. ##
