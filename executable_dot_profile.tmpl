@@ -52,7 +52,7 @@ export RESTIC_PASSWORD={{ onepasswordRead "op://Private/we4fxvwyhtjrwzkadghpw5ll
 export RESTIC_REPOSITORY=/home/bak
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/nwc5nliaaxa4rq64jeplaijsdi/password" }}
 export RESTIC_COMPRESSION=max
-{{- else if eq .box "hyzenberg" }}
+{{- else if eq .box "hyzen" }}
 export RESTIC_REPOSITORY=rclone:pcloud:Misc/Backups/hyzenberg
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" }}
 export RESTIC_COMPRESSION=max
