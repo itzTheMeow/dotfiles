@@ -1,4 +1,4 @@
-{{- if and (ne .chezmoi.os "linux") (not .headless)  }}
+{{- if or (ne .chezmoi.os "linux") (.headless)  }}
 discord-updater.sh
 {{- end }}
 {{- if .headless }}
