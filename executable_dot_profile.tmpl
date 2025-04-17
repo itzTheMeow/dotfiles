@@ -73,6 +73,11 @@ esac
 export PATH=$(echo $PATH | sed 's|:/root/.local/share/pnpm||')
 {{- end }}
 
+# ntfy
+{{- if eq .box "hyzen" }}
+export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Hyzenberg" }}
+{{- end }}
+
 # Misc.
 export THEOS=~/theos
 
