@@ -75,6 +75,7 @@ export PATH=$(echo $PATH | sed 's|:/root/.local/share/pnpm||')
 
 # ntfy
 export NTFY_TOPIC=ntfy.xela.codes/meow
+export NTFY_TAGS={{ .chezmoi.hostname }}
 {{- if eq .box "hyzen" }}
 export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Hyzenberg" }}
 {{- end }}
