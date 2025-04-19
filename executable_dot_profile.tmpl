@@ -80,6 +80,8 @@ export NTFY_TAGS={{ .chezmoi.hostname }}
 export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Hyzenberg" }}
 {{- else if eq .box "home" }}
 export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Meow PC" }}
+{{- else if eq .box "mac" }}
+export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Mac" }}
 {{- end }}
 
 # Misc.
