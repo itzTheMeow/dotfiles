@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ssh root@doris.nvst.ng
+GenericName=Terminal emulator
+Comment=Fast, feature-rich, GPU based terminal
+Exec=/home/meow/.apps/kitty --session ./sessions/ssh-root@doris.nvst.ng.conf
+Icon=kitty
+Categories=System;TerminalEmulator;
