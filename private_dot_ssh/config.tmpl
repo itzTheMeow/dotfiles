@@ -1,3 +1,4 @@
+# Personal
 Host itsmeow.cat
   IdentityFile ~/.ssh/hetzner.pub
   IdentitiesOnly yes
@@ -6,6 +7,7 @@ Host hyzen.xela.codes
   IdentityFile ~/.ssh/hyzenberg.pub
   IdentitiesOnly yes
 
+# NVSTly
 Host pi.nvst.ng
   IdentityFile ~/.ssh/pi.pub
   IdentitiesOnly yes
@@ -18,14 +20,21 @@ Host doris.nvst.ng
   IdentityFile ~/.ssh/doris.pub
   IdentitiesOnly yes
 
+Host roxy.nvst.ng
+  IdentityFile ~/.ssh/roxy.pub
+  IdentitiesOnly yes
+
+# NetroCorp
 Host usest1.netro.host
   IdentityFile ~/.ssh/netro.pub
   IdentitiesOnly yes
 
+# Git
 Host github.com
   IdentityFile ~/.ssh/github.pub
   IdentitiesOnly yes
 
+# 1Password SSH Agent
 Host *
 {{- if eq .chezmoi.os "darwin" }}
   IdentityAgent ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
