@@ -6,4 +6,6 @@
 ########################
 # Script to notify the ntfy server that the current machine has started.
 
+source ../.profile
+
 ntfy publish "Machine Booted"
