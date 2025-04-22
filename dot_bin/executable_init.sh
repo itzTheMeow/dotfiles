@@ -18,6 +18,7 @@ OPTIONS=(
   ntfy "NTFY CLI [brew]" ON
   nvm "Node Version Manager" ON
   omp "Oh My Posh" ON
+  opcli "1Password CLI" ON
   restic "Restic" ON
 )
 
@@ -85,6 +86,24 @@ inst_nvm() {
     echo "Don't forget to install a version of node: nvm install [...]"
   )
 }
+inst_onepassword() {
+  # Install 1Password CLI
+  echo "Installing 1Password CLI..."
+  (
+    curl -sS https://downloads.1password.com/linux/keys/1password.asc |
+      sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg &&
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" |
+      sudo tee /etc/apt/sources.list.d/1password.list &&
+      sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/ &&
+      curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol |
+      sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol &&
+      sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22 &&
+      curl -sS https://downloads.1password.com/linux/keys/1password.asc |
+      sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg &&
+      sudo apt update && sudo apt install 1password-cli
+    echo "Version $(op --version) installed."
+  )
+}
 
 # Install tools.
 for choice in $CHOICES; do
@@ -100,5 +119,7 @@ for choice in $CHOICES; do
     brew install ntfy
   elif [ "$choice" = "nvm" ]; then
     inst_nvm
+  elif [ "$choice" = "opcli" ]; then
+    inst_onepassword
   fi
 done
