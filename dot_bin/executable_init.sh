@@ -28,10 +28,11 @@ if [ -z "$CHOICES" ]; then
   echo "No extras selected!"
 fi
 
-# Update Packages
+# Update/Install Packages
 sudo apt-get update
 sudo apt upgrade
-sudo apt install wget
+sudo apt-get install -y bzip2 unzip wget
+sudo apt autoremove
 
 NCDU_VERSION="${NCDU_VERSION:-2.8}"
 RESTIC_VERSION="${RESTIC_VERSION:-0.18.0}"
@@ -66,10 +67,6 @@ inst_restic() {
   # Install Restic
   echo "Installing restic v$RESTIC_VERSION..."
   (
-    if ! command -v bunzip2 &>/dev/null; then
-      echo "Couldn't find bzip2, installing..."
-      sudo apt-get install -y bzip2 >/dev/null
-    fi
     DIR="$(mktemp -d)"
     cd "$DIR"
     wget -O restic.bz2 "https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_amd64.bz2"
