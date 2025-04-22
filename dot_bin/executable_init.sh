@@ -30,9 +30,9 @@ fi
 
 # Update/Install Packages
 sudo apt-get update
-sudo apt upgrade
+sudo apt-get upgrade
 sudo apt-get install -y bzip2 unzip wget
-sudo apt autoremove
+sudo apt-get autoremove -y
 
 NCDU_VERSION="${NCDU_VERSION:-2.8}"
 RESTIC_VERSION="${RESTIC_VERSION:-0.18.0}"
