@@ -52,6 +52,7 @@ inst_ncdu() {
     cd "$DIR"
     wget -O ncdu.tar.gz "https://dev.yorhel.nl/download/ncdu-${NCDU_VERSION}-linux-x86_64.tar.gz"
     tar -xf ncdu.tar.gz
+    chmod +x ncdu
     sudo mv ncdu /usr/local/bin
     rm -rf "$DIR"
   )
@@ -70,7 +71,8 @@ inst_restic() {
     DIR="$(mktemp -d)"
     cd "$DIR"
     wget -O restic.bz2 "https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_amd64.bz2"
-    bunzip2 restic.bz2 # Decompress the .bz2 file
+    bunzip2 restic.bz2
+    chmod +x restic
     sudo mv restic /usr/local/bin
     rm -rf "$DIR"
   )
