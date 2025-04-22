@@ -79,11 +79,12 @@ MEM_SPACES=$((TXT_LENGTH - ${#MEM_TEXT} + 1))
 DISK_SPACES=$((TXT_LENGTH - ${#DISK_TEXT} + 1))
 
 # Read the ASCII Art.
-ARTFILE="${ARTFILE:-~/.bin/art_cat.txt}"
 ASCII_ART=()
-while IFS= read -r line; do
-  ASCII_ART+=("$line")
-done <"$ARTFILE"
+if [[ -f "$ARTFILE" ]]; then
+  while IFS= read -r line; do
+    ASCII_ART+=("$line")
+  done <"$ARTFILE"
+fi
 
 echo "
 ${ASCII_ART[0]} $(whoami)@$(hostname) on ${REL}

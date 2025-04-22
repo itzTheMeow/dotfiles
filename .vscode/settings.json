@@ -1,5 +1,6 @@
 {
   "files.associations": {
-    ".chezmoiignore": "go-template"
+    ".chezmoiignore": "go-template",
+    "executable_dot_profile.tmpl": "shellscript"
   }
 }

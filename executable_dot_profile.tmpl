@@ -4,15 +4,15 @@
 # see /usr/share/doc/bash/examples/startup-files for examples.
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
+if [ -d "$HOME/bin" ]; then
+  PATH="$HOME/bin:$PATH"
 fi
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
+if [ -d "$HOME/.local/bin" ]; then
+  PATH="$HOME/.local/bin:$PATH"
 fi
 
 # Disable Terminal Messaging
-mesg n 2> /dev/null || true
+mesg n 2>/dev/null || true
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
@@ -60,13 +60,13 @@ export RESTIC_COMPRESSION=max
 
 # Node/NVM
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+*":$PNPM_HOME:"*) ;;
+*) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
 {{- if eq .box "home" }}
@@ -118,84 +118,89 @@ export PATH
 # Interactive Shell Options #
 #############################
 if [[ $- == *i* ]]; then
-    clear
+  clear
 
-    # History Settings
-    if [[ -n "$ZSH_VERSION" ]]; then
-        HISTSIZE=10000
-        SAVEHIST=10000
-        setopt HIST_APPEND
-        setopt INC_APPEND_HISTORY
-        setopt SHARE_HISTORY
-    elif [[ -n "$BASH_VERSION" ]]; then
-        HISTCONTROL=ignoreboth
-        HISTSIZE=10000
-        HISTFILESIZE=10000
-        shopt -s histappend
-        shopt -s checkwinsize
+  # History Settings
+  if [[ -n "$ZSH_VERSION" ]]; then
+    HISTSIZE=10000
+    SAVEHIST=10000
+    setopt HIST_APPEND
+    setopt INC_APPEND_HISTORY
+    setopt SHARE_HISTORY
+  elif [[ -n "$BASH_VERSION" ]]; then
+    HISTCONTROL=ignoreboth
+    HISTSIZE=10000
+    HISTFILESIZE=10000
+    shopt -s histappend
+    shopt -s checkwinsize
+  fi
+
+  # LS Color Support
+  if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+  fi
+
+  # Tab Completion
+  [ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
+  [ -f ~/.local/share/bash-completion/completions/deno.bash ] && . ~/.local/share/bash-completion/completions/deno.bash
+  if [ -x "$(command -v pm2)" ]; then
+    ###-begin-pm2-completion-###
+    ### credits to npm for the completion file model
+    #
+    # Installation: pm2 completion >> ~/.bashrc  (or ~/.zshrc)
+    #
+
+    COMP_WORDBREAKS=${COMP_WORDBREAKS/=/}
+    COMP_WORDBREAKS=${COMP_WORDBREAKS/@/}
+    export COMP_WORDBREAKS
+
+    if type complete &>/dev/null; then
+      _pm2_completion() {
+        local si="$IFS"
+        IFS=$'\n' COMPREPLY=($(COMP_CWORD="$COMP_CWORD" \
+          COMP_LINE="$COMP_LINE" \
+          COMP_POINT="$COMP_POINT" \
+          pm2 completion -- "${COMP_WORDS[@]}" \
+          2>/dev/null)) || return $?
+        IFS="$si"
+      }
+      complete -o default -F _pm2_completion pm2
+    elif type compctl &>/dev/null; then
+      _pm2_completion() {
+        local cword line point words si
+        read -Ac words
+        read -cn cword
+        let cword-=1
+        read -l line
+        read -ln point
+        si="$IFS"
+        IFS=$'\n' reply=($(COMP_CWORD="$cword" \
+          COMP_LINE="$line" \
+          COMP_POINT="$point" \
+          pm2 completion -- "${words[@]}" \
+          2>/dev/null)) || return $?
+        IFS="$si"
+      }
+      compctl -K _pm2_completion + -f + pm2
     fi
+    ###-end-pm2-completion-###
+  fi
 
-    # LS Color Support
-    if [ -x /usr/bin/dircolors ]; then
-        test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-        alias ls='ls --color=auto'
+  # Init Oh-My-Posh
+  [ -x "$(command -v oh-my-posh)" ] && eval "$(oh-my-posh init $(oh-my-posh get shell) --config '{{ .chezmoi.homeDir }}/.bin/theme.omp.json')"
 
-        alias grep='grep --color=auto'
-        alias fgrep='fgrep --color=auto'
-        alias egrep='egrep --color=auto'
-    fi
-
-    # Tab Completion
-    [ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
-    [ -f ~/.local/share/bash-completion/completions/deno.bash ] && . ~/.local/share/bash-completion/completions/deno.bash
-    if [ -x "$(command -v pm2)" ]; then
-      ###-begin-pm2-completion-###
-      ### credits to npm for the completion file model
-      #
-      # Installation: pm2 completion >> ~/.bashrc  (or ~/.zshrc)
-      #
-
-      COMP_WORDBREAKS=${COMP_WORDBREAKS/=/}
-      COMP_WORDBREAKS=${COMP_WORDBREAKS/@/}
-      export COMP_WORDBREAKS
-
-      if type complete &>/dev/null; then
-        _pm2_completion () {
-          local si="$IFS"
-          IFS=$'\n' COMPREPLY=($(COMP_CWORD="$COMP_CWORD" \
-                                COMP_LINE="$COMP_LINE" \
-                                COMP_POINT="$COMP_POINT" \
-                                pm2 completion -- "${COMP_WORDS[@]}" \
-                                2>/dev/null)) || return $?
-          IFS="$si"
-        }
-        complete -o default -F _pm2_completion pm2
-      elif type compctl &>/dev/null; then
-        _pm2_completion () {
-          local cword line point words si
-          read -Ac words
-          read -cn cword
-          let cword-=1
-          read -l line
-          read -ln point
-          si="$IFS"
-          IFS=$'\n' reply=($(COMP_CWORD="$cword" \
-                            COMP_LINE="$line" \
-                            COMP_POINT="$point" \
-                            pm2 completion -- "${words[@]}" \
-                            2>/dev/null)) || return $?
-          IFS="$si"
-        }
-        compctl -K _pm2_completion + -f + pm2
-      fi
-      ###-end-pm2-completion-###
-    fi
-
-    # Init Oh-My-Posh
-    [ -x "$(command -v oh-my-posh)" ] && eval "$(oh-my-posh init $(oh-my-posh get shell) --config '{{ .chezmoi.homeDir }}/.bin/theme.omp.json')"
-
-    {{- if ne .box "-" }}
-    # Startup Message
-    [ "$TERM_PROGRAM" != "vscode" ] && {{ .chezmoi.homeDir }}/.bin/startup-message.sh
-    {{- end }}
+  {{- if ne .box "-" }}
+  {{- if eq .box_group "nvstly" }}
+  ARTFILE="{{ .chezmoi.homeDir }}/.bin/art-nvstly.txt"
+  {{- else }}
+  ARTFILE="{{ .chezmoi.homeDir }}/.bin/art-cat.txt"
+  {{- end }}
+  # Startup Message
+  [ "$TERM_PROGRAM" != "vscode" ] && {{ .chezmoi.homeDir }}/.bin/startup-message.sh
+  {{- end }}
 fi
