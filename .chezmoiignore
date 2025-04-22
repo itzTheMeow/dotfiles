@@ -1,3 +1,6 @@
+README.md
+.vscode
+
 {{- if or (ne .chezmoi.os "linux") (.headless)  }}
 discord-updater.sh
 {{- end }}
