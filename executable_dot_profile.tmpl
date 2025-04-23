@@ -196,9 +196,9 @@ if [[ $- == *i* ]]; then
 
   {{- if ne .box "-" }}
   {{- if eq .box_group "nvstly" }}
-  ARTFILE="{{ .chezmoi.homeDir }}/.bin/art-nvstly.txt"
+  export ARTFILE="{{ .chezmoi.homeDir }}/.bin/art-nvstly.txt"
   {{- else }}
-  ARTFILE="{{ .chezmoi.homeDir }}/.bin/art-cat.txt"
+  export ARTFILE="{{ .chezmoi.homeDir }}/.bin/art-cat.txt"
   {{- end }}
   # Startup Message
   [ "$TERM_PROGRAM" != "vscode" ] && {{ .chezmoi.homeDir }}/.bin/startup-message.sh
