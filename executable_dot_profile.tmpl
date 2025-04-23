@@ -41,21 +41,19 @@ fi
 [ -f "$HOME/.deno/env" ] && . "$HOME/.deno/env"
 
 # Restic
+export RESTIC_COMPRESSION=max
 {{- if eq .box "mac" }}
 export RESTIC_REPOSITORY="/Users/meow/pCloud Drive/Misc/Backups/macbook"
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
-export RESTIC_COMPRESSION=max
 {{- else if eq .box "home" }}
 export RESTIC_REPOSITORY=/home/meow/pCloudDrive/Misc/Backups/meow-pc
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/we4fxvwyhtjrwzkadghpw5llje/password" }}
 {{- else if eq .box "hetzner" }}
 export RESTIC_REPOSITORY=/home/bak
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/nwc5nliaaxa4rq64jeplaijsdi/password" }}
-export RESTIC_COMPRESSION=max
 {{- else if eq .box "hyzen" }}
 export RESTIC_REPOSITORY=rclone:pcloud:Misc/Backups/hyzenberg
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" }}
-export RESTIC_COMPRESSION=max
 {{- end }}
 
 # Node/NVM
