@@ -20,6 +20,7 @@ OPTIONS=(
   omp "Oh My Posh" ON
   opcli "1Password CLI" ON
   restic "Restic" ON
+  speedtest "Speedtest CLI" ON
 )
 
 CHOICES=$("${PROMPT[@]}" "${OPTIONS[@]}" 2>&1 >/dev/tty)
@@ -105,6 +106,14 @@ inst_onepassword() {
     echo "Version $(op --version) installed."
   )
 }
+inst_speedtest() {
+  # Install Speedtest CLI
+  echo "Installing Speedtest CLI..."
+  (
+    curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
+    sudo apt-get -y install speedtest
+  )
+}
 
 # Install tools.
 for choice in $CHOICES; do
@@ -122,5 +131,7 @@ for choice in $CHOICES; do
     inst_nvm
   elif [ "$choice" = "opcli" ]; then
     inst_onepassword
+  elif [ "$choice" = "speedtest" ]; then
+    inst_speedtest
   fi
 done
