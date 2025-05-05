@@ -11,11 +11,9 @@ cd ~
 
 PROMPT=(whiptail --separate-output --checklist "Choose packages to install" 20 78 10)
 OPTIONS=(
-  # Brew has to be installed before dependencies.
   brew "Homebrew" ON
-
   ncdu "NCurses Disk Usage" ON
-  ntfy "NTFY CLI [brew]" ON
+  ntfy "NTFY CLI" ON
   nvm "Node Version Manager" ON
   omp "Oh My Posh" ON
   opcli "1Password CLI" ON
@@ -80,6 +78,19 @@ inst_restic() {
     rm -rf "$DIR"
   )
 }
+inst_ntfy() {
+  # Install ntfy CLI
+  echo "Installing ntfy CLI"
+  (
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://archive.heckel.io/apt/pubkey.txt | sudo gpg --dearmor -o /etc/apt/keyrings/archive.heckel.io.gpg
+    sudo apt install apt-transport-https
+    sudo sh -c "echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/archive.heckel.io.gpg] https://archive.heckel.io/apt debian main' \
+      > /etc/apt/sources.list.d/archive.heckel.io.list"
+    sudo apt update
+    sudo apt -y install ntfy
+  )
+}
 inst_nvm() {
   # Install NVM
   echo "Installing nvm..."
@@ -127,7 +138,7 @@ for choice in $CHOICES; do
   elif [ "$choice" = "restic" ]; then
     inst_restic
   elif [ "$choice" = "ntfy" ]; then
-    brew install ntfy
+    inst_ntfy
   elif [ "$choice" = "nvm" ]; then
     inst_nvm
   elif [ "$choice" = "opcli" ]; then
