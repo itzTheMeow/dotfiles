@@ -36,7 +36,7 @@
           "background": "p:yellow",
           "type": "session",
           "style": "powerline",
-          "foreground_templates": [
+          "background_templates": [
             "{{ if eq .Env.CHEZMOI_BOX_GROUP \"nvstly\" }}p:nvstly_teal{{ end }}"
           ]
         },
@@ -53,7 +53,11 @@
           "powerline_symbol": "\ue0b0",
           "background": "p:orange",
           "type": "path",
-          "style": "powerline"
+          "style": "powerline",
+          "background_templates": [
+            "{{ if eq .Env.CHEZMOI_BOX_GROUP \"nvstly\" }}p:nvstly_purple{{ end }}"
+          ],
+          "foreground_templates": ["{{ if eq .Env.CHEZMOI_BOX_GROUP \"nvstly\" }}p:black{{ end }}"]
         },
         {
           "properties": {
@@ -64,7 +68,11 @@
           "powerline_symbol": "\ue0b0",
           "background": "p:yellow",
           "type": "root",
-          "style": "powerline"
+          "style": "powerline",
+          "background_templates": [
+            "{{ if eq .Env.CHEZMOI_BOX_GROUP \"nvstly\" }}p:nvstly_teal{{ end }}"
+          ],
+          "foreground_templates": ["{{ if eq .Env.CHEZMOI_BOX_GROUP \"nvstly\" }}p:black{{ end }}"]
         }
       ]
     },
