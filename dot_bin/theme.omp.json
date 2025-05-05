@@ -35,7 +35,10 @@
           "foreground": "p:black",
           "background": "p:yellow",
           "type": "session",
-          "style": "powerline"
+          "style": "powerline",
+          "foreground_templates": [
+            "{{ if eq .Env.CHEZMOI_BOX_GROUP \"nvstly\" }}p:nvstly_teal{{ end }}"
+          ]
         },
         {
           "properties": {
