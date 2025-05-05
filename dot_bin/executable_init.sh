@@ -109,10 +109,8 @@ inst_onepassword() {
 inst_speedtest() {
   # Install Speedtest CLI
   echo "Installing Speedtest CLI..."
-  (
-    curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
-    sudo apt-get -y install speedtest
-  )
+  curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
+  sudo apt-get -y install speedtest
 }
 
 # Install tools.
