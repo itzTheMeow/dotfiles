@@ -102,15 +102,18 @@ inst_onepassword() {
       sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22 &&
       curl -sS https://downloads.1password.com/linux/keys/1password.asc |
       sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg &&
-      sudo apt update && sudo apt install 1password-cli
+      sudo apt update && sudo apt-get -y install 1password-cli
     echo "Version $(op --version) installed."
   )
 }
 inst_speedtest() {
   # Install Speedtest CLI
   echo "Installing Speedtest CLI..."
-  curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
-  sudo apt-get -y install speedtest
+  (
+    curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
+    sudo apt-get update
+    sudo apt-get -y install speedtest
+  )
 }
 
 # Install tools.
