@@ -110,9 +110,12 @@ alias code="open -a /Applications/Visual\ Studio\ Code.app"
 ###########
 {{- if eq .box "mac" }}
 # Setting PATH for Python 3.12
-PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:${PATH}"
-export PATH
+export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:${PATH}"
 {{- end }}
+# Setting path for golang.
+if [ -d "/usr/local/go/bin" ]; then
+  PATH="/usr/local/go/bin:$PATH"
+fi
 
 #############################
 # Interactive Shell Options #
