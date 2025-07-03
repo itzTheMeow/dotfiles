@@ -101,6 +101,10 @@ alias ffconcat="{{ .chezmoi.homeDir }}/.bin/ffconcat.sh"
 alias git-clear="{{ .chezmoi.homeDir }}/.bin/git-clear.sh"
 alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
 
+{{- if eq .box "home" }}
+alias r="kquitapp5 plasmashell && kstart5 plasmashell"
+{{- end }}
+
 {{- if eq .chezmoi.os "darwin" }}
 alias code="open -a /Applications/Visual\ Studio\ Code.app"
 {{- end }}
