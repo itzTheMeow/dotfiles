@@ -106,9 +106,8 @@
         {
           "properties": {
             "cache_duration": "none",
-            "display_mode": "files",
-            "fetch_version": false,
-            "fetch_virtual_env": false
+            "display_mode": "environment",
+            "fetch_virtual_env": true
           },
           "template": "\ue235 ",
           "foreground": "p:yellow",
