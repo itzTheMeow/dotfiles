@@ -12,3 +12,10 @@ blocks:
         background: "#61AFEF"
         properties:
           style: folder
+      - type: path
+        style: powerline
+        powerline_symbol: ""
+        foreground: "#000000"
+        background: "#fafafa"
+        properties:
+          style: folder
