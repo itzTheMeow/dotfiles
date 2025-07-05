@@ -17,13 +17,7 @@ palette:
   nvstly_purple: "#9966FF"
 
 secondary_prompt:
-  template: "<,p:yellow> > </><p:yellow,transparent></> "
-  foreground: "p:black"
-  background: transparent
-transient_prompt:
-  template: >-
-    <p:yellow,transparent></><,p:yellow> {{ .Folder }}
-    </><p:yellow,transparent></>
+  template: "<,p:orange> </><p:orange,transparent></> "
   foreground: "p:black"
   background: transparent
 
