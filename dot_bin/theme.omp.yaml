@@ -54,7 +54,7 @@ blocks:
           - '{{ if eq .Env.CHEZMOI_BOX_GROUP "nvstly" }}p:black{{ end }}'
       - properties:
           cache_duration: none
-        template: " "
+        template: "  "
         foreground: "p:white"
         powerline_symbol: 
         background: "p:yellow"
