@@ -17,7 +17,8 @@ SSH_COMMAND = [
     "-N",
     "-D",
     f"127.0.0.1:{PORT}",
-    "root@jade.nvst.ly",
+    "root@itsmeow.cat",
+    # "root@jade.nvst.ly",
 ]
 
 
