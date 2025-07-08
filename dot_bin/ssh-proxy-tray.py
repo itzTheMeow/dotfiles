@@ -1,3 +1,4 @@
+import signal
 import subprocess
 import sys
 
@@ -5,6 +6,10 @@ import psutil
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QAction, QApplication, QMenu, QSystemTrayIcon
+
+# fixes CTRL+C
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 
 PORT = 10809
 SSH_COMMAND = ["ssh", "-N", "-D", f"127.0.0.1:{PORT}", "root@jade.nvstly.com"]
