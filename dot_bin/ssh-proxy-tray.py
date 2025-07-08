@@ -49,7 +49,7 @@ class ProxyTray:
     def on_tray_activated(self):
         self.menu.popup(self.tray.geometry().center())
 
-    def find_proxy_process() -> psutil.Process | None:
+    def find_proxy_process(self) -> psutil.Process | None:
         for proc in psutil.process_iter(["cmdline"]):
             # determine if the ssh command is the one that is running
             if proc.info["cmdline"] and " ".join(proc.info["cmdline"]) == " ".join(
@@ -72,13 +72,9 @@ class ProxyTray:
             subprocess.Popen(SSH_COMMAND)
 
     def stop_ssh(self):
-        for proc in psutil.process_iter(["pid", "cmdline"]):
-            if (
-                proc.info["cmdline"]
-                and "ssh" in proc.info["cmdline"][0]
-                and "-D" in proc.info["cmdline"]
-            ):
-                proc.kill()
+        proc = self.find_proxy_process()
+        if proc:
+            proc.kill()
 
 
 if __name__ == "__main__":
