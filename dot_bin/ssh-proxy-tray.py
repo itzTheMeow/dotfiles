@@ -52,8 +52,6 @@ class ProxyTray:
     def find_proxy_process(self) -> psutil.Process | None:
         for proc in psutil.process_iter(["cmdline"]):
             cmdline = proc.info["cmdline"]
-            print(cmdline)
-            print(SSH_COMMAND)
             # determine if the ssh command is the one that is running
             if (
                 cmdline
@@ -65,11 +63,11 @@ class ProxyTray:
 
     def get_status_icon(self) -> QIcon:
         if self.find_proxy_process():
-            return QIcon.fromTheme("network-vpn-acquiring-symbolic") or QIcon(
-                "icon_green.png"
-            )
+            return QIcon.fromTheme("network-vpn-symbolic") or QIcon("icon_green.png")
         else:
-            return QIcon.fromTheme("network-vpn-symbolic") or QIcon("icon_red.png")
+            return QIcon.fromTheme("network-vpn-acquiring-symbolic") or QIcon(
+                "icon_red.png"
+            )
 
     def update_icon(self):
         self.tray.setIcon(self.get_status_icon())
