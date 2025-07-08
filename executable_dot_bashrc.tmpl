@@ -1,1 +1,11 @@
-source {{ .chezmoi.homeDir }}/.profile
+#!/bin/bash
+
+# Prevents circularly referencing .bashrc when .profile fails to load.
+if [ -z "$BASHRC_ALREADY_SOURCED" ]; then
+  export BASHRC_ALREADY_SOURCED=1
+
+  # Source .profile if not a login shell
+  if [ -f "{{ .chezmoi.homeDir }}/.profile" ]; then
+    . "{{ .chezmoi.homeDir }}/.profile"
+  fi
+fi
