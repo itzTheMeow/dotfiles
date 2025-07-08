@@ -51,11 +51,14 @@ class ProxyTray:
 
     def find_proxy_process(self) -> psutil.Process | None:
         for proc in psutil.process_iter(["cmdline"]):
-            print(proc.info["cmdline"])
+            cmdline = proc.info["cmdline"]
+            print(cmdline)
             print(SSH_COMMAND)
             # determine if the ssh command is the one that is running
-            if proc.info["cmdline"] and " ".join(proc.info["cmdline"]) == " ".join(
-                SSH_COMMAND
+            if (
+                cmdline
+                and cmdline[0].endswith("ssh")
+                and cmdline[1:] == SSH_COMMAND[1:]
             ):
                 return proc
         return None
