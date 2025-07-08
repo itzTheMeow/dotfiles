@@ -2,6 +2,7 @@ README.md
 .vscode
 
 {{- if or (ne .chezmoi.os "linux") (.headless)  }}
+.config/autostart
 discord-updater.sh
 {{- end }}
 {{- if .headless }}
