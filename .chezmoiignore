@@ -1,6 +1,9 @@
 README.md
 .vscode
 
+{{- if ne .box "home" }}
+.config/immich
+{{- end }}
 {{- if or (ne .chezmoi.os "linux") (.headless)  }}
 .config/autostart
 discord-updater.sh
