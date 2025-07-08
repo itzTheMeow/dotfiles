@@ -49,15 +49,17 @@ class ProxyTray:
     def on_tray_activated(self):
         self.menu.popup(self.tray.geometry().center())
 
-    def is_proxy_running(self):
+    def find_proxy_process() -> psutil.Process | None:
         for proc in psutil.process_iter(["cmdline"]):
             # determine if the ssh command is the one that is running
-            if " ".join(proc.info["cmdline"]) == " ".join(SSH_COMMAND):
-                return True
-        return False
+            if proc.info["cmdline"] and " ".join(proc.info["cmdline"]) == " ".join(
+                SSH_COMMAND
+            ):
+                return proc
+        return None
 
-    def get_status_icon(self):
-        if self.is_proxy_running():
+    def get_status_icon(self) -> QIcon:
+        if self.find_proxy_process():
             return QIcon.fromTheme("network-vpn") or QIcon("icon_green.png")
         else:
             return QIcon.fromTheme("network-offline") or QIcon("icon_red.png")
@@ -66,7 +68,7 @@ class ProxyTray:
         self.tray.setIcon(self.get_status_icon())
 
     def start_ssh(self):
-        if not self.is_proxy_running():
+        if not self.find_proxy_process():
             subprocess.Popen(SSH_COMMAND)
 
     def stop_ssh(self):
