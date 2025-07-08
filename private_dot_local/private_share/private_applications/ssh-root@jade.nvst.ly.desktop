@@ -1,9 +1,9 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=ssh th@azure.nvst.ng
+Name=ssh root@jade.nvst.ly
 GenericName=Terminal emulator
 Comment=Fast, feature-rich, GPU based terminal
-Exec=/home/meow/.local/kitty.app/bin/kitty --session ./sessions/ssh-thazure@azure.nvst.ng.conf
+Exec=/home/meow/.local/kitty.app/bin/kitty --session ./sessions/ssh-root@jade.nvst.ly.conf
 Icon=/home/meow/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png
 Categories=System;TerminalEmulator;

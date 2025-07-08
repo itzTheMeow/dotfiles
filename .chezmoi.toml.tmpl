@@ -8,8 +8,8 @@
     {{- $box = "home" -}}
 {{- else if eq .chezmoi.os "darwin" -}}
     {{- $box = "mac" -}}
-{{- else if and (eq .chezmoi.hostname "th") (eq .chezmoi.username "thazure") -}}
-    {{- $box = "azure" -}}
+{{- else if and (eq .chezmoi.hostname "jade") -}}
+    {{- $box = "jade" -}}
 {{- else if and (eq .chezmoi.hostname "doris") -}}
     {{- $box = "doris" -}}
 {{- else if and (eq .chezmoi.hostname "roxy") -}}
@@ -17,7 +17,7 @@
 {{- end -}}
 
 {{- $box_group := "-" }}
-{{- if or (eq $box "azure") (eq $box "doris") (eq $box "roxy") -}}
+{{- if or (eq $box "jade") (eq $box "doris") (eq $box "roxy") -}}
     {{- $box_group = "nvstly" -}}
 {{- end -}}
 
