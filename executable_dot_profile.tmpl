@@ -54,6 +54,9 @@ export RESTIC_PASSWORD={{ onepasswordRead "op://Private/nwc5nliaaxa4rq64jeplaijs
 {{- else if eq .box "hyzen" }}
 export RESTIC_REPOSITORY=rclone:pcloud:Misc/Backups/hyzenberg
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" }}
+{{- else if eq .box "jade" }}
+export RESTIC_REPOSITORY=rclone:pi:/home/th/mnt/ssd/Backups/jade
+export RESTIC_PASSWORD={{ onepasswordRead "op://NVSTly CI/whvzykyj4kwrhxloqmsz6p3oja/password" }}
 {{- end }}
 
 # Node/NVM
@@ -72,7 +75,11 @@ export PATH=$(echo $PATH | sed 's|:/root/.local/share/pnpm||')
 {{- end }}
 
 # ntfy
+{{- if eq .box_group "nvstly" }}
+export NTFY_TOPIC=ntfy.xela.codes/nvstly
+{{- else }}
 export NTFY_TOPIC=ntfy.xela.codes/meow
+{{- end }}
 export NTFY_TAGS={{ .chezmoi.hostname }}
 {{- if eq .box "hyzen" }}
 export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Hyzenberg" }}
@@ -80,6 +87,8 @@ export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Hyzenberg"
 export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Meow PC" }}
 {{- else if eq .box "mac" }}
 export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Mac" }}
+{{- else if eq .box "jade" }}
+export NTFY_TOKEN={{ onepasswordRead "op://NVSTly CI/uwcbqhvsdzyomzmx2trxh4r67a/credential" }}
 {{- end }}
 
 # Misc.
