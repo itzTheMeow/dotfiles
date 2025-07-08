@@ -60,9 +60,11 @@ class ProxyTray:
 
     def get_status_icon(self) -> QIcon:
         if self.find_proxy_process():
-            return QIcon.fromTheme("network-vpn") or QIcon("icon_green.png")
+            return QIcon.fromTheme("network-vpn-acquiring-symbolic") or QIcon(
+                "icon_green.png"
+            )
         else:
-            return QIcon.fromTheme("network-offline") or QIcon("icon_red.png")
+            return QIcon.fromTheme("network-vpn-symbolic") or QIcon("icon_red.png")
 
     def update_icon(self):
         self.tray.setIcon(self.get_status_icon())
