@@ -2,6 +2,7 @@ import subprocess
 import sys
 
 import psutil
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QApplication, QMenu, QSystemTrayIcon
 
@@ -35,7 +36,7 @@ class ProxyTray:
         self.tray.show()
 
         # Timer to update icon
-        self.timer = self.app.timer()
+        self.timer = QTimer()
         self.timer.timeout.connect(self.update_icon)
         self.timer.start(3000)  # Check every 3 seconds
 
