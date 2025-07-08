@@ -37,6 +37,7 @@ class ProxyTray:
         self.app = QApplication(sys.argv)
         self.tray = QSystemTrayIcon()
         self.menu = QMenu()
+        self.ssh_process = None
 
         # Actions
         self.start_action = QAction("Start Proxy")
