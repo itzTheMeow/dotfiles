@@ -3,7 +3,7 @@ import sys
 
 import psutil
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QAction, QApplication, QMenu, QSystemTrayIcon
 
 PORT = 10809
@@ -47,7 +47,7 @@ class ProxyTray:
         sys.exit(self.app.exec_())
 
     def on_tray_activated(self):
-        self.menu.popup(self.tray.geometry().center())
+        self.menu.popup(QCursor.pos())
 
     def find_proxy_process(self) -> psutil.Process | None:
         for proc in psutil.process_iter(["cmdline"]):
