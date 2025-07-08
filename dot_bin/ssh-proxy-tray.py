@@ -30,10 +30,14 @@ class ProxyTray:
         self.menu.addSeparator()
         self.menu.addAction(self.quit_action)
 
+        # show tray icon with context menu
         self.tray.setContextMenu(self.menu)
         self.tray.setIcon(self.get_status_icon())
         self.tray.setToolTip("SOCKS5 Proxy Monitor")
         self.tray.show()
+
+        # activate context menu on left click
+        self.tray.activated.connect(self.on_tray_activated)
 
         # Timer to update icon
         self.timer = QTimer()
@@ -41,6 +45,10 @@ class ProxyTray:
         self.timer.start(3000)  # Check every 3 seconds
 
         sys.exit(self.app.exec_())
+
+    def on_tray_activated(self, reason):
+        if reason == QSystemTrayIcon.activated:
+            self.menu.popup(self.tray.geometry().center())
 
     def is_proxy_running(self):
         for proc in psutil.process_iter(["cmdline"]):
