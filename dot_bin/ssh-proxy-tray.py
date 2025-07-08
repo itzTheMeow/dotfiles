@@ -75,11 +75,13 @@ class ProxyTray:
     def start_ssh(self):
         if not self.find_proxy_process():
             subprocess.Popen(SSH_COMMAND)
+        self.update_icon()
 
     def stop_ssh(self):
         proc = self.find_proxy_process()
         if proc:
             proc.kill()
+        self.update_icon()
 
 
 if __name__ == "__main__":
