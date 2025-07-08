@@ -76,6 +76,7 @@ class ProxyTray:
         self.menu.popup(QCursor.pos())
 
     def get_status_icon(self) -> QIcon:
+        print(self.ssh_process.poll())
         if self.ssh_process and self.ssh_process.poll():
             return QIcon.fromTheme("network-vpn-symbolic") or QIcon("icon_green.png")
         else:
