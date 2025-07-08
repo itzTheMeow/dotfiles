@@ -48,7 +48,7 @@ class ProxyTray:
         self.start_action.triggered.connect(self.start_ssh)
         self.stop_action.triggered.connect(self.stop_ssh)
         self.port_action.setEnabled(False)
-        self.quit_action.triggered.connect(self.app.quit)
+        self.quit_action.triggered.connect(self.quit)
 
         self.menu.addAction(self.start_action)
         self.menu.addAction(self.stop_action)
@@ -98,6 +98,11 @@ class ProxyTray:
         if self.ssh_process:
             self.ssh_process.kill()
         self.update_icon()
+
+    def quit(self):
+        if self.ssh_process:
+            self.ssh_process.kill()
+        self.app.quit()
 
 
 if __name__ == "__main__":
