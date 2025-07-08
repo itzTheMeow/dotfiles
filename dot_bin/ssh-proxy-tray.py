@@ -46,19 +46,13 @@ class ProxyTray:
 
         sys.exit(self.app.exec_())
 
-    def on_tray_activated(self, reason):
-        if reason == QSystemTrayIcon.activated:
-            self.menu.popup(self.tray.geometry().center())
+    def on_tray_activated(self):
+        self.menu.popup(self.tray.geometry().center())
 
     def is_proxy_running(self):
         for proc in psutil.process_iter(["cmdline"]):
-            print(proc.info.keys())
-            print(proc.info["cmdline"])
-            if (
-                proc.info["cmdline"]
-                and "ssh" in proc.info["cmdline"][0]
-                and "-D" in proc.info["cmdline"]
-            ):
+            # determine if the ssh command is the one that is running
+            if " ".join(proc.info["cmdline"]) == " ".join(SSH_COMMAND):
                 return True
         return False
 
