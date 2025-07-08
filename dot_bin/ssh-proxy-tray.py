@@ -75,10 +75,11 @@ class ProxyTray:
     def on_tray_activated(self):
         self.menu.popup(QCursor.pos())
 
+    def is_running(self) -> bool:
+        return self.ssh_process and self.ssh_process.poll() == None
+
     def get_status_icon(self) -> QIcon:
-        if self.ssh_process:
-            print(self.ssh_process.poll())
-        if self.ssh_process and self.ssh_process.poll():
+        if self.is_running():
             return QIcon.fromTheme("network-vpn-symbolic") or QIcon("icon_green.png")
         else:
             return QIcon.fromTheme("network-vpn-acquiring-symbolic") or QIcon(
@@ -89,12 +90,12 @@ class ProxyTray:
         self.tray.setIcon(self.get_status_icon())
 
     def start_ssh(self):
-        if not self.ssh_process or not self.ssh_process.poll():
+        if not self.is_running():
             self.ssh_process = subprocess.Popen(SSH_COMMAND)
         self.update_icon()
 
     def stop_ssh(self):
-        if self.ssh_process and self.ssh_process.poll():
+        if self.ssh_process:
             self.ssh_process.kill()
         self.update_icon()
 
