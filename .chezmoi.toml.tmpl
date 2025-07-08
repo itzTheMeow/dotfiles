@@ -30,6 +30,9 @@
     autoPush = true
 [onepassword]
     prompt = true
+{{- if eq $box_group "nvstly" }}
+    mode = "service"
+{{- end }}
 [edit]
     apply = true
 {{- if $headless }}
