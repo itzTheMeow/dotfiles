@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=SSH Proxy Tray
 Comment=Monitor and control SSH SOCKS5 proxy connection
-Exec=/usr/bin/python3 /path/to/ssh_proxy_tray.py
+Exec=/usr/bin/env python ~/.bin/ssh-proxy-tray.py
 Icon=network-vpn
 Terminal=false
 Type=Application
