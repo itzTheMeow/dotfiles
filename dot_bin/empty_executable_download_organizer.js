@@ -34,6 +34,8 @@ for (const file of fs.readdirSync(src)) {
     stat = fs.statSync(filepath);
   // ignore any 4-digit-year directories (2000, 2023, etc)
   if (file.length == 4 && Number(file) && stat.isDirectory()) continue;
+  // ignore specific file names
+  if ([".directory"].includes(file) && stat.isFile()) continue;
 
   const { mtime } = stat,
     monthFolder = formatFolderName(mtime);
