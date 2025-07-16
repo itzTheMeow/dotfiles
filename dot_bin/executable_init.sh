@@ -12,6 +12,7 @@ cd ~
 PROMPT=(whiptail --separate-output --checklist "Choose packages to install" 20 78 10)
 OPTIONS=(
   brew "Homebrew" ON
+  deno "Deno" ON
   ncdu "NCurses Disk Usage" ON
   ntfy "NTFY CLI" ON
   nvm "Node Version Manager" ON
@@ -44,6 +45,13 @@ inst_brew() {
   )
   # Has to be run outside of shell context.
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+}
+inst_deno() {
+  # Install Deno
+  echo "Installing Deno..."
+  (
+    curl -fsSL https://deno.land/install.sh | sh
+  )
 }
 inst_ncdu() {
   # Install NCDU
@@ -131,6 +139,8 @@ inst_speedtest() {
 for choice in $CHOICES; do
   if [ "$choice" = "brew" ]; then
     inst_brew
+  elif [ "$choice" = "deno" ]; then
+    inst_deno
   elif [ "$choice" = "ncdu" ]; then
     inst_ncdu
   elif [ "$choice" = "omp" ]; then
