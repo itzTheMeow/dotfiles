@@ -111,6 +111,11 @@ alias ffconcat="{{ .chezmoi.homeDir }}/.bin/ffconcat.sh"
 alias git-clear="{{ .chezmoi.homeDir }}/.bin/git-clear.sh"
 alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
 
+# File uploader.
+0x0() {
+  curl -F "file=@$1" https://0x0.st
+}
+
 {{- if eq .box "home" }}
 alias r="kquitapp5 plasmashell && kstart5 plasmashell"
 {{- end }}
