@@ -94,7 +94,7 @@ class ProxyTray:
             self.menu.popup(QCursor.pos())
 
     def is_running(self) -> bool:
-        return self.ssh_process and self.ssh_process.poll() == None
+        return self.ssh_process is not None and self.ssh_process.poll() is None
 
     def create_simple_icon(self, color: str) -> QIcon:
         """Create a simple colored circle icon for systems without theme icons."""
