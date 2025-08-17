@@ -79,7 +79,7 @@ class ProxyTray:
         self.tray.setToolTip("SOCKS5 Proxy Monitor")
         self.tray.show()
 
-        if platform.system() is not "Darwin":
+        if platform.system() != "Darwin":
             self.tray.activated.connect(self.on_tray_activated)
 
         # Timer to update icon
