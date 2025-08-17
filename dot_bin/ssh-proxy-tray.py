@@ -5,9 +5,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+# fmt: off
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
-from PyQt5.QtWidgets import QAction, QApplication, QMenu, QMessageBox, QSystemTrayIcon
+from PyQt5.QtWidgets import (QAction, QApplication, QMenu, QMessageBox,
+                             QSystemTrayIcon)
+
+# fmt: on
 
 # fixes CTRL+C
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -234,6 +238,8 @@ if __name__ == "__main__":
     # On macOS, hide from dock by setting LSUIElement before creating QApplication
     if platform.system() == "Darwin":
         os.environ["LSUIElement"] = "1"
+        # Additional environment variables to ensure dock hiding
+        os.environ["LSBackgroundOnly"] = "1"
 
     # Set application properties for better macOS integration
     app = QApplication(sys.argv)
@@ -247,14 +253,4 @@ if __name__ == "__main__":
         app.setQuitOnLastWindowClosed(False)
 
     proxy_tray = ProxyTray(app)
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
-    sys.exit(app.exec_())
     sys.exit(app.exec_())
