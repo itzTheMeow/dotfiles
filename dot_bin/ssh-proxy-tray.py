@@ -81,8 +81,6 @@ class ProxyTray:
 
         self.app.tray.activated.connect(self.on_tray_activated)
 
-        self.app.closeAllWindows()
-
         # Timer to update icon
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_icon)
