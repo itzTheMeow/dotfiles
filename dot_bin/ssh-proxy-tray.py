@@ -79,7 +79,7 @@ class ProxyTray:
         self.tray.setToolTip("SOCKS5 Proxy Monitor")
         self.tray.show()
 
-        self.app.tray.activated.connect(self.on_tray_activated)
+        self.tray.activated.connect(self.on_tray_activated)
 
         # Timer to update icon
         self.timer = QTimer()
