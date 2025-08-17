@@ -2,10 +2,11 @@ import platform
 import signal
 import subprocess
 import sys
+from pathlib import Path
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QCursor, QIcon
-from PyQt5.QtWidgets import QAction, QApplication, QMenu, QSystemTrayIcon
+from PyQt5.QtGui import QCursor, QIcon, QPixmap
+from PyQt5.QtWidgets import QAction, QApplication, QMenu, QMessageBox, QSystemTrayIcon
 
 # fixes CTRL+C
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -33,8 +34,19 @@ class ProxyTray:
 
     ssh_process: subprocess.Popen
 
-    def __init__(self):
-        self.app = QApplication(sys.argv)
+    def __init__(self, app=None):
+        if app is None:
+            self.app = QApplication(sys.argv)
+        else:
+            self.app = app
+
+        # Check if system tray is available
+        if not QSystemTrayIcon.isSystemTrayAvailable():
+            QMessageBox.critical(
+                None, "SSH Proxy Tray", "System tray is not available on this system."
+            )
+            sys.exit(1)
+
         self.tray = QSystemTrayIcon()
         self.menu = QMenu()
         self.ssh_process = None
@@ -62,48 +74,165 @@ class ProxyTray:
         self.tray.setToolTip("SOCKS5 Proxy Monitor")
         self.tray.show()
 
-        # activate context menu on left click
-        self.tray.activated.connect(self.on_tray_activated)
+        # activate context menu on left click (behavior varies by OS)
+        if platform.system() == "Darwin":  # macOS
+            # On macOS, right-click shows context menu by default
+            # Left-click activation is less reliable, so we'll rely on right-click
+            pass
+        else:
+            # On other systems, enable left-click to show menu
+            self.tray.activated.connect(self.on_tray_activated)
 
         # Timer to update icon
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_icon)
         self.timer.start(3000)  # Check every 3 seconds
 
-        sys.exit(self.app.exec_())
-
-    def on_tray_activated(self):
-        self.menu.popup(QCursor.pos())
+    def on_tray_activated(self, reason):
+        # Only show menu on left click or trigger
+        if reason in [QSystemTrayIcon.Trigger, QSystemTrayIcon.DoubleClick]:
+            self.menu.popup(QCursor.pos())
 
     def is_running(self) -> bool:
         return self.ssh_process and self.ssh_process.poll() == None
 
+    def create_simple_icon(self, color: str) -> QIcon:
+        """Create a simple colored circle icon for systems without theme icons."""
+        pixmap = QPixmap(16, 16)
+        pixmap.fill()  # Transparent background
+
+        from PyQt5.QtCore import Qt
+        from PyQt5.QtGui import QBrush, QColor, QPainter
+
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setBrush(QBrush(QColor(color)))
+        painter.setPen(Qt.NoPen)
+        painter.drawEllipse(2, 2, 12, 12)
+        painter.end()
+
+        return QIcon(pixmap)
+
     def get_status_icon(self) -> QIcon:
-        if self.is_running():
-            return QIcon.fromTheme("network-vpn-symbolic") or QIcon("icon_green.png")
+        is_running = self.is_running()
+
+        # Try system theme icons first
+        if is_running:
+            theme_icon = QIcon.fromTheme("network-vpn-symbolic")
+            if not theme_icon.isNull():
+                return theme_icon
         else:
-            return QIcon.fromTheme("network-vpn-acquiring-symbolic") or QIcon(
-                "icon_red.png"
-            )
+            theme_icon = QIcon.fromTheme("network-vpn-acquiring-symbolic")
+            if not theme_icon.isNull():
+                return theme_icon
+
+        # Look for custom icon files
+        script_dir = Path(__file__).parent
+        if is_running:
+            icon_paths = [
+                script_dir / "icon_green.png",
+                script_dir / "green.png",
+                script_dir / "connected.png",
+            ]
+        else:
+            icon_paths = [
+                script_dir / "icon_red.png",
+                script_dir / "red.png",
+                script_dir / "disconnected.png",
+            ]
+
+        for icon_path in icon_paths:
+            if icon_path.exists():
+                return QIcon(str(icon_path))
+
+        # Fallback to simple colored circles
+        if is_running:
+            return self.create_simple_icon("green")
+        else:
+            return self.create_simple_icon("red")
 
     def update_icon(self):
         self.tray.setIcon(self.get_status_icon())
+        # Update menu item states
+        is_running = self.is_running()
+        self.start_action.setEnabled(not is_running)
+        self.stop_action.setEnabled(is_running)
+
+        # Update tooltip with current status
+        status = "Connected" if is_running else "Disconnected"
+        self.tray.setToolTip(f"SOCKS5 Proxy Monitor - {status} (Port {PORT})")
 
     def start_ssh(self):
         if not self.is_running():
-            self.ssh_process = subprocess.Popen(SSH_COMMAND)
+            try:
+                self.ssh_process = subprocess.Popen(
+                    SSH_COMMAND, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )
+                self.tray.showMessage(
+                    "SSH Proxy",
+                    f"Starting SOCKS5 proxy on port {PORT}",
+                    QSystemTrayIcon.Information,
+                    2000,
+                )
+            except Exception as e:
+                self.tray.showMessage(
+                    "SSH Proxy Error",
+                    f"Failed to start proxy: {e}",
+                    QSystemTrayIcon.Critical,
+                    3000,
+                )
         self.update_icon()
 
     def stop_ssh(self):
         if self.ssh_process:
-            self.ssh_process.kill()
+            try:
+                self.ssh_process.terminate()
+                # Give it a moment to terminate gracefully
+                try:
+                    self.ssh_process.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    self.ssh_process.kill()
+                self.tray.showMessage(
+                    "SSH Proxy",
+                    "SOCKS5 proxy stopped",
+                    QSystemTrayIcon.Information,
+                    2000,
+                )
+            except Exception as e:
+                self.tray.showMessage(
+                    "SSH Proxy Error",
+                    f"Error stopping proxy: {e}",
+                    QSystemTrayIcon.Warning,
+                    3000,
+                )
+            finally:
+                self.ssh_process = None
         self.update_icon()
 
     def quit(self):
         if self.ssh_process:
-            self.ssh_process.kill()
+            try:
+                self.ssh_process.terminate()
+                try:
+                    self.ssh_process.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    self.ssh_process.kill()
+            except Exception:
+                pass  # Process might already be dead
         self.app.quit()
 
 
 if __name__ == "__main__":
-    ProxyTray()
+    # Set application properties for better macOS integration
+    app = QApplication(sys.argv)
+    app.setApplicationName("SSH Proxy Tray")
+    app.setApplicationVersion("1.0")
+    app.setOrganizationName("SSH Proxy")
+
+    # On macOS, prevent the app from quitting when the last window closes
+    # since this is a tray-only application
+    if platform.system() == "Darwin":
+        app.setQuitOnLastWindowClosed(False)
+
+    proxy_tray = ProxyTray(app)
+    sys.exit(app.exec_())
