@@ -29,24 +29,41 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 def hide_from_dock_macos():
-    """Hide the application from the macOS dock using AppKit."""
+    """Hide the application from the macOS dock using multiple methods."""
     if platform.system() != "Darwin":
         return
 
-    # Method 1: Use AppKit if available
+    # Method 1: Set environment variables BEFORE any Qt/Cocoa initialization
+    os.environ["LSUIElement"] = "1"
+
+    # Method 2: Use AppKit if available (call this after QApplication is created)
     if "objc" in globals() and objc is not None:
         try:
             # Get the shared application instance
             app = NSApplication.sharedApplication()
             # Set activation policy to accessory (hides from dock but allows tray)
             app.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
-            return
+            print("Successfully set NSApplicationActivationPolicyAccessory")
         except Exception as e:
             print(f"Warning: Failed to hide from dock using AppKit: {e}")
 
-    # Method 2: Fallback to environment variables
-    os.environ["LSUIElement"] = "1"
-    os.environ["LSBackgroundOnly"] = "1"
+
+def configure_macos_app(qt_app):
+    """Configure macOS-specific application settings after QApplication creation."""
+    if platform.system() != "Darwin":
+        return
+
+    # Set Qt application to not quit when last window closes
+    qt_app.setQuitOnLastWindowClosed(False)
+
+    # Apply AppKit dock hiding after QApplication is created
+    if "objc" in globals() and objc is not None:
+        try:
+            app = NSApplication.sharedApplication()
+            app.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
+            print("AppKit dock hiding applied successfully")
+        except Exception as e:
+            print(f"Failed to apply AppKit dock hiding: {e}")
 
 
 PORT = 10809
@@ -267,22 +284,19 @@ class ProxyTray:
 
 
 if __name__ == "__main__":
-    # Hide from dock before creating QApplication (important for macOS)
+    # IMPORTANT: Hide from dock BEFORE creating QApplication on macOS
     hide_from_dock_macos()
 
-    # Set application properties for better macOS integration
+    # Create QApplication
     app = QApplication(sys.argv)
     app.setApplicationName("SSH Proxy Tray")
     app.setApplicationVersion("1.0")
     app.setOrganizationName("SSH Proxy")
 
-    # On macOS, prevent the app from quitting when the last window closes
-    # since this is a tray-only application
-    if platform.system() == "Darwin":
-        app.setQuitOnLastWindowClosed(False)
-        # Additional AppKit configuration after QApplication is created
-        hide_from_dock_macos()
+    # Configure macOS-specific settings after QApplication creation
+    configure_macos_app(app)
 
+    # Create and run the tray application
     proxy_tray = ProxyTray(app)
     sys.exit(app.exec_())
     sys.exit(app.exec_())
