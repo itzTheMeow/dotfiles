@@ -82,6 +82,7 @@ class ProxyTray:
         self.tray.activated.connect(self.on_tray_activated)
 
         # Timer to update icon
+        self.update_icon()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_icon)
         self.timer.start(3000)  # Check every 3 seconds
