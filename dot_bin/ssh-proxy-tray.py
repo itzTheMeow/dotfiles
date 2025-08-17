@@ -98,8 +98,7 @@ class ProxyTray:
 
     def create_simple_icon(self, color: str) -> QIcon:
         """Create a simple colored circle icon for systems without theme icons."""
-        # Use 22x22 for better macOS compatibility, with proper scaling
-        size = 22
+        size = 24
         pixmap = QPixmap(size, size)
 
         from PyQt5.QtCore import Qt
@@ -114,7 +113,7 @@ class ProxyTray:
         painter.setPen(Qt.NoPen)
 
         # Draw a smaller circle with more padding for better proportions
-        margin = 4
+        margin = 2
         circle_size = size - (margin * 2)
         painter.drawEllipse(margin, margin, circle_size, circle_size)
         painter.end()
