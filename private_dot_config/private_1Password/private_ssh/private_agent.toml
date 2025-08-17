@@ -34,3 +34,6 @@ vault = "Private"
 
 [[ssh-keys]]
 vault = "NVSTly"
+
+[[ssh-keys]]
+vault = "NVSTly Internal"
