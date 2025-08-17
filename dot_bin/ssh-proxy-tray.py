@@ -5,6 +5,17 @@ import subprocess
 import sys
 from pathlib import Path
 
+# macOS-specific imports for dock hiding
+if platform.system() == "Darwin":
+    try:
+        import objc
+        from AppKit import NSApp, NSApplication, NSApplicationActivationPolicyAccessory
+    except ImportError:
+        print(
+            "Warning: AppKit not available. Install with: pip install pyobjc-framework-Cocoa"
+        )
+        objc = None
+
 # fmt: off
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
@@ -15,6 +26,27 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMenu, QMessageBox,
 
 # fixes CTRL+C
 signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
+def hide_from_dock_macos():
+    """Hide the application from the macOS dock using AppKit."""
+    if platform.system() != "Darwin":
+        return
+
+    # Method 1: Use AppKit if available
+    if "objc" in globals() and objc is not None:
+        try:
+            # Get the shared application instance
+            app = NSApplication.sharedApplication()
+            # Set activation policy to accessory (hides from dock but allows tray)
+            app.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
+            return
+        except Exception as e:
+            print(f"Warning: Failed to hide from dock using AppKit: {e}")
+
+    # Method 2: Fallback to environment variables
+    os.environ["LSUIElement"] = "1"
+    os.environ["LSBackgroundOnly"] = "1"
 
 
 PORT = 10809
@@ -235,11 +267,8 @@ class ProxyTray:
 
 
 if __name__ == "__main__":
-    # On macOS, hide from dock by setting LSUIElement before creating QApplication
-    if platform.system() == "Darwin":
-        os.environ["LSUIElement"] = "1"
-        # Additional environment variables to ensure dock hiding
-        os.environ["LSBackgroundOnly"] = "1"
+    # Hide from dock before creating QApplication (important for macOS)
+    hide_from_dock_macos()
 
     # Set application properties for better macOS integration
     app = QApplication(sys.argv)
@@ -251,6 +280,9 @@ if __name__ == "__main__":
     # since this is a tray-only application
     if platform.system() == "Darwin":
         app.setQuitOnLastWindowClosed(False)
+        # Additional AppKit configuration after QApplication is created
+        hide_from_dock_macos()
 
     proxy_tray = ProxyTray(app)
+    sys.exit(app.exec_())
     sys.exit(app.exec_())
