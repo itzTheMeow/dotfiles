@@ -1,3 +1,4 @@
+import os
 import platform
 import signal
 import subprocess
@@ -230,6 +231,10 @@ class ProxyTray:
 
 
 if __name__ == "__main__":
+    # On macOS, hide from dock by setting LSUIElement before creating QApplication
+    if platform.system() == "Darwin":
+        os.environ["LSUIElement"] = "1"
+
     # Set application properties for better macOS integration
     app = QApplication(sys.argv)
     app.setApplicationName("SSH Proxy Tray")
@@ -242,4 +247,14 @@ if __name__ == "__main__":
         app.setQuitOnLastWindowClosed(False)
 
     proxy_tray = ProxyTray(app)
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
     sys.exit(app.exec_())
