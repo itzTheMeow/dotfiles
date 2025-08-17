@@ -5,17 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-# macOS-specific imports for dock hiding
-if platform.system() == "Darwin":
-    try:
-        import objc
-        from AppKit import NSApp, NSApplication, NSApplicationActivationPolicyAccessory
-    except ImportError:
-        print(
-            "Warning: AppKit not available. Install with: pip install pyobjc-framework-Cocoa"
-        )
-        objc = None
-
 # fmt: off
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
@@ -26,44 +15,6 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMenu, QMessageBox,
 
 # fixes CTRL+C
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-
-def hide_from_dock_macos():
-    """Hide the application from the macOS dock using multiple methods."""
-    if platform.system() != "Darwin":
-        return
-
-    # Method 1: Set environment variables BEFORE any Qt/Cocoa initialization
-    os.environ["LSUIElement"] = "1"
-
-    # Method 2: Use AppKit if available (call this after QApplication is created)
-    if "objc" in globals() and objc is not None:
-        try:
-            # Get the shared application instance
-            app = NSApplication.sharedApplication()
-            # Set activation policy to accessory (hides from dock but allows tray)
-            app.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
-            print("Successfully set NSApplicationActivationPolicyAccessory")
-        except Exception as e:
-            print(f"Warning: Failed to hide from dock using AppKit: {e}")
-
-
-def configure_macos_app(qt_app):
-    """Configure macOS-specific application settings after QApplication creation."""
-    if platform.system() != "Darwin":
-        return
-
-    # Set Qt application to not quit when last window closes
-    qt_app.setQuitOnLastWindowClosed(False)
-
-    # Apply AppKit dock hiding after QApplication is created
-    if "objc" in globals() and objc is not None:
-        try:
-            app = NSApplication.sharedApplication()
-            app.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
-            print("AppKit dock hiding applied successfully")
-        except Exception as e:
-            print(f"Failed to apply AppKit dock hiding: {e}")
 
 
 PORT = 10809
@@ -128,14 +79,9 @@ class ProxyTray:
         self.tray.setToolTip("SOCKS5 Proxy Monitor")
         self.tray.show()
 
-        # activate context menu on left click (behavior varies by OS)
-        if platform.system() == "Darwin":  # macOS
-            # On macOS, right-click shows context menu by default
-            # Left-click activation is less reliable, so we'll rely on right-click
-            pass
-        else:
-            # On other systems, enable left-click to show menu
-            self.tray.activated.connect(self.on_tray_activated)
+        self.app.tray.activated.connect(self.on_tray_activated)
+
+        self.app.closeAllWindows()
 
         # Timer to update icon
         self.timer = QTimer()
@@ -284,19 +230,14 @@ class ProxyTray:
 
 
 if __name__ == "__main__":
-    # IMPORTANT: Hide from dock BEFORE creating QApplication on macOS
-    hide_from_dock_macos()
 
     # Create QApplication
     app = QApplication(sys.argv)
     app.setApplicationName("SSH Proxy Tray")
     app.setApplicationVersion("1.0")
     app.setOrganizationName("SSH Proxy")
-
-    # Configure macOS-specific settings after QApplication creation
-    configure_macos_app(app)
+    app.setQuitOnLastWindowClosed(False)
 
     # Create and run the tray application
     proxy_tray = ProxyTray(app)
-    sys.exit(app.exec_())
     sys.exit(app.exec_())
