@@ -16,6 +16,11 @@ Host pi.nvst.ng
   IdentityFile ~/.ssh/pi.pub
   IdentitiesOnly yes
 
+Host odroid.nvst.ng
+  IdentityFile ~/.ssh/odroid.pub
+  IdentitiesOnly yes
+  ForwardAgent yes
+
 Host doris.nvst.ng
   IdentityFile ~/.ssh/doris.pub
   IdentitiesOnly yes
