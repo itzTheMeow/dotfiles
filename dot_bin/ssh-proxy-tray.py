@@ -23,7 +23,7 @@ SSH_COMMAND = [
     "-N",
     "-D",
     f"127.0.0.1:{PORT}",
-    "root@jade.nvst.ly",
+    "socks5@jade.nvst.ly",
 ]
 
 
