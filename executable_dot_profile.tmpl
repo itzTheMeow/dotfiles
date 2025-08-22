@@ -116,12 +116,13 @@ alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
   curl -F "file=@$1" https://0x0.st
 }
 
+# OS Specific
 {{- if eq .box "home" }}
 alias r="kquitapp5 plasmashell || killall plasmashell && kstart5 plasmashell"
 {{- end }}
-
 {{- if eq .chezmoi.os "darwin" }}
 alias code="open -a /Applications/Visual\ Studio\ Code.app"
+alias unquarantine="xattr -r -d com.apple.quarantine"
 {{- end }}
 
 ###########
