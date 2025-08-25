@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=SSH Proxy Tray
-Comment=Monitor and control SSH SOCKS5 proxy connection
-Exec=/usr/bin/env python3 /home/meow/.bin/ssh-proxy-tray.py
-Icon=network-vpn
-Terminal=false
-Type=Application
-Categories=Network;Utility;
