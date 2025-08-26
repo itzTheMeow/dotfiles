@@ -1,8 +1,6 @@
 {{- $headless:= promptBoolOnce . "headless" "Headless" -}}
 {{- $box := "-" -}}
-{{- if eq .chezmoi.hostname "nvst" -}}
-    {{- $box = "hetzner" -}}
-{{- else if eq .chezmoi.hostname "hyzenberg" -}}
+{{-  if eq .chezmoi.hostname "hyzenberg" -}}
     {{- $box = "hyzen" -}}
 {{- else if eq .chezmoi.hostname "meow-pc" -}}
     {{- $box = "home" -}}
