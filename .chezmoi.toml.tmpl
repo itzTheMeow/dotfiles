@@ -10,12 +10,12 @@
     {{- $box = "jade" -}}
 {{- else if and (eq .chezmoi.hostname "doris") -}}
     {{- $box = "doris" -}}
-{{- else if and (eq .chezmoi.hostname "roxy") -}}
-    {{- $box = "roxy" -}}
+{{- else if and (eq .chezmoi.hostname "odroid") -}}
+    {{- $box = "richodroid" -}}
 {{- end -}}
 
 {{- $box_group := "-" }}
-{{- if or (eq $box "jade") (eq $box "doris") (eq $box "roxy") -}}
+{{- if or (eq $box "jade") (eq $box "doris") (eq $box "richodroid") -}}
     {{- $box_group = "nvstly" -}}
 {{- end -}}
 
