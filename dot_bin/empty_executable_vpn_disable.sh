@@ -7,8 +7,8 @@ set -e
 # Check if tailscale is installed
 command -v tailscale &>/dev/null || exit 1
 
-# Get current exit node status
-current_exit_node=$(sudo tailscale status --json | jq -r '.ExitNodeStatus.ID // empty')
+# Get current exit node IP address
+current_exit_node=$(sudo tailscale status --json | jq -r '.ExitNodeStatus.TailscaleIPs[0] // empty' | cut -d'/' -f1)
 
 # Exit if no exit node configured
 [[ -z "$current_exit_node" ]] && exit 0
