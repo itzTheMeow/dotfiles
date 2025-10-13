@@ -11,7 +11,9 @@ mkdir -p .archive
 
 # process code files
 for ext in py js html java txt sql; do
+	shopt -s nocaseglob
 	for file in *."$ext"; do
+		shopt -u nocaseglob
 		[[ -e "$file" ]] || continue
 		output_file=".archive/${file}.html"
 		echo "Code: $file => $output_file"
@@ -21,7 +23,9 @@ done
 
 # process images
 for ext in png jpg jpeg; do
+	shopt -s nocaseglob
 	for file in *."$ext"; do
+		shopt -u nocaseglob
 		[[ -e "$file" ]] || continue
 		output_file=".archive/${file}.html"
 		echo "Image: $file => $output_file"
