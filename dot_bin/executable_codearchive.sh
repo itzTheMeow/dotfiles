@@ -10,7 +10,7 @@ cd "$dir"
 mkdir -p .archive
 
 # process code files
-for ext in py js html java txt sql csv; do
+for ext in py js html java txt sql; do
 	for file in *."$ext"; do
 		[[ -e "$file" ]] || continue
 		output_file=".archive/${file}.html"
