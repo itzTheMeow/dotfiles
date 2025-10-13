@@ -110,11 +110,13 @@ alias txz="tar -cJf"
 alias python="python3"
 alias pip="python3 -m pip"
 
+# Custom Commands
+alias codearchive="{{ .chezmoi.homeDir }}/.bin/codearchive.sh"
 alias ffconcat="{{ .chezmoi.homeDir }}/.bin/ffconcat.sh"
 alias git-clear="{{ .chezmoi.homeDir }}/.bin/git-clear.sh"
 alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
 
-# File uploader.
+# File Uploader
 0x0() {
 	curl -F "file=@$1" https://0x0.st
 }
