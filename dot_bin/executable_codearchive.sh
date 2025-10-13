@@ -10,7 +10,7 @@ cd "$dir"
 mkdir -p .archive
 
 # process code files
-for ext in py js html java txt sql; do
+for ext in py js html java txt sql bat sh; do
 	shopt -s nocaseglob
 	for file in *."$ext"; do
 		shopt -u nocaseglob
