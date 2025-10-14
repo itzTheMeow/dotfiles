@@ -10,7 +10,7 @@ cd "$dir"
 mkdir -p .archive
 
 # process code files recursively
-for ext in py js html java txt sql bat sh; do
+for ext in py js html java txt sql bat sh css less; do
 	shopt -s nocaseglob
 	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
@@ -30,7 +30,7 @@ for ext in py js html java txt sql bat sh; do
 done
 
 # process images recursively
-for ext in png jpg jpeg; do
+for ext in png jpg jpeg svg; do
 	shopt -s nocaseglob
 	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
