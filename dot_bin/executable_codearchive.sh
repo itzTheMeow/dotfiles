@@ -9,40 +9,56 @@ cd "$dir"
 # output to .archive
 mkdir -p .archive
 
-# process code files
+# process code files recursively
 for ext in py js html java txt sql bat sh; do
 	shopt -s nocaseglob
-	for file in *."$ext"; do
+	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
-		[[ -e "$file" ]] || continue
-		output_file=".archive/${file}.html"
-		echo "Code: $file => $output_file"
+		# skip files in .archive directory
+		[[ "$file" == ./.archive/* ]] && continue
+
+		# get relative path without leading ./
+		relative_path="${file#./}"
+		# create safe filename by replacing / with ___
+		safe_name="${relative_path//\//___}"
+		output_file=".archive/${safe_name}.html"
+
+		echo "Code: $relative_path => $output_file"
 		pygmentize -f html -O full,style=colorful -o "$output_file" "$file"
-	done
+	done < <(find . -type f -iname "*.$ext" -print0)
+	shopt -u nocaseglob
 done
 
-# process images
+# process images recursively
 for ext in png jpg jpeg; do
 	shopt -s nocaseglob
-	for file in *."$ext"; do
+	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
-		[[ -e "$file" ]] || continue
-		output_file=".archive/${file}.html"
-		echo "Image: $file => $output_file"
+		# skip files in .archive directory
+		[[ "$file" == ./.archive/* ]] && continue
+
+		# get relative path without leading ./
+		relative_path="${file#./}"
+		# create safe filename by replacing / with ___
+		safe_name="${relative_path//\//___}"
+		output_file=".archive/${safe_name}.html"
+
+		echo "Image: $relative_path => $output_file"
 
 		cat >"$output_file" <<EOF
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>$file</title>
+    <title>$relative_path</title>
 </head>
 <body>
-    <img src="../$file" alt="$file">
+    <img src="../$relative_path" alt="$relative_path">
 </body>
 </html>
 EOF
-	done
+	done < <(find . -type f -iname "*.$ext" -print0)
+	shopt -u nocaseglob
 done
 
 echo "Combining all exported files into a single document..."
@@ -83,18 +99,20 @@ cat >>"$combined_file" <<'EOF'
 <body>
 EOF
 
-# append content from each exported file
+# append content from each exported file (sorted for consistent ordering)
 for file in .archive/*.html; do
 	[[ "$file" == ".archive/combined.html" ]] && continue
 	[[ -e "$file" ]] || continue
 
 	basename="${file##*/}"
 	basename="${basename%.html}"
+	# convert safe filename back to path (replace ___ with /)
+	display_name="${basename//___//}"
 
-	echo "Adding $basename to combined file..."
+	echo "Adding $display_name to combined file..."
 
 	echo "    <div class=\"file-section\">" >>"$combined_file"
-	echo "        <h1 class=\"section-title\">$basename</h1>" >>"$combined_file"
+	echo "        <h1 class=\"section-title\">$display_name</h1>" >>"$combined_file"
 
 	# extract only body content from export files
 	sed -n '/<body/,/<\/body>/p' "$file" | sed '1d;$d' >>"$combined_file"
