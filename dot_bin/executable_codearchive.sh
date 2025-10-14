@@ -10,7 +10,7 @@ cd "$dir"
 mkdir -p .archive
 
 # process code files recursively
-for ext in py js html java txt sql bat sh css less; do
+for ext in py js html java txt sql bat sh css less json md yaml yml; do
 	shopt -s nocaseglob
 	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
