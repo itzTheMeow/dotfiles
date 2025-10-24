@@ -1,6 +1,10 @@
 #!/bin/bash
 
+export AWS_ACCESS_KEY_ID={{ onepasswordRead "op://Private/Backblaze/Application Keys/xela-codes-nas-id" }}
+export AWS_SECRET_ACCESS_KEY={{ onepasswordRead "op://Private/Backblaze/Application Keys/xela-codes-nas-applicationKey" }}
+
 export RESTIC_COMPRESSION=max
-export RESTIC_REPOSITORY=rclone:b2:xela-codes-nas/
+export RESTIC_REPOSITORY=s3:s3.us-east-005.backblazeb2.com/xela-codes-nas
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/Backblaze Restic Repo/password" }}
 
+#rclone mount pcloud: ~/mnt/pcloud
