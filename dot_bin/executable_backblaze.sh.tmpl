@@ -7,4 +7,14 @@ export RESTIC_COMPRESSION=max
 export RESTIC_REPOSITORY=s3:s3.us-east-005.backblazeb2.com/xela-codes-nas
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/Backblaze Restic Repo/password" }}
 
-#rclone mount pcloud: ~/mnt/pcloud
+
+rclone mount pcloud: ~/mnt/pcloud --read-only
+
+
+LOG_FILE="/tmp/restic_$(date +"%Y-%m-%d_%H-%M-%S").log"
+
+restic backup /mnt/pcloud "$@" 2>&1 | tee -a $LOG_FILE
+
+if command -v ntfy &>/dev/null; then
+  NTFY_TOPIC="$NTFY_TOPIC-backups" ntfy publish -t "Restic Backup Complete" "$(cat $LOG_FILE)"
+fi
