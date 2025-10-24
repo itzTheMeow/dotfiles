@@ -19,3 +19,6 @@ discord-updater.sh
 {{- if ne .chezmoi.os "darwin" }}
 .zshrc
 {{- end }}
+{{- if ne .box "hyzen" }}
+.bin/backblaze.sh
+{{- end }}
