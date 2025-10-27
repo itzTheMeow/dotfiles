@@ -8,7 +8,7 @@ export RESTIC_REPOSITORY=s3:s3.us-east-005.backblazeb2.com/xela-codes-nas
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/Backblaze Restic Repo/password" }}
 
 
-rclone mount pcloud: ~/mnt/pcloud --read-only
+rclone mount pcloud: /mnt/pcloud --read-only --buffer-size 64M --transfers 16 --checkers 8 --dir-cache-time 5m
 
 
 LOG_FILE="/tmp/restic_$(date +"%Y-%m-%d_%H-%M-%S").log"
