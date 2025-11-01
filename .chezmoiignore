@@ -6,7 +6,7 @@ README.md
 {{- end }}
 {{- if or (ne .chezmoi.os "linux") (.headless)  }}
 .config/autostart
-discord-updater.sh
+.local/share/mime
 {{- end }}
 {{- if .headless }}
 .config/activitywatch
