@@ -2,6 +2,7 @@ README.md
 .vscode
 
 {{- if ne .box "home" }}
+.bin/ipad_backup.sh
 .config/immich
 {{- end }}
 {{- if or (ne .chezmoi.os "linux") (.headless)  }}
