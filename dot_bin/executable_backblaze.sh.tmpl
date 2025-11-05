@@ -3,12 +3,48 @@
 export AWS_ACCESS_KEY_ID={{ onepasswordRead "op://Private/Backblaze/Application Keys/xela-codes-nas-id" }}
 export AWS_SECRET_ACCESS_KEY={{ onepasswordRead "op://Private/Backblaze/Application Keys/xela-codes-nas-applicationKey" }}
 
+
 export RESTIC_COMPRESSION=max
 export RESTIC_REPOSITORY=s3:s3.us-east-005.backblazeb2.com/xela-codes-nas
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/Backblaze Restic Repo/password" }}
 
+mkdir -p /mnt/pcloud
 
-rclone mount pcloud: /mnt/pcloud --read-only --buffer-size 64M --transfers 16 --checkers 8 --dir-cache-time 5m
+# Start rclone in background if not already mounted. Capture PID so we can clean up.
+RC_RCLONE_PID=""
+if ! mountpoint -q /mnt/pcloud; then
+  # Start rclone in background and redirect its logs to a temporary file
+  nohup rclone mount pcloud: /mnt/pcloud --read-only --buffer-size 64M --transfers 16 --checkers 8 --dir-cache-time 5m >/tmp/rclone_mount.log 2>&1 &
+  RC_RCLONE_PID=$!
+
+  # Wait up to 30 seconds for the mount to appear
+  TIMEOUT=30
+  SECONDS_WAIT=0
+  until mountpoint -q /mnt/pcloud || [ $SECONDS_WAIT -ge $TIMEOUT ]; do
+    sleep 1
+    SECONDS_WAIT=$((SECONDS_WAIT+1))
+  done
+
+  if ! mountpoint -q /mnt/pcloud; then
+    echo "rclone mount failed to appear within ${TIMEOUT}s, aborting" >&2
+    kill $RC_RCLONE_PID 2>/dev/null || true
+    exit 1
+  fi
+fi
+
+# Cleanup function: unmount and kill rclone if we started it.
+cleanup() {
+  if mountpoint -q /mnt/pcloud; then
+    # Try to unmount gracefully; fallback to lazy unmount
+    fusermount -u /mnt/pcloud 2>/dev/null || umount -l /mnt/pcloud 2>/dev/null || true
+  fi
+  if [ -n "$RC_RCLONE_PID" ]; then
+    kill $RC_RCLONE_PID 2>/dev/null || true
+  fi
+}
+
+# Ensure cleanup runs on exit or interruption
+trap cleanup EXIT INT TERM
 
 
 LOG_FILE="/tmp/restic_$(date +"%Y-%m-%d_%H-%M-%S").log"
