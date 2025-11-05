@@ -10,6 +10,9 @@ export RESTIC_PASSWORD="op://Private/Backblaze Restic Repo/password"
 LOG_FILE="/tmp/restic_$(date +"%Y-%m-%d_%H-%M-%S").log"
 MOUNTPOINT="/mnt/pcloud"
 
+# log into 1password
+eval $(op signin)
+
 # make sure mountpoint exists
 mkdir -p "$MOUNTPOINT"
 
@@ -17,7 +20,7 @@ mkdir -p "$MOUNTPOINT"
 RC_RCLONE_PID=""
 if ! mountpoint -q "$MOUNTPOINT"; then
   # Start rclone in background and redirect its logs to the same log file
-  op run -- nohup rclone mount pcloud: "$MOUNTPOINT" --read-only --buffer-size 64M --transfers 16 --checkers 8 --dir-cache-time 5m >>"$LOG_FILE" 2>&1 &
+  nohup rclone mount pcloud: "$MOUNTPOINT" --read-only --buffer-size 64M --transfers 16 --checkers 8 --dir-cache-time 5m >>"$LOG_FILE" 2>&1 &
   RC_RCLONE_PID=$!
 
   # Wait up to 30 seconds for the mount to appear
@@ -39,12 +42,18 @@ fi
 
 # Cleanup function: unmount and kill rclone if we started it.
 cleanup() {
+  if [ -n "$RC_RCLONE_PID" ]; then
+    # Kill rclone first to stop any ongoing operations
+    kill $RC_RCLONE_PID 2>/dev/null || true
+    # Give it a moment to exit cleanly
+    sleep 1
+  fi
+  
   if mountpoint -q "$MOUNTPOINT"; then
+    # Wait a bit for any file operations to complete
+    sleep 2
     # Try to unmount gracefully; fallback to lazy unmount
     fusermount -u "$MOUNTPOINT" 2>/dev/null || umount -l "$MOUNTPOINT" 2>/dev/null || true
-  fi
-  if [ -n "$RC_RCLONE_PID" ]; then
-    kill $RC_RCLONE_PID 2>/dev/null || true
   fi
 }
 
