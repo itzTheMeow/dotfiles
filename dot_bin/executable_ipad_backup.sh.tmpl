@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+export RESTIC_REPOSITORY=
+
+SSH_AUTH_SOCK=~/.1password/agent.sock rclone mount ipad:/ /mnt/ipad &
+
+restic backup /mnt/ipad \
+  --exclude /System \
+  --exclude /dev \
+  --exclude /proc \
+  --exclude /tmp
