@@ -61,81 +61,8 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "backing up..." >&2
-# Use restic's JSON lines mode: JSON (machine) logs are written to stdout.
-# We parse each line and display progress to stderr, while logging important
-# messages to the log file.
-op run -- restic backup --json "$MOUNTPOINT" "$@" 2>&2 | while IFS= read -r line; do
-  # Try to parse as JSON
-  if message_type=$(echo "$line" | jq -r '.message_type // empty' 2>/dev/null); then
-    case "$message_type" in
-      status)
-        # Extract status fields
-        percent=$(echo "$line" | jq -r '.percent_done // 0')
-        files_done=$(echo "$line" | jq -r '.files_done // 0')
-        total_files=$(echo "$line" | jq -r '.total_files // 0')
-        bytes_done=$(echo "$line" | jq -r '.bytes_done // 0')
-        total_bytes=$(echo "$line" | jq -r '.total_bytes // 0')
-        seconds_remaining=$(echo "$line" | jq -r '.seconds_remaining // 0')
-        error_count=$(echo "$line" | jq -r '.error_count // 0')
-        current_files=$(echo "$line" | jq -r '.current_files[]? // empty' | head -n 3)
-        
-        # Convert bytes to human readable
-        bytes_done_h=$(numfmt --to=iec-i --suffix=B "$bytes_done" 2>/dev/null || echo "${bytes_done}B")
-        total_bytes_h=$(numfmt --to=iec-i --suffix=B "$total_bytes" 2>/dev/null || echo "${total_bytes}B")
-        
-        # Format progress message (only to terminal, not log file)
-        percent_int=$(printf "%.1f" "$(echo "$percent * 100" | bc -l 2>/dev/null || echo 0)")
-        
-        # Show current file being processed (if any)
-        if [ -n "$current_files" ]; then
-          current_file_display=$(echo "$current_files" | head -n 1 | sed 's/.*\///' | cut -c1-40)
-          printf "\r[%s%%] %s/%s files, %s/%s, ~%ds remaining | %s" \
-            "$percent_int" "$files_done" "$total_files" "$bytes_done_h" "$total_bytes_h" "$seconds_remaining" "$current_file_display" >&2
-        else
-          printf "\r[%s%%] %s/%s files, %s/%s, ~%ds remaining" \
-            "$percent_int" "$files_done" "$total_files" "$bytes_done_h" "$total_bytes_h" "$seconds_remaining" >&2
-        fi
-        ;;
-      error)
-        # Extract error details
-        error_msg=$(echo "$line" | jq -r '.error.message // "unknown error"')
-        during=$(echo "$line" | jq -r '.during // ""')
-        item=$(echo "$line" | jq -r '.item // ""')
-        
-        # Print to stderr
-        echo -e "\nError: $error_msg" >&2
-        [ -n "$during" ] && echo "  During: $during" >&2
-        [ -n "$item" ] && echo "  Item: $item" >&2
-        
-        # Log to file
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $error_msg" >>"$LOG_FILE"
-        [ -n "$during" ] && echo "  During: $during" >>"$LOG_FILE"
-        [ -n "$item" ] && echo "  Item: $item" >>"$LOG_FILE"
-        ;;
-      summary)
-        # Extract summary info and print to both terminal and log
-        summary_output=$(echo "$line" | jq -r 'to_entries | map("\(.key): \(.value)") | .[]')
-        echo "" >&2  # Clear progress line
-        echo "Backup complete!" >&2
-        echo "$summary_output" >&2
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup Summary:" >>"$LOG_FILE"
-        echo "$summary_output" >>"$LOG_FILE"
-        ;;
-      *)
-        # Unknown message type, log to both terminal and file
-        echo "$line" >&2
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] $line" >>"$LOG_FILE"
-        ;;
-    esac
-  else
-    # Not JSON or failed to parse, treat as plain text - log to both
-    echo "$line" >&2
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $line" >>"$LOG_FILE"
-  fi
-done
-
-echo "" >&2  # Final newline after progress
+op run -- restic backup "$MOUNTPOINT" "$@" 2>&1 | tee -a $LOG_FILE
 
 if command -v ntfy &>/dev/null; then
-  NTFY_TOPIC="$NTFY_TOPIC-backups" ntfy publish -t "Restic Backup Complete" "$(cat "$LOG_FILE")"
+  NTFY_TOPIC="$NTFY_TOPIC-backups" ntfy publish -t "Restic Backup Complete" "$(cat $LOG_FILE)"
 fi
