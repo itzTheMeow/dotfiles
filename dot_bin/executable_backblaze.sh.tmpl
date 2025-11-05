@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env -S op run -- bash
 
 export AWS_ACCESS_KEY_ID={{ onepasswordRead "op://Private/Backblaze/Application Keys/xela-codes-nas-id" }}
-export AWS_SECRET_ACCESS_KEY={{ onepasswordRead "op://Private/Backblaze/Application Keys/xela-codes-nas-applicationKey" }}
-
+export AWS_SECRET_ACCESS_KEY="op://Private/Backblaze/Application Keys/xela-codes-nas-applicationKey"
 
 export RESTIC_COMPRESSION=max
 export RESTIC_REPOSITORY=s3:s3.us-east-005.backblazeb2.com/xela-codes-nas
-export RESTIC_PASSWORD={{ onepasswordRead "op://Private/Backblaze Restic Repo/password" }}
+export RESTIC_PASSWORD="op://Private/Backblaze Restic Repo/password"
 
+# make sure mountpoint exists
 mkdir -p /mnt/pcloud
 
 # Start rclone in background if not already mounted. Capture PID so we can clean up.
