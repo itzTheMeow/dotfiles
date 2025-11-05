@@ -61,7 +61,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "backing up..." >&2
-op run -- restic backup "$MOUNTPOINT" "$@" 2>&1 | tee -a $LOG_FILE
+op run -- restic backup "$MOUNTPOINT" "$@" 2>&1 | tee -a "$LOG_FILE" >&2
 
 if command -v ntfy &>/dev/null; then
   NTFY_TOPIC="$NTFY_TOPIC-backups" ntfy publish -t "Restic Backup Complete" "$(cat $LOG_FILE)"
