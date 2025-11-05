@@ -7,6 +7,7 @@ export RESTIC_COMPRESSION=max
 export RESTIC_REPOSITORY=s3:s3.us-east-005.backblazeb2.com/xela-codes-nas
 export RESTIC_PASSWORD="op://Private/Backblaze Restic Repo/password"
 
+LOG_FILE="/tmp/restic_$(date +"%Y-%m-%d_%H-%M-%S").log"
 MOUNTPOINT="/mnt/pcloud"
 
 # make sure mountpoint exists
@@ -15,8 +16,8 @@ mkdir -p "$MOUNTPOINT"
 # Start rclone in background if not already mounted. Capture PID so we can clean up.
 RC_RCLONE_PID=""
 if ! mountpoint -q "$MOUNTPOINT"; then
-  # Start rclone in background and redirect its logs to a temporary file
-  op run -- nohup rclone mount pcloud: "$MOUNTPOINT" --read-only --buffer-size 64M --transfers 16 --checkers 8 --dir-cache-time 5m >/tmp/rclone_mount.log 2>&1 &
+  # Start rclone in background and redirect its logs to the same log file
+  op run -- nohup rclone mount pcloud: "$MOUNTPOINT" --read-only --buffer-size 64M --transfers 16 --checkers 8 --dir-cache-time 5m >>"$LOG_FILE" 2>&1 &
   RC_RCLONE_PID=$!
 
   # Wait up to 30 seconds for the mount to appear
@@ -32,6 +33,8 @@ if ! mountpoint -q "$MOUNTPOINT"; then
     kill $RC_RCLONE_PID 2>/dev/null || true
     exit 1
   fi
+
+  echo "rclone mounted" >&2
 fi
 
 # Cleanup function: unmount and kill rclone if we started it.
@@ -48,9 +51,7 @@ cleanup() {
 # Ensure cleanup runs on exit or interruption
 trap cleanup EXIT INT TERM
 
-
-LOG_FILE="/tmp/restic_$(date +"%Y-%m-%d_%H-%M-%S").log"
-
+echo "backing up..." >&2
 op run -- restic backup "$MOUNTPOINT" "$@" 2>&1 | tee -a $LOG_FILE
 
 if command -v ntfy &>/dev/null; then
