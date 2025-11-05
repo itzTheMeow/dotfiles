@@ -61,11 +61,10 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "backing up..." >&2
-# Use restic's JSON lines mode: JSON (machine) logs are written to stdout and
-# progress output is sent to stderr. Redirect stdout to the log file so the
-# JSON-lines are captured, while leaving stderr alone so the progress bar shows
-# up on the user's terminal.
-op run -- restic backup --json "$MOUNTPOINT" "$@" 2>&1 | while IFS= read -r line; do
+# Use restic's JSON lines mode: JSON (machine) logs are written to stdout.
+# We parse each line and display progress to stderr, while logging important
+# messages to the log file.
+op run -- restic backup --json "$MOUNTPOINT" "$@" 2>&2 | while IFS= read -r line; do
   # Try to parse as JSON
   if message_type=$(echo "$line" | jq -r '.message_type // empty' 2>/dev/null); then
     case "$message_type" in
@@ -78,6 +77,7 @@ op run -- restic backup --json "$MOUNTPOINT" "$@" 2>&1 | while IFS= read -r line
         total_bytes=$(echo "$line" | jq -r '.total_bytes // 0')
         seconds_remaining=$(echo "$line" | jq -r '.seconds_remaining // 0')
         error_count=$(echo "$line" | jq -r '.error_count // 0')
+        current_files=$(echo "$line" | jq -r '.current_files[]? // empty' | head -n 3)
         
         # Convert bytes to human readable
         bytes_done_h=$(numfmt --to=iec-i --suffix=B "$bytes_done" 2>/dev/null || echo "${bytes_done}B")
@@ -85,8 +85,16 @@ op run -- restic backup --json "$MOUNTPOINT" "$@" 2>&1 | while IFS= read -r line
         
         # Format progress message (only to terminal, not log file)
         percent_int=$(printf "%.1f" "$(echo "$percent * 100" | bc -l 2>/dev/null || echo 0)")
-        printf "\r[%s%%] %s/%s files, %s/%s, ~%ds remaining" \
-          "$percent_int" "$files_done" "$total_files" "$bytes_done_h" "$total_bytes_h" "$seconds_remaining" >&2
+        
+        # Show current file being processed (if any)
+        if [ -n "$current_files" ]; then
+          current_file_display=$(echo "$current_files" | head -n 1 | sed 's/.*\///' | cut -c1-40)
+          printf "\r[%s%%] %s/%s files, %s/%s, ~%ds remaining | %s" \
+            "$percent_int" "$files_done" "$total_files" "$bytes_done_h" "$total_bytes_h" "$seconds_remaining" "$current_file_display" >&2
+        else
+          printf "\r[%s%%] %s/%s files, %s/%s, ~%ds remaining" \
+            "$percent_int" "$files_done" "$total_files" "$bytes_done_h" "$total_bytes_h" "$seconds_remaining" >&2
+        fi
         ;;
       error)
         # Extract error details
