@@ -1,15 +1,14 @@
 { pkgs, ... }:
 let
-  username = "meow";
+  username = "root";
 in
 {
   home = {
     inherit username;
-    homeDirectory = "/home/${username}";
+    homeDirectory = "/root";
 
     packages = with pkgs; [
-      nixfmt-rfc-style
-      nixd
+
     ];
   };
 }

@@ -7,8 +7,9 @@
       # obviously needed
       home-manager
 
-      rustic
       ncdu
+      rclone
+      rustic
     ];
   };
 }
