@@ -6,7 +6,8 @@
       home-manager
       nixfmt-rfc-style
 
-      rustic ncdu
+      rustic
+      ncdu
     ];
 
     username = "meow";
