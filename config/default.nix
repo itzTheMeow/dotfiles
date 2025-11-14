@@ -19,7 +19,7 @@ in
   programs = {
     bash = {
       enable = true;
-      bashrcExtra = "source ~/.profile";
+      bashrcExtra = "source ~/.profile_extra";
       inherit shellAliases;
     };
     zsh = {
