@@ -20,6 +20,8 @@ let
   };
 in
 {
+  news.display = "silent";
+
   home = {
     stateVersion = "23.11"; # not to be changed
 
