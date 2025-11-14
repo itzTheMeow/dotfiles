@@ -3,8 +3,14 @@
 {
   home = {
     packages = with pkgs; [
+      # vscode nix editing
       nixfmt-rfc-style
       nixd
+
+      # development
+      bun
+      cargo
+      deno
 
       # fonts
       nerd-fonts.caskaydia-mono
