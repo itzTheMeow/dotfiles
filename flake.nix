@@ -22,7 +22,8 @@
           inherit pkgs;
           modules = [
             ./config
-            ./config/kubuntu.nix
+            ./config/computers
+            ./config/computers/kubuntu.nix
           ];
         };
 
