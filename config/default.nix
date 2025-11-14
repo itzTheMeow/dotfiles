@@ -18,6 +18,11 @@ in
       # obviously needed
       home-manager
 
+      # for startup message
+      lolcat
+
+      # tools
+      ffmpeg
       ncdu
       rclone
       rustic
@@ -53,17 +58,3 @@ in
 # {{- if eq .box_group "nvstly" }}
 # 	name = NVSTly
 # 	email = team@nvst.ly
-# {{- end }}
-# {{- if not .headless }}
-# {{- if not .headless }}
-# [gpg]
-# 	format = ssh
-# [gpg "ssh"]
-# {{- if eq .chezmoi.os "darwin" }}
-# 	program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-# {{- else if eq .chezmoi.os "linux" }}
-# 	program = "/opt/1Password/op-ssh-sign"
-# {{- end }}
-# [commit]
-# 	gpgsign = true
-# {{- end }}
