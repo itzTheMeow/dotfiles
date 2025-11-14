@@ -1,6 +1,15 @@
 { pkgs, ... }:
 let
   shellAliases = {
+    # basic
+    ll = "ls -alF";
+    la = "ls -A";
+    l = "ls -CF";
+    txz = "tar -cJf";
+    python = "python3";
+    pip = "python3 -m pip";
+
+    # short custom commands
     git-clear = ''
       git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
     '';
@@ -18,12 +27,17 @@ in
       # obviously needed
       home-manager
 
+      # basic dependencies
+      ffmpeg
+      unzip
+      wget
+
       # for startup message
       lolcat
 
       # tools
-      ffmpeg
       ncdu
+      ntfy-sh
       rclone
       rustic
       speedtest-cli
@@ -35,7 +49,10 @@ in
   programs = {
     bash = {
       enable = true;
-      bashrcExtra = "source ~/.profile_extra";
+      bashrcExtra = ''
+        source ~/.profile_extra
+        0x0() { curl -F "file=@$1" https://0x0.st; }
+      '';
       inherit shellAliases;
     };
     zsh = {
