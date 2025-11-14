@@ -2,7 +2,8 @@
 {
   home = {
     packages = with pkgs; [
-      hello
+      home-manager
+#      nixfmt-rfc-style
     ];
 
     username = "meow";
