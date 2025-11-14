@@ -1,6 +1,11 @@
 { pkgs, ... }:
 let
-  shellAliases = { };
+  shellAliases = {
+    nixup = ''
+      current_flake=$(nixup_currentflake)
+      home-manager switch --flake ~/.dotfiles#$current_flake
+    '';
+  };
 in
 {
   home = {
@@ -14,6 +19,8 @@ in
       rclone
       rustic
     ];
+
+    file.".config/ncdu/config".text = "--exclude pCloudDrive";
   };
 
   programs = {
