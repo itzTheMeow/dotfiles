@@ -1,5 +1,3 @@
-.PHONY: clean update
-
 update:
 	nix flake update
 
