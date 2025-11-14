@@ -11,4 +11,7 @@ in
 
     ];
   };
+  programs.bash.shellAliases = {
+    nixup_currentflake = "echo -n kubuntu";
+  };
 }
