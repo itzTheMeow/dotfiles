@@ -12,8 +12,6 @@ cd ~
 PROMPT=(whiptail --separate-output --checklist "Choose packages to install" 20 78 10)
 OPTIONS=(
 	brew "Homebrew" ON
-	deno "Deno" ON
-	ntfy "NTFY CLI" ON
 	nvm "Node Version Manager" ON
 	omp "Oh My Posh" ON
 	opcli "1Password CLI" ON
@@ -25,15 +23,6 @@ if [ -z "$CHOICES" ]; then
 	echo "No extras selected!"
 fi
 
-# Update/Install Packages
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install -y bzip2 unzip wget
-sudo apt-get autoremove -y
-
-NCDU_VERSION="${NCDU_VERSION:-2.8}"
-RESTIC_VERSION="${RESTIC_VERSION:-0.18.0}"
-
 inst_brew() {
 	# Install Homebrew
 	echo "Installing Homebrew..."
@@ -43,31 +32,11 @@ inst_brew() {
 	# Has to be run outside of shell context.
 	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 }
-inst_deno() {
-	# Install Deno
-	echo "Installing Deno..."
-	(
-		curl -fsSL https://deno.land/install.sh | sh
-	)
-}
 inst_omp() {
 	# Install Oh My Posh
 	echo "Installing OMP..."
 	(
 		curl -s https://ohmyposh.dev/install.sh | bash -s
-	)
-}
-inst_ntfy() {
-	# Install ntfy CLI
-	echo "Installing ntfy CLI"
-	(
-		sudo mkdir -p /etc/apt/keyrings
-		curl -fsSL https://archive.heckel.io/apt/pubkey.txt | sudo gpg --dearmor -o /etc/apt/keyrings/archive.heckel.io.gpg
-		sudo apt install apt-transport-https
-		sudo sh -c "echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/archive.heckel.io.gpg] https://archive.heckel.io/apt debian main' \
-      > /etc/apt/sources.list.d/archive.heckel.io.list"
-		sudo apt update
-		sudo apt -y install ntfy
 	)
 }
 inst_nvm() {
@@ -101,12 +70,8 @@ inst_onepassword() {
 for choice in $CHOICES; do
 	if [ "$choice" = "brew" ]; then
 		inst_brew
-	elif [ "$choice" = "deno" ]; then
-		inst_deno
 	elif [ "$choice" = "omp" ]; then
 		inst_omp
-	elif [ "$choice" = "ntfy" ]; then
-		inst_ntfy
 	elif [ "$choice" = "nvm" ]; then
 		inst_nvm
 	elif [ "$choice" = "opcli" ]; then

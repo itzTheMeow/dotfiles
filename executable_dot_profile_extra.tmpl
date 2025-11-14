@@ -34,12 +34,6 @@ fi
 # Homebrew
 [ -d "/home/linuxbrew/.linuxbrew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-# Rust/Cargo
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-
-# Deno
-[ -f "$HOME/.deno/env" ] && . "$HOME/.deno/env"
-
 # Restic
 export RESTIC_COMPRESSION=max
 {{- if eq .box "mac" }}
@@ -71,10 +65,6 @@ esac
 export PATH=$(echo $PATH | sed 's|:/root/.local/share/pnpm||')
 {{- end }}
 
-# Bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
 # ntfy
 {{- if eq .box_group "nvstly" }}
 export NTFY_TOPIC=ntfy.xela.codes/nvstly
@@ -103,28 +93,13 @@ export QT_QPA_PLATFORMTHEME=xdgdesktopportal
 #############
 ## Aliases ##
 #############
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias txz="tar -cJf"
-alias python="python3"
-alias pip="python3 -m pip"
 
 # Custom Commands
 alias codearchive="{{ .chezmoi.homeDir }}/.bin/codearchive.sh"
 alias ffconcat="{{ .chezmoi.homeDir }}/.bin/ffconcat.sh"
 alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
 
-# File Uploader
-0x0() {
-	curl -F "file=@$1" https://0x0.st
-}
-
 # OS Specific
-{{- if eq .box "home" }}
-# Restart KDE Plasma Shell
-alias r="kquitapp5 plasmashell || killall plasmashell && kstart5 plasmashell"
-{{- end }}
 {{- if eq .chezmoi.os "darwin" }}
 # Open VSCode
 alias code="open -a /Applications/Visual\ Studio\ Code.app"
