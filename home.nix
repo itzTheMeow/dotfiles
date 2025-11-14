@@ -2,9 +2,11 @@
 {
   home = {
     packages = with pkgs; [
+      # base stuff
       home-manager
-      rustic
       nixfmt-rfc-style
+
+      rustic ncdu
     ];
 
     username = "meow";
