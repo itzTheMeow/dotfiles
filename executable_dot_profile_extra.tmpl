@@ -155,8 +155,6 @@ test -e "$HOME/.shellfishrc" && source "$HOME/.shellfishrc"
 # Interactive Shell Options #
 #############################
 if [[ $- == *i* ]]; then
-	clear
-
 	# History Settings
 	if [[ -n "$ZSH_VERSION" ]]; then
 		HISTSIZE=10000
