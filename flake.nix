@@ -25,6 +25,14 @@
             ./config/kubuntu.nix
           ];
         };
+
+        hyzenberg = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          modules = [
+            ./config
+            ./config/hyzenberg.nix
+          ];
+        };
       };
     };
 }
