@@ -1,7 +1,7 @@
 .PHONY: clean update
 
 update:
-	home-manager switch --flake .#kubuntu
+	nix flake update
 
 clean:
 	nix-collect-garbage -d
