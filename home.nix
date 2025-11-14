@@ -5,6 +5,7 @@
       # base stuff
       home-manager
       nixfmt-rfc-style
+      nixd
 
       rustic
       ncdu
