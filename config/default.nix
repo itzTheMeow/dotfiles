@@ -66,6 +66,12 @@ in
       userEmail = "github@xela.codes";
       extraConfig = {
         pull.rebase = false;
+        
+        # borrowed from https://github.com/bobvanderlinden/nixos-config/blob/0c09c5c162413816d3278c406d85c05f0010527c/home/default.nix#L938
+        url."git@github.com:".insteadOf = [
+          "https://github.com/"
+          "github:"
+        ];
       };
     };
   };
