@@ -62,9 +62,11 @@ in
 
     git = {
       enable = true;
-      userName = "Meow";
-      userEmail = "github@xela.codes";
-      extraConfig = {
+      user = {
+        name = "Meow";
+        email = "github@xela.codes";
+      };
+      settings = {
         pull.rebase = false;
         
         # borrowed from https://github.com/bobvanderlinden/nixos-config/blob/0c09c5c162413816d3278c406d85c05f0010527c/home/default.nix#L938
