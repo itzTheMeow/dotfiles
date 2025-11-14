@@ -8,7 +8,21 @@
 
       # fonts
       nerd-fonts.caskaydia-mono
+
+      # tools
+      immich-cli
     ];
+
+    file = {
+      ".config/1Password/ssh/agent.toml".text = ''
+        [[ssh-keys]]
+        vault = "Private"
+        [[ssh-keys]]
+        vault = "NVSTly"
+        [[ssh-keys]]
+        vault = "NVSTly Internal"
+      '';
+    };
   };
   fonts.fontconfig.enable = true;
 
@@ -25,11 +39,7 @@
         tab_bar_min_tabs = 1;
         tab_bar_style = "slant";
       };
-      shellIntegration = {
-        mode = "no-cursor";
-        enableBashIntegration = true;
-        enableZshIntegration = true;
-      };
+      shellIntegration.mode = "no-cursor";
       themeFile = "Catppuccin-Mocha";
     };
   };
