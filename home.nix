@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 {
   home = {
     packages = with pkgs; [
@@ -14,6 +14,6 @@
     username = "meow";
     homeDirectory = "/home/meow";
 
-    stateVersion = "23.11";
+    stateVersion = "23.11"; # not to be changed
   };
 }
