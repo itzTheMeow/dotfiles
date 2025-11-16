@@ -2,12 +2,12 @@
 let
   shellAliases = {
     # basic
-    ll = "ls -alF";
     la = "ls -A";
-    l = "ls -CF";
+    ll = "ls -alF";
     txz = "tar -cJf";
     python = "python3";
     pip = "python3 -m pip";
+    qmv = "qmv -ospaces"; # use spaces for qmv
 
     # short custom commands
     git-clear = ''
