@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, hostname, ... }:
 let
   shellAliases = {
     # basic
@@ -13,10 +13,7 @@ let
     git-clear = ''
       git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
     '';
-    nixup = ''
-      current_flake=$(nixup_currentflake)
-      home-manager switch --flake ~/.dotfiles#$current_flake
-    '';
+    nixup = "home-manager switch --flake ~/.dotfiles#${hostname}";
   };
 in
 {
