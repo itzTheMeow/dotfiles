@@ -1,7 +1,7 @@
 { pkgs }:
 with pkgs;
 discordchatexporter-desktop.overrideAttrs (old: {
-  # add a desktop file
+  # add a desktop file with an icon
   nativeBuildInputs = old.nativeBuildInputs ++ [ copyDesktopItems ];
   postFixup = old.postFixup + ''
     mkdir -p $out/share/icons/hicolor/256x256/apps
