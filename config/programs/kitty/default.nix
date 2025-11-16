@@ -14,7 +14,6 @@
       tab_bar_style = "slant";
     };
     shellIntegration.mode = "no-cursor";
-    themeFile = "Catppuccin-Mocha";
   };
   catppuccin.kitty.enable = true;
 }
