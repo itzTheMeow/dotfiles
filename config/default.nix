@@ -26,11 +26,12 @@ in
     stateVersion = "23.11"; # not to be changed
 
     packages = with pkgs; [
-      # obviously needed
-      home-manager
+      # nix-related
+      nh
 
       # basic dependencies
       ffmpeg
+      renameutils
       unzip
       wget
 
@@ -49,6 +50,8 @@ in
   };
 
   programs = {
+    home-manager.enable = true;
+
     bash = {
       enable = true;
       bashrcExtra = ''
