@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+case "$1" in
+clean)
+	nix-collect-garbage -d
+	;;
+update)
+	nix flake update ~/.dotfiles
+	;;
+edit)
+	code ~/.dotfiles
+	;;
+"")
+	home-manager switch --flake ~/.dotfiles#$HOSTNAME
+	;;
+*)
+	echo "Usage: nx [clean|update|edit]"
+	;;
+esac

@@ -6,6 +6,7 @@ in
   imports = [
     ./common
     ./common/desktop.nix
+    ./programs/discordchatexporter
     ./programs/logisim
   ];
 
@@ -16,8 +17,5 @@ in
     packages = with pkgs; [
 
     ];
-  };
-  programs.bash.shellAliases = {
-    nixup_currentflake = "echo -n kubuntu";
   };
 }
