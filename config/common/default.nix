@@ -13,7 +13,8 @@ let
     git-clear = ''
       git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
     '';
-    nixup = "home-manager switch --flake ~/.dotfiles#${hostname}";
+    # utility to manage nix configuration
+    nx = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx}'';
   };
 in
 {
