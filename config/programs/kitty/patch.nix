@@ -1,6 +1,7 @@
 { pkgs }:
 with pkgs;
 kitty.overrideAttrs (old: {
+  # we have to patch kitty to include mesa otherwise it won't run
   buildInputs = (old.buildInputs or [ ]) ++ [
     mesa
   ];
