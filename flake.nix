@@ -30,6 +30,7 @@
 
           modules = [
             opnix.homeManagerModules.default
+            catppuccin.homeModules.catppuccin
             ./config/${hostname}.nix
           ];
 
