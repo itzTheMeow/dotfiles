@@ -4,7 +4,9 @@ let
 in
 {
   imports = [
-    ../programs/logisim
+    ./common
+    ./common/desktop.nix
+    ./programs/logisim
   ];
 
   home = {

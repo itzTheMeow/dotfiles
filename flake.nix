@@ -8,40 +8,40 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    catppuccin.url = "github:catppuccin/nix";
     opnix.url = "github:brizzbuzz/opnix";
   };
 
   outputs =
     {
-      nixpkgs,
+      catppuccin,
       home-manager,
+      nixpkgs,
       opnix,
       ...
-    }:
+    }@inputs:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      mkHomeConfiguration =
+        hostname:
+        home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+
+          modules = [
+            opnix.homeManagerModules.default
+            ./config/${hostname}.nix
+          ];
+
+          extraSpecialArgs = {
+            inherit inputs hostname;
+          };
+        };
     in
     {
       homeConfigurations = {
-        kubuntu = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          modules = [
-            opnix.homeManagerModules.default
-            ./config
-            ./config/computers
-            ./config/computers/kubuntu.nix
-          ];
-        };
-
-        hyzenberg = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          modules = [
-            opnix.homeManagerModules.default
-            ./config
-            ./config/hyzenberg.nix
-          ];
-        };
+        kubuntu = mkHomeConfiguration "kubuntu";
+        hyzenberg = mkHomeConfiguration "hyzenberg";
       };
     };
 }
