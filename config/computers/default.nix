@@ -29,6 +29,10 @@
         vault = "NVSTly Internal"
       '';
     };
+
+    sessionVariables = {
+      VISUAL = "code --wait";
+    };
   };
   fonts.fontconfig.enable = true;
 
