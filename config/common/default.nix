@@ -80,6 +80,11 @@ in
       };
     };
   };
+
+  catppuccin = {
+    flavor = "mocha";
+    accent = "mauve";
+  };
 }
 
 # [user]
