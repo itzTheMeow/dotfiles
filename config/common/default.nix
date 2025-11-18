@@ -9,7 +9,10 @@ let
   '';
 in
 {
-  imports = optionalImport ../../local.nix;
+  imports = [
+    ../programs/btop
+  ]
+  ++ optionalImport ../../local.nix;
   news.display = "silent";
 
   home = {
