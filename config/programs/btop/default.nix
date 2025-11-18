@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 {
   programs.btop = {
     enable = true;
@@ -8,6 +8,7 @@
       temp_scale = "fahrenheit";
       proc_per_core = false;
       use_fstab = true;
+      swap_disk = true;
     };
   };
   catppuccin.btop.enable = true;
