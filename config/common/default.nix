@@ -69,7 +69,6 @@ in
       bashrcExtra = initExtra;
     };
     zsh = {
-      enable = true;
       initContent = initExtra;
     };
 
