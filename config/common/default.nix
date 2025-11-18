@@ -24,15 +24,16 @@ in
 
       # basic dependencies
       ffmpeg
+      ncdu
       renameutils
+      tree
       unzip
       wget
 
       # for startup message
       lolcat
 
-      # tools
-      ncdu
+      # more complex tools
       ntfy-sh
       rclone
       rustic
