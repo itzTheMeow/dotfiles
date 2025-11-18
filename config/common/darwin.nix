@@ -1,10 +1,10 @@
 { pkgs, ... }:
 {
-  packages = with pkgs; [
-
-  ];
-
   home = {
+    packages = with pkgs; [
+
+    ];
+
     shellAliases = {
       # shortcuts for linux-like shell commands
       code = "open -a /Applications/Visual\ Studio\ Code.app";
