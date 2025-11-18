@@ -99,14 +99,6 @@ alias codearchive="{{ .chezmoi.homeDir }}/.bin/codearchive.sh"
 alias ffconcat="{{ .chezmoi.homeDir }}/.bin/ffconcat.sh"
 alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
 
-# OS Specific
-{{- if eq .chezmoi.os "darwin" }}
-# Open VSCode
-alias code="open -a /Applications/Visual\ Studio\ Code.app"
-# Remove Quarantine Status from Files
-alias unquarantine="xattr -r -d com.apple.quarantine"
-{{- end }}
-
 ###########
 ## Misc. ##
 ###########
@@ -121,9 +113,6 @@ fi
 if [ -d "{{ .chezmoi.homeDir }}/go/bin" ]; then
 	PATH="{{ .chezmoi.homeDir }}/go/bin:$PATH"
 fi
-
-# Secure ShellFish Integration
-test -e "$HOME/.shellfishrc" && source "$HOME/.shellfishrc"
 
 #############################
 # Interactive Shell Options #
