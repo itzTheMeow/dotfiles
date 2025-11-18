@@ -1,22 +1,6 @@
 { pkgs, hostname, ... }:
 let
   optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
-  shellAliases = {
-    # basic
-    la = "ls -A";
-    ll = "ls -alF";
-    txz = "tar -cJf";
-    python = "python3";
-    pip = "python3 -m pip";
-    qmv = "qmv -ospaces"; # use spaces for qmv
-
-    # short custom commands
-    git-clear = ''
-      git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
-    '';
-    # utility to manage nix configuration
-    nx = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx}'';
-  };
 in
 {
   imports = optionalImport ../../local.nix;
@@ -46,6 +30,24 @@ in
       speedtest-cli
     ];
 
+    shellAliases = {
+      # basic
+      la = "ls -A";
+      ll = "ls -alF";
+      txz = "tar -cJf";
+      python = "python3";
+      pip = "python3 -m pip";
+      qmv = "qmv -ospaces"; # use spaces for qmv
+
+      # short custom commands
+      git-clear = ''
+        git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
+      '';
+      "0x0" = builtins.toString ../../scripts/0x0;
+      # utility to manage nix configuration
+      nx = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx}'';
+    };
+
     file.".config/ncdu/config".text = "--exclude pCloudDrive";
   };
 
@@ -55,14 +57,12 @@ in
     bash = {
       enable = true;
       bashrcExtra = ''
+        clear
         source ~/.profile_extra
-        0x0() { curl -F "file=@$1" https://0x0.st; }
       '';
-      inherit shellAliases;
     };
     zsh = {
       enable = true;
-      inherit shellAliases;
     };
 
     git = {
