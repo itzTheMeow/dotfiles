@@ -26,7 +26,24 @@
       mkHomeConfiguration =
         system: hostname:
         home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs { inherit system; };
+          pkgs = import nixpkgs {
+            inherit system;
+
+            # fix fish on macos
+            overlays = [
+              (
+                final: prev:
+                if final.stdenv.isDarwin then
+                  {
+                    fish = prev.fish.overrideAttrs (_: {
+                      doCheck = false;
+                    });
+                  }
+                else
+                  { }
+              )
+            ];
+          };
 
           modules = [
             opnix.homeManagerModules.default
