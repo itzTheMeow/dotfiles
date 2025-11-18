@@ -1,6 +1,12 @@
 { pkgs, hostname, ... }:
 let
   optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
+
+  initExtra = ''
+    clear
+    [ -f "$HOME/.profile_extra" ] && source $HOME/.profile_extra
+    [ -f "$HOME/.shellfishrc" ] && source "$HOME/.shellfishrc"
+  '';
 in
 {
   imports = optionalImport ../../local.nix;
@@ -56,13 +62,11 @@ in
 
     bash = {
       enable = true;
-      bashrcExtra = ''
-        clear
-        [ -s "~/.profile_extra" ] && source ~/.profile_extra
-      '';
+      bashrcExtra = initExtra;
     };
     zsh = {
       enable = true;
+      initContent = initExtra;
     };
 
     git = {
