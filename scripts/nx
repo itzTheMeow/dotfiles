@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Utility script for nix management.
 
 case "$1" in
 clean)
