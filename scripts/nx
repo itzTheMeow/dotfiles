@@ -11,10 +11,14 @@ update)
 edit)
 	code ~/.dotfiles
 	;;
+pull)
+	cd ~/.dotfiles
+	git pull
+	;;
 "")
 	home-manager switch --flake ~/.dotfiles#$HOSTNAME
 	;;
 *)
-	echo "Usage: nx [clean|update|edit]"
+	echo "Usage: nx [clean|update|edit|pull]"
 	;;
 esac
