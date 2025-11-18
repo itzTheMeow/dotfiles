@@ -8,7 +8,7 @@
       temp_scale = "fahrenheit";
       proc_per_core = false;
       use_fstab = true;
-      swap_disk = true;
+      swap_disk = false;
     };
   };
   catppuccin.btop.enable = true;
