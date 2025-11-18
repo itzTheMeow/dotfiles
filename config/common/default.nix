@@ -23,7 +23,7 @@ in
   news.display = "silent";
 
   home = {
-    stateVersion = "23.11"; # not to be changed
+    stateVersion = "25.05"; # not to be changed
 
     packages = with pkgs; [
       # nix-related
