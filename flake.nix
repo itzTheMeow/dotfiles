@@ -41,8 +41,9 @@
     in
     {
       homeConfigurations = {
-        kubuntu = mkHomeConfiguration "kubuntu";
         hyzenberg = mkHomeConfiguration "hyzenberg";
+        kubuntu = mkHomeConfiguration "kubuntu";
+        netrohost = mkHomeConfiguration "netrohost";
       };
     };
 }
