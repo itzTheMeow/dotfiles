@@ -21,12 +21,12 @@
       ...
     }@inputs:
     let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
+      linux = "x86_64-linux";
+      darwin = "x86_64-darwin";
       mkHomeConfiguration =
-        hostname:
+        system: hostname:
         home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
+          pkgs = import nixpkgs { inherit system; };
 
           modules = [
             opnix.homeManagerModules.default
@@ -41,10 +41,11 @@
     in
     {
       homeConfigurations = {
-        hyzenberg = mkHomeConfiguration "hyzenberg";
-        kubuntu = mkHomeConfiguration "kubuntu";
-        macintosh = mkHomeConfiguration "macintosh";
-        netrohost = mkHomeConfiguration "netrohost";
+        hyzenberg = mkHomeConfiguration linux "hyzenberg";
+        kubuntu = mkHomeConfiguration linux "kubuntu";
+        netrohost = mkHomeConfiguration linux "netrohost";
+
+        macintosh = mkHomeConfiguration darwin "macintosh";
       };
     };
 }
