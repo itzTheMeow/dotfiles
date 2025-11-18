@@ -33,7 +33,7 @@
             overlays = [
               (
                 final: prev:
-                if final.stdenv.isDarwin then
+                if prev.stdenv.isDarwin then
                   {
                     fish = prev.fish.overrideAttrs (_: {
                       doCheck = false;
