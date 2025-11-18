@@ -5,7 +5,7 @@
 
     ];
 
-    shellAliases = {
+    shellAliases = builtins.list {
       # shortcuts for linux-like shell commands
       code = "open -a /Applications/Visual\ Studio\ Code.app";
       tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
