@@ -15,7 +15,7 @@ in
     homeDirectory = "/home/${username}";
 
     packages = with pkgs; [
-      fluent-reader
+      newsflash
     ];
   };
 }
