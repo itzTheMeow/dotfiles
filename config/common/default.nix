@@ -58,7 +58,7 @@ in
       enable = true;
       bashrcExtra = ''
         clear
-        source ~/.profile_extra
+        [ -s "~/.profile_extra" ] && source ~/.profile_extra
       '';
     };
     zsh = {
