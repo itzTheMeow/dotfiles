@@ -43,6 +43,7 @@
       homeConfigurations = {
         hyzenberg = mkHomeConfiguration "hyzenberg";
         kubuntu = mkHomeConfiguration "kubuntu";
+        macintosh = mkHomeConfiguration "macintosh";
         netrohost = mkHomeConfiguration "netrohost";
       };
     };
