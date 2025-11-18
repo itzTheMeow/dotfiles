@@ -1,5 +1,6 @@
 { pkgs, hostname, ... }:
 let
+  optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
   shellAliases = {
     # basic
     la = "ls -A";
@@ -18,6 +19,7 @@ let
   };
 in
 {
+  imports = optionalImport ../../local.nix;
   news.display = "silent";
 
   home = {
