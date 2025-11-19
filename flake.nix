@@ -38,6 +38,9 @@
                     fish = prev.fish.overrideAttrs (_: {
                       doCheck = false;
                     });
+                    home-manager = prev.home-manager.overrideAttrs (old: {
+                      doCheck = false;
+                    });
                   }
                 else
                   { }

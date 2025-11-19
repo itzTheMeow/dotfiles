@@ -46,8 +46,7 @@
         key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUZNxXcceFgiGEGJlvFM1DLaYFMOYO+oVfVmCcUqXRw";
         signer =
           if pkgs.stdenv.isDarwin then
-            ""
-          #"/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+            "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
           else
             "/opt/1Password/op-ssh-sign";
         signByDefault = true;
