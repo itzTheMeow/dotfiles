@@ -6,7 +6,7 @@ clean)
 	nix-collect-garbage -d
 	;;
 update)
-	nix flake update ~/.dotfiles
+	nix flake update --flake ~/.dotfiles
 	;;
 edit)
 	code ~/.dotfiles
