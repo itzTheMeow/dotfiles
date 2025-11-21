@@ -6,6 +6,9 @@ let
     clear
     [ -f "$HOME/.profile_extra" ] && source $HOME/.profile_extra
     [ -f "$HOME/.shellfishrc" ] && source "$HOME/.shellfishrc"
+
+    export BUN_INSTALL="$HOME/.bun" 
+    export PATH="$BUN_INSTALL/bin:$PATH" 
   '';
 in
 {
