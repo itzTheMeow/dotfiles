@@ -8,7 +8,7 @@ echo "Installing nix..."
 sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --daemon
 
 echo "Enabling flakes..."
-mkdir "$HOME/.config/nix"
+mkdir ~/.config/nix
 echo "experimental-features = nix-command flakes" >~/.config/nix/nix.conf
 
 echo "Cloning dotfiles..."
