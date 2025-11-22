@@ -18,5 +18,5 @@ cd "$DOTFILES"
 
 echo "Setup complete, entering home-manager shell. Run:
 home-manager switch --flake ~/.dotfiles#xxx"
-source /etc/profile.d/nix.sh
+source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 nix shell nixpkgs#home-manager
