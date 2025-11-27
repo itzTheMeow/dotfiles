@@ -9,7 +9,8 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
-    opnix.url = "github:brizzbuzz/opnix";
+    #opnix.url = "github:brizzbuzz/opnix";
+    opnix.url = "github:itzTheMeow/opnix";
   };
 
   outputs =
