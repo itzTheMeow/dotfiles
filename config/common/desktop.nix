@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, utils, ... }:
 {
   imports = [
     ../programs/kitty
@@ -23,6 +23,11 @@
     ];
 
     file = {
+      # "op://Private/Immich/API Keys/CLI"
+      ".config/immich/auth.yml".text = ''
+        url: https://immich.xela.codes/api
+        key: ${utils.secretPlaceholder "IMMICH_KEY"}
+      '';
       ".config/1Password/ssh/agent.toml".text = ''
         [[ssh-keys]]
         vault = "Private"
