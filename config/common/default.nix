@@ -1,7 +1,10 @@
-{ pkgs, hostname, ... }:
+{
+  pkgs,
+  hostname,
+  utils,
+  ...
+}:
 let
-  optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
-
   initExtra = ''
     clear
     [ -f "$HOME/.profile_extra" ] && source $HOME/.profile_extra
@@ -15,7 +18,7 @@ in
   imports = [
     ../programs/btop
   ]
-  ++ optionalImport ../../local.nix;
+  ++ utils.optionalImport ../../local.nix;
   news.display = "silent";
 
   home = {
