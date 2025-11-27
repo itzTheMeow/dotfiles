@@ -91,6 +91,18 @@ in
     };
   };
 
+  programs.onepassword-secrets = {
+    enable = true;
+    tokenFile = "/etc/opnix-token";
+
+    secrets = {
+      immichKey = {
+        reference = "op://Private/Immich/API Keys/CLI";
+        mode = "0400";
+      };
+    };
+  };
+
   catppuccin = {
     flavor = "mocha";
     accent = "mauve";
