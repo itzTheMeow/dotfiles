@@ -1,4 +1,9 @@
-{ pkgs, utils, ... }:
+{
+  config,
+  pkgs,
+  utils,
+  ...
+}:
 {
   imports = [
     ../programs/kitty
@@ -23,10 +28,10 @@
     ];
 
     file = {
-      # "op://Private/Immich/API Keys/CLI"
       ".config/immich/auth.yml".text = ''
         url: https://immich.xela.codes/api
         key: ${utils.secretPlaceholder "IMMICH_KEY"}
+        test: ${config.programs.onepassword-secrets.secretPaths.immichKey}
       '';
       ".config/1Password/ssh/agent.toml".text = ''
         [[ssh-keys]]
@@ -62,5 +67,6 @@
         "github:"
       ];
     };
+    onepassword-secrets.desktopIntegration = "Meow";
   };
 }
