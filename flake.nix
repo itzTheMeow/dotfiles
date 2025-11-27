@@ -53,6 +53,7 @@
 
           extraSpecialArgs = {
             inherit inputs hostname;
+            utils = import ./lib/utils.nix;
           };
         };
     in
