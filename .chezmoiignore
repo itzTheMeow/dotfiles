@@ -3,22 +3,13 @@ README.md
 
 {{- if ne .box "home" }}
 .bin/ipad_backup.sh
-.config/immich
 {{- end }}
 {{- if or (ne .chezmoi.os "linux") (.headless)  }}
 .config/autostart
-.local/share/mime
 {{- end }}
 {{- if .headless }}
 .config/activitywatch
-.config/kitty
 .ssh/*
-{{- end }}
-{{- if ne .chezmoi.os "linux" }}
-.bashrc
-{{- end }}
-{{- if ne .chezmoi.os "darwin" }}
-.zshrc
 {{- end }}
 {{- if ne .box "hyzen" }}
 .bin/backblaze.sh
