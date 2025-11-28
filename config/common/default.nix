@@ -102,9 +102,18 @@ in
 
     secrets = {
       immichKey = {
-        reference = "op://x4455gscttc5p7z42ff3dp2sky/Immich/API Keys/CLI";
+        reference = "op://Personal/Immich/API Keys/CLI";
         mode = "0400";
+        owner = "";
+        group = "";
         path = ".secrets/immich_key";
+      };
+      sshHyzenberg = {
+        reference = "op://Personal/Hyzenberg SSH Key/public key";
+        mode = "0644";
+        owner = "";
+        group = "";
+        path = ".ssh/hyzenberg.pub";
       };
     };
   };
