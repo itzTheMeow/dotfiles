@@ -21,6 +21,11 @@ in
   ++ utils.optionalImport ../../local.nix;
   news.display = "silent";
 
+  nix = {
+    package = pkgs.nix;
+    settings.experimental-features = "nix-command flakes";
+  };
+
   home = {
     stateVersion = "25.05"; # not to be changed
 
@@ -97,8 +102,9 @@ in
 
     secrets = {
       immichKey = {
-        reference = "op://Private/Immich/API Keys/CLI";
+        reference = "op://x4455gscttc5p7z42ff3dp2sky/Immich/API Keys/CLI";
         mode = "0400";
+        path = ".secrets/immich_key";
       };
     };
   };

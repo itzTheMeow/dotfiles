@@ -10,7 +10,7 @@
 
     catppuccin.url = "github:catppuccin/nix";
     #opnix.url = "github:brizzbuzz/opnix";
-    opnix.url = "github:itzTheMeow/opnix";
+    opnix.url = "github:itzTheMeow/opnix/a18b32d338d2316f12afe8c694525f1ef5b01c75";
   };
 
   outputs =
@@ -53,7 +53,7 @@
           ];
 
           extraSpecialArgs = {
-            inherit inputs hostname;
+            inherit inputs hostname home-manager;
             utils = import ./lib/utils.nix;
           };
         };
