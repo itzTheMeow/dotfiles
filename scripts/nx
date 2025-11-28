@@ -15,10 +15,13 @@ pull)
 	cd ~/.dotfiles
 	git pull
 	;;
+hash)
+	nix hash convert --hash-algo sha256 "$(nix-prefetch-url "$2")"
+	;;
 "")
-	home-manager switch --flake ~/.dotfiles#$HOSTNAME
+	home-manager switch --flake ~/.dotfiles#$HOSTNAME -b backup
 	;;
 *)
-	echo "Usage: nx [clean|update|edit|pull]"
+	echo "Usage: nx [clean|update|edit|pull|hash]"
 	;;
 esac

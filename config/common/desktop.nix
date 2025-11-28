@@ -1,5 +1,6 @@
 {
   config,
+  home-manager,
   pkgs,
   utils,
   ...
@@ -28,11 +29,6 @@
     ];
 
     file = {
-      ".config/immich/auth.yml".text = ''
-        url: https://immich.xela.codes/api
-        key: ${utils.secretPlaceholder "IMMICH_KEY"}
-        test: ${config.programs.onepassword-secrets.secretPaths.immichKey}
-      '';
       ".config/1Password/ssh/agent.toml".text = ''
         [[ssh-keys]]
         vault = "Private"
@@ -42,6 +38,12 @@
         vault = "NVSTly Internal"
       '';
     };
+    activation.replaceSecrets = home-manager.lib.hm.dag.entryAfter [ "linkGeneration" ] (
+      utils.writeSecretFile ".config/immich/auth.yml" ''
+        url: https://immich.xela.codes/api
+        key: $(<${config.programs.onepassword-secrets.secretPaths.immichKey})
+      ''
+    );
 
     sessionVariables = {
       VISUAL = "code --wait";
@@ -67,6 +69,7 @@
         "github:"
       ];
     };
-    onepassword-secrets.desktopIntegration = "Meow";
   };
+
+  programs.onepassword-secrets.desktopIntegration = "Meow";
 }

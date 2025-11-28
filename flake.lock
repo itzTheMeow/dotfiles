@@ -110,16 +110,17 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1764282546,
-        "narHash": "sha256-+jThF8zkifBFPQ7clQ9eN9kcS/Ze7gMduG+4ORRa7Dg=",
+        "lastModified": 1764309301,
+        "narHash": "sha256-23nQQeaCnKYGyuFqpZLVjU6v2h9B418A/Tp1/yIrXNU=",
         "owner": "itzTheMeow",
         "repo": "opnix",
-        "rev": "ffce3d5fe4262fa2e2353409b4fec4ba6a2ff169",
+        "rev": "a18b32d338d2316f12afe8c694525f1ef5b01c75",
         "type": "github"
       },
       "original": {
         "owner": "itzTheMeow",
         "repo": "opnix",
+        "rev": "a18b32d338d2316f12afe8c694525f1ef5b01c75",
         "type": "github"
       }
     },
