@@ -5,7 +5,7 @@
   ...
 }:
 let
-  sshConfig = import ./ssh.nix { inherit utils; };
+  sshConfig = import ./ssh.nix { inherit pkgs utils; };
 in
 {
   imports = [
