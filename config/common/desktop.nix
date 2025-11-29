@@ -1,5 +1,4 @@
 {
-  config,
   home-manager,
   pkgs,
   utils,
@@ -37,13 +36,37 @@
         [[ssh-keys]]
         vault = "NVSTly Internal"
       '';
+      ".config/immich/auth.yml" = {
+        text = ''
+          url: https://immich.xela.codes/api
+          key: {{op://Personal/Immich/API Keys/CLI}}
+        '';
+        force = true;
+        opinject = true;
+      };
+      ".ssh/hyzenberg.pub" = {
+        text = "op://Personal/Hyzenberg SSH Key/public key";
+        force = true;
+        opinject = true;
+      };
     };
-    activation.replaceSecrets = home-manager.lib.hm.dag.entryAfter [ "linkGeneration" ] (
-      utils.writeSecretFile ".config/immich/auth.yml" ''
-        url: https://immich.xela.codes/api
-        key: $(<${config.programs.onepassword-secrets.secretPaths.immichKey})
-      ''
-    );
+
+    # prompts for 1password cli install, since we can't install via nix for desktop integration
+    activation.install1PasswordCLI = home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
+      if [ ! -f /usr/local/bin/op ]; then
+        cp ${pkgs._1password-cli}/bin/op /tmp/op-cli
+        cat << 'EOF' > /tmp/install_op.sh
+      #!/bin/bash
+      sudo mv /tmp/op-cli /usr/local/bin/op
+      sudo chgrp onepassword-cli /usr/local/bin/op
+      sudo chmod g+s /usr/local/bin/op
+      rm /tmp/install_op.sh
+      echo "Install complete."
+      EOF
+        chmod +x /tmp/install_op.sh
+        echo "Please run /tmp/install_op.sh to complete 1Password CLI installation"
+      fi
+    '';
 
     sessionVariables = {
       VISUAL = "code --wait";
@@ -70,6 +93,4 @@
       ];
     };
   };
-
-  programs.onepassword-secrets.desktopIntegration = "Meow";
 }

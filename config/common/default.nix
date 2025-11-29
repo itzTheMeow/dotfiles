@@ -96,28 +96,6 @@ in
     };
   };
 
-  programs.onepassword-secrets = {
-    enable = true;
-    tokenFile = "/etc/opnix-token";
-
-    secrets = {
-      immichKey = {
-        reference = "op://Personal/Immich/API Keys/CLI";
-        mode = "0400";
-        owner = "";
-        group = "";
-        path = ".secrets/immich_key";
-      };
-      sshHyzenberg = {
-        reference = "op://Personal/Hyzenberg SSH Key/public key";
-        mode = "0644";
-        owner = "";
-        group = "";
-        path = ".ssh/hyzenberg.pub";
-      };
-    };
-  };
-
   catppuccin = {
     flavor = "mocha";
     accent = "mauve";
