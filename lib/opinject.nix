@@ -12,7 +12,7 @@ in
   options.home.file = lib.mkOption {
     type = lib.types.attrsOf (
       lib.types.submodule (
-        { config, name, ... }:
+        { ... }:
         {
           options.opinject = lib.mkOption {
             type = lib.types.bool;
@@ -37,7 +37,7 @@ in
 
     home.activation.opinject = lib.hm.dag.entryAfter [ "writeBoundary" ] (
       let
-        opFiles = lib.filterAttrs (n: v: v.opinject) cfg;
+        opFiles = lib.filterAttrs (_: f: f.opinject) cfg;
         opPkg = "${pkgs._1password-cli}/bin/op";
         mkOpCommand =
           name: file:
