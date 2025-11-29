@@ -9,8 +9,7 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
-    #opnix.url = "github:brizzbuzz/opnix";
-    opnix.url = "github:itzTheMeow/opnix/a18b32d338d2316f12afe8c694525f1ef5b01c75";
+    #opnix.url = "github:itzTheMeow/opnix/a18b32d338d2316f12afe8c694525f1ef5b01c75";
   };
 
   outputs =
@@ -18,7 +17,6 @@
       catppuccin,
       home-manager,
       nixpkgs,
-      opnix,
       ...
     }@inputs:
     let
@@ -29,6 +27,7 @@
         home-manager.lib.homeManagerConfiguration {
           pkgs = import nixpkgs {
             inherit system;
+            config.allowUnfree = true;
 
             # fix fish on macos
             overlays = [
@@ -47,8 +46,8 @@
           };
 
           modules = [
-            opnix.homeManagerModules.default
             catppuccin.homeModules.catppuccin
+            ./lib/opinject.nix
             ./config/${hostname}.nix
           ];
 

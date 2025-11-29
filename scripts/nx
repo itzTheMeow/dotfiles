@@ -5,6 +5,9 @@ case "$1" in
 clean)
 	nix-collect-garbage -d
 	;;
+optimize)
+	nix store optimise
+	;;
 update)
 	nix flake update --flake ~/.dotfiles
 	;;
@@ -22,6 +25,6 @@ hash)
 	home-manager switch --flake ~/.dotfiles#$HOSTNAME -b backup
 	;;
 *)
-	echo "Usage: nx [clean|update|edit|pull|hash]"
+	echo "Usage: nx [clean|update|edit|pull|hash|optimize]"
 	;;
 esac
