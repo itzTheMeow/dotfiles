@@ -36,20 +36,12 @@
         [[ssh-keys]]
         vault = "NVSTly Internal"
       '';
-      ".config/immich/auth.yml" = {
-        text = ''
-          url: https://immich.xela.codes/api
-          key: {{op://Personal/Immich/API Keys/CLI}}
-        '';
-        force = true;
-        opinject = true;
-      };
-      ".ssh/hyzenberg.pub" = {
-        text = "op://Personal/Hyzenberg SSH Key/public key";
-        force = true;
-        opinject = true;
-      };
-    };
+    }
+    // utils.mkSecretFile ".config/immich/auth.yml" ''
+      url: https://immich.xela.codes/api
+      key: {{op://Personal/Immich/API Keys/CLI}}
+    ''
+    // utils.mkSecretFile ".ssh/hyzenberg.pub" "op://Personal/Hyzenberg SSH Key/public key";
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
     activation.install1PasswordCLI = home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
