@@ -1,4 +1,4 @@
-{
+rec {
   mkSecretFile = name: content: {
     "${name}" = {
       text = content;

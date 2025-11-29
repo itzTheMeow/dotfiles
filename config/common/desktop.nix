@@ -4,6 +4,9 @@
   utils,
   ...
 }:
+let
+  sshConfig = import ./ssh.nix { inherit utils; };
+in
 {
   imports = [
     ../programs/kitty
@@ -41,7 +44,9 @@
       url: https://immich.xela.codes/api
       key: {{op://Personal/Immich/API Keys/CLI}}
     ''
-    // utils.mkSecretFile ".ssh/hyzenberg.pub" "op://Personal/Hyzenberg SSH Key/public key";
+    // sshConfig.files
+    // utils.mkSecretFile ".ssh/github_signing.pub" "op://Private/Github Signing SSH Key/public key"
+    // utils.mkSecretFile ".ssh/github_auth.pub" "op://Private/GitHub Authentication SSH Key/public key";
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
     activation.install1PasswordCLI = home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
@@ -67,6 +72,30 @@
   fonts.fontconfig.enable = true;
 
   programs = {
+    ssh = {
+      enable = true;
+      enableDefaultConfig = false;
+      includes = [ "~/.ssh/config.private" ];
+      matchBlocks = sshConfig.blocks // {
+        "github.com" = {
+          identityFile = [
+            "~/.ssh/github_signing.pub"
+            "~/.ssh/github_auth.pub"
+          ];
+          identitiesOnly = true;
+        };
+        "*" = {
+          extraOptions = {
+            IdentityAgent =
+              if pkgs.stdenv.isDarwin then
+                "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+              else
+                "~/.1password/agent.sock";
+          };
+        };
+      };
+    };
+
     git = {
       signing = {
         format = "ssh";
