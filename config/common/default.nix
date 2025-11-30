@@ -107,6 +107,9 @@ in
         append = true;
       };
     };
+    dircolors = {
+      enable = true;
+    };
 
     git = {
       enable = true;
