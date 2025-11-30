@@ -85,10 +85,13 @@ mkSSHConfig [
     publicKey = "op://Private/iPad SSH Key/public key";
   }
   {
-    name = "Raspberry PI";
-    host = "pi.nvst.ng";
-    args = "th@pi.nvst.ng";
-    publicKey = "op://NVSTly/Raspberry PI SSH Key/public key";
+    name = "Jade";
+    host = "jade.nvst.ly";
+    args = "root@jade.nvst.ly";
+    publicKey = "op://NVSTly/Jade SSH Key/public key";
+    extraOptions = {
+      forwardAgent = true;
+    };
   }
   {
     name = "ODROID";
@@ -101,22 +104,10 @@ mkSSHConfig [
     };
   }
   {
-    name = "Doris";
-    host = "doris.nvst.ng";
-    args = "th@doris.nvst.ng";
-    publicKey = "op://NVSTly/so7nrwf4gv2uhfsd6qx24gkgz4/public key";
-    extraOptions = {
-      forwardAgent = true;
-    };
-  }
-  {
-    name = "Jade";
-    host = "jade.nvst.ly";
-    args = "root@jade.nvst.ly";
-    publicKey = "op://NVSTly/Jade SSH Key/public key";
-    extraOptions = {
-      forwardAgent = true;
-    };
+    name = "Raspberry PI";
+    host = "pi.nvst.ng";
+    args = "th@pi.nvst.ng";
+    publicKey = "op://NVSTly/Raspberry PI SSH Key/public key";
   }
   {
     name = "NetroHost";
