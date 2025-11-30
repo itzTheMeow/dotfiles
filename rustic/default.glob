@@ -20,8 +20,8 @@
 !/root/.cache/restic
 
 # pCloud
-!*/pCloud*Drive
-!*/.pcloud
+!pCloudDrive
+!.pcloud
 !/home/pcloud
 !/root/pcloud
 
