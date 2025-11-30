@@ -78,6 +78,7 @@ in
     };
 
     file.".config/ncdu/config".text = "--exclude pCloudDrive";
+    file.".config/rustic".source = ../../rustic;
   };
 
   programs = {
