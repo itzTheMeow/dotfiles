@@ -64,9 +64,11 @@ in
       git-clear = ''
         git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
       '';
-      "0x0" = builtins.toString ../../scripts/0x0;
       # utility to manage nix configuration
-      nx = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx}'';
+      "nx" = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx}'';
+      # other bash scripts
+      "0x0" = builtins.toString ../../scripts/0x0;
+      "ffconcat" = builtins.toString ../../scripts/ffconcat;
     };
 
     file.".config/ncdu/config".text = "--exclude pCloudDrive";
