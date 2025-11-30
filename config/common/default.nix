@@ -49,6 +49,9 @@ in
       rclone
       rustic
       speedtest-cli
+
+      # temporary
+      restic
     ];
 
     shellAliases = {
