@@ -15,6 +15,11 @@ in
     inherit username;
     homeDirectory = "/home/${username}";
 
+    sessionVariables = {
+      GTK_USE_PORTAL = "1";
+      QT_QPA_PLATFORMTHEME = "xdgdesktopportal";
+    };
+
     packages = with pkgs; [
       newsflash
     ];
