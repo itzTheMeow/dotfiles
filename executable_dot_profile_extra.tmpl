@@ -13,19 +13,17 @@ fi
 
 # Disable Terminal Messaging
 mesg n 2>/dev/null || true
-# make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
-if [[ -n "$BASH_VERSION" ]] && ! shopt -oq posix; then
-	if [ -f /usr/share/bash-completion/bash_completion ]; then
-		. /usr/share/bash-completion/bash_completion
-	elif [ -f /etc/bash_completion ]; then
-		. /etc/bash_completion
-	fi
-fi
+# if [[ -n "$BASH_VERSION" ]] && ! shopt -oq posix; then
+# 	if [ -f /usr/share/bash-completion/bash_completion ]; then
+# 		. /usr/share/bash-completion/bash_completion
+# 	elif [ -f /etc/bash_completion ]; then
+# 		. /etc/bash_completion
+# 	fi
+# fi
 
 ###########################
 ## Environment Variables ##
@@ -84,11 +82,8 @@ export NTFY_TOKEN={{ onepasswordRead "op://NVSTly CI/uwcbqhvsdzyomzmx2trxh4r67a/
 
 # Misc.
 export VIRTUAL_ENV_DISABLE_PROMPT=1
-export THEOS=~/theos
 export CHEZMOI_BOX={{ .box }}
 export CHEZMOI_BOX_GROUP={{ .box_group }}
-export GTK_USE_PORTAL=1
-export QT_QPA_PLATFORMTHEME=xdgdesktopportal
 
 #############
 ## Aliases ##
