@@ -57,8 +57,10 @@ in
 
     shellAliases = {
       # basic
+      ls = "ls --color=auto";
       la = "ls -A";
       ll = "ls -alF";
+      grep = "grep --color=auto";
       txz = "tar -cJf";
       python = "python3";
       pip = "python3 -m pip";
@@ -89,7 +91,7 @@ in
         shopt -s checkwinsize
         ${initExtra}
       '';
-      historyControl = "ignoreboth";
+      historyControl = [ "ignoreboth" ];
       historyFileSize = shellHistorySize;
       historySize = shellHistorySize;
     };
