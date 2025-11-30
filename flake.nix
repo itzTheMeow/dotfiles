@@ -9,6 +9,7 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
+    opinject.url = "github:itzTheMeow/opinject";
     #opnix.url = "github:itzTheMeow/opnix/a18b32d338d2316f12afe8c694525f1ef5b01c75";
   };
 
@@ -17,6 +18,7 @@
       catppuccin,
       home-manager,
       nixpkgs,
+      opinject,
       ...
     }@inputs:
     let
@@ -47,7 +49,7 @@
 
           modules = [
             catppuccin.homeModules.catppuccin
-            ./lib/opinject.nix
+            opinject.homeManagerModules.default
             ./config/${hostname}.nix
           ];
 
