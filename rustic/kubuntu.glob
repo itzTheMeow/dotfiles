@@ -20,3 +20,4 @@
 !/etc/ufw/*.init
 !/etc/ufw/*.rules
 !/etc/wvdial.conf
+!/home/meow/.local/share/docker/overlay2/*/work/work
