@@ -22,7 +22,7 @@ hash)
 	nix hash convert --hash-algo sha256 "$(nix-prefetch-url "$2")"
 	;;
 "")
-	home-manager switch --flake ~/.dotfiles#$HOSTNAME -b backup
+	home-manager switch --flake ~/.dotfiles#$HOSTNAME
 	;;
 *)
 	echo "Usage: nx [clean|update|edit|pull|hash|optimize]"
