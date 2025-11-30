@@ -11,20 +11,6 @@ if [ -d "$HOME/.local/bin" ]; then
 	PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Disable Terminal Messaging
-mesg n 2>/dev/null || true
-
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-# if [[ -n "$BASH_VERSION" ]] && ! shopt -oq posix; then
-# 	if [ -f /usr/share/bash-completion/bash_completion ]; then
-# 		. /usr/share/bash-completion/bash_completion
-# 	elif [ -f /etc/bash_completion ]; then
-# 		. /etc/bash_completion
-# 	fi
-# fi
-
 ###########################
 ## Environment Variables ##
 ###########################
@@ -81,7 +67,6 @@ export NTFY_TOKEN={{ onepasswordRead "op://NVSTly CI/uwcbqhvsdzyomzmx2trxh4r67a/
 {{- end }}
 
 # Misc.
-export VIRTUAL_ENV_DISABLE_PROMPT=1
 export CHEZMOI_BOX={{ .box }}
 export CHEZMOI_BOX_GROUP={{ .box_group }}
 
