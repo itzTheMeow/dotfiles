@@ -1,5 +1,2 @@
 [global]
 log-file = "/tmp/rustic.log"
-
-[backup]
-glob-files = ["~/.config/rustic/default.glob"]

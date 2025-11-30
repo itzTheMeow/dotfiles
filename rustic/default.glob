@@ -11,6 +11,9 @@
 !/lost+found
 !/swapfile
 !/var/log
+!Thumbs.db
+!.DS_Store
+!.Trash-*
 
 # Restic
 !/home/*/.cache/restic
