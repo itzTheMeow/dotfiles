@@ -2,9 +2,9 @@
 log-file = "/tmp/rustic.log"
 
 [backup]
-one-file-system = true
 globs = [
   # System Files
+  "!/boot",
   "!/dev",
   "!/proc",
   "!/sys",
