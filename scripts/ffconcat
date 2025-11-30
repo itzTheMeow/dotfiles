@@ -2,7 +2,7 @@
 # Concatenates media files passed in using ffmpeg.
 
 if [ "$#" -lt 3 ]; then
-	echo "Usage: $0 <output_file> <input_file1> <input_file2> [input_file3 ...]"
+	echo "Usage: $(basename "$0") <output_file> <input_file1> <input_file2> [input_file3 ...]"
 	exit 1
 fi
 
