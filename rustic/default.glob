@@ -1,0 +1,37 @@
+# System Files
+!/boot
+!/dev
+!/proc
+!/sys
+!/tmp
+!/run
+!/mnt
+!/media
+!/cdrom
+!/lost+found
+!/swapfile
+!/var/log
+
+# Restic
+!/home/*/.cache/restic
+!/root/.cache/restic
+
+# pCloud
+!*/pCloud*Drive
+!*/.pcloud
+!/home/pcloud
+!/root/pcloud
+
+# rclone
+!/home/*/.cache/rclone
+!/root/.cache/rclone
+
+# Node/NPM
+!node_modules
+!/home/*/.npm
+!/root/.npm
+!/home/*/.local/share/pnpm
+!/root/.local/share/pnpm
+
+# Podman Mounts
+!/var/lib/containers/storage/volumes/*_mnt
