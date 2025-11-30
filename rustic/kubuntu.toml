@@ -8,5 +8,5 @@ password-command = "op read op://Private/xrgzk4qnqpsecqyxlsxpucssji/password"
 [backup]
 host = "kubuntu"
 
-[backup.snapshots]
+[[backup.snapshots]]
 sources = ["/"]
