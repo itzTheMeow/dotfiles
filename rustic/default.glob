@@ -1,40 +1,41 @@
 # System Files
-!/boot
-!/dev
-!/proc
-!/sys
-!/tmp
-!/run
-!/mnt
-!/media
-!/cdrom
-!/lost+found
-!/swapfile
-!/var/log
-!Thumbs.db
 !.DS_Store
 !.Trash-*
+!/boot
+!/cdrom
+!/dev
+!/lost+found
+!/media
+!/mnt
+!/proc
+!/run
+!/swapfile
+!/sys
+!/tmp
+!/var/log
+!/var/tmp
+!Thumbs.db
 
 # Restic
 !/home/*/.cache/restic
 !/root/.cache/restic
 
 # pCloud
-!pCloudDrive
 !.pcloud
 !/home/pcloud
 !/root/pcloud
+!pCloudDrive
 
 # rclone
 !/home/*/.cache/rclone
 !/root/.cache/rclone
 
 # Node/NPM
-!node_modules
-!/home/*/.npm
-!/root/.npm
 !/home/*/.local/share/pnpm
+!/home/*/.npm
 !/root/.local/share/pnpm
+!/root/.npm
+!node_modules
 
 # Podman Mounts
 !/var/lib/containers/storage/volumes/*_mnt
