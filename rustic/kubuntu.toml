@@ -1,0 +1,12 @@
+[global]
+use-profiles = ["default"]
+
+[repository]
+repository = "/home/pcloud/Misc/Backups/kubuntu"
+password-command = "op read op://Private/xrgzk4qnqpsecqyxlsxpucssji/password"
+
+[backup]
+host = "kubuntu"
+
+[backup.snapshots]
+sources = ["/"]
