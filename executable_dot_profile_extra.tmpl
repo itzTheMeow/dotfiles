@@ -81,10 +81,6 @@ alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
 ###########
 ## Misc. ##
 ###########
-{{- if eq .box "mac" }}
-# Setting PATH for Python 3.12
-export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:${PATH}"
-{{- end }}
 # Setting paths for golang.
 if [ -d "/usr/local/go/bin" ]; then
 	PATH="/usr/local/go/bin:$PATH"
@@ -97,77 +93,6 @@ fi
 # Interactive Shell Options #
 #############################
 if [[ $- == *i* ]]; then
-	# History Settings
-	if [[ -n "$ZSH_VERSION" ]]; then
-		HISTSIZE=10000
-		SAVEHIST=10000
-		setopt HIST_APPEND
-		setopt INC_APPEND_HISTORY
-		setopt SHARE_HISTORY
-	elif [[ -n "$BASH_VERSION" ]]; then
-		HISTCONTROL=ignoreboth
-		HISTSIZE=10000
-		HISTFILESIZE=10000
-		shopt -s histappend
-		shopt -s checkwinsize
-	fi
-
-	# LS Color Support
-	if [ -x /usr/bin/dircolors ]; then
-		test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-		alias ls='ls --color=auto'
-
-		alias grep='grep --color=auto'
-		alias fgrep='fgrep --color=auto'
-		alias egrep='egrep --color=auto'
-	fi
-
-	# Tab Completion
-	[ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
-	[ -f ~/.local/share/bash-completion/completions/deno.bash ] && . ~/.local/share/bash-completion/completions/deno.bash
-	if [ -x "$(command -v pm2)" ]; then
-		###-begin-pm2-completion-###
-		### credits to npm for the completion file model
-		#
-		# Installation: pm2 completion >> ~/.bashrc  (or ~/.zshrc)
-		#
-
-		COMP_WORDBREAKS=${COMP_WORDBREAKS/=/}
-		COMP_WORDBREAKS=${COMP_WORDBREAKS/@/}
-		export COMP_WORDBREAKS
-
-		if type complete &>/dev/null; then
-			_pm2_completion() {
-				local si="$IFS"
-				IFS=$'\n' COMPREPLY=($(COMP_CWORD="$COMP_CWORD" \
-					COMP_LINE="$COMP_LINE" \
-					COMP_POINT="$COMP_POINT" \
-					pm2 completion -- "${COMP_WORDS[@]}" \
-					2>/dev/null)) || return $?
-				IFS="$si"
-			}
-			complete -o default -F _pm2_completion pm2
-		elif type compctl &>/dev/null; then
-			_pm2_completion() {
-				local cword line point words si
-				read -Ac words
-				read -cn cword
-				let cword-=1
-				read -l line
-				read -ln point
-				si="$IFS"
-				IFS=$'\n' reply=($(COMP_CWORD="$cword" \
-					COMP_LINE="$line" \
-					COMP_POINT="$point" \
-					pm2 completion -- "${words[@]}" \
-					2>/dev/null)) || return $?
-				IFS="$si"
-			}
-			compctl -K _pm2_completion + -f + pm2
-		fi
-		###-end-pm2-completion-###
-	fi
-
 	# Init Oh-My-Posh
 	[ -x "$(command -v oh-my-posh)" ] && eval "$(oh-my-posh init $(oh-my-posh get shell) --config '{{ .chezmoi.homeDir }}/.bin/theme.omp.yaml')"
 
