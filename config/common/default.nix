@@ -13,6 +13,7 @@ let
     export BUN_INSTALL="$HOME/.bun" 
     export PATH="$BUN_INSTALL/bin:$PATH" 
   '';
+  shellHistorySize = 10000;
 in
 {
   imports = [
@@ -83,10 +84,26 @@ in
 
     bash = {
       enable = true;
-      bashrcExtra = initExtra;
+      bashrcExtra = ''
+        shopt -s histappend
+        shopt -s checkwinsize
+        ${initExtra}
+      '';
+      historyControl = "ignoreboth";
+      historyFileSize = shellHistorySize;
+      historySize = shellHistorySize;
     };
     zsh = {
-      initContent = initExtra;
+      initContent = ''
+        setopt INC_APPEND_HISTORY
+        ${initExtra}
+      '';
+      history = {
+        size = shellHistorySize;
+        save = shellHistorySize;
+        share = true;
+        append = true;
+      };
     };
 
     git = {
