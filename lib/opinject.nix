@@ -24,6 +24,14 @@ in
     );
   };
 
+  options.programs.opinject = {
+    cleanupBackups = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether to delete .backup files created by home-manager before injecting secrets.";
+    };
+  };
+
   config = {
     warnings = lib.flatten (
       lib.mapAttrsToList (
@@ -44,7 +52,18 @@ in
           let
             target = "${config.home.homeDirectory}/${file.target}";
           in
-          ''
+          (
+            # clean up backup files
+            if config.programs.opinject.cleanupBackups then
+              ''
+                if [ -e "${target}.backup" ]; then
+                  rm "${target}.backup"
+                fi
+              ''
+            else
+              ""
+          )
+          + ''
             if [ -e "${target}" ]; then
               echo "Injecting secrets into ${target}"
               if ! $OP_CMD inject --force -i "${target}" -o "${target}" > /dev/null; then
@@ -55,7 +74,15 @@ in
             fi
           '';
       in
-      ''
+      (
+        if config.programs.opinject.cleanupBackups then
+          ''
+            echo "Backup cleaning is enabled!"
+          ''
+        else
+          ""
+      )
+      + ''
         if [ -x "/usr/local/bin/op" ]; then
           OP_CMD="/usr/local/bin/op"
         else
