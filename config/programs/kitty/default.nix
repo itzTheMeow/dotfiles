@@ -9,7 +9,10 @@
       "ctrl+w" = "quit";
     };
     settings = {
+      shell = "${pkgs.zsh}/bin/zsh --login --interactive";
+
       editor = "nano";
+      scrollback_lines = 5000;
       tab_bar_min_tabs = 1;
       tab_bar_style = "slant";
     };
