@@ -4,12 +4,8 @@ README.md
 {{- if ne .box "home" }}
 .bin/ipad_backup.sh
 {{- end }}
-{{- if or (ne .chezmoi.os "linux") (.headless)  }}
-.config/autostart
-{{- end }}
 {{- if .headless }}
 .config/activitywatch
-.ssh/*
 {{- end }}
 {{- if ne .box "hyzen" }}
 .bin/backblaze.sh
