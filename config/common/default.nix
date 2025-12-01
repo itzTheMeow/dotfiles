@@ -105,7 +105,10 @@ in
     zsh = {
       enable = true;
       initContent = ''
-        setopt INC_APPEND_HISTORY
+        bindkey  "^[[H"   beginning-of-line
+        bindkey  "^[[F"   end-of-line
+        bindkey  "^[[3~"  delete-char
+
         ${initExtra}
       '';
       history = {
@@ -114,6 +117,7 @@ in
         share = true;
         append = true;
       };
+      setOptions = [ "INC_APPEND_HISTORY" ];
     };
     dircolors = {
       enable = true;
