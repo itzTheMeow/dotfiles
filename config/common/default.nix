@@ -18,6 +18,7 @@ in
 {
   imports = [
     ../programs/btop
+    ../programs/fastfetch
   ]
   ++ utils.optionalImport ../../local.nix;
   news.display = "silent";
