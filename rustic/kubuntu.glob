@@ -34,9 +34,14 @@
 !/snap/*/*/var/lib/polkit-1
 !/snap/*/*/var/lib/private
 !/snap/*/*/var/lib/snapd/void
+!/snap/plex-desktop
+!/usr/libexec/samba/smbspool_krb5_wrapper
+!/usr/share/ollama/.ollama/id_ed25519
 !/var/cache/apparmor
+!/var/cache/apt/archives/lock
 !/var/cache/apt/archives/partial
 !/var/cache/cups
+!/var/cache/debconf/passwords.dat
 !/var/cache/ldconfig
 !/var/cache/private
 !/var/cache/tailscale
@@ -45,6 +50,9 @@
 !/var/lib/bluetooth
 !/var/lib/containerd
 !/var/lib/docker
+!/var/lib/dpkg/*lock*
+!/var/lib/dpkg/triggers/Lock
+!/var/lib/flatpak/repo/.lock
 !/var/lib/fwupd/gnupg
 !/var/lib/NetworkManager
 !/var/lib/polkit-1
