@@ -78,6 +78,7 @@ in
       "nx" = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx.sh}'';
       # other bash scripts
       "0x0" = builtins.toString ../../scripts/0x0.sh;
+      "codearchive" = builtins.toString ../../scripts/codearchive.sh;
       "ffconcat" = builtins.toString ../../scripts/ffconcat.sh;
     };
 
