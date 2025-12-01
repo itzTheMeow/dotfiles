@@ -111,6 +111,8 @@ in
 
         ${initExtra}
       '';
+      autosuggestion.enable = true;
+      syntaxHighlighting.enable = true;
       history = {
         size = shellHistorySize;
         save = shellHistorySize;
