@@ -40,13 +40,25 @@ in
         vault = "NVSTly Internal"
       '';
     }
+    # secret files
     // utils.mkSecretFile ".config/immich/auth.yml" ''
       url: https://immich.xela.codes/api
       key: {{op://Personal/Immich/API Keys/CLI}}
     ''
+    # add ssh public keys
     // sshConfig.files
     // utils.mkSecretFile ".ssh/github_signing.pub" "op://Private/Github Signing SSH Key/public key"
-    // utils.mkSecretFile ".ssh/github_auth.pub" "op://Private/GitHub Authentication SSH Key/public key";
+    // utils.mkSecretFile ".ssh/github_auth.pub" "op://Private/GitHub Authentication SSH Key/public key"
+    # merge in the kitty session files
+    // {
+      ".config/kitty/sessions/default.conf".text = ''
+        cd ~
+        focus
+        focus_os_window
+        launch
+      '';
+    }
+    // sshConfig.kittySessions;
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
     activation.install1PasswordCLI = home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
@@ -89,7 +101,7 @@ in
           extraOptions = {
             IdentityAgent =
               if pkgs.stdenv.isDarwin then
-                "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+                "~/Library/Group\\ Containers/2BUA8C4S2C.com.1password/t/agent.sock"
               else
                 "~/.1password/agent.sock";
           };

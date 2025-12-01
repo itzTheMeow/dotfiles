@@ -23,19 +23,6 @@ in
     packages = with pkgs; [
       newsflash
     ];
-    file = {
-
-    }
-    # merge in the kitty session files
-    // {
-      ".config/kitty/sessions/default.conf".text = ''
-        cd ~
-        focus
-        focus_os_window
-        launch
-      '';
-    }
-    // sshConfig.kittySessions;
   };
 
   # create kitty ssh desktop files
