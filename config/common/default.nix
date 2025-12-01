@@ -22,6 +22,7 @@ in
   imports = [
     ../programs/btop
     ../programs/fastfetch
+    ../programs/oh-my-posh
   ]
   ++ utils.optionalImport ../../local.nix;
   news.display = "silent";
