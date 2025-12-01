@@ -20,10 +20,7 @@ fi
 
 # Restic
 export RESTIC_COMPRESSION=max
-{{- if eq .box "mac" }}
-export RESTIC_REPOSITORY="/Users/meow/pCloud Drive/Misc/Backups/macbook"
-export RESTIC_PASSWORD={{ onepasswordRead "op://Private/tw5vwxlmtwcajhtqgix7ldcitu/password" }}
-{{- else if eq .box "hyzen" }}
+{{- if eq .box "hyzen" }}
 export RESTIC_REPOSITORY=rclone:pcloud:Misc/Backups/hyzenberg
 export RESTIC_PASSWORD={{ onepasswordRead "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" }}
 {{- else if eq .box "jade" }}
@@ -63,17 +60,8 @@ export NTFY_TOKEN={{ onepasswordRead "op://Private/ntfy/Access Tokens/Mac" }}
 export NTFY_TOKEN={{ onepasswordRead "op://NVSTly CI/uwcbqhvsdzyomzmx2trxh4r67a/credential" }}
 {{- end }}
 
-# Misc.
 export CHEZMOI_BOX={{ .box }}
 export CHEZMOI_BOX_GROUP={{ .box_group }}
-
-#############
-## Aliases ##
-#############
-
-# Custom Commands
-alias codearchive="{{ .chezmoi.homeDir }}/.bin/codearchive.sh"
-alias restic-migrate="{{ .chezmoi.homeDir }}/.bin/restic-migrate.sh"
 
 ###########
 ## Misc. ##
