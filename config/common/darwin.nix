@@ -14,6 +14,4 @@
       unquarantine = "xattr -r -d com.apple.quarantine";
     };
   };
-
-  programs.zsh.enable = true;
 }

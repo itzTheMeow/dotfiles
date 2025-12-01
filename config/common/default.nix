@@ -103,6 +103,7 @@ in
       historySize = shellHistorySize;
     };
     zsh = {
+      enable = true;
       initContent = ''
         setopt INC_APPEND_HISTORY
         ${initExtra}
