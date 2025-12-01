@@ -10,8 +10,11 @@ let
     [ -f "$HOME/.profile_extra" ] && source $HOME/.profile_extra
     [ -f "$HOME/.shellfishrc" ] && source "$HOME/.shellfishrc"
 
+    # temporary
     export BUN_INSTALL="$HOME/.bun" 
-    export PATH="$BUN_INSTALL/bin:$PATH" 
+    export PATH="$BUN_INSTALL/bin:$PATH"
+
+    [ "$TERM_PROGRAM" != "vscode" ] && ${pkgs.fastfetch}/bin/fastfetch
   '';
   shellHistorySize = 10000;
 in
@@ -72,10 +75,10 @@ in
         git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
       '';
       # utility to manage nix configuration
-      "nx" = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx}'';
+      "nx" = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx.sh}'';
       # other bash scripts
-      "0x0" = builtins.toString ../../scripts/0x0;
-      "ffconcat" = builtins.toString ../../scripts/ffconcat;
+      "0x0" = builtins.toString ../../scripts/0x0.sh;
+      "ffconcat" = builtins.toString ../../scripts/ffconcat.sh;
     };
 
     file.".config/ncdu/config".text = "--exclude pCloudDrive";

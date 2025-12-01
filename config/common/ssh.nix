@@ -44,7 +44,7 @@ let
                 cd ~
                 focus
                 focus_os_window
-                launch --title "${name} (${host})" ${builtins.toString ../../scripts/sshkitten} ${args}
+                launch --title "${name} (${host})" ${builtins.toString ../../scripts/sshkitten.sh} ${args}
               '';
             };
           };
