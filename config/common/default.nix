@@ -41,14 +41,12 @@ in
 
       # basic dependencies
       ffmpeg
+      killport
       ncdu
       renameutils
       tree
       unzip
       wget
-
-      # for startup message
-      lolcat
 
       # more complex tools
       ntfy-sh
