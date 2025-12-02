@@ -59,14 +59,3 @@ export NTFY_TOKEN={{ onepasswordRead "op://NVSTly CI/uwcbqhvsdzyomzmx2trxh4r67a/
 
 export CHEZMOI_BOX={{ .box }}
 export CHEZMOI_BOX_GROUP={{ .box_group }}
-
-###########
-## Misc. ##
-###########
-# Setting paths for golang.
-if [ -d "/usr/local/go/bin" ]; then
-	PATH="/usr/local/go/bin:$PATH"
-fi
-if [ -d "{{ .chezmoi.homeDir }}/go/bin" ]; then
-	PATH="{{ .chezmoi.homeDir }}/go/bin:$PATH"
-fi
