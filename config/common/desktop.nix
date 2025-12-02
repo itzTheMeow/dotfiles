@@ -34,6 +34,9 @@ in
       ## shell
       shfmt
 
+      ## swift
+      swiftformat
+
       # fonts
       nerd-fonts.caskaydia-mono
 
