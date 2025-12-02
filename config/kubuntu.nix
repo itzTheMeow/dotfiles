@@ -22,6 +22,8 @@ in
 
     packages = with pkgs; [
       newsflash
+      plex-desktop
+      plexamp
     ];
   };
 
