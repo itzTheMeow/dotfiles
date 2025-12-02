@@ -13,7 +13,7 @@ in
     homeDirectory = "/root";
 
     packages = with pkgs; [
-
+      qemu
     ];
   };
 }
