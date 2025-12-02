@@ -41,6 +41,7 @@ in
 
       # basic dependencies
       ffmpeg
+      jq
       killport
       ncdu
       renameutils
