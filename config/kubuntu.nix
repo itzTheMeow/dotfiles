@@ -9,6 +9,7 @@ in
     ./common/desktop.nix
     ./programs/discordchatexporter
     ./programs/logisim
+    ./programs/plexamp
   ];
 
   home = {
@@ -23,7 +24,6 @@ in
     packages = with pkgs; [
       newsflash
       plex-desktop
-      plexamp
     ];
   };
 
