@@ -14,14 +14,25 @@ in
 
   home = {
     packages = with pkgs; [
-      # vscode nix editing
-      nixfmt-rfc-style
-      nixd
-
       # development
       #bun
-      cargo
       deno
+
+      ## go
+      go
+      go-tools
+      gopls
+      tygo
+
+      ## nix
+      nixd
+      nixfmt
+
+      ## rust
+      cargo
+
+      ## shell
+      shfmt
 
       # fonts
       nerd-fonts.caskaydia-mono
