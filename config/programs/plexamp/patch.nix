@@ -1,37 +1,11 @@
 { pkgs, ... }:
 let
-  pname = "plexamp";
-  version = "4.13.0";
-
-  src = pkgs.fetchurl {
-    url = "https://plexamp.plex.tv/plexamp.plex.tv/desktop/Plexamp-${version}.AppImage";
-    name = "${pname}-${version}.AppImage";
-    hash = "sha512-3Blgl3t21hH6lgDe5u3vy3I/3k9b4VM1CvoZg2oashkGXSDwV8q7MATN9YjsBgWysNXwdm7nQ/yrFQ7DiRfdYg==";
-  };
-
-  appimageContents = pkgs.appimageTools.extractType2 {
-    inherit pname version src;
-  };
+  inherit (pkgs.plexamp) pname version src;
+  appimageContents = pkgs.appimageTools.extractType2 { inherit pname version src; };
 in
+# plexamp wont work on non-nixos systems, so extract and run the binary directly instead
 pkgs.stdenv.mkDerivation {
   inherit pname version;
-
-  nativeBuildInputs = [ pkgs.copyDesktopItems ];
-
-  desktopItems = [
-    (pkgs.makeDesktopItem {
-      name = "plexamp";
-      exec = "plexamp";
-      icon = "plexamp";
-      desktopName = "Plexamp";
-      comment = "A beautiful Plex music player";
-      categories = [
-        "Audio"
-        "Music"
-        "Player"
-      ];
-    })
-  ];
 
   dontUnpack = true;
   dontBuild = true;
@@ -39,20 +13,23 @@ pkgs.stdenv.mkDerivation {
   installPhase = ''
         runHook preInstall
 
-        mkdir -p $out/bin $out/lib/plexamp $out/share/icons/hicolor/scalable/apps
+        mkdir -p $out/bin $out/lib/plexamp $out/share/applications $out/share/icons/hicolor/scalable/apps
 
-        # Copy the extracted AppImage contents
+        # Copy extracted AppImage contents
         cp -r ${appimageContents}/* $out/lib/plexamp/
 
-        # Create wrapper script that runs the extracted binary with --no-sandbox
+        # Create wrapper that runs with --no-sandbox (required on non-NixOS)
         cat > $out/bin/plexamp << EOF
     #!/usr/bin/env bash
     exec $out/lib/plexamp/plexamp --no-sandbox "\$@"
     EOF
         chmod +x $out/bin/plexamp
 
-        # Install icon
+        # Install desktop file and icon from extracted contents
+        install -m 444 -D ${appimageContents}/plexamp.desktop $out/share/applications/plexamp.desktop
         install -m 444 -D ${appimageContents}/plexamp.svg $out/share/icons/hicolor/scalable/apps/plexamp.svg
+        substituteInPlace $out/share/applications/plexamp.desktop \
+          --replace 'Exec=AppRun' 'Exec=plexamp'
 
         runHook postInstall
   '';
