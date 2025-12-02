@@ -15,9 +15,6 @@ fi
 ## Environment Variables ##
 ###########################
 
-# Homebrew
-[ -d "/home/linuxbrew/.linuxbrew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
 # Restic
 export RESTIC_COMPRESSION=max
 {{- if eq .box "hyzen" }}
