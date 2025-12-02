@@ -24,6 +24,7 @@ in
     packages = with pkgs; [
       newsflash
       plex-desktop
+      tigervnc
     ];
   };
 
