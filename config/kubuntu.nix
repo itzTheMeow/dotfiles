@@ -24,6 +24,9 @@ in
     packages = with pkgs; [
       newsflash
       plex-desktop
+
+      nbd
+      qemu
       tigervnc
     ];
   };
