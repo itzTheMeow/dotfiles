@@ -63,6 +63,10 @@ in
       (writeShellScriptBin "0x0" (builtins.readFile ../../scripts/0x0.sh))
       (writeShellScriptBin "codearchive" (builtins.readFile ../../scripts/codearchive.sh))
       (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
+      (writeShellScriptBin "nx" ''
+        export HOSTNAME="${hostname}"
+        ${builtins.readFile ../../scripts/nx.sh}
+      '')
       # custom packages
       (buildGoModule {
         name = "download-organizer";
@@ -86,8 +90,6 @@ in
       git-clear = ''
         git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
       '';
-      # utility to manage nix configuration
-      "nx" = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx.sh}'';
     };
 
     file.".config/ncdu/config".text = "--exclude pCloudDrive";
