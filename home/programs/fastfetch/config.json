@@ -41,7 +41,7 @@
     {
       "type": "command",
       "key": " ",
-      "text": "echo $(fastfetch -c ~/.config/fastfetch/config-title.json --pipe false --color __ACCENT__) $(fastfetch -c ~/.config/fastfetch/config-os.json --pipe false --color __ACCENT__)"
+      "text": "echo $(fastfetch -c ~/.config/fastfetch/config-title.json --pipe false --color '__ACCENT__') $(fastfetch -c ~/.config/fastfetch/config-os.json --pipe false --color '__ACCENT__')"
     },
     {
       "type": "uptime",
