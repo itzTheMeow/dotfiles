@@ -18,6 +18,11 @@ in
       #bun
       deno
 
+      ## javascript
+      nodejs_24
+      pnpm_10
+      tsx
+
       ## go
       go
       go-tools
