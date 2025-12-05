@@ -29,6 +29,10 @@ in
       qemu
       tigervnc
     ];
+
+    file = {
+    }
+    // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key";
   };
 
   # create kitty ssh desktop files
