@@ -58,6 +58,10 @@ in
       # temporary
       restic
 
+      # custom scripts
+      (writeShellScriptBin "0x0" (builtins.readFile ../../scripts/0x0.sh))
+      (writeShellScriptBin "codearchive" (builtins.readFile ../../scripts/codearchive.sh))
+      (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
       # custom packages
       (buildGoModule {
         name = "download-organizer";
@@ -83,10 +87,6 @@ in
       '';
       # utility to manage nix configuration
       "nx" = ''HOSTNAME=${hostname} ${builtins.toString ../../scripts/nx.sh}'';
-      # other bash scripts
-      "0x0" = builtins.toString ../../scripts/0x0.sh;
-      "codearchive" = builtins.toString ../../scripts/codearchive.sh;
-      "ffconcat" = builtins.toString ../../scripts/ffconcat.sh;
     };
 
     file.".config/ncdu/config".text = "--exclude pCloudDrive";
