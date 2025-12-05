@@ -35,15 +35,9 @@
   },
   "modules": [
     {
-      "type": "title",
+      "type": "command",
       "key": " ",
-      "format": "{user-name-colored}{at-symbol-colored}{host-name-colored}"
-    },
-    {
-      "type": "os",
-      "key": " ",
-      "format": "{name} {version}",
-      "outputColor": "light_white"
+      "text": "echo $(fastfetch -c ~/.config/fastfetch/config-title.json --pipe false) $(fastfetch -c ~/.config/fastfetch/config-os.json --pipe false)"
     },
     {
       "type": "uptime",
