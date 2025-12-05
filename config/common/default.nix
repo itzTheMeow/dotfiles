@@ -57,6 +57,13 @@ in
 
       # temporary
       restic
+
+      # custom packages
+      (buildGoModule {
+        name = "download-organizer";
+        src = ../../go/download-organizer;
+        vendorHash = null;
+      })
     ];
 
     shellAliases = {
