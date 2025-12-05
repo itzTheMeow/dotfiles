@@ -7,9 +7,13 @@
       "top": 1,
       "left": 2,
       "right": 2
+    },
+    "color": {
+      "1": "__ACCENT__"
     }
   },
   "display": {
+    "color": "__ACCENT__",
     "separator": ": ",
     "bar": {
       "width": 10,
@@ -37,7 +41,7 @@
     {
       "type": "command",
       "key": " ",
-      "text": "echo $(fastfetch -c ~/.config/fastfetch/config-title.json --pipe false) $(fastfetch -c ~/.config/fastfetch/config-os.json --pipe false)"
+      "text": "echo $(fastfetch -c ~/.config/fastfetch/config-title.json --pipe false --color __ACCENT__) $(fastfetch -c ~/.config/fastfetch/config-os.json --pipe false --color __ACCENT__)"
     },
     {
       "type": "uptime",
