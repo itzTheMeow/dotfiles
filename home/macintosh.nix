@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, utils, ... }:
 let
   username = "meow";
 in
@@ -12,5 +12,10 @@ in
   home = {
     inherit username;
     homeDirectory = "/Users/meow";
+
+    file = {
+
+    }
+    // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/ton3e65pkunjzq6gua2mef6gkq/public key";
   };
 }
