@@ -50,7 +50,7 @@
           modules = [
             catppuccin.homeModules.catppuccin
             opinject.homeManagerModules.default
-            ./config/${hostname}.nix
+            ./home/${hostname}.nix
           ];
 
           extraSpecialArgs = {
