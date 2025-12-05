@@ -22,6 +22,8 @@ hash)
 	nix hash convert --hash-algo sha256 "$(nix-prefetch-url "$2")"
 	;;
 "")
+	# prompt to sign into 1password first
+	eval $(op signin)
 	home-manager switch --flake ~/.dotfiles#$HOSTNAME
 	;;
 *)
