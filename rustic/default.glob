@@ -16,9 +16,14 @@
 !/var/tmp
 !Thumbs.db
 
-# Restic
+# Nix
+!/nix
+
+# Restic/Rustic
 !/home/*/.cache/restic
 !/root/.cache/restic
+!/home/*/.cache/rustic
+!/root/.cache/rustic
 
 # pCloud
 !.pcloud
