@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, utils, ... }:
 let
   username = "root";
 in
@@ -16,5 +16,10 @@ in
       nbd
       qemu
     ];
+
+    file = {
+
+    }
+    // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/Hyzenberg SSH Key/public key";
   };
 }
