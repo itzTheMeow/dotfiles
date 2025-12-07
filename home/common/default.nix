@@ -55,6 +55,7 @@ in
       rclone
       rustic
       speedtest-cli
+      yt-dlp
 
       # temporary
       restic
