@@ -22,12 +22,20 @@ in
     };
 
     packages = with pkgs; [
+      # desktop apps
       newsflash
       plex-desktop
 
+      # for temporary nixos vm
       nbd
       qemu
       tigervnc
+
+      # custom packages
+      # codearchive requires these to be available
+      python3Packages.pygments
+      wkhtmltopdf
+      (writeShellScriptBin "codearchive" (builtins.readFile ../scripts/codearchive.sh))
     ];
 
     file = {

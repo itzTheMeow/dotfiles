@@ -10,7 +10,26 @@ cd "$dir" || exit
 mkdir -p .archive
 
 # process code files recursively
-for ext in py js html java txt sql bat sh css less json md yaml yml; do
+extensions_text=(
+	bat
+	circ # Logisim Circuit
+	css
+	dbml # Database Markup Language
+	html
+	java
+	js
+	json
+	less
+	mas # MARIE Assembly
+	md
+	py
+	sh
+	sql # SQLite Statements
+	txt
+	yaml
+	yml
+)
+for ext in "${extensions_text[@]}"; do
 	shopt -s nocaseglob
 	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
@@ -24,13 +43,22 @@ for ext in py js html java txt sql bat sh css less json md yaml yml; do
 		output_file=".archive/${safe_name}.html"
 
 		echo "Code: $relative_path => $output_file"
-		pygmentize -f html -O full,style=colorful -o "$output_file" "$file"
+		if ! pygmentize -f html -O full,style=colorful -o "$output_file" "$file" 2>/dev/null; then
+			echo "  Warning: No lexer found for $relative_path, trying generic text..."
+			pygmentize -l text -f html -O full,style=colorful -o "$output_file" "$file" 2>/dev/null || echo "  Skipped: $relative_path"
+		fi
 	done < <(find . -type f -iname "*.$ext" -print0)
 	shopt -u nocaseglob
 done
 
 # process images recursively
-for ext in png jpg jpeg svg; do
+extensions_img=(
+	jpeg
+	jpg
+	png
+	svg
+)
+for ext in "${extensions_img[@]}"; do
 	shopt -s nocaseglob
 	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
