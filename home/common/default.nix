@@ -62,7 +62,6 @@ in
 
       # custom scripts
       (writeShellScriptBin "0x0" (builtins.readFile ../../scripts/0x0.sh))
-      (writeShellScriptBin "codearchive" (builtins.readFile ../../scripts/codearchive.sh))
       (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
       (writeShellScriptBin "nx" ''
         export HOSTNAME="${hostname}"
