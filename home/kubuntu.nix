@@ -22,6 +22,8 @@ in
     };
 
     packages = with pkgs; [
+      jdk21
+
       # desktop apps
       newsflash
       plex-desktop
