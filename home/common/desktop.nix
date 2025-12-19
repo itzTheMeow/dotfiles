@@ -1,7 +1,9 @@
 {
   home-manager,
+  lib,
   pkgs,
   utils,
+  osConfig ? null,
   ...
 }:
 let
@@ -133,7 +135,9 @@ in
         format = "ssh";
         key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUZNxXcceFgiGEGJlvFM1DLaYFMOYO+oVfVmCcUqXRw";
         signer =
-          if pkgs.stdenv.isDarwin then
+          if osConfig != null then # is nixos
+            "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}"
+          else if pkgs.stdenv.isDarwin then
             "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
           else
             "/opt/1Password/op-ssh-sign";
