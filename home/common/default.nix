@@ -28,20 +28,17 @@ in
   ++ utils.optionalImport ../../local.nix;
   news.display = "silent";
 
-  nix = {
-    settings.experimental-features = "nix-command flakes";
-    settings.auto-optimise-store = true;
-  }
-  //
-    # apply only on standalone home-manager
-    (
-      if osConfig == null then
-        {
-          package = pkgs.nix;
-        }
-      else
-        { }
-    );
+  # apply only on standalone home-manager
+  nix = (
+    if osConfig == null then
+      {
+        package = pkgs.nix;
+        settings.experimental-features = "nix-command flakes";
+        settings.auto-optimise-store = true;
+      }
+    else
+      { }
+  );
 
   home = {
     stateVersion = "25.05"; # not to be changed
