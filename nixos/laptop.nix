@@ -1,14 +1,7 @@
 { pkgs, username, ... }:
 {
-  system.stateVersion = "25.11";
-
   imports = [
-    ./laptop-hardware-configuration.nix
-  ];
-
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
+    ./common
   ];
 
   # Bootloader.
