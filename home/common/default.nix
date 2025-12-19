@@ -42,6 +42,7 @@ in
 
       # basic dependencies
       ffmpeg
+      git
       jq
       killport
       ncdu
