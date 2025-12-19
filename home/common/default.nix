@@ -2,6 +2,7 @@
   pkgs,
   hostname,
   utils,
+  osConfig ? null,
   ...
 }:
 let
@@ -28,10 +29,19 @@ in
   news.display = "silent";
 
   nix = {
-    package = pkgs.nix;
     settings.experimental-features = "nix-command flakes";
     settings.auto-optimise-store = true;
-  };
+  }
+  //
+    # apply only on standalone home-manager
+    (
+      if osConfig == null then
+        {
+          package = pkgs.nix;
+        }
+      else
+        { }
+    );
 
   home = {
     stateVersion = "25.05"; # not to be changed
