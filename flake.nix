@@ -28,8 +28,18 @@
       ...
     }@inputs:
     let
-      linux = "x86_64-linux";
-      darwin = "x86_64-darwin";
+      nixos = [
+        "x86_64-linux"
+        true
+      ];
+      linux = [
+        "x86_64-linux"
+        false
+      ];
+      darwin = [
+        "x86_64-darwin"
+        false
+      ];
 
       # Shared Home Manager module configuration
       mkHomeModules = hostname: [
@@ -40,8 +50,13 @@
       ];
 
       # Shared Home Manager extraSpecialArgs
-      mkHomeSpecialArgs = hostname: {
-        inherit inputs hostname home-manager;
+      mkHomeSpecialArgs = hostname: isNixOS: {
+        inherit
+          inputs
+          hostname
+          home-manager
+          isNixOS
+          ;
         utils = import ./lib/utils.nix;
       };
 
@@ -49,7 +64,7 @@
       mkHomeConfiguration =
         system: hostname:
         home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = nixpkgs.legacyPackages.${system [ 0 ]};
 
           modules = [
             {
@@ -73,7 +88,7 @@
           ]
           ++ mkHomeModules hostname;
 
-          extraSpecialArgs = mkHomeSpecialArgs hostname;
+          extraSpecialArgs = mkHomeSpecialArgs hostname system [ 1 ];
         };
 
       # NixOS configuration with integrated Home Manager
@@ -90,7 +105,7 @@
                 users.${username} = {
                   imports = mkHomeModules hostname;
                 };
-                extraSpecialArgs = mkHomeSpecialArgs hostname;
+                extraSpecialArgs = mkHomeSpecialArgs hostname true;
               };
             }
             ./nixos/${hostname}.nix
@@ -103,7 +118,7 @@
     in
     {
       homeConfigurations = {
-        laptop = mkHomeConfiguration linux "laptop";
+        laptop = mkHomeConfiguration nixos "laptop";
 
         hyzenberg = mkHomeConfiguration linux "hyzenberg";
         netrohost = mkHomeConfiguration linux "netrohost";

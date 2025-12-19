@@ -1,9 +1,9 @@
 {
   home-manager,
+  isNixOS,
   lib,
   pkgs,
   utils,
-  osConfig ? null,
   ...
 }:
 let
@@ -83,7 +83,7 @@ in
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
     # only on non-nixos
-    activation.install1PasswordCLI = lib.mkIf (osConfig == null) (
+    activation.install1PasswordCLI = lib.mkIf (!isNixOS) (
       home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
         if [ ! -f /usr/local/bin/op ]; then
           cp ${pkgs._1password-cli}/bin/op /tmp/op-cli
@@ -138,7 +138,7 @@ in
         format = "ssh";
         key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUZNxXcceFgiGEGJlvFM1DLaYFMOYO+oVfVmCcUqXRw";
         signer =
-          if osConfig != null then # is nixos
+          if isNixOS then
             "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}"
           else if pkgs.stdenv.isDarwin then
             "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"

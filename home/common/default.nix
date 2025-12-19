@@ -1,8 +1,8 @@
 {
+  isNixOS,
   pkgs,
   hostname,
   utils,
-  osConfig ? null,
   ...
 }:
 let
@@ -30,7 +30,7 @@ in
 
   # apply only on standalone home-manager
   nix = (
-    if osConfig == null then
+    if !isNixOS then
       {
         package = pkgs.nix;
         settings.experimental-features = "nix-command flakes";
