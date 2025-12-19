@@ -26,11 +26,12 @@ hash)
 	if command -v op &>/dev/null; then
 		eval $(op signin)
 	fi
+	# for nixos, rebuild the system
 	if [ -f /etc/NIXOS ]; then
 		sudo nixos-rebuild switch --flake ~/.dotfiles#$HOSTNAME
-	else
-		home-manager switch --flake ~/.dotfiles#$HOSTNAME
 	fi
+	# then run home manager
+	home-manager switch --flake ~/.dotfiles#$HOSTNAME
 	;;
 *)
 	echo "Usage: nx [clean|update|edit|pull|hash|optimize]"
