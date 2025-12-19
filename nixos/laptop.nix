@@ -83,12 +83,13 @@
     ];
     packages = with pkgs; [
       kdePackages.kate
-      #  thunderbird
     ];
   };
 
-  # Install firefox.
-  programs.firefox.enable = true;
+  programs.firefox = {
+    enable = true;
+    packages = pkgs.firefox-devedition;
+  };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
