@@ -1,4 +1,4 @@
-{ hostname }:
+{ hostname, ... }:
 {
   system.stateVersion = "25.11";
 
