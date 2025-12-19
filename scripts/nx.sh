@@ -21,15 +21,16 @@ pull)
 hash)
 	nix hash convert --hash-algo sha256 "$(nix-prefetch-url "$2")"
 	;;
-system)
-	sudo nixos-rebuild switch --flake ~/.dotfiles#$HOSTNAME
-	;;
 "")
 	# prompt to sign into 1password first
 	eval $(op signin)
-	home-manager switch --flake ~/.dotfiles#$HOSTNAME
+	if [ -f /etc/NIXOS ]; then
+		sudo nixos-rebuild switch --flake ~/.dotfiles#$HOSTNAME
+	else
+		home-manager switch --flake ~/.dotfiles#$HOSTNAME
+	fi
 	;;
 *)
-	echo "Usage: nx [clean|update|edit|pull|hash|optimize|system]"
+	echo "Usage: nx [clean|update|edit|pull|hash|optimize]"
 	;;
 esac
