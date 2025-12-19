@@ -41,26 +41,6 @@
         false
       ];
 
-      # Shared Home Manager module configuration
-      mkHomeModules = hostname: [
-        catppuccin.homeModules.catppuccin
-        plasma-manager.homeModules.plasma-manager
-        opinject.homeManagerModules.default
-        ./home/${hostname}.nix
-      ];
-
-      # Shared Home Manager extraSpecialArgs
-      mkHomeSpecialArgs = hostname: isNixOS: {
-        inherit
-          inputs
-          hostname
-          home-manager
-          isNixOS
-          ;
-        utils = import ./lib/utils.nix;
-      };
-
-      # Standalone Home Manager configuration
       mkHomeConfiguration =
         system: hostname:
         home-manager.lib.homeManagerConfiguration {
@@ -86,28 +66,29 @@
               ];
             }
           ]
-          ++ mkHomeModules hostname;
+          ++ [
+            catppuccin.homeModules.catppuccin
+            plasma-manager.homeModules.plasma-manager
+            opinject.homeManagerModules.default
+            ./home/${hostname}.nix
+          ];
 
-          extraSpecialArgs = mkHomeSpecialArgs hostname (builtins.elemAt system 1);
+          extraSpecialArgs = {
+            inherit
+              inputs
+              hostname
+              home-manager
+              ;
+            isNixOS = (builtins.elemAt system 1);
+            utils = import ./lib/utils.nix;
+          };
         };
 
-      # NixOS configuration with integrated Home Manager
       mkNixosConfiguration =
         hostname: username:
         nixpkgs.lib.nixosSystem {
           modules = [
             catppuccin.nixosModules.catppuccin
-            home-manager.nixosModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                users.${username} = {
-                  imports = mkHomeModules hostname;
-                };
-                extraSpecialArgs = mkHomeSpecialArgs hostname true;
-              };
-            }
             ./nixos/${hostname}.nix
           ];
           specialArgs = {
