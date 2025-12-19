@@ -47,4 +47,14 @@ in
 
   # create kitty ssh desktop files
   xdg.desktopEntries = sshConfig.desktopEntries;
+
+  programs.plasma = {
+    enable = true;
+    workspace = {
+      cursor = {
+        theme = "Colloid-cursors";
+        size = 24;
+      };
+    };
+  };
 }

@@ -9,6 +9,11 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
     opinject.url = "github:itzTheMeow/opinject";
     #opnix.url = "github:itzTheMeow/opnix/a18b32d338d2316f12afe8c694525f1ef5b01c75";
   };
@@ -19,6 +24,7 @@
       home-manager,
       nixpkgs,
       opinject,
+      plasma-manager,
       ...
     }@inputs:
     let
@@ -28,6 +34,7 @@
       # Shared Home Manager module configuration
       mkHomeModules = hostname: [
         catppuccin.homeModules.catppuccin
+        plasma-manager.homeModules.plasma-manager
         opinject.homeManagerModules.default
         ./home/${hostname}.nix
       ];
