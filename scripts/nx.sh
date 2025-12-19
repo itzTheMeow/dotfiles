@@ -23,7 +23,9 @@ hash)
 	;;
 "")
 	# prompt to sign into 1password first
-	eval $(op signin)
+	if command -v op &>/dev/null; then
+		eval $(op signin)
+	fi
 	if [ -f /etc/NIXOS ]; then
 		sudo nixos-rebuild switch --flake ~/.dotfiles#$HOSTNAME
 	else
