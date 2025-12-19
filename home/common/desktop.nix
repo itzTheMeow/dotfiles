@@ -82,6 +82,7 @@ in
     // sshConfig.kittySessions;
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
+    # only on non-nixos
     activation.install1PasswordCLI = lib.mkIf (osConfig == null) (
       home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
         if [ ! -f /usr/local/bin/op ]; then
