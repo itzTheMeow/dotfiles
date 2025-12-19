@@ -63,7 +63,6 @@
   };
 
   programs.zsh.enable = true;
-  programs.home-manager.enable = true;
 
   programs.firefox = {
     enable = true;
@@ -71,6 +70,7 @@
   };
 
   environment.systemPackages = with pkgs; [
+    home-manager
     nano
     colloid-icon-theme
     catppuccin-kde
