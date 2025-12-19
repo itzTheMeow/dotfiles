@@ -93,6 +93,7 @@
 
   environment.systemPackages = with pkgs; [
     nano
+    colloid-icon-theme
   ];
 
   programs._1password-gui = {
