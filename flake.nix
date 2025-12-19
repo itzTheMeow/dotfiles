@@ -64,7 +64,7 @@
       mkHomeConfiguration =
         system: hostname:
         home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system [ 0 ]};
+          pkgs = builtins.getAttr (system [ 0 ]) nixpkgs.legacyPackages;
 
           modules = [
             {
@@ -88,7 +88,7 @@
           ]
           ++ mkHomeModules hostname;
 
-          extraSpecialArgs = mkHomeSpecialArgs hostname system [ 1 ];
+          extraSpecialArgs = mkHomeSpecialArgs hostname (system [ 1 ]);
         };
 
       # NixOS configuration with integrated Home Manager
