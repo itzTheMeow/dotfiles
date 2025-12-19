@@ -73,7 +73,10 @@
     home-manager
     nano
     colloid-icon-theme
-    catppuccin-kde
+    (catppuccin-kde.override {
+      flavour = [ "mocha" ];
+      accents = [ "mauve" ];
+    })
   ];
 
   programs._1password.enable = true;
