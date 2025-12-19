@@ -28,4 +28,7 @@
     LC_TELEPHONE = "en_US.UTF-8";
     LC_TIME = "en_US.UTF-8";
   };
+
+  # passwordless sudo
+  security.sudo.wheelNeedsPassword = false;
 }
