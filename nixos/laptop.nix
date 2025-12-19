@@ -63,6 +63,8 @@
   };
 
   programs.zsh.enable = true;
+  programs.home-manager.enable = true;
+
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-devedition;
