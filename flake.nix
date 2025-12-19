@@ -58,14 +58,31 @@
             utils = import ./lib/utils.nix;
           };
         };
+      mkNixosConfiguration =
+        hostname:
+        nixpkgs.lib.nixosSystem {
+          modules = [
+            catppuccin.nixosModules.catppuccin
+            ./nixos/${hostname}.nix
+          ];
+          specialArgs = {
+            inherit inputs hostname;
+            utils = import ./lib/utils.nix;
+          };
+        };
     in
     {
       homeConfigurations = {
+        laptop = mkHomeConfiguration linux "laptop";
+
         hyzenberg = mkHomeConfiguration linux "hyzenberg";
-        kubuntu = mkHomeConfiguration linux "kubuntu";
         netrohost = mkHomeConfiguration linux "netrohost";
 
         macintosh = mkHomeConfiguration darwin "macintosh";
+      };
+
+      nixosConfigurations = {
+        laptop = mkNixosConfiguration "laptop";
       };
     };
 }

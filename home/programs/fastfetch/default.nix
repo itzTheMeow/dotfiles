@@ -1,7 +1,7 @@
 { hostname, ... }:
 let
   accent =
-    if hostname == "kubuntu" then
+    if hostname == "laptop" then
       "#cba6f7"
     else if hostname == "hyzenberg" then
       "#f38ba8"
