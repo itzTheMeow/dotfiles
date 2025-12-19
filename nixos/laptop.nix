@@ -88,7 +88,7 @@
 
   programs.firefox = {
     enable = true;
-    packages = pkgs.firefox-devedition;
+    package = pkgs.firefox-devedition;
   };
 
   # Allow unfree packages
