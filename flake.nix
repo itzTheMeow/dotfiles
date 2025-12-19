@@ -24,6 +24,21 @@
     let
       linux = "x86_64-linux";
       darwin = "x86_64-darwin";
+
+      # Shared Home Manager module configuration
+      mkHomeModules = hostname: [
+        catppuccin.homeModules.catppuccin
+        opinject.homeManagerModules.default
+        ./home/${hostname}.nix
+      ];
+
+      # Shared Home Manager extraSpecialArgs
+      mkHomeSpecialArgs = hostname: {
+        inherit inputs hostname home-manager;
+        utils = import ./lib/utils.nix;
+      };
+
+      # Standalone Home Manager configuration
       mkHomeConfiguration =
         system: hostname:
         home-manager.lib.homeManagerConfiguration {
@@ -47,26 +62,31 @@
             ];
           };
 
-          modules = [
-            catppuccin.homeModules.catppuccin
-            opinject.homeManagerModules.default
-            ./home/${hostname}.nix
-          ];
-
-          extraSpecialArgs = {
-            inherit inputs hostname home-manager;
-            utils = import ./lib/utils.nix;
-          };
+          modules = mkHomeModules hostname;
+          extraSpecialArgs = mkHomeSpecialArgs hostname;
         };
+
+      # NixOS configuration with integrated Home Manager
       mkNixosConfiguration =
-        hostname:
+        hostname: username:
         nixpkgs.lib.nixosSystem {
           modules = [
             catppuccin.nixosModules.catppuccin
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                users.${username} = {
+                  imports = mkHomeModules hostname;
+                };
+                extraSpecialArgs = mkHomeSpecialArgs hostname;
+              };
+            }
             ./nixos/${hostname}.nix
           ];
           specialArgs = {
-            inherit inputs hostname;
+            inherit inputs hostname username;
             utils = import ./lib/utils.nix;
           };
         };
@@ -82,7 +102,7 @@
       };
 
       nixosConfigurations = {
-        laptop = mkNixosConfiguration "laptop";
+        laptop = mkNixosConfiguration "laptop" "xela";
       };
     };
 }

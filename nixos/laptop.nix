@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, username, ... }:
 {
   system.stateVersion = "25.11";
 
@@ -76,7 +76,7 @@
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.xela = {
+  users.users.${username} = {
     isNormalUser = true;
     description = "Alex";
     extraGroups = [
