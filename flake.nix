@@ -74,6 +74,8 @@
         system: hostname: username:
         nixpkgs.lib.nixosSystem {
           inherit system;
+          
+          pkgs = nixpkgs.legacyPackages.${system};
 
           modules = [
             catppuccin.nixosModules.catppuccin
