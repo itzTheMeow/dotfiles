@@ -82,21 +82,23 @@ in
     // sshConfig.kittySessions;
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
-    activation.install1PasswordCLI = home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
-      if [ ! -f /usr/local/bin/op ]; then
-        cp ${pkgs._1password-cli}/bin/op /tmp/op-cli
-        cat << 'EOF' > /tmp/install_op.sh
-      #!/bin/bash
-      sudo mv /tmp/op-cli /usr/local/bin/op
-      sudo chgrp onepassword-cli /usr/local/bin/op
-      sudo chmod g+s /usr/local/bin/op
-      rm /tmp/install_op.sh
-      echo "Install complete."
-      EOF
-        chmod +x /tmp/install_op.sh
-        echo "Please run /tmp/install_op.sh to complete 1Password CLI installation"
-      fi
-    '';
+    activation.install1PasswordCLI = lib.mkIf (osConfig == null) (
+      home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
+        if [ ! -f /usr/local/bin/op ]; then
+          cp ${pkgs._1password-cli}/bin/op /tmp/op-cli
+          cat << 'EOF' > /tmp/install_op.sh
+        #!/bin/bash
+        sudo mv /tmp/op-cli /usr/local/bin/op
+        sudo chgrp onepassword-cli /usr/local/bin/op
+        sudo chmod g+s /usr/local/bin/op
+        rm /tmp/install_op.sh
+        echo "Install complete."
+        EOF
+          chmod +x /tmp/install_op.sh
+          echo "Please run /tmp/install_op.sh to complete 1Password CLI installation"
+        fi
+      ''
+    );
 
     sessionVariables = {
       VIRTUAL_ENV_DISABLE_PROMPT = "1";
