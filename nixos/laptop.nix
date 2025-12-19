@@ -94,6 +94,7 @@
   environment.systemPackages = with pkgs; [
     nano
     colloid-icon-theme
+    catppuccin-kde
   ];
 
   programs._1password-gui = {
