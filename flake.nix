@@ -71,12 +71,8 @@
 
       # NixOS configuration with integrated Home Manager
       mkNixosConfiguration =
-        system: hostname: username:
+        hostname: username:
         nixpkgs.lib.nixosSystem {
-          inherit system;
-          
-          pkgs = nixpkgs.legacyPackages.${system};
-
           modules = [
             catppuccin.nixosModules.catppuccin
             home-manager.nixosModules.home-manager
@@ -94,7 +90,7 @@
           ];
           specialArgs = {
             inherit inputs hostname username;
-            utils = import ./lib/utils.nix;
+            utilslib = import ./lib/utils.nix;
           };
         };
     in
@@ -109,7 +105,7 @@
       };
 
       nixosConfigurations = {
-        laptop = mkNixosConfiguration linux "laptop" "xela";
+        laptop = mkNixosConfiguration "laptop" "xela";
       };
     };
 }
