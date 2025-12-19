@@ -42,27 +42,30 @@
       mkHomeConfiguration =
         system: hostname:
         home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
+          pkgs = nixpkgs.legacyPackages.${system};
 
-            # fix fish on macos
-            overlays = [
-              (
-                final: prev:
-                if prev.stdenv.isDarwin then
-                  {
-                    fish = prev.fish.overrideAttrs (_: {
-                      doCheck = false;
-                    });
-                  }
-                else
-                  { }
-              )
-            ];
-          };
+          modules = [
+            {
+              nixpkgs.config.allowUnfree = true;
 
-          modules = mkHomeModules hostname;
+              # fix fish on macos
+              nixpkgs.overlays = [
+                (
+                  final: prev:
+                  if prev.stdenv.isDarwin then
+                    {
+                      fish = prev.fish.overrideAttrs (_: {
+                        doCheck = false;
+                      });
+                    }
+                  else
+                    { }
+                )
+              ];
+            }
+          ]
+          ++ mkHomeModules hostname;
+
           extraSpecialArgs = mkHomeSpecialArgs hostname;
         };
 
