@@ -21,6 +21,11 @@
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
+  # Exclude default KDE apps
+  environment.plasma6.excludePackages = with pkgs.kdePackages; [
+    elisa
+  ];
+
   # keyboard map
   services.xserver.xkb = {
     layout = "us";
@@ -70,13 +75,19 @@
   };
 
   environment.systemPackages = with pkgs; [
+    # system-level utilities
     home-manager
     nano
+
+    # desktop stuff
     colloid-icon-theme
     (catppuccin-kde.override {
       flavour = [ "mocha" ];
       accents = [ "mauve" ];
     })
+
+    # system-level apps
+    vlc
   ];
 
   programs._1password.enable = true;
