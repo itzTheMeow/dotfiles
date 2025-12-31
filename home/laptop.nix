@@ -27,6 +27,7 @@ in
       # desktop apps
       newsflash
       plex-desktop
+      cubiomes-viewer
 
       # for temporary nixos vm
       nbd
