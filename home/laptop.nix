@@ -88,7 +88,7 @@ in
       }
     ];
 
-    nightLight = {
+    kwin.nightLight = {
       enable = true;
       mode = "location";
       location = {
