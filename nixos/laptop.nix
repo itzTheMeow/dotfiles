@@ -85,14 +85,14 @@
     home-manager
     nano
 
-    # desktop stuff
-    colloid-icon-theme
-    colloid-gtk-theme # includes cursor theme
+    # desktop theme stuff
+    (pkgs.callPackage ../lib/colloid-cursors { })
     (catppuccin-kde.override {
       flavour = [ "mocha" ];
       accents = [ "mauve" ];
       winDecStyles = [ "modern" ];
     })
+    papirus-icon-theme
 
     # system-level apps
     vlc
