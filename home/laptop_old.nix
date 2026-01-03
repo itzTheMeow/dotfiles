@@ -27,6 +27,7 @@ in
       # desktop apps
       newsflash
       plex-desktop
+      remmina
 
       # for temporary nixos vm
       nbd
