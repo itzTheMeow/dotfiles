@@ -68,14 +68,6 @@ in
       theme = "Catppuccin-Mocha-Mauve";
       colorScheme = "CatppuccinMochaMauve";
       windowDecorations.theme = "__aurorae__svg__CatppuccinMocha-Classic";
-      nightLight = {
-        enable = true;
-        mode = "location";
-        location = {
-          latitude = 40.39;
-          longitude = -76.84;
-        };
-      };
     };
     panels = [
       {
@@ -95,5 +87,14 @@ in
         ];
       }
     ];
+
+    nightLight = {
+      enable = true;
+      mode = "location";
+      location = {
+        latitude = 40.39;
+        longitude = -76.84;
+      };
+    };
   };
 }
