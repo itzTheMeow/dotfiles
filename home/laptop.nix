@@ -32,15 +32,16 @@ in
       # desktop apps
       newsflash
       plex-desktop
+      remmina
 
       ## games
       prismlauncher
-      steam
 
       ## development
       mongodb-compass
       sqlitebrowser
-      vscode
+
+      ### the rest of these are in nixos programs
 
       # for temporary nixos vm
       nbd

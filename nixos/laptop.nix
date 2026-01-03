@@ -80,9 +80,20 @@
 
   programs.zsh.enable = true;
 
+  # browsing
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-devedition;
+  };
+
+  # development
+  programs.vscode = {
+    enable = true;
+  };
+
+  # games
+  programs.steam = {
+    enable = true;
   };
 
   environment.systemPackages = with pkgs; [
