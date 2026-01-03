@@ -10,7 +10,6 @@ in
     ./programs/discordchatexporter
     ./programs/logisim
     ./programs/plexamp
-    ./programs/colloid-cursors
   ];
 
   home = {

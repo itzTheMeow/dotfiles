@@ -47,31 +47,4 @@ in
 
   # create kitty ssh desktop files
   xdg.desktopEntries = sshConfig.desktopEntries;
-
-  programs.plasma = {
-    enable = true;
-    workspace = {
-      cursor = {
-        theme = "Colloid-cursors";
-        size = 24;
-      };
-      theme = "catppuccin-mocha-mauve";
-      colorScheme = "catppuccinMochaMauve";
-    };
-    panels = [
-      {
-        location = "top";
-        height = 24;
-        widgets = [
-          "org.kde.plasma.kickoff"
-          "org.kde.plasma.pager"
-          "org.kde.plasma.icontasks"
-          "org.kde.plasma.marginsseparator"
-          "org.kde.plasma.systemtray"
-          "org.kde.plasma.digitalclock"
-          "org.kde.plasma.minimizeall"
-        ];
-      }
-    ];
-  };
 }
