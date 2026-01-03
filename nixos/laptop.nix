@@ -21,6 +21,12 @@
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
+  # Set Plasma to dark mode
+  programs.dconf.enable = true;
+  environment.sessionVariables = {
+    PLASMA_USE_QT_SCALING = "1";
+  };
+
   # Exclude default KDE apps
   environment.plasma6.excludePackages = with pkgs.kdePackages; [
     elisa
@@ -81,9 +87,11 @@
 
     # desktop stuff
     colloid-icon-theme
+    colloid-gtk-theme # includes cursor theme
     (catppuccin-kde.override {
       flavour = [ "mocha" ];
       accents = [ "mauve" ];
+      winDecStyles = [ "modern" ];
     })
 
     # system-level apps
