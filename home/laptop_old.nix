@@ -48,14 +48,6 @@ in
   # create kitty ssh desktop files
   xdg.desktopEntries = sshConfig.desktopEntries;
 
-  # 1Password autostart
-  xdg.autostart = {
-    enable = true;
-    entries = [
-      "${pkgs._1password-gui}/share/applications/1password.desktop"
-    ];
-  };
-
   programs.plasma = {
     enable = true;
     workspace = {
