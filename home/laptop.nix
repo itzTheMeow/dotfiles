@@ -64,7 +64,7 @@ in
         size = 24;
       };
       lookAndFeel = "Catppuccin-Mocha-Mauve";
-      #theme = "catppuccin-mocha-mauve";
+      iconTheme = "Papirus-Dark";
       colorScheme = "CatppuccinMochaMauve";
     };
     panels = [
