@@ -33,6 +33,15 @@ in
       newsflash
       plex-desktop
 
+      ## games
+      prismlauncher
+      steam
+
+      ## development
+      mongodb-compass
+      sqlitebrowser
+      vscode
+
       # for temporary nixos vm
       nbd
       qemu

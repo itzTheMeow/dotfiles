@@ -17,7 +17,7 @@ in
   home = {
     packages = with pkgs; [
       # development
-      #bun
+      bun
       deno
 
       ## javascript
