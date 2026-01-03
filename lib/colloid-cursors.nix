@@ -11,21 +11,6 @@ pkgs.stdenvNoCC.mkDerivation {
     hash = "sha256-x2SSaIkKm1415avO7R6TPkpghM30HmMdjMFUUyPWZsk=";
   };
 
-  nativeBuildInputs = with pkgs; [
-    xorg.xcursorgen
-    inkscape
-  ];
-
-  buildPhase = ''
-    runHook preBuild
-
-    cd cursors
-    patchShebangs build.sh
-    HOME=$TMPDIR ./build.sh
-
-    runHook postBuild
-  '';
-
   installPhase = ''
     runHook preInstall
 
