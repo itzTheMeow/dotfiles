@@ -1,4 +1,9 @@
-{ pkgs, utils, ... }:
+{
+  globals,
+  pkgs,
+  utils,
+  ...
+}:
 let
   username = "xela";
   sshConfig = import ./common/ssh.nix { inherit pkgs utils; };
@@ -65,9 +70,9 @@ in
       };
       lookAndFeel = "org.kde.breezedark.desktop";
       iconTheme = "Papirus-Dark";
-      theme = "Catppuccin-Mocha-Mauve";
-      colorScheme = "CatppuccinMochaMauve";
-      windowDecorations.theme = "__aurorae__svg__CatppuccinMocha-Classic";
+      theme = "Catppuccin-${utils.toTitleCase globals.catppuccin.flavor}-${utils.toTitleCase globals.catppuccin.accent}";
+      colorScheme = "Catppuccin${utils.toTitleCase globals.catppuccin.flavor}${utils.toTitleCase globals.catppuccin.accent}";
+      windowDecorations.theme = "__aurorae__svg__Catppuccin${utils.toTitleCase globals.catppuccin.flavor}-Classic";
     };
     panels = [
       {

@@ -1,4 +1,5 @@
 {
+  globals,
   isNixOS,
   pkgs,
   hostname,
@@ -156,8 +157,8 @@ in
   };
 
   catppuccin = {
-    flavor = "mocha";
-    accent = "mauve";
+    flavor = globals.catppuccin.flavor;
+    accent = globals.catppuccin.accent;
   };
 }
 
