@@ -63,8 +63,9 @@ in
         theme = "Colloid-cursors";
         size = 24;
       };
-      theme = "catppuccin-mocha-mauve";
-      colorScheme = "catppuccinMochaMauve";
+      lookAndFeel = "Catppuccin-Mocha-Mauve";
+      #theme = "catppuccin-mocha-mauve";
+      colorScheme = "CatppuccinMochaMauve";
     };
     panels = [
       {
