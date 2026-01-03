@@ -84,7 +84,10 @@ in
         widgets = [
           "org.kde.plasma.kickoff"
           "org.kde.plasma.pager"
-          "org.kde.plasma.icontasks"
+          {
+            name = "org.kde.plasma.icontasks";
+            config.General.launchers = [ ];
+          }
           "org.kde.plasma.marginsseparator"
           "org.kde.plasma.systemtray"
           "org.kde.plasma.digitalclock"
