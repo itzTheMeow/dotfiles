@@ -86,7 +86,7 @@
     nano
 
     # desktop theme stuff
-    (pkgs.callPackage ../lib/colloid-cursors { })
+    (pkgs.callPackage ../lib/colloid-cursors.nix { })
     (catppuccin-kde.override {
       flavour = [ "mocha" ];
       accents = [ "mauve" ];
