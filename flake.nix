@@ -104,6 +104,7 @@
     {
       homeConfigurations = {
         laptop = mkHomeConfiguration nixos "laptop";
+        laptop_old = mkHomeConfiguration nixos "laptop_old";
 
         hyzenberg = mkHomeConfiguration linux "hyzenberg";
         netrohost = mkHomeConfiguration linux "netrohost";
