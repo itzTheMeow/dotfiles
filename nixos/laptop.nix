@@ -1,4 +1,9 @@
-{ pkgs, username, ... }:
+{
+  globals,
+  pkgs,
+  username,
+  ...
+}:
 {
   imports = [
     ./common
@@ -88,8 +93,8 @@
     # desktop theme stuff
     (pkgs.callPackage ../lib/colloid-cursors.nix { })
     (catppuccin-kde.override {
-      flavour = [ "mocha" ];
-      accents = [ "mauve" ];
+      flavour = [ globals.catppuccin.flavor ];
+      accents = [ globals.catppuccin.accent ];
       winDecStyles = [ "classic" ];
     })
     papirus-icon-theme

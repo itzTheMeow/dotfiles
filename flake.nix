@@ -80,7 +80,9 @@
               home-manager
               ;
             isNixOS = (builtins.elemAt system 1);
-            utils = import ./lib/utils.nix;
+
+            globals = import ./lib/globals.nix;
+            utils = import ./lib/utils.nix nixpkgs.lib;
           };
         };
 
@@ -93,7 +95,9 @@
           ];
           specialArgs = {
             inherit inputs hostname username;
-            utilslib = import ./lib/utils.nix;
+
+            globals = import ./lib/globals.nix;
+            utilslib = import ./lib/utils.nix nixpkgs.lib;
           };
         };
     in
