@@ -63,8 +63,9 @@ in
         theme = "Colloid-cursors";
         size = 24;
       };
-      lookAndFeel = "Catppuccin-Mocha-Mauve";
+      lookAndFeel = "org.kde.breezedark.desktop";
       iconTheme = "Papirus-Dark";
+      theme = "Catppuccin-Mocha-Mauve";
       colorScheme = "CatppuccinMochaMauve";
     };
     panels = [

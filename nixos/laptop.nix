@@ -90,7 +90,7 @@
     (catppuccin-kde.override {
       flavour = [ "mocha" ];
       accents = [ "mauve" ];
-      winDecStyles = [ "modern" ];
+      winDecStyles = [ "classic" ];
     })
     papirus-icon-theme
 
