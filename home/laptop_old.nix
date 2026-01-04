@@ -1,6 +1,6 @@
 { pkgs, utils, ... }:
 let
-  username = "xela";
+  username = "meow";
   sshConfig = import ./common/ssh.nix { inherit pkgs utils; };
 in
 {
