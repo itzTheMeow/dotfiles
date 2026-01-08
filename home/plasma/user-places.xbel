@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xbel>
+<xbel xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info"
+  xmlns:kdepriv="http://www.kde.org/kdepriv"
+  xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks">
+  <info>
+    <metadata owner="http://www.kde.org">
+      <kde_places_version>4</kde_places_version>
+      <GroupState-Places-IsHidden>false</GroupState-Places-IsHidden>
+      <GroupState-Remote-IsHidden>false</GroupState-Remote-IsHidden>
+      <GroupState-Devices-IsHidden>false</GroupState-Devices-IsHidden>
+      <GroupState-RemovableDevices-IsHidden>false</GroupState-RemovableDevices-IsHidden>
+      <GroupState-Tags-IsHidden>false</GroupState-Tags-IsHidden>
+      <withRecentlyUsed>true</withRecentlyUsed>
+      <GroupState-RecentlySaved-IsHidden>true</GroupState-RecentlySaved-IsHidden>
+      <withBaloo>true</withBaloo>
+      <GroupState-SearchFor-IsHidden>false</GroupState-SearchFor-IsHidden>
+    </metadata>
+  </info>
+  <bookmark href="file:///home/xela">
+    <title>Home</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="user-home" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/0</ID>
+        <isSystemItem>true</isSystemItem>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/Desktop">
+    <title>Desktop</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="user-desktop" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/1</ID>
+        <isSystemItem>true</isSystemItem>
+        <IsHidden>true</IsHidden>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/Documents">
+    <title>Documents</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-documents" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/2</ID>
+        <isSystemItem>true</isSystemItem>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/Downloads">
+    <title>Downloads</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-downloads" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/3</ID>
+        <isSystemItem>true</isSystemItem>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/Music">
+    <title>Music</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-music" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/6</ID>
+        <isSystemItem>true</isSystemItem>
+        <IsHidden>true</IsHidden>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/Pictures">
+    <title>Pictures</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-pictures" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/7</ID>
+        <isSystemItem>true</isSystemItem>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/Videos">
+    <title>Videos</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-videos" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/8</ID>
+        <isSystemItem>true</isSystemItem>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="remote:/">
+    <title>Network</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-network" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/4</ID>
+        <isSystemItem>true</isSystemItem>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="trash:/">
+    <title>Trash</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="user-trash" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750736105/5</ID>
+        <isSystemItem>true</isSystemItem>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/pCloudDrive">
+    <title>pCloudDrive</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-darkcyan-pcloud" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1751082668/0</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="remote:/Hyzenberg">
+    <title>Hyzenberg</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-remote" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750876678/0</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/pCloudDrive/College">
+    <title>\\College</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-green-books" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750963142/1</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/pCloudDrive/Documents">
+    <title>\\Documents</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-red-documents" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1756181150/0</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/pCloudDrive/Downloads">
+    <title>\\Downloads</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-paleorange-downloads" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750963157/2</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/pCloudDrive/Media/Images">
+    <title>\\Images</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-pink-pictures" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1754889394/1</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/pCloudDrive/Media">
+    <title>\\Media</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-violet-cd" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750963164/3</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/xela/pCloudDrive/Media/Memes">
+    <title>\\Memes</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-brown-videos" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1750963171/5</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="fish://root@hyzen.xela.codes:22/root/.paperless/consume">
+    <title>[paperless-ngx]</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-remote" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1760296035/0</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="remote:/NVSTly%20SSD">
+    <title>NVSTly SSD</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-remote" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1752118869/0</ID>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="fish://root@hyzen.xela.codes:22/var/lib/docker/volumes/minecraft_data/_data">
+    <title>minecraft_data</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <bookmark:icon name="folder-remote" />
+      </metadata>
+      <metadata owner="http://www.kde.org">
+        <ID>1765049162/0</ID>
+      </metadata>
+    </info>
+  </bookmark>
+</xbel>
