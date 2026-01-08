@@ -117,8 +117,24 @@ in
           {
             systemTray.items = {
               shown = [
-                "org.kde.plasma.bluetooth"
+                "org.kde.plasma.battery"
+                "org.kde.plasma.clipboard"
+                "org.kde.plasma.notifications"
                 "org.kde.plasma.networkmanagement"
+                "org.kde.plasma.volume"
+                "org.kde.plasma.bluetooth"
+              ];
+              extra = [
+                "org.kde.plasma.devicenotifier"
+                "org.kde.plasma.printmanager"
+                "org.kde.plasma.mediacontroller"
+                "org.kde.kscreen"
+                "org.kde.plasma.keyboardindicator"
+              ];
+              hidden = [
+                "Fcitx"
+                "org.kde.plasma.nightcolorcontrol"
+                "org.kde.kupapplet"
               ];
             };
           }
