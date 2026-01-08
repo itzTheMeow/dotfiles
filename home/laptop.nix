@@ -56,7 +56,10 @@ in
     ];
 
     file = {
-      ".local/share/user-places.xbel".source = ./plasma/user-places.xbel;
+      ".local/share/user-places.xbel" = {
+        force = true;
+        source = ./plasma/user-places.xbel;
+      };
     }
     // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key";
   };
