@@ -93,7 +93,6 @@ in
         height = 24;
         widgets = [
           "org.kde.plasma.kickoff"
-          #"org.kde.plasma.pager"
           {
             iconTasks = {
               launchers = [ ];
