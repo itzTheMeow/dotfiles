@@ -94,7 +94,7 @@
     text = ''
       firefox-devedition
     '';
-    mode = "0400";
+    mode = "0755";
   };
 
   programs.chromium = {
