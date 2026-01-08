@@ -93,13 +93,21 @@ in
         height = 24;
         widgets = [
           "org.kde.plasma.kickoff"
-          "org.kde.plasma.pager"
+          #"org.kde.plasma.pager"
           {
-            name = "org.kde.plasma.icontasks";
-            config.General.launchers = [ ];
+            iconTasks = {
+              launchers = [ ];
+            };
           }
           "org.kde.plasma.marginsseparator"
-          "org.kde.plasma.systemtray"
+          {
+            systemTray.items = {
+              shown = [
+                "org.kde.plasma.bluetooth"
+                "org.kde.plasma.networkmanagement"
+              ];
+            };
+          }
           "org.kde.plasma.digitalclock"
           "org.kde.plasma.minimizeall"
         ];
