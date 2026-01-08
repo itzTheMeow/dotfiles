@@ -107,8 +107,8 @@ in
       enable = true;
       mode = "location";
       location = {
-        latitude = 40.39;
-        longitude = -76.84;
+        latitude = "40.39";
+        longitude = "-76.84";
       };
     };
   };
