@@ -134,6 +134,7 @@
     papirus-icon-theme
 
     # system-level apps
+    chromium
     vlc
   ];
 
