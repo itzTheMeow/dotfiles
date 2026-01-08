@@ -70,26 +70,11 @@ let
     # Copy custom CSS to config directory
     cp ${customCSS} "$CONFIG_DIR/custom.css"
 
-    # Copy icon to config directory for Chromium to use
-    cp ${snapchatIcon} "$CONFIG_DIR/icon.svg"
-
-    # Create a desktop file in the Chromium profile for proper icon association
-    mkdir -p "$CONFIG_DIR/chromium-profile/Default"
-    cat > "$CONFIG_DIR/chromium-profile/Default/Web Applications/Manifest Resources/web.snapchat.com.desktop" << EOF
-    [Desktop Entry]
-    Version=1.0
-    Type=Application
-    Name=Snapchat Web
-    Icon=$CONFIG_DIR/icon.svg
-    StartupWMClass=SnapchatWeb
-    EOF
-
     # Launch Chromium in app mode with custom user stylesheet
     exec ${pkgs.chromium}/bin/chromium \
       --app=https://web.snapchat.com \
       --user-data-dir="$CONFIG_DIR/chromium-profile" \
-      --class=SnapchatWeb \
-      --name=SnapchatWeb \
+      --class=snapchat-web \
       --user-stylesheet="file://$CONFIG_DIR/custom.css" \
       "$@"
   '';
@@ -106,7 +91,7 @@ let
       "Chat"
       "InstantMessaging"
     ];
-    startupWMClass = "SnapchatWeb";
+    startupWMClass = "snapchat-web";
   };
 
 in
