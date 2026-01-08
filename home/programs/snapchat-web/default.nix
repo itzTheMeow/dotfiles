@@ -1,13 +1,10 @@
 {
-  config,
-  lib,
+  globals,
   pkgs,
   ...
 }:
 
 let
-  globals = import ../../lib/globals.nix;
-
   # Fetch Catppuccin userstyle
   catppuccinLess = pkgs.fetchurl {
     url = "https://github.com/catppuccin/userstyles/raw/4134d01e8dc76dde49730977d4b4716b60c5dc6b/styles/snapchat-web/catppuccin.user.less";
