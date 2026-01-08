@@ -59,11 +59,6 @@ in
 
       ### the rest of these are in nixos programs
 
-      # for temporary nixos vm
-      nbd
-      qemu
-      tigervnc
-
       # custom packages
       # codearchive requires these to be available
       python3Packages.pygments
