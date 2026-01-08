@@ -12,6 +12,12 @@ let
     sha256 = "sha256-vA8tM7Qoio8YW1dS24QUeLVTB5K5ZpoojI+4sI9faVM=";
   };
 
+  # Fetch Catppuccin lib.less dependency
+  catppuccinLib = pkgs.fetchurl {
+    url = "https://userstyles.catppuccin.com/lib/lib.less";
+    sha256 = "sha256-CsurGVIjN9Dbdj9zvq+YfvCr1FNhnvR77E2aUckEImE=";
+  };
+
   # Fetch Snapchat icon
   snapchatIcon = pkgs.fetchurl {
     url = "https://static.snapchat.com/favicon.ico";
@@ -25,8 +31,15 @@ let
         buildInputs = [ pkgs.nodePackages.less ];
       }
       ''
+        # Copy lib.less and catppuccin LESS file
+        cp ${catppuccinLib} lib.less
+        cp ${catppuccinLess} catppuccin.user.less
+
+        # Replace the URL import with local file import
+        sed -i 's|@import "https://userstyles.catppuccin.com/lib/lib.less";|@import "lib.less";|g' catppuccin.user.less
+
         # Compile the catppuccin LESS file to CSS
-        lessc ${catppuccinLess} > catppuccin.css
+        lessc catppuccin.user.less > catppuccin.css
 
         # Combine with custom CSS
         cat catppuccin.css > $out
