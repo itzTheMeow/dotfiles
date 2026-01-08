@@ -59,6 +59,31 @@ let
         cat ${./custom.css} >> $out
       '';
 
+  # Create a Chrome extension to inject the CSS
+  cssExtension = pkgs.runCommand "snapchat-css-extension" { } ''
+    mkdir -p $out
+
+    # Create manifest.json
+    cat > $out/manifest.json << 'EOF'
+    {
+      "manifest_version": 3,
+      "name": "Snapchat Web Custom Styles",
+      "version": "1.0",
+      "description": "Injects custom CSS into Snapchat Web",
+      "content_scripts": [
+        {
+          "matches": ["https://web.snapchat.com/*"],
+          "css": ["custom.css"],
+          "run_at": "document_start"
+        }
+      ]
+    }
+    EOF
+
+    # Copy the custom CSS
+    cp ${customCSS} $out/custom.css
+  '';
+
   # Wrapper script to launch Snapchat Web
   snapchatWebLauncher = pkgs.writeScriptBin "snapchat-web" ''
     #!${pkgs.bash}/bin/bash
@@ -67,16 +92,12 @@ let
     CONFIG_DIR="''${XDG_CONFIG_HOME:-$HOME/.config}/snapchat-web"
     mkdir -p "$CONFIG_DIR"
 
-    # Copy custom CSS to config directory (force overwrite if exists)
-    cp -f ${customCSS} "$CONFIG_DIR/custom.css"
-    chmod 644 "$CONFIG_DIR/custom.css"
-
-    # Launch Chromium in app mode with custom user stylesheet
+    # Launch Chromium in app mode with CSS extension
     exec ${pkgs.chromium}/bin/chromium \
       --app=https://web.snapchat.com \
-      --user-data-dir="$CONFIG_DIR/chromium-profile" \
+      --user-data-dir="$CONFIG_DIR" \
       --class=snapchat-web \
-      --user-stylesheet="file://$CONFIG_DIR/custom.css" \
+      --load-extension=${cssExtension} \
       "$@"
   '';
 
