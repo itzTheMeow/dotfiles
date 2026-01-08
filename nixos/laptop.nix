@@ -110,6 +110,19 @@
     #extraOpts = {
     #  NativeMessagingAllowlist = [ "com.1password.1password" ];
     #};
+    extraOpts = {
+      "WebAppInstallForceList" = [
+        {
+          "custom_name" = "Snapchat Web";
+          #"custom_icon" = {
+          #  "url" = "${snapchatIcon}";
+          #};
+          "create_desktop_shortcut" = true;
+          "default_launch_container" = "window";
+          "url" = "https://snapchat.com/web";
+        }
+      ];
+    };
   };
 
   # development
