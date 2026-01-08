@@ -6,6 +6,8 @@
 }:
 
 let
+  globals = import ../../lib/globals.nix;
+
   # Fetch Catppuccin userstyle
   catppuccinLess = pkgs.fetchurl {
     url = "https://github.com/catppuccin/userstyles/raw/4134d01e8dc76dde49730977d4b4716b60c5dc6b/styles/snapchat-web/catppuccin.user.less";
@@ -31,15 +33,24 @@ let
         buildInputs = [ pkgs.nodePackages.less ];
       }
       ''
-        # Copy lib.less and catppuccin LESS file
-        cp ${catppuccinLib} lib.less
+        # Copy the catppuccin LESS file
         cp ${catppuccinLess} catppuccin.user.less
 
-        # Replace the URL import with local file import
-        sed -i 's|@import "https://userstyles.catppuccin.com/lib/lib.less";|@import "lib.less";|g' catppuccin.user.less
+        # Create a new file with variables and lib.less content inlined
+        cat > processed.user.less << 'EOF'
+        @darkFlavor: ${globals.catppuccin.flavor};
+        @lightFlavor: latte;
+        @accentColor: ${globals.catppuccin.accent};
+        EOF
 
-        # Compile the catppuccin LESS file to CSS
-        lessc catppuccin.user.less > catppuccin.css
+        # Append lib.less content
+        cat ${catppuccinLib} >> processed.user.less
+
+        # Append the original catppuccin.user.less, but skip the import line
+        sed '/^@import.*lib\.less/d' catppuccin.user.less >> processed.user.less
+
+        # Compile the processed LESS file to CSS
+        lessc processed.user.less > catppuccin.css
 
         # Combine with custom CSS
         cat catppuccin.css > $out
