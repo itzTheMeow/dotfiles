@@ -67,8 +67,9 @@ let
     CONFIG_DIR="''${XDG_CONFIG_HOME:-$HOME/.config}/snapchat-web"
     mkdir -p "$CONFIG_DIR"
 
-    # Copy custom CSS to config directory
-    cp ${customCSS} "$CONFIG_DIR/custom.css"
+    # Copy custom CSS to config directory (force overwrite if exists)
+    cp -f ${customCSS} "$CONFIG_DIR/custom.css"
+    chmod 644 "$CONFIG_DIR/custom.css"
 
     # Launch Chromium in app mode with custom user stylesheet
     exec ${pkgs.chromium}/bin/chromium \
