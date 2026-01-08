@@ -8,8 +8,8 @@
 let
   # Fetch Catppuccin userstyle
   catppuccinLess = pkgs.fetchurl {
-    url = "https://github.com/catppuccin/userstyles/blob/4134d01e8dc76dde49730977d4b4716b60c5dc6b/styles/snapchat-web/catppuccin.user.less";
-    sha256 = "sha256-Y746PhA9Khhzk8yqzsUCFKOTtI0o+d78zipKMwhpDuE=";
+    url = "https://github.com/catppuccin/userstyles/raw/4134d01e8dc76dde49730977d4b4716b60c5dc6b/styles/snapchat-web/catppuccin.user.less";
+    sha256 = "sha256-vA8tM7Qoio8YW1dS24QUeLVTB5K5ZpoojI+4sI9faVM=";
   };
 
   # Fetch Snapchat icon
