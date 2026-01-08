@@ -84,42 +84,32 @@ let
     cp ${customCSS} $out/custom.css
   '';
 
-  # Wrapper script to launch Snapchat Web
-  snapchatWebLauncher = pkgs.writeScriptBin "snapchat-web" ''
-    #!${pkgs.bash}/bin/bash
-
-    # Create config directory if it doesn't exist
-    CONFIG_DIR="''${XDG_CONFIG_HOME:-$HOME/.config}/snapchat-web"
-    mkdir -p "$CONFIG_DIR"
-
-    # Launch Chromium in app mode with CSS extension
-    exec ${pkgs.chromium}/bin/chromium \
-      --app=https://web.snapchat.com \
-      --user-data-dir="$CONFIG_DIR" \
-      --class=snapchat-web \
-      --load-extension=${cssExtension} \
-      "$@"
-  '';
-
-  desktopEntry = pkgs.makeDesktopItem {
-    name = "snapchat-web";
-    desktopName = "Snapchat Web";
-    comment = "Snapchat is a fast and fun way to share the moment with your friends and family 👻";
-    exec = "${snapchatWebLauncher}/bin/snapchat-web";
-    icon = "${snapchatIcon}";
-    keywords = [ "snap" ];
-    categories = [
-      "Network"
-      "Chat"
-      "InstantMessaging"
-    ];
-    startupWMClass = "snapchat-web";
-  };
-
 in
 {
-  home.packages = [
-    snapchatWebLauncher
-    desktopEntry
-  ];
+  #programs.chromium.extensions = [
+  #  {
+  #    id = "snapchat-web-styles";
+  #    updateUrl = "file://${cssExtension}";
+  #  }
+  #];
+
+  programs.chromium.extraOpts = {
+    "WebAppInstallForceList" = [
+      {
+        "custom_name" = "Snapchat Web";
+        "custom_icon" = {
+          "url" = "${snapchatIcon}";
+        };
+        "create_desktop_shortcut" = true;
+        "default_launch_container" = "window";
+        "url" = "https://snapchat.com/web";
+      }
+    ];
+    #"ExtensionSettings" = {
+    #  "${cssExtension}" = {
+    #    "installation_mode" = "force_installed";
+    #    "update_url" = "file://${cssExtension}/manifest.json";
+    #  };
+    #};
+  };
 }
