@@ -19,8 +19,8 @@ let
 
   # Fetch Snapchat icon
   snapchatIcon = pkgs.fetchurl {
-    url = "https://static.snapchat.com/favicon.ico";
-    sha256 = "sha256-GC6SwOhh5P0xYiiB0Elj/5G5WxJySzWb9A9oQyZizdg=";
+    url = "https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/Snapchat_logo.svg/330px-Snapchat_logo.svg.png";
+    sha256 = "sha256-VlPAEZ116oLawxMoouOwknKJpi0weC8wWYv2dXySw/Q=";
   };
 
   # Compile LESS to CSS and add custom styles
