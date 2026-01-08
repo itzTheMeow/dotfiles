@@ -2,7 +2,7 @@
 {
   programs.kitty = {
     enable = true;
-    package = (pkgs.callPackage ./patch.nix { inherit pkgs; });
+    #package = (pkgs.callPackage ./patch.nix { inherit pkgs; });
     font.name = "CaskaydiaMono NFM";
     keybindings = {
       "f5" = "load_config_file";
