@@ -107,9 +107,6 @@
       "dhdgffkkebhmkfjojejmpbldmpobfkfo" # Tampermonkey
       "ddkjiahejlhfcafbddmgiahcphecmpfh" # uBlock Origin Lite
     ];
-    #extraOpts = {
-    #  NativeMessagingAllowlist = [ "com.1password.1password" ];
-    #};
     extraOpts = {
       "WebAppInstallForceList" = [
         {
