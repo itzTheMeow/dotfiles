@@ -87,8 +87,12 @@
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-devedition;
-    nativeMessagingHosts.packages = [ pkgs._1password-gui ];
   };
+
+  # enable 1Password browser integration
+  environment.etc."1password/custom_allowed_browsers".text = ''
+    firefox-devedition
+  '';
 
   programs.chromium = {
     enable = true;
