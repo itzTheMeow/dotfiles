@@ -90,9 +90,12 @@
   };
 
   # enable 1Password browser integration
-  environment.etc."1password/custom_allowed_browsers".text = ''
-    firefox-devedition
-  '';
+  environment.etc."1password/custom_allowed_browsers" = {
+    text = ''
+      firefox-devedition
+    '';
+    mode = "0400";
+  };
 
   programs.chromium = {
     enable = true;
