@@ -137,6 +137,7 @@
 
     # kde system utils
     kdePackages.partitionmanager
+    kdePackages.plasma-browser-integration
 
     # desktop theme stuff
     (pkgs.callPackage ../lib/colloid-cursors.nix { })
