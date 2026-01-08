@@ -87,7 +87,7 @@
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-devedition;
-    nativeMessagingHosts = [ pkgs._1password-gui ];
+    nativeMessagingHosts.packages = [ pkgs._1password-gui ];
   };
 
   programs.chromium = {
