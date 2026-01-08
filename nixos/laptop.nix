@@ -103,6 +103,7 @@
       "aeblfdkhhhdcdjpifhhbdiojplfjncoa" # 1Password
       "cndibmoanboadcifjkjbdpjgfedanolh" # BetterCanvas
       "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
+      "cimiefiiaegbelhefglklhhakcgmhkai" # Plasma Integration
       "clngdbkpkpeebahjckkjfobafhncgmne" # Stylus
       "dhdgffkkebhmkfjojejmpbldmpobfkfo" # Tampermonkey
       "ddkjiahejlhfcafbddmgiahcphecmpfh" # uBlock Origin Lite
