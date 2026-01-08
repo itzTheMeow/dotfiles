@@ -82,7 +82,10 @@ in
       iconTheme = "Papirus-Dark";
       theme = "Catppuccin-${utils.toTitleCase globals.catppuccin.flavor}-${utils.toTitleCase globals.catppuccin.accent}";
       colorScheme = "Catppuccin${utils.toTitleCase globals.catppuccin.flavor}${utils.toTitleCase globals.catppuccin.accent}";
-      windowDecorations.theme = "__aurorae__svg__Catppuccin${utils.toTitleCase globals.catppuccin.flavor}-Classic";
+      windowDecorations = {
+        library = "org.kde.kwin.aurorae";
+        theme = "__aurorae__svg__Catppuccin${utils.toTitleCase globals.catppuccin.flavor}-Classic";
+      };
     };
     panels = [
       {
