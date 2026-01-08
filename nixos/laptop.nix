@@ -114,11 +114,6 @@
       "WebAppInstallForceList" = [
         {
           "custom_name" = "Snapchat Web";
-          "custom_icon" = {
-            "url" =
-              "https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/Snapchat_logo.svg/330px-Snapchat_logo.svg.png";
-            "hash" = "5653c0119d75ea82dac31328a2e3b0927289a62d30782f30598bf6757c92c3f4";
-          };
           "create_desktop_shortcut" = true;
           "default_launch_container" = "window";
           "url" = "https://www.snapchat.com/web";
