@@ -89,6 +89,18 @@
     package = pkgs.firefox-devedition;
   };
 
+  programs.chromium = {
+    enable = true;
+    extensions = [
+      "aeblfdkhhhdcdjpifhhbdiojplfjncoa" # 1Password
+      "cndibmoanboadcifjkjbdpjgfedanolh" # BetterCanvas
+      "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
+      "clngdbkpkpeebahjckkjfobafhncgmne" # Stylus
+      "dhdgffkkebhmkfjojejmpbldmpobfkfo" # Tampermonkey
+      "ddkjiahejlhfcafbddmgiahcphecmpfh" # uBlock Origin Lite
+    ];
+  };
+
   # development
   programs.vscode = {
     enable = true;
