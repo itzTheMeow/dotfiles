@@ -1,0 +1,6 @@
+[style^="filter: blur(12px);"] {
+  filter: none !important;
+}
+[style^="filter: blur(12px);"] + div {
+  display: none !important;
+}

@@ -15,6 +15,7 @@ in
     ./programs/discordchatexporter
     ./programs/logisim
     ./programs/plexamp
+    ./programs/snapchat-web
   ];
 
   home = {
