@@ -43,8 +43,11 @@ let
         # Append lib.less content
         cat ${catppuccinLib} >> processed.user.less
 
-        # Append the original catppuccin.user.less, but skip the import line
-        sed '/^@import.*lib\.less/d' catppuccin.user.less >> processed.user.less
+        # Append the original catppuccin.user.less, but skip the import line, @moz-document line, and trailing }
+        sed -e '/^@import.*lib\.less/d' \
+            -e '/^@-moz-document/d' \
+            -e '$s/^}$//' \
+            catppuccin.user.less >> processed.user.less
 
         # Compile the processed LESS file to CSS
         lessc processed.user.less > catppuccin.css
