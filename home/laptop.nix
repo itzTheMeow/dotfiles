@@ -78,6 +78,18 @@ in
   # create kitty ssh desktop files
   xdg.desktopEntries = sshConfig.desktopEntries;
 
+  # set default browser to Firefox Developer Edition
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = "firefox-devedition.desktop";
+      "x-scheme-handler/http" = "firefox-devedition.desktop";
+      "x-scheme-handler/https" = "firefox-devedition.desktop";
+      "x-scheme-handler/about" = "firefox-devedition.desktop";
+      "x-scheme-handler/unknown" = "firefox-devedition.desktop";
+    };
+  };
+
   # 1Password autostart
   xdg.autostart = {
     enable = true;
