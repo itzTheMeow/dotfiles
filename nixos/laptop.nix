@@ -87,6 +87,7 @@
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-devedition;
+    nativeMessagingHosts = [ pkgs._1password-gui ];
   };
 
   programs.chromium = {
@@ -99,6 +100,9 @@
       "dhdgffkkebhmkfjojejmpbldmpobfkfo" # Tampermonkey
       "ddkjiahejlhfcafbddmgiahcphecmpfh" # uBlock Origin Lite
     ];
+    #extraOpts = {
+    #  NativeMessagingAllowlist = [ "com.1password.1password" ];
+    #};
   };
 
   # development
