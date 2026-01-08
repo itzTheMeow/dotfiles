@@ -145,6 +145,25 @@ in
         longitude = "-76.84";
       };
     };
+
+    # Power management settings
+    powerdevil = {
+      AC = {
+        autoSuspend = {
+          action = "nothing"; # Never suspend on AC power
+        };
+        turnOffDisplay = {
+          idleTimeout = "never"; # Keep display on while on AC
+        };
+      };
+      battery = {
+        autoSuspend = {
+          action = "sleep"; # Suspend when on battery
+          idleTimeout = 1800; # 30 minutes in seconds
+        };
+      };
+    };
+
     # set default terminal to kitty
     configFile.kdeglobals.General = {
       TerminalApplication = "kitty";
