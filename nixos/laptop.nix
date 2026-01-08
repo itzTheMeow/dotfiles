@@ -32,7 +32,7 @@
     PLASMA_USE_QT_SCALING = "1";
   };
 
-  # Exclude default KDE apps
+  # exclude default KDE apps
   environment.plasma6.excludePackages = with pkgs.kdePackages; [
     elisa
   ];
@@ -43,10 +43,10 @@
     variant = "";
   };
 
-  # Enable CUPS to print documents.
+  # enable document printing
   services.printing.enable = true;
 
-  # Enable sound with pipewire.
+  # enable sound with pipewire
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -64,6 +64,9 @@
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
+
+  # clear /tmp on boot
+  boot.tmp.cleanOnBoot = true;
 
   users.users.${username} = {
     isNormalUser = true;
