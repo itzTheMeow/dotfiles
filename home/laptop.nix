@@ -113,6 +113,10 @@ in
         ];
       }
     ];
+    session = {
+      general.askForConfirmationOnLogout = false; # dont prompt for 30 seconds on logout/shutdown
+      sessionRestore.restoreOpenApplicationsOnLogin = "startWithEmptySession"; # dont restore apps on signin
+    };
 
     kwin.nightLight = {
       enable = true;
@@ -122,6 +126,7 @@ in
         longitude = "-76.84";
       };
     };
+    # set default terminal to kitty
     configFile.kdeglobals.General = {
       TerminalApplication = "kitty";
       TerminalService = "kitty.desktop";
