@@ -127,6 +127,9 @@
     home-manager
     nano
 
+    # kde system utils
+    kdePackages.partitionmanager
+
     # desktop theme stuff
     (pkgs.callPackage ../lib/colloid-cursors.nix { })
     (catppuccin-kde.override {
@@ -138,6 +141,7 @@
 
     # system-level apps
     chromium
+    libreoffice
     vlc
   ];
 
