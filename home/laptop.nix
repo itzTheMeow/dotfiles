@@ -31,6 +31,7 @@ in
       jdk21
 
       # desktop apps
+      joplin-desktop
       newsflash
       plex-desktop
       remmina
