@@ -114,5 +114,9 @@ in
         longitude = "-76.84";
       };
     };
+    configFile.kdeglobals.General = {
+      TerminalApplication = "kitty";
+      TerminalService = "kitty.desktop";
+    };
   };
 }
