@@ -14,8 +14,9 @@ in
     ./common/desktop.nix
     ./programs/discordchatexporter
     ./programs/logisim
-    ./programs/plexamp
     ./programs/snapchat-web
+    ./programs/thunderbird
+    ./programs/vesktop
   ];
 
   home = {
@@ -32,8 +33,6 @@ in
 
       # desktop apps
       joplin-desktop
-      newsflash
-      plex-desktop
       remmina
 
       ## games
@@ -41,7 +40,22 @@ in
 
       ## development
       mongodb-compass
+      okteta
       sqlitebrowser
+      vscode
+      yaak
+
+      ## media
+      newsflash
+      plex-desktop
+      plexamp
+
+      ## editing
+      footage
+      gimp
+      pinta
+      obs-studio
+      simplescreenrecorder
 
       ### the rest of these are in nixos programs
 
