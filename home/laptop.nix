@@ -15,7 +15,6 @@ in
     ./programs/discordchatexporter
     ./programs/logisim
     ./programs/plexamp
-    #./programs/snapchat-web
     ./programs/thunderbird
     ./programs/vesktop
   ];
