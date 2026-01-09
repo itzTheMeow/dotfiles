@@ -1,8 +1,9 @@
-{ hostname, ... }:
+{ hostname, pkgs, ... }:
 {
   system.stateVersion = "25.11";
 
   imports = [
+    # import hardware config for host
     ../${hostname}-hardware-configuration.nix
   ];
 
@@ -14,8 +15,10 @@
     auto-optimise-store = true;
   };
 
+  # allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # english language
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "en_US.UTF-8";
@@ -31,4 +34,13 @@
 
   # passwordless sudo
   security.sudo.wheelNeedsPassword = false;
+
+  # clear /tmp on boot
+  boot.tmp.cleanOnBoot = true;
+
+  environment.systemPackages = with pkgs; [
+    # system-level utilities
+    home-manager
+    nano
+  ];
 }
