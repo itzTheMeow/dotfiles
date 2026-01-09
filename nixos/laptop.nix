@@ -126,6 +126,7 @@
     nano
 
     # kde system utils
+    kdePackages.kdenlive
     kdePackages.partitionmanager
     kdePackages.plasma-browser-integration
 
