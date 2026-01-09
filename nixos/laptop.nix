@@ -65,9 +65,6 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
-  # clear /tmp on boot
-  boot.tmp.cleanOnBoot = true;
-
   users.users.${username} = {
     isNormalUser = true;
     description = "Alex";
@@ -75,9 +72,6 @@
     extraGroups = [
       "networkmanager"
       "wheel"
-    ];
-    packages = with pkgs; [
-      kdePackages.kate
     ];
   };
 
@@ -121,11 +115,8 @@
   };
 
   environment.systemPackages = with pkgs; [
-    # system-level utilities
-    home-manager
-    nano
-
     # kde system utils
+    kdePackages.kate
     kdePackages.kdenlive
     kdePackages.partitionmanager
     kdePackages.plasma-browser-integration
