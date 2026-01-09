@@ -49,6 +49,7 @@ in
       nh
 
       # basic dependencies
+      cloc
       ffmpeg
       git
       jq
