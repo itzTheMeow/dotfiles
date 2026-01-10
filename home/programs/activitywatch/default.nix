@@ -1,12 +1,23 @@
-{ ... }:
+{ pkgs, ... }:
 {
   services.activitywatch = {
     enable = true;
     watchers = {
-      aw-sync = { };
-      aw-watcher-afk = { };
-      aw-watcher-input = { };
-      aw-watcher-window = { };
+      aw-qt = {
+        package = pkgs.activitywatch;
+      };
+      aw-sync = {
+        package = pkgs.activitywatch;
+      };
+      aw-watcher-afk = {
+        package = pkgs.activitywatch;
+      };
+      aw-watcher-input = {
+        package = pkgs.activitywatch;
+      };
+      aw-watcher-window = {
+        package = pkgs.activitywatch;
+      };
     };
   };
 
