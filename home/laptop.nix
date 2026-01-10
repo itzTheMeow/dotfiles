@@ -140,6 +140,7 @@ in
             systemTray.items = {
               hidden = [
                 "Fcitx"
+                "org.kde.plasma.brightness"
                 "org.kde.plasma.nightcolorcontrol"
                 "org.kde.kupapplet"
               ];
