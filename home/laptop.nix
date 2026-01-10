@@ -33,6 +33,7 @@ in
 
       # desktop apps
       joplin-desktop
+      pcloud
       remmina
 
       ## games
@@ -94,6 +95,7 @@ in
     enable = true;
     entries = [
       "${pkgs._1password-gui}/share/applications/1password.desktop"
+      "${pkgs.tailscale}/share/applications/tailscale-systray.desktop"
     ];
   };
 

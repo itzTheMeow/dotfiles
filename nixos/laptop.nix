@@ -142,6 +142,12 @@
     polkitPolicyOwners = [ username ];
   };
 
+  # tailscale VPN
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "client";
+  };
+
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
