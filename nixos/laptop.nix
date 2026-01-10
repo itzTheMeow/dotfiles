@@ -35,7 +35,6 @@
   # exclude default KDE apps
   environment.plasma6.excludePackages = with pkgs; [
     kdePackages.elisa
-    orca
   ];
 
   # keyboard map
