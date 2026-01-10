@@ -118,9 +118,9 @@
     # kde system utils
     kdePackages.kate
     kdePackages.kdenlive
+    kdePackages.krfb
     kdePackages.partitionmanager
     kdePackages.plasma-browser-integration
-    kdePackages.krfb # KDE VNC server
 
     # desktop theme stuff
     (pkgs.callPackage ../lib/colloid-cursors.nix { })
