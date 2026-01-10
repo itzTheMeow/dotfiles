@@ -103,6 +103,11 @@ in
 
     file.".config/ncdu/config".text = "--exclude pCloudDrive";
     file.".config/rustic".source = ../../rustic;
+    # inject secrets into rclone config
+    file.".config/rclone/rclone.conf" = {
+      enable = false;
+      opinject = true;
+    };
   };
 
   programs = {
