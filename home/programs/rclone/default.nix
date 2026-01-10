@@ -1,11 +1,11 @@
-{ ... }:
+{ home-manager, ... }:
 {
-  # inject secrets into rclone config, without writing
-  home.file.".config/rclone/rclone.conf" = {
-    enable = false;
-    force = true;
-    opinject = true;
-  };
+  # inject secrets with 1password
+  home.activation.injectRcloneSecrets = (
+    home-manager.lib.hm.dag.entryAfter [ "reloadSystemd" ] ''
+      op inject -i ~/.config/rclone/rclone.conf -o ~/.config/rclone/rclone.conf -f
+    ''
+  );
 
   programs.rclone = {
     enable = true;
