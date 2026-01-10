@@ -120,6 +120,7 @@
     kdePackages.kdenlive
     kdePackages.partitionmanager
     kdePackages.plasma-browser-integration
+    kdePackages.krfb # KDE VNC server
 
     # desktop theme stuff
     (pkgs.callPackage ../lib/colloid-cursors.nix { })
@@ -147,13 +148,30 @@
     useRoutingFeatures = "client";
   };
 
-  # List services that you want to enable:
+  # VNC server on Tailscale
+  systemd.user.services.krfb = {
+    description = "KDE Remote Frame Buffer (VNC Server)";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    environment = {
+      DISPLAY = ":0";
+    };
+    serviceConfig = {
+      ExecStart = "${pkgs.kdePackages.krfb}/bin/krfb --nodialog";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+  };
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
+  networking.firewall.interfaces."tailscale0".allowedTCPPorts = [
+    22 # SSH
+    5900 # VNC
+  ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
