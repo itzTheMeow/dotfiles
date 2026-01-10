@@ -25,6 +25,7 @@ in
     ../programs/btop
     ../programs/fastfetch
     ../programs/oh-my-posh
+    ../programs/rclone
   ]
   ++ utils.optionalImport ../../local.nix;
   news.display = "silent";
@@ -103,11 +104,6 @@ in
 
     file.".config/ncdu/config".text = "--exclude pCloudDrive";
     file.".config/rustic".source = ../../rustic;
-    # inject secrets into rclone config
-    file.".config/rclone/rclone.conf" = {
-      enable = false;
-      opinject = true;
-    };
   };
 
   programs = {
@@ -157,33 +153,6 @@ in
         };
 
         pull.rebase = false;
-      };
-    };
-
-    rclone = {
-      enable = true;
-      remotes = {
-        backblaze.config = {
-          type = "b2";
-          account = "op://Private/Backblaze/Application Keys/xela-codes-nas-id";
-          key = "op://Private/Backblaze/Application Keys/xela-codes-nas-applicationKey";
-        };
-        ipad.config = {
-          type = "sftp";
-          host = "ipad";
-          user = "mobile";
-          key_use_agent = true;
-          pubkey_file = "~/.ssh/ipad.pub";
-          known_hosts_file = "~/.ssh/known_hosts";
-          shell_type = "unix";
-          md5sum_command = "md5sum";
-          sha1sum_command = "sha1sum";
-        };
-        pcloud.config = {
-          type = "pcloud";
-          hostname = "api.pcloud.com";
-          token = "op://Private/pcloud.com/Auth Payload";
-        };
       };
     };
   };
