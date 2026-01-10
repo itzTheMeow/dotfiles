@@ -3,12 +3,14 @@
   # inject secrets with 1password
   home.activation.injectRcloneSecrets = (
     home-manager.lib.hm.dag.entryAfter [ "reloadSystemd" ] ''
-      if [ -x /usr/local/bin/op ]; then
-        OP_BIN=/usr/local/bin/op
+      if [ -x "/usr/local/bin/op" ]; then
+        OP_CMD="/usr/local/bin/op"
+      elif [ -x "/run/wrappers/bin/op" ]; then
+        OP_CMD="/run/wrappers/bin/op"
       else
-        OP_BIN=${pkgs._1password-cli}/bin/op
+        OP_CMD="${pkgs._1password-cli}/bin/op"
       fi
-      $OP_BIN inject -i ~/.config/rclone/rclone.conf -o ~/.config/rclone/rclone.conf -f
+      $OP_CMD inject -i ~/.config/rclone/rclone.conf -o ~/.config/rclone/rclone.conf -f
     ''
   );
 
