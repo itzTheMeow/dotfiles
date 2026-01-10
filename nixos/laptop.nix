@@ -164,6 +164,17 @@
     };
   };
 
+  # Tailscale System Tray
+  systemd.user.services.tailscale-systray = {
+    description = "Tailscale System Tray";
+    wantedBy = [ "default.target" ];
+    after = [ "systemd.service" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.tailscale}/bin/tailscale systray";
+    };
+  };
+
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
