@@ -1,9 +1,14 @@
-{ home-manager, ... }:
+{ home-manager, pkgs, ... }:
 {
   # inject secrets with 1password
   home.activation.injectRcloneSecrets = (
     home-manager.lib.hm.dag.entryAfter [ "reloadSystemd" ] ''
-      op inject -i ~/.config/rclone/rclone.conf -o ~/.config/rclone/rclone.conf -f
+      if [ -x /usr/local/bin/op ]; then
+        OP_BIN=/usr/local/bin/op
+      else
+        OP_BIN=${pkgs._1password-cli}/bin/op
+      fi
+      $OP_BIN inject -i ~/.config/rclone/rclone.conf -o ~/.config/rclone/rclone.conf -f
     ''
   );
 
