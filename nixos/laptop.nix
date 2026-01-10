@@ -167,6 +167,14 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
+  # Cronjobs
+  services.cron = {
+    enable = true;
+    systemCronJobs = [
+      # "0 5 * * * root ${pkgs.rustic}/bin/rustic -P laptop backup"
+    ];
+  };
+
   # Open ports in the firewall.
   networking.firewall.interfaces."tailscale0".allowedTCPPorts = [
     22 # SSH
