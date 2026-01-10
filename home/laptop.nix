@@ -149,12 +149,26 @@ in
       sessionRestore.restoreOpenApplicationsOnLogin = "startWithEmptySession"; # dont restore apps on signin
     };
 
-    kwin.nightLight = {
-      enable = true;
-      mode = "location";
-      location = {
-        latitude = "40.39";
-        longitude = "-76.84";
+    kwin = {
+      nightLight = {
+        enable = true;
+        mode = "location";
+        location = {
+          latitude = "40.39";
+          longitude = "-76.84";
+        };
+      };
+      titlebarButtons = {
+        left = [
+          "more-window-actions"
+          "keep-above-windows"
+        ];
+        right = [
+          "help"
+          "minimize"
+          "maximize"
+          "close"
+        ];
       };
     };
 
