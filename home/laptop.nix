@@ -193,5 +193,10 @@ in
       TerminalApplication = "kitty";
       TerminalService = "kitty.desktop";
     };
+    # set visible columns on files
+    dataFile = {
+      "dolphin/view_properties/global/.directory".Dolphin.VisibleRoles =
+        "Icons_text,Icons_size,Icons_modificationtime";
+    };
   };
 }
