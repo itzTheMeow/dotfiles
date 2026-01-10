@@ -10,7 +10,7 @@
     };
   };
 
-  home.file.".config/activitywatch/aw-server/settings.json" = {
+  xdg.configFile."activitywatch/aw-server/settings.json" = {
     source = ./settings.json;
   };
 }
