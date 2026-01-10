@@ -3,9 +3,10 @@
   services.activitywatch = {
     enable = true;
     watchers = {
-      aw-watcher-afk.enable = true;
-      aw-watcher-input.enable = true;
-      aw-watcher-window.enable = true;
+      aw-sync = { };
+      aw-watcher-afk = { };
+      aw-watcher-input = { };
+      aw-watcher-window = { };
     };
   };
 
