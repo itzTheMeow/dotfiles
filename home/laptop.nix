@@ -72,7 +72,10 @@ in
         force = true;
         source = ./plasma/user-places.xbel;
       };
-      ".local/share/remoteview".source = ./plasma/remoteview;
+      ".local/share/remoteview" = {
+        source = ./plasma/remoteview;
+        force = true;
+      };
     }
     // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key";
   };
