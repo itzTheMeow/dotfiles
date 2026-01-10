@@ -72,12 +72,15 @@ in
         force = true;
         source = ./plasma/user-places.xbel;
       };
-      ".local/share/remoteview" = {
-        source = ./plasma/remoteview;
-        force = true;
-      };
     }
-    // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key";
+    # secrets
+    // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
+    # remote views
+    // utils.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
+    // utils.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
+    // utils.mkRemoteView "NVSTly SSD" "fish://th@pi.nvst.ng:22/home/th/mnt/ssd"
+    // utils.mkRemoteView "odroid" "fish://odroid@odroid.nvst.ng:2222/"
+    // utils.mkRemoteView "WebDAV" "webdavs://files.xela.codes:443/webdav";
   };
 
   # create kitty ssh desktop files

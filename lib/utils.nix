@@ -16,4 +16,18 @@ lib: rec {
       rest = builtins.substring 1 (builtins.stringLength str) str;
     in
     (lib.strings.toUpper firstChar) + rest;
+
+  # make a remoteview desktop file for dolphin
+  mkRemoteView = name: address: {
+    "${name}.desktop" = {
+      text = ''
+        [Desktop Entry]
+        Charset=
+        Icon=folder-remote
+        Name=${name}
+        Type=Link
+        URL=${address}
+      '';
+    };
+  };
 }
