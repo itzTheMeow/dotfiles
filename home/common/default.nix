@@ -62,7 +62,6 @@ in
 
       # more complex tools
       ntfy-sh
-      rclone
       rustic
       speedtest-cli
       yt-dlp
@@ -153,6 +152,21 @@ in
         };
 
         pull.rebase = false;
+      };
+    };
+
+    rclone = {
+      enable = true;
+      remotes.ipad.config = {
+        type = "sftp";
+        host = "ipad";
+        user = "mobile";
+        key_use_agent = true;
+        pubkey_file = "~/.ssh/ipad.pub";
+        known_hosts_file = "~/.ssh/known_hosts";
+        shell_type = "unix";
+        md5sum_command = "md5sum";
+        sha1sum_command = "sha1sum";
       };
     };
   };
