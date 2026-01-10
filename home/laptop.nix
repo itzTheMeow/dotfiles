@@ -12,6 +12,7 @@ in
   imports = [
     ./common
     ./common/desktop.nix
+    ./programs/activitywatch
     ./programs/discordchatexporter
     ./programs/logisim
     ./programs/plexamp
@@ -99,6 +100,7 @@ in
     ];
   };
 
+  # KDE Plasma settings
   programs.plasma = {
     enable = true;
     workspace = {

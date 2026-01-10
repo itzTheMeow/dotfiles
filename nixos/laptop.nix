@@ -142,7 +142,6 @@
     polkitPolicyOwners = [ username ];
   };
 
-  # tailscale VPN
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "client";
