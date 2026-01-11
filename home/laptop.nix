@@ -157,6 +157,21 @@ in
       sessionRestore.restoreOpenApplicationsOnLogin = "startWithEmptySession"; # dont restore apps on signin
     };
 
+    shortcuts = {
+      kwin.Overview = "Meta+Space";
+      kwin."Walk Through Windows" = "Alt+`";
+      kwin."Walk Through Windows (Reverse)" = "Alt+~";
+      kwin."Walk Through Windows Alternative" = "Alt+Tab";
+      kwin."Walk Through Windows Alternative (Reverse)" = "Alt+Shift+Tab";
+      kwin."Walk Through Windows of Current Application" = [ ];
+      kwin."Walk Through Windows of Current Application (Reverse)" = [ ];
+      "org.kde.spectacle.desktop".RectangularRegionScreenShot = [
+        "Meta+Shift+S"
+        "Print"
+      ];
+      "org.kde.spectacle.desktop"._launch = "Meta+Shift+Print";
+    };
+
     kwin = {
       nightLight = {
         enable = true;
