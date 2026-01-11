@@ -51,6 +51,7 @@ in
 
       # basic dependencies
       cloc
+      dnsutils
       ffmpeg
       git
       jq
