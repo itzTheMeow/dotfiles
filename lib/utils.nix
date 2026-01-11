@@ -19,7 +19,7 @@ lib: rec {
 
   # make a remoteview desktop file for dolphin
   mkRemoteView = name: address: {
-    "${name}.desktop" = {
+    ".local/share/remoteview/${name}.desktop" = {
       text = ''
         [Desktop Entry]
         Charset=
