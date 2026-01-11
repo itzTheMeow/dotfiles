@@ -12,9 +12,7 @@ in
     inherit username;
     homeDirectory = "/root";
 
-    packages = with pkgs; [
-      nbd
-      qemu
+    packages = with pkgs; [ 
     ];
 
     file = {
