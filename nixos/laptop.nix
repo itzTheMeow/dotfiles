@@ -10,25 +10,27 @@
   ];
 
   # Bootloader.
-  #boot.loader.grub.enable = true;
-  #boot.loader.grub.device = "/dev/vda";
-  #boot.loader.grub.useOSProber = true;
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader = {
+    grub = {
+      enable = true;
+      device = "nodev";
+      efiSupport = true;
+      useOSProber = true;
+      default = "3";
+    };
+    timeout = 1;
+    efi.canTouchEfiVariables = true;
+  };
 
-  networking.hostName = "meow-pc"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Enable networking
+  networking.hostName = "meow-pc";
   networking.networkmanager.enable = true;
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   time.timeZone = "America/New_York";
 
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
-
-  # Set Plasma to dark mode
   programs.dconf.enable = true;
   environment.sessionVariables = {
     PLASMA_USE_QT_SCALING = "1";
