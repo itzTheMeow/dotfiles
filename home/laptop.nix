@@ -104,6 +104,7 @@ in
     enable = true;
     entries = [
       "${pkgs._1password-gui}/share/applications/1password.desktop"
+      "${pkgs.pcloud}/share/applications/pcloud.desktop"
     ];
   };
 
@@ -178,6 +179,8 @@ in
         ];
       };
     };
+    # top right screen edge shows overview of windows
+    configFile.kwinrc."Effect-overview".BorderActivate = "1";
 
     # Power management settings
     powerdevil = {
