@@ -194,8 +194,8 @@ in
         ];
       };
     };
-    # top right screen edge shows overview of windows
-    configFile.kwinrc."Effect-overview".BorderActivate = "1";
+    # disable screen edge effects
+    configFile.kwinrc."Effect-overview".BorderActivate = "9";
 
     # Power management settings
     powerdevil = {
