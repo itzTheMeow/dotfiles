@@ -41,6 +41,7 @@ in
       prismlauncher
 
       ## development
+      gh
       mongodb-compass
       okteta
       sqlitebrowser
