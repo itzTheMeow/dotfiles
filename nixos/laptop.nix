@@ -170,11 +170,13 @@
   # Tailscale System Tray
   systemd.user.services.tailscale-systray = {
     description = "Tailscale System Tray";
-    wantedBy = [ "default.target" ];
-    after = [ "systemd.service" ];
+    wantedBy = [ "plasma-workspace.target" ];
+    after = [ "plasma-workspace.target" ];
     serviceConfig = {
       Type = "simple";
       ExecStart = "${pkgs.tailscale}/bin/tailscale systray";
+      Restart = "always";
+      RestartSec = "5s";
     };
   };
 
