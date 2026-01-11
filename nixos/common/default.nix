@@ -15,6 +15,14 @@
     auto-optimise-store = true;
   };
 
+  # garbage collection for derivations
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
+  boot.loader.systemd-boot.configurationLimit = 3;
+
   # allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
