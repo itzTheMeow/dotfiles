@@ -196,6 +196,8 @@ in
     };
     # disable screen edge effects
     configFile.kwinrc."Effect-overview".BorderActivate = "9";
+    # change tab menu to sidebar
+    configFile.kwinrc.TabBox.LayoutName = "sidebar";
 
     # Power management settings
     powerdevil = {
