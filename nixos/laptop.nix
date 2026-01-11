@@ -200,4 +200,7 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
+  systemd.tmpfiles.rules = [
+    "L+ /home/pcloud - - - - /home/${username}/pCloudDrive"
+  ];
 }
