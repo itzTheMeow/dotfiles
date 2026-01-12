@@ -34,6 +34,7 @@
   programs.dconf.enable = true;
   environment.sessionVariables = {
     PLASMA_USE_QT_SCALING = "1";
+    NIX_BUILD_SHELL = "${pkgs.zsh}/bin/zsh";
   };
 
   # exclude default KDE apps
