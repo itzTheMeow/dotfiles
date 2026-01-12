@@ -41,6 +41,11 @@ in
       ## shell
       shfmt
 
+      ## python
+      python3
+      python3Packages.numpy
+      python3Packages.tkinter
+
       ## swift
       #swiftformat
 
