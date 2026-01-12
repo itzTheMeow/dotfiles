@@ -37,10 +37,10 @@ in
       pcloud
       remmina
 
-      ## games
+      # games
       prismlauncher
 
-      ## development
+      # development
       gh
       mongodb-compass
       okteta
@@ -48,11 +48,11 @@ in
       vscode
       yaak
 
-      ## media
+      # media
       newsflash
       plex-desktop
 
-      ## editing
+      # editing
       footage
       gimp
       pinta
