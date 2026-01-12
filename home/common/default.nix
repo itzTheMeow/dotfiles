@@ -12,9 +12,10 @@ let
     [ -f "$HOME/.profile_extra" ] && source $HOME/.profile_extra
     [ -f "$HOME/.shellfishrc" ] && source "$HOME/.shellfishrc"
 
-    # temporary
-    export BUN_INSTALL="$HOME/.bun" 
-    export PATH="$BUN_INSTALL/bin:$PATH"
+    # nix-your-shell
+    if command -v nix-your-shell > /dev/null; then
+      nix-your-shell zsh | source /dev/stdin
+    fi
 
     [ "$TERM_PROGRAM" != "vscode" ] && ${pkgs.fastfetch}/bin/fastfetch
   '';
@@ -48,6 +49,7 @@ in
     packages = with pkgs; [
       # nix-related
       nh
+      nix-your-shell
 
       # basic dependencies
       cloc
