@@ -12,11 +12,6 @@ let
     [ -f "$HOME/.profile_extra" ] && source $HOME/.profile_extra
     [ -f "$HOME/.shellfishrc" ] && source "$HOME/.shellfishrc"
 
-    # nix-your-shell
-    if command -v nix-your-shell > /dev/null; then
-      nix-your-shell zsh | source /dev/stdin
-    fi
-
     [ "$TERM_PROGRAM" != "vscode" ] && ${pkgs.fastfetch}/bin/fastfetch
   '';
   shellHistorySize = 10000;
@@ -130,6 +125,8 @@ in
         bindkey  "^[[H"   beginning-of-line
         bindkey  "^[[F"   end-of-line
         bindkey  "^[[3~"  delete-char
+
+        ${pkgs.nix-your-shell}/bin/nix-your-shell zsh | source /dev/stdin
 
         ${initExtra}
       '';
