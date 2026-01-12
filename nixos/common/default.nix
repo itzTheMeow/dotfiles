@@ -48,6 +48,8 @@
 
   environment.systemPackages = with pkgs; [
     # system-level utilities
+    gcc
+    gnumake
     home-manager
     nano
   ];
