@@ -52,5 +52,6 @@
     gnumake
     home-manager
     nano
+    pciutils
   ];
 }
