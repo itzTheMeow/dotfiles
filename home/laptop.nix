@@ -55,6 +55,7 @@ in
       # editing
       footage
       gimp
+      inkscape
       pinta
       obs-studio
       simplescreenrecorder
