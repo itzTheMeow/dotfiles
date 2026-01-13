@@ -24,10 +24,7 @@ in
     inherit username;
     homeDirectory = "/home/${username}";
 
-    sessionVariables = {
-      GTK_USE_PORTAL = "1";
-      QT_QPA_PLATFORMTHEME = "xdgdesktopportal";
-    };
+    sessionVariables = globals.environment;
 
     packages = with pkgs; [
       jdk21

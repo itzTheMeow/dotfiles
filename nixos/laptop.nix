@@ -32,15 +32,22 @@
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
   programs.dconf.enable = true;
+
   environment.sessionVariables = {
-    PLASMA_USE_QT_SCALING = "1";
     NIX_BUILD_SHELL = "${pkgs.zsh}/bin/zsh";
-  };
+  }
+  // globals.environment;
 
   # exclude default KDE apps
   environment.plasma6.excludePackages = with pkgs; [
     kdePackages.elisa
   ];
+
+  qt = {
+    enable = true;
+    platformTheme = "kde";
+    style = "breeze";
+  };
 
   # keyboard map
   services.xserver.xkb = {
