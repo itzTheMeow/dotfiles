@@ -1,4 +1,5 @@
 lib: rec {
+  # makes a secret-injectable file with opinject
   mkSecretFile = name: content: {
     "${name}" = {
       text = content;
@@ -16,6 +17,75 @@ lib: rec {
       rest = builtins.substring 1 (builtins.stringLength str) str;
     in
     (lib.strings.toUpper firstChar) + rest;
+
+  # make an ssh config entry
+  mkSSHConfig =
+    machines:
+    let
+      mkMachine =
+        {
+          host,
+          publicKey,
+          name ? host,
+          args ? host,
+          extraOptions ? { },
+        }:
+        let
+          keyName = lib.strings.stringAsChars (c: if builtins.match "[a-z0-9]" c != null then c else "") (
+            lib.strings.toLower name
+          );
+        in
+        {
+          inherit host keyName;
+          localPubKeyPath = ".ssh/${keyName}.pub";
+          pubKeyOpPath = publicKey;
+          sshOptions = {
+            identityFile = "~/.ssh/${keyName}.pub";
+            identitiesOnly = true;
+          }
+          // extraOptions;
+
+          desktopEntry = {
+            type = "Application";
+            name = "SSH ${name} (${host})";
+            genericName = "Terminal emulator";
+            comment = "Fast, feature-rich, GPU based terminal";
+            exec = "kitty --session ./sessions/ssh-${keyName}.conf";
+            icon = "kitty";
+            categories = [
+              "System"
+              "TerminalEmulator"
+            ];
+          };
+          sessionFile = {
+            ".config/kitty/sessions/ssh-${keyName}.conf" = {
+              text = ''
+                cd ~
+                focus
+                focus_os_window
+                launch --title "${name} (${host})" ${builtins.toString ../scripts/sshkitten.sh} ${args}
+              '';
+            };
+          };
+        };
+
+      processedMachines = map mkMachine machines;
+    in
+    {
+      files = builtins.foldl' (
+        acc: machine: acc // (mkSecretFile machine.localPubKeyPath machine.pubKeyOpPath)
+      ) { } processedMachines;
+
+      blocks = builtins.foldl' (
+        acc: machine: acc // { "${machine.host}" = machine.sshOptions; }
+      ) { } processedMachines;
+
+      kittySessions = builtins.foldl' (acc: machine: acc // machine.sessionFile) { } processedMachines;
+
+      desktopEntries = builtins.foldl' (
+        acc: machine: acc // { "ssh-${machine.keyName}" = machine.desktopEntry; }
+      ) { } processedMachines;
+    };
 
   # make a remoteview desktop file for dolphin
   mkRemoteView = name: address: {
