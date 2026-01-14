@@ -75,6 +75,8 @@ in
     # secrets
     // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
     // utils.mkSecretFile ".local/share/beszel/env" "TOKEN=\"op://Private/xoznbnccpqcu2pbzonqxih2tba/password\""
+    # opunattended secrets
+    // utils.mkOPUnattendedSecret "op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password"
     # remote views
     // utils.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
     // utils.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
