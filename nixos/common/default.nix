@@ -54,5 +54,6 @@
     nano
     pandoc
     pciutils
+    texliveSmall
   ];
 }
