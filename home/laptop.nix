@@ -82,6 +82,69 @@ in
     // utils.mkRemoteView "WebDAV" "webdavs://files.xela.codes:443/webdav";
   };
 
+  # GTK theme configuration
+  gtk = {
+    enable = true;
+    theme = {
+      name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
+      package = (pkgs.callPackage ../lib/magnetic-catppuccin-gtk.nix { }).override {
+        accent = [ globals.catppuccin.accent ];
+        shade = if globals.catppuccin.flavor == "latte" then "light" else "dark";
+        size = "standard";
+        tweaks = [
+          "macos"
+        ]
+        ++ (
+          if globals.catppuccin.flavor == "frappe" || globals.catppuccin.flavor == "macchiato" then
+            [ globals.catppuccin.flavor ]
+          else
+            [ ]
+        );
+      };
+    };
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    cursorTheme = {
+      name = "Colloid-cursors";
+      size = 24;
+      package = pkgs.callPackage ../lib/colloid-cursors.nix { };
+    };
+    font = {
+      name = "Noto Sans";
+      size = 10;
+    };
+
+    /*
+      gtk3.extraConfig = {
+        gtk-application-prefer-dark-theme = true;
+        gtk-button-images = true;
+        gtk-cursor-blink = true;
+        gtk-cursor-blink-time = 1000;
+        gtk-decoration-layout = "icon:minimize,maximize,close";
+        gtk-enable-animations = true;
+        gtk-menu-images = true;
+        gtk-modules = "colorreload-gtk-module";
+        gtk-primary-button-warps-slider = true;
+        gtk-sound-theme-name = "ocean";
+        gtk-toolbar-style = 3;
+        gtk-xft-dpi = 98304;
+      };
+
+      gtk4.extraConfig = {
+        gtk-application-prefer-dark-theme = true;
+        gtk-cursor-blink = true;
+        gtk-cursor-blink-time = 1000;
+        gtk-decoration-layout = "icon:minimize,maximize,close";
+        gtk-enable-animations = true;
+        gtk-primary-button-warps-slider = true;
+        gtk-sound-theme-name = "ocean";
+        gtk-xft-dpi = 98304;
+      };
+    */
+  };
+
   # create kitty ssh desktop files
   xdg.desktopEntries = sshConfig.desktopEntries;
 
