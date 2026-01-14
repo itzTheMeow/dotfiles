@@ -33,10 +33,7 @@
   services.desktopManager.plasma6.enable = true;
   programs.dconf.enable = true;
 
-  environment.sessionVariables = {
-    NIX_BUILD_SHELL = "${pkgs.zsh}/bin/zsh";
-  }
-  // globals.environment;
+  environment.sessionVariables = globals.environment;
 
   # exclude default KDE apps
   environment.plasma6.excludePackages = with pkgs; [
