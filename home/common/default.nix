@@ -71,6 +71,7 @@ in
       # custom scripts
       (writeShellScriptBin "0x0" (builtins.readFile ../../scripts/0x0.sh))
       (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
+      (writeShellScriptBin "opunattended" (builtins.readFile ../../scripts/opunattended.sh))
       (writeShellScriptBin "nx" ''
         export HOSTNAME="${hostname}"
         ${builtins.readFile ../../scripts/nx.sh}

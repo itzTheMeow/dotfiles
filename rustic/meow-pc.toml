@@ -3,7 +3,7 @@ use-profiles = ["default"]
 
 [repository]
 repository = "/home/pcloud/Misc/Backups/meow-pc"
-password-command = "op read op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password"
+password-command = "opunattended op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password"
 
 [backup]
 host = "meow-pc"
