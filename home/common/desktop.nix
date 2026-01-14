@@ -39,6 +39,7 @@ in
       cargo
 
       ## shell
+      shellcheck
       shfmt
 
       ## python
