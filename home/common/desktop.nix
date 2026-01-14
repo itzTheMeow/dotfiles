@@ -70,7 +70,7 @@ in
     # secret files
     // utils.mkSecretFile ".config/immich/auth.yml" ''
       url: https://immich.xela.codes/api
-      key: {{op://Personal/Immich/API Keys/CLI}}
+      key: {{op://Private/Immich/API Keys/CLI}}
     ''
     # add ssh public keys
     // sshConfig.files
