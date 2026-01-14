@@ -4,10 +4,16 @@ utils.mkSSHConfig [
     name = "Hyzenberg";
     host = "hyzen.xela.codes";
     args = "root@hyzen.xela.codes";
-    publicKey = "op://Personal/Hyzenberg SSH Key/public key";
+    publicKey = "op://Private/Hyzenberg SSH Key/public key";
     extraOptions = {
       forwardAgent = true;
     };
+  }
+  {
+    name = "Macintosh";
+    host = "macintosh.xela.internal";
+    args = "meow@macintosh.xela.internal";
+    publicKey = "op://Private/Macintosh SSH Key/public key";
   }
   {
     name = "iPad";
