@@ -80,8 +80,8 @@ mkSSHConfig [
   }
   {
     name = "iPad";
-    host = "ipad";
-    args = "mobile@ipad";
+    host = "ipad.xela.internal";
+    args = "mobile@ipad.xela.internal";
     publicKey = "op://Private/iPad SSH Key/public key";
   }
   {
@@ -105,8 +105,8 @@ mkSSHConfig [
   }
   {
     name = "Raspberry PI";
-    host = "pi.nvst.ng";
-    args = "th@pi.nvst.ng";
+    host = "raspberrypi.xela.internal";
+    args = "th@raspberrypi.xela.internal";
     publicKey = "op://NVSTly/Raspberry PI SSH Key/public key";
   }
   {
