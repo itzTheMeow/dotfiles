@@ -2,15 +2,12 @@
 use-profiles = ["default"]
 
 [repository]
-repository = "/home/pcloud/Misc/Backups/meow-pc"
+repository = "/opt/pcloud/Misc/Backups/meow-pc"
 password-command = "opunattended op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password"
 
 [backup]
 host = "meow-pc"
-glob-files = [
-  "/home/meow/.config/rustic/default.glob",
-  "/home/meow/.config/rustic/meow-pc.glob",
-]
+glob-files = ["/opt/rustic/default.glob", "/opt/rustic/meow-pc.glob"]
 
 [[backup.snapshots]]
 sources = ["/"]
