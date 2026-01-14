@@ -3,7 +3,7 @@ use-profiles = ["default"]
 
 [repository]
 repository = "/opt/pcloud/Misc/Backups/macintosh"
-password-command = "op read op://Private/o7hdiy7mwdifj2k7dmvq2qbl6a/password"
+password-command = "opunattended op://Private/o7hdiy7mwdifj2k7dmvq2qbl6a/password"
 
 [backup]
 host = "macintosh"

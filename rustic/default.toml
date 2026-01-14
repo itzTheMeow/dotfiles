@@ -1,2 +1,10 @@
 [global]
 log-file = "/tmp/rustic.log"
+
+[backup.hooks]
+# clear the log file before a backup
+run-before = ["bash -c 'echo -n \"\" > /tmp/rustic.log'"]
+run-finally = [
+  # run our custom cleanup script after
+  "_rustic_finally",
+]
