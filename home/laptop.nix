@@ -25,7 +25,9 @@ in
     inherit username;
     homeDirectory = "/home/${username}";
 
-    sessionVariables = globals.environment;
+    sessionVariables = {
+      NTFY_TAGS = "meow-pc";
+    };
 
     packages = with pkgs; [
       jdk21
@@ -75,6 +77,7 @@ in
     }
     # secrets
     // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
+    // utils.mkSecretFile ".config/ntfy/client.yml" "default-token: op://Private/ntfy/Access Tokens/hwqse4uueo5q5mh6ffik5oiyym"
     // utils.mkSecretFile ".local/share/beszel/env" "TOKEN=\"op://Private/xoznbnccpqcu2pbzonqxih2tba/password\""
     # opunattended secrets
     // utils.mkOPUnattendedSecret "op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password"

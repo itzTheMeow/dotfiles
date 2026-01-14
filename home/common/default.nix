@@ -85,6 +85,8 @@ in
       })
     ];
 
+    sessionVariables = globals.environment;
+
     shellAliases = {
       # basic
       ls = "ls --color=auto";
