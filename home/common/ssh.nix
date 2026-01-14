@@ -95,7 +95,7 @@ mkSSHConfig [
   }
   {
     name = "ODROID";
-    host = "odroid.nvst.ng";
+    host = "odroid.xela.internal";
     args = "odroid@odroid.xela.internal";
     publicKey = "op://NVSTly/Odroid SSH Key/public key";
     extraOptions = {
