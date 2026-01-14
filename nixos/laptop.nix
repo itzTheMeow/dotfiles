@@ -198,6 +198,16 @@
     ];
   };
 
+  services.beszel.agent = {
+    enable = true;
+    environment = {
+      LISTEN = "100.64.0.19:45876";
+      KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEo5fZ+VvHWvO+ZfdALT36n9EyUNBoz7TgV/qnTHJ8cr";
+      HUB_URL = "https://beszel.xela.codes";
+    };
+    environmentFile = "/home/${username}/.local/share/beszel/env";
+  };
+
   # Open ports in the firewall.
   networking.firewall.interfaces."tailscale0".allowedTCPPorts = [
     22 # SSH
