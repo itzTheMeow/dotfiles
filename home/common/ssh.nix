@@ -96,7 +96,7 @@ mkSSHConfig [
   {
     name = "ODROID";
     host = "odroid.nvst.ng";
-    args = "odroid@odroid.nvst.ng";
+    args = "odroid@odroid.xela.internal";
     publicKey = "op://NVSTly/Odroid SSH Key/public key";
     extraOptions = {
       port = 2222;
