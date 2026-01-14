@@ -14,6 +14,7 @@ in
     ./common/desktop.nix
     ./programs/activitywatch
     ./programs/discordchatexporter
+    ./programs/discord-rich-presence-plex
     ./programs/logisim
     ./programs/plexamp
     ./programs/thunderbird
