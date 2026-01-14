@@ -52,6 +52,7 @@
     gnumake
     home-manager
     nano
+    pandoc
     pciutils
   ];
 }
