@@ -46,8 +46,8 @@ in
       yaak
 
       # media
-      newsflash
       plex-desktop
+      rssguard
 
       # editing
       footage
