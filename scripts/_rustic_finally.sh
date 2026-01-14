@@ -40,6 +40,5 @@ done
 
 # Add duration at the end if we could calculate it
 if [[ -n "$duration" && "$duration" -ge 0 ]]; then
-	echo "" >>"$LOG_FILE"
 	echo "Total time: ${duration}s" >>"$LOG_FILE"
 fi
