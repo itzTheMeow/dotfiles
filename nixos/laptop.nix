@@ -174,7 +174,7 @@
     };
   };
 
-  # Tailscale System Tray
+  # tailscale system tray
   systemd.user.services.tailscale-systray = {
     description = "Tailscale System Tray";
     wantedBy = [ "plasma-workspace.target" ];
@@ -187,15 +187,24 @@
     };
   };
 
-  # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
-  # Cronjobs
-  services.cron = {
-    enable = true;
-    systemCronJobs = [
-      "0 5 * * *  ${username}  ${pkgs.rustic}/bin/rustic -P laptop backup"
-    ];
+  # rustic backup scheduler
+  systemd.user.services.rustic-backup = {
+    description = "Rustic backup";
+    environment = globals.environment;
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.zsh}/bin/zsh -c 'export PATH=/home/${username}/.nix-profile/bin:$PATH && ${pkgs.rustic}/bin/rustic -P meow-pc backup'";
+    };
+  };
+  systemd.user.timers.rustic-backup = {
+    description = "Rustic backup timer";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "05:00";
+      Persistent = true;
+    };
   };
 
   services.beszel.agent = {
