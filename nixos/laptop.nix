@@ -194,7 +194,7 @@
   services.cron = {
     enable = true;
     systemCronJobs = [
-      # "0 5 * * * root ${pkgs.rustic}/bin/rustic -P laptop backup"
+      "0 5 * * *  ${username}  ${pkgs.rustic}/bin/rustic -P laptop backup"
     ];
   };
 
