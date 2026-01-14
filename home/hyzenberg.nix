@@ -12,7 +12,11 @@ in
     inherit username;
     homeDirectory = "/root";
 
-    packages = with pkgs; [ 
+    sessionVariables = {
+      NTFY_TAGS = "hyzenberg";
+    };
+
+    packages = with pkgs; [
     ];
 
     file = {

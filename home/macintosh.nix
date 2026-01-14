@@ -13,6 +13,10 @@ in
     inherit username;
     homeDirectory = "/Users/meow";
 
+    sessionVariables = {
+      NTFY_TAGS = "macintosh";
+    };
+
     file = {
 
     }

@@ -33,8 +33,8 @@ duration=$((last_epoch - first_epoch))
 echo -n "" >"$LOG_FILE"
 
 for line in "${lines[@]}"; do
-	# Remove timestamp (everything before and including 'Z ')
-	cleaned="${line#*Z }"
+	# Remove timestamp (everything before and including '] ')
+	cleaned="${line#*] }"
 	echo "$cleaned" >>"$LOG_FILE"
 done
 
@@ -42,3 +42,6 @@ done
 if [[ -n "$duration" && "$duration" -ge 0 ]]; then
 	echo "Total time: ${duration}s" >>"$LOG_FILE"
 fi
+
+# send notification
+NTFY_TOPIC="$NTFY_TOPIC-backups" ntfy publish -t "Rustic Backup Complete" "$(cat $LOG_FILE)"
