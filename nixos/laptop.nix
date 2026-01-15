@@ -33,7 +33,9 @@
   services.desktopManager.plasma6.enable = true;
   programs.dconf.enable = true;
 
-  environment.sessionVariables = globals.environment;
+  environment.sessionVariables = globals.environment // {
+    SSH_AUTH_SOCK = "/home/${username}/.1password/agent.sock";
+  };
 
   # exclude default KDE apps
   environment.plasma6.excludePackages = with pkgs; [
