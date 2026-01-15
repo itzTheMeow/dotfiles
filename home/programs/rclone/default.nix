@@ -24,7 +24,7 @@
       };
       ipad.config = {
         type = "sftp";
-        host = "ipad";
+        host = "ipad.xela.internal";
         user = "mobile";
         key_use_agent = true;
         pubkey_file = "~/.ssh/ipad.pub";
