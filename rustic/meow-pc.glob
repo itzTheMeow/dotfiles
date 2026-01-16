@@ -20,6 +20,7 @@
 !/var/lib/portables
 !/var/lib/private
 !/var/lib/sddm
+!/var/lib/systemd/coredump
 !/var/lib/systemd/random-seed
 !/var/lib/tailscale
 !/var/spool/cups
