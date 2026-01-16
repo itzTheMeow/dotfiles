@@ -1,4 +1,5 @@
 {
+  config,
   globals,
   pkgs,
   utils,
@@ -92,6 +93,10 @@ in
   # GTK theme configuration
   gtk = {
     enable = true;
+
+    # prevent KDE from overwriting GTK config
+    gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
+
     theme = {
       name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
       package = (pkgs.callPackage ../lib/magnetic-catppuccin-gtk.nix { }).override {
