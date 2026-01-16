@@ -15,16 +15,23 @@ as-path = "/"
 
 [backup.hooks]
 run-before = [
+  # ensure directory exists
   { command = "mkdir", args = [
     "-p",
     "/mnt/ipad",
   ] },
+  # mount rclone
   { command = "rclone", args = [
     "mount",
     "ipad:/",
     "/mnt/ipad",
+    "--daemon",
     "--read-only",
     "--transfers",
     "12",
   ] },
+]
+run-finally = [
+  # unmount rclone
+  { command = "fusermount", args = ["-u", "/mnt/ipad"] },
 ]
