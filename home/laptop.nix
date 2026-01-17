@@ -64,6 +64,7 @@ in
       ### the rest of these are in nixos programs
 
       # custom packages
+      (pkgs.callPackage ../lib/rustic-unstable.nix { })
       # codearchive requires these to be available
       python3Packages.pygments
       wkhtmltopdf

@@ -8,7 +8,7 @@ password-command = "opunattended op://Private/7kaur74rgd5da4kfcabgy3ahb4/passwor
 [backup]
 host = "ipad"
 glob-files = ["/opt/rustic/default.glob", "/opt/rustic/ipad.glob"]
-#TODO:set-xattrs = "false"
+set-xattrs = "false"
 
 [[backup.snapshots]]
 sources = ["/mnt/ipad"]
