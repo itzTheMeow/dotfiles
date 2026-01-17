@@ -34,5 +34,5 @@ run-before = [
 ]
 run-finally = [
   # unmount rclone
-  { command = "fusermount", args = ["-u", "/mnt/ipad"] },
+  { command = "_rustic_finally", args = ["--unmount", "/mnt/ipad"] },
 ]
