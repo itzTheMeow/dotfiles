@@ -34,7 +34,12 @@ in
       jdk21
 
       # desktop apps
-      joplin-desktop
+      (pkgs.joplin-desktop.overrideAttrs (old: {
+        postInstall = (old.postInstall or "") + ''
+          substituteInPlace $out/share/applications/joplin-desktop.desktop \
+            --replace "Exec=joplin-desktop" "Exec=joplin-desktop --ozone-platform=wayland"
+        '';
+      }))
       pcloud
       remmina
 
