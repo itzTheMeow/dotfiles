@@ -3,6 +3,22 @@
 
 LOG_FILE="/tmp/rustic.log"
 
+# Handle --unmount flag
+for ((i = 1; i <= $#; i++)); do
+	if [[ "${!i}" == "--unmount" ]]; then
+		((i++))
+		if [[ -n "${!i}" ]]; then
+			echo "Unmounting..." | tee -a "$LOG_FILE"
+			if fusermount -u "${!i}" 2>/dev/null || umount "${!i}"; then
+				echo "Successfully unmounted ${!i}" | tee -a "$LOG_FILE"
+			else
+				echo "Failed to unmount ${!i}" | tee -a "$LOG_FILE"
+			fi
+			exit 0
+		fi
+	fi
+done
+
 if [[ ! -f "$LOG_FILE" ]]; then
 	exit 0
 fi
