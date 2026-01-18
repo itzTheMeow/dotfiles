@@ -2,6 +2,7 @@
   config,
   pkgs,
   xelib,
+  xelpkgs,
   ...
 }:
 let
@@ -69,7 +70,7 @@ in
       ### the rest of these are in nixos programs
 
       # custom packages
-      (pkgs.callPackage ../lib/rustic-unstable.nix { })
+      xelpkgs.rustic-unstable
       # codearchive requires these to be available
       python3Packages.pygments
       wkhtmltopdf
@@ -105,7 +106,7 @@ in
 
     theme = {
       name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
-      package = (pkgs.callPackage ../pkgs/magnetic-catppuccin-gtk.nix { }).override {
+      package = xelpkgs.magnetic-catppuccin-gtk.override {
         accent = [ xelib.globals.catppuccin.accent ];
         shade = if xelib.globals.catppuccin.flavor == "latte" then "light" else "dark";
         size = "standard";
@@ -129,7 +130,7 @@ in
     cursorTheme = {
       name = "Colloid-cursors";
       size = 24;
-      package = pkgs.callPackage ../lib/colloid-cursors.nix { };
+      package = xelpkgs.colloid-cursors;
     };
     font = {
       name = "Noto Sans";

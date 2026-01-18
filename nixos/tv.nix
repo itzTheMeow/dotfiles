@@ -3,31 +3,9 @@
 {
   pkgs,
   username,
+  xelpkgs,
   ...
 }:
-let
-  plasma-bigscreen = pkgs.callPackage ../lib/plasma-bigscreen.nix {
-    inherit (pkgs.kdePackages)
-      kcmutils
-      kdeclarative
-      ki18n
-      kio
-      knotifications
-      kwayland
-      kwindowsystem
-      mkKdeDerivation
-      qtmultimedia
-      plasma-workspace
-      bluez-qt
-      qtwebengine
-      plasma-nano
-      plasma-nm
-      milou
-      kscreen
-      kdeconnect-kde
-      ;
-  };
-in
 {
   imports = [
     ./common
@@ -63,13 +41,13 @@ in
       };
     };
     displayManager.sessionPackages = [
-      plasma-bigscreen
+      xelpkgs.plasma-bigscreen
     ];
   };
 
-  xdg.portal.configPackages = [ plasma-bigscreen ];
+  xdg.portal.configPackages = [ xelpkgs.plasma-bigscreen ];
   environment.systemPackages = [
-    plasma-bigscreen
+    xelpkgs.plasma-bigscreen
   ];
 
   environment.plasma6.excludePackages = with pkgs; [
