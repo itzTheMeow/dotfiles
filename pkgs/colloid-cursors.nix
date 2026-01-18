@@ -16,8 +16,7 @@ pkgs.stdenvNoCC.mkDerivation {
 
     mkdir -p $out/share/icons
     cp -r cursors/dist $out/share/icons/Colloid-cursors
-    # We don't really need the "dark" cursors.
-    # cp -r cursors/dist-dark $out/share/icons/Colloid-dark-cursors
+    cp -r cursors/dist-dark $out/share/icons/Colloid-dark-cursors
 
     runHook postInstall
   '';
