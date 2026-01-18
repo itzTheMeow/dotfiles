@@ -99,7 +99,6 @@
         hostname: username:
         nixpkgs.lib.nixosSystem rec {
           system = builtins.elemAt nixos 0;
-          pkgs = nixpkgs.legacyPackages.${system};
 
           modules = [
             catppuccin.nixosModules.catppuccin
@@ -112,6 +111,7 @@
               username
               xelib
               ;
+            xelpkgs = xelpkgs nixpkgs.legacyPackages.${system};
           };
         };
     in
