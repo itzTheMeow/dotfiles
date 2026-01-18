@@ -49,7 +49,6 @@
 
       # extra global modules to enable
       xelib = import ./xelib nixpkgs.lib;
-      xelpkgs = pkgs: import ./pkgs pkgs;
 
       mkHomeConfiguration =
         system: hostname:
@@ -88,9 +87,10 @@
               inputs
               hostname
               home-manager
-              xelib
+
               ;
-            xelpkgs = xelpkgs pkgs;
+            xelib = import ./xelib pkgs;
+            xelpkgs = import ./pkgs pkgs;
             isNixOS = (builtins.elemAt system 1);
           };
         };
@@ -104,14 +104,16 @@
             catppuccin.nixosModules.catppuccin
             ./nixos/${hostname}.nix
           ];
-          specialArgs = {
+          specialArgs = rec {
             inherit
               inputs
               hostname
               username
-              xelib
               ;
-            xelpkgs = xelpkgs nixpkgs.legacyPackages.${system};
+
+            _npkgs = nixpkgs.legacyPackages.${system};
+            xelib = import ./xelib _npkgs;
+            xelpkgs = import ./pkgs _npkgs;
           };
         };
     in

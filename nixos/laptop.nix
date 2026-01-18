@@ -229,8 +229,5 @@
 
   systemd.tmpfiles.rules = [
     "L+ /home/pcloud - - - - /home/${username}/pCloudDrive"
-    # /opt is for universal paths
-    "L+ /opt/pcloud - - - - /home/${username}/pCloudDrive"
-    "L+ /opt/rustic - - - - /home/${username}/.config/rustic"
   ];
 }
