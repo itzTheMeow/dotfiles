@@ -66,8 +66,8 @@ let
   hookFinallyUnmount = mkHook "finally-unmount";
 in
 {
-  # default config for all hosts
   xdg.configFile = {
+    # default config for all hosts
     "rustic/default.toml".source = xelib.toTOMLFile "default.toml" {
       global = {
         log-file = logFileLocation;
@@ -80,6 +80,33 @@ in
         run-finally = [ (mkBash hookFinallyLogs) ];
       };
     };
+    # backblaze config
+    "rustic/backblaze.toml".source = xelib.toTOMLFile "backblaze.toml" {
+      global = {
+        use-profiles = [ "default" ];
+      };
+      repository = {
+        repository = "opendal:b2";
+        password-command = "op read op://Private/uysjliggwgwtjvqltlc222cagu/password";
+      };
+      backup = {
+        host = "backblaze";
+        glob-files = [
+          ./globs/default.glob
+        ];
+        snapshots = [
+          {
+            sources = [ "/mnt/pcloud" ];
+            as-path = "/";
+          }
+        ];
+        hooks = {
+          run-before = [ (mkHook "backblaze-before") ];
+          run-finally = [ "${hookFinallyUnmount} /mnt/pcloud" ];
+        };
+        set-xattrs = "no";
+      };
+    };
   }
   // mkConfig "meow-pc" true "op://Private/6z2tlumg4aiznrno7mnryjunsq/password" "/" { }
   // mkConfig "hyzenberg" false "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" "/" { }
@@ -89,5 +116,10 @@ in
     finally = [ "${hookFinallyUnmount} /mnt/ipad" ];
     as = "/";
     noxattrs = true;
+  };
+
+  # alias to run backblaze with env file
+  home.shellAliases = {
+    rustic-backblaze = ''op run --env-file="${./backblaze.env}" -- rustic -P backblaze'';
   };
 }
