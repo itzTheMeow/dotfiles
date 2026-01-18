@@ -33,6 +33,7 @@
       ...
     }@inputs:
     let
+      # OS types
       nixos = [
         "x86_64-linux"
         true
@@ -45,6 +46,9 @@
         "x86_64-darwin"
         false
       ];
+
+      # extra global modules to enable
+      xelib = import ./xelib nixpkgs.lib;
 
       mkHomeConfiguration =
         system: hostname:
@@ -83,11 +87,9 @@
               inputs
               hostname
               home-manager
+              xelib
               ;
             isNixOS = (builtins.elemAt system 1);
-
-            globals = import ./lib/globals.nix;
-            utils = import ./lib/utils.nix nixpkgs.lib;
           };
         };
 
@@ -100,10 +102,12 @@
             ./nixos/${hostname}.nix
           ];
           specialArgs = {
-            inherit inputs hostname username;
-
-            globals = import ./lib/globals.nix;
-            utilslib = import ./lib/utils.nix nixpkgs.lib;
+            inherit
+              inputs
+              hostname
+              username
+              xelib
+              ;
           };
         };
     in

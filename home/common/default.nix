@@ -1,9 +1,8 @@
 {
-  globals,
   isNixOS,
   pkgs,
   hostname,
-  utils,
+  xelib,
   ...
 }:
 let
@@ -23,7 +22,7 @@ in
     ../programs/oh-my-posh
     ../programs/rclone
   ]
-  ++ utils.optionalImport ../../local.nix;
+  ++ xelib.optionalImport ../../local.nix;
   news.display = "silent";
 
   # apply only on standalone home-manager
@@ -85,7 +84,7 @@ in
       })
     ];
 
-    sessionVariables = globals.environment;
+    sessionVariables = xelib.globals.environment;
 
     shellAliases = {
       # basic
@@ -162,8 +161,8 @@ in
   };
 
   catppuccin = {
-    flavor = globals.catppuccin.flavor;
-    accent = globals.catppuccin.accent;
+    flavor = xelib.globals.catppuccin.flavor;
+    accent = xelib.globals.catppuccin.accent;
   };
 }
 

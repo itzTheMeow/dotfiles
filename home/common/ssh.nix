@@ -1,5 +1,5 @@
-{ utils, ... }:
-utils.mkSSHConfig [
+{ xelib, ... }:
+xelib.mkSSHConfig [
   {
     name = "Hyzenberg";
     host = "hyzen.xela.codes";

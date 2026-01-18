@@ -1,4 +1,4 @@
-{ pkgs, utils, ... }:
+{ pkgs, xelib, ... }:
 let
   username = "root";
 in
@@ -22,6 +22,6 @@ in
     file = {
 
     }
-    // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/Hyzenberg SSH Key/public key";
+    // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/Hyzenberg SSH Key/public key";
   };
 }

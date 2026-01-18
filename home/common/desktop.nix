@@ -3,11 +3,11 @@
   isNixOS,
   lib,
   pkgs,
-  utils,
+  xelib,
   ...
 }:
 let
-  sshConfig = import ./ssh.nix { inherit pkgs utils; };
+  sshConfig = import ./ssh.nix { inherit pkgs xelib; };
 in
 {
   imports = [
@@ -68,14 +68,14 @@ in
       '';
     }
     # secret files
-    // utils.mkSecretFile ".config/immich/auth.yml" ''
+    // xelib.mkSecretFile ".config/immich/auth.yml" ''
       url: https://immich.xela.codes/api
       key: {{op://Private/Immich/API Keys/CLI}}
     ''
     # add ssh public keys
     // sshConfig.files
-    // utils.mkSecretFile ".ssh/github_signing.pub" "op://Private/Github Signing SSH Key/public key"
-    // utils.mkSecretFile ".ssh/github_auth.pub" "op://Private/GitHub Authentication SSH Key/public key"
+    // xelib.mkSecretFile ".ssh/github_signing.pub" "op://Private/Github Signing SSH Key/public key"
+    // xelib.mkSecretFile ".ssh/github_auth.pub" "op://Private/GitHub Authentication SSH Key/public key"
     # merge in the kitty session files
     // {
       ".config/kitty/sessions/default.conf".text = ''
