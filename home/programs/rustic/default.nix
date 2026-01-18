@@ -84,22 +84,7 @@ in
   // mkConfig "hyzenberg" "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" "/" { }
   // mkConfig "macintosh" "op://Private/o7hdiy7mwdifj2k7dmvq2qbl6a/password" "/" { }
   // mkConfig "ipad" "op://Private/7kaur74rgd5da4kfcabgy3ahb4/password" "/mnt/ipad" {
-    before = [
-      # ensure directory exists
-      (mkBash "mkdir -p /mnt/ipad")
-      # mount rclone
-      (mkBash ''
-        rclone mount ipad:/ /mnt/ipad \
-          --daemon \
-          --read-only \
-          --vfs-read-chunk-size 128M \
-          --vfs-read-chunk-size-limit off \
-          --buffer-size 128M \
-          --transfers 16 \
-          --checkers 16 \
-          --sftp-concurrency 16
-      '')
-    ];
+    before = [ (mkHook "ipad-before") ];
     finally = [ "${hookFinallyUnmount} /mnt/ipad" ];
     as = "/";
     noxattrs = true;

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Clean up rustic log file by removing timestamps and adding duration
+# Unmounts a specific directory.
 
 echo "Unmounting..." | tee -a "$LOG_FILE"
 if fusermount -u "$1" 2>/dev/null || umount "$1"; then
