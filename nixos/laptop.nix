@@ -139,8 +139,8 @@
     # desktop theme stuff
     xelpkgs.colloid-cursors
     (catppuccin-kde.override {
-      flavour = [ globals.catppuccin.flavor ];
-      accents = [ globals.catppuccin.accent ];
+      flavour = [ xelib.globals.catppuccin.flavor ];
+      accents = [ xelib.globals.catppuccin.accent ];
       winDecStyles = [ "classic" ];
     })
     papirus-icon-theme
