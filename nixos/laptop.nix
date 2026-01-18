@@ -31,7 +31,6 @@
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
-  programs.dconf.enable = true;
 
   environment.sessionVariables = globals.environment // {
     SSH_AUTH_SOCK = "/home/${username}/.1password/agent.sock";
@@ -222,10 +221,7 @@
   };
 
   # Open ports in the firewall.
-  networking.firewall.interfaces."tailscale0".allowedTCPPorts = [
-    22 # SSH
-    5900 # VNC
-  ];
+  #networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
