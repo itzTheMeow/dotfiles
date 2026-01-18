@@ -20,7 +20,7 @@ let
   mkHook =
     name: "${pkgs.writeShellScriptBin name (builtins.readFile ./hooks/${name}.sh)}/bin/${name}";
   mkConfig =
-    name: password: source:
+    name: central: password: source:
     {
       before ? [ ], # additional run-before hooks to add
       finally ? [ ], # additional run-finally hooks to add
@@ -34,7 +34,8 @@ let
           use-profiles = [ "default" ];
         };
         repository = {
-          repository = "${pCloudPath}/Misc/Backups/${name}";
+          repository =
+            if central then "${pCloudPath}/Misc/Backups/rustic" else "${pCloudPath}/Misc/Backups/${name}";
           password-command = "opunattended ${password}";
         };
         backup = {
@@ -80,10 +81,10 @@ in
       };
     };
   }
-  // mkConfig "meow-pc" "op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password" "/" { }
-  // mkConfig "hyzenberg" "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" "/" { }
-  // mkConfig "macintosh" "op://Private/o7hdiy7mwdifj2k7dmvq2qbl6a/password" "/" { }
-  // mkConfig "ipad" "op://Private/7kaur74rgd5da4kfcabgy3ahb4/password" "/mnt/ipad" {
+  // mkConfig "meow-pc" true "op://Private/6z2tlumg4aiznrno7mnryjunsq/password" "/" { }
+  // mkConfig "hyzenberg" false "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" "/" { }
+  // mkConfig "macintosh" false "op://Private/o7hdiy7mwdifj2k7dmvq2qbl6a/password" "/" { }
+  // mkConfig "ipad" false "op://Private/7kaur74rgd5da4kfcabgy3ahb4/password" "/mnt/ipad" {
     before = [ (mkHook "ipad-before") ];
     finally = [ "${hookFinallyUnmount} /mnt/ipad" ];
     as = "/";
