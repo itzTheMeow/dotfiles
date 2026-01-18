@@ -90,8 +90,6 @@
     ];
   };
 
-  programs.zsh.enable = true;
-
   # browsing
   programs.firefox = {
     enable = true;

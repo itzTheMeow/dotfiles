@@ -56,4 +56,7 @@
     pciutils
     texliveSmall
   ];
+
+  # enable zsh
+  programs.zsh.enable = true;
 }
