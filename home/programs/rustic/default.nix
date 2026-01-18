@@ -38,7 +38,7 @@ let
           password-command = "opunattended ${password}";
         };
         backup = {
-          host = "meow-pc";
+          host = name;
           glob-files = [
             ./globs/default.glob
             ./globs/${name}.glob
