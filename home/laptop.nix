@@ -35,8 +35,9 @@ in
 
       # desktop apps
       (pkgs.joplin-desktop.overrideAttrs (old: {
-        postInstall = (old.postInstall or "") + ''
-          substituteInPlace $out/share/applications/joplin-desktop.desktop \
+        # joplin needs to run with compatibility settings for wayland
+        postFixup = (old.postFixup or "") + ''
+          substituteInPlace $out/share/applications/joplin.desktop \
             --replace "Exec=joplin-desktop" "Exec=joplin-desktop --ozone-platform=wayland"
         '';
       }))
@@ -301,10 +302,19 @@ in
       TerminalApplication = "kitty";
       TerminalService = "kitty.desktop";
     };
-    # set visible columns on files
+    # for some reason this doesnt work properly
     dataFile = {
-      "dolphin/view_properties/global/.directory".Dolphin.VisibleRoles =
-        "Icons_text,Icons_size,Icons_modificationtime";
+      #"dolphin/view_properties/global/.directory".Dolphin.ViewMode = 1; # icons
+      #"dolphin/view_properties/global/.directory".Dolphin.VisibleRoles =
+      #  "Icons_text,Icons_size,Icons_modificationtime"; # add additional info to files
+      #"dolphin/view_properties/global/.directory".Settings.AdditionalInfo = 2; # show additional information rows under filenames (0=none, 1=some, 2=all)
+    };
+    configFile.dolphinrc = {
+      General = {
+        ShowFullPath = true; # show full path in top bar
+        ShowStatusBar = "FullWidth"; # make bottom status bar full width
+        ShowZoomSlider = true; # show zoom slider in bottom status bar
+      };
     };
   };
 }
