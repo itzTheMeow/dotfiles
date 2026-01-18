@@ -12,7 +12,7 @@ let
     else if hostname == "laptop" then
       "/home/pcloud"
     else
-      "rclone:pcloud";
+      "rclone:pcloud:";
 
   # bash commands need to be run with a log file env variable
   mkBash = cmd: "bash -c 'LOG_FILE=${logFileLocation} ${cmd}'";
