@@ -120,6 +120,6 @@ in
 
   # alias to run backblaze with env file
   home.shellAliases = {
-    rustic-backblaze = ''op run --env-file="${./backblaze.env}" -- rustic -P backblaze'';
+    rustic-backblaze = ''eval $(op signin); op run --env-file="${./backblaze.env}" -- rustic-unstable -P backblaze'';
   };
 }
