@@ -1,1 +1,6 @@
+# private local nix config
 /local.nix
+
+# nix build results
+/result
+/*.qcow2

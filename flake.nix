@@ -89,6 +89,7 @@
       mkNixosConfiguration =
         hostname: username:
         nixpkgs.lib.nixosSystem {
+          system = builtins.elemAt nixos 0;
           modules = [
             catppuccin.nixosModules.catppuccin
             ./nixos/${hostname}.nix
@@ -104,6 +105,7 @@
     {
       homeConfigurations = {
         laptop = mkHomeConfiguration nixos "laptop";
+        tv = mkHomeConfiguration nixos "tv";
 
         hyzenberg = mkHomeConfiguration linux "hyzenberg";
         netrohost = mkHomeConfiguration linux "netrohost";
@@ -113,6 +115,7 @@
 
       nixosConfigurations = {
         laptop = mkNixosConfiguration "laptop" "xela";
+        tv = mkNixosConfiguration "tv" "tv";
       };
     };
 }
