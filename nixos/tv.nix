@@ -49,8 +49,4 @@
   environment.systemPackages = [
     xelpkgs.plasma-bigscreen
   ];
-
-  environment.plasma6.excludePackages = with pkgs; [
-    #kdePackages.xwaylandvideobridge
-  ];
 }
