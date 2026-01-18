@@ -4,7 +4,7 @@
 
   imports = [
     # import hardware config for host
-    ../${hostname}-hardware-configuration.nix
+    ../${hostname}-hardware.nix
   ];
 
   nix.settings = {
