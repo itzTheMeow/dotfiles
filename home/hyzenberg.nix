@@ -1,4 +1,4 @@
-{ xelib, ... }:
+{ xelib, xelpkgs, ... }:
 let
   username = "root";
 in
@@ -15,6 +15,10 @@ in
     sessionVariables = {
       NTFY_TAGS = "hyzenberg";
     };
+
+    packages = [
+      xelpkgs.rustic-unstable
+    ];
 
     file =
       { }
