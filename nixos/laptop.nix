@@ -1,7 +1,7 @@
 {
-  globals,
   pkgs,
   username,
+  xelib,
   ...
 }:
 {
@@ -32,7 +32,7 @@
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
-  environment.sessionVariables = globals.environment // {
+  environment.sessionVariables = xelib.globals.environment // {
     SSH_AUTH_SOCK = "/home/${username}/.1password/agent.sock";
   };
 
@@ -195,7 +195,7 @@
   # rustic backup scheduler
   systemd.user.services.rustic-backup = {
     description = "Rustic backup";
-    environment = globals.environment;
+    environment = xelib.globals.environment;
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${pkgs.zsh}/bin/zsh -c 'export PATH=/home/${username}/.nix-profile/bin:$PATH && ${pkgs.rustic}/bin/rustic -P meow-pc backup'";

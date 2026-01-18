@@ -1,4 +1,7 @@
 lib: rec {
+  # import globals
+  globals = import ./globals.nix;
+
   # makes a secret-injectable file with opinject
   mkSecretFile = name: content: {
     "${name}" = {

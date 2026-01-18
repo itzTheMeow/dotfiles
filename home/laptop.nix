@@ -1,13 +1,12 @@
 {
   config,
-  globals,
   pkgs,
-  utils,
+  xelib,
   ...
 }:
 let
   username = "xela";
-  sshConfig = import ./common/ssh.nix { inherit pkgs utils; };
+  sshConfig = import ./common/ssh.nix { inherit pkgs xelib; };
 in
 {
   imports = [
@@ -84,17 +83,17 @@ in
       };
     }
     # secrets
-    // utils.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
-    // utils.mkSecretFile ".config/ntfy/client.yml" "default-token: op://Private/ntfy/Access Tokens/hwqse4uueo5q5mh6ffik5oiyym"
-    // utils.mkSecretFile ".local/share/beszel/env" "TOKEN=\"op://Private/xoznbnccpqcu2pbzonqxih2tba/password\""
+    // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
+    // xelib.mkSecretFile ".config/ntfy/client.yml" "default-token: op://Private/ntfy/Access Tokens/hwqse4uueo5q5mh6ffik5oiyym"
+    // xelib.mkSecretFile ".local/share/beszel/env" "TOKEN=\"op://Private/xoznbnccpqcu2pbzonqxih2tba/password\""
     # opunattended secrets
-    // utils.mkOPUnattendedSecret "op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password"
+    // xelib.mkOPUnattendedSecret "op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password"
     # remote views
-    // utils.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
-    // utils.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
-    // utils.mkRemoteView "NVSTly SSD" "fish://th@pi.nvst.ng:22/home/th/mnt/ssd"
-    // utils.mkRemoteView "odroid" "fish://odroid@odroid.nvst.ng:2222/"
-    // utils.mkRemoteView "WebDAV" "webdavs://files.xela.codes:443/webdav";
+    // xelib.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
+    // xelib.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
+    // xelib.mkRemoteView "NVSTly SSD" "fish://th@pi.nvst.ng:22/home/th/mnt/ssd"
+    // xelib.mkRemoteView "odroid" "fish://odroid@odroid.nvst.ng:2222/"
+    // xelib.mkRemoteView "WebDAV" "webdavs://files.xela.codes:443/webdav";
   };
 
   # GTK theme configuration
@@ -106,16 +105,18 @@ in
 
     theme = {
       name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
-      package = (pkgs.callPackage ../lib/magnetic-catppuccin-gtk.nix { }).override {
-        accent = [ globals.catppuccin.accent ];
-        shade = if globals.catppuccin.flavor == "latte" then "light" else "dark";
+      package = (pkgs.callPackage ../pkgs/magnetic-catppuccin-gtk.nix { }).override {
+        accent = [ xelib.globals.catppuccin.accent ];
+        shade = if xelib.globals.catppuccin.flavor == "latte" then "light" else "dark";
         size = "standard";
         tweaks = [
           "macos"
         ]
         ++ (
-          if globals.catppuccin.flavor == "frappe" || globals.catppuccin.flavor == "macchiato" then
-            [ globals.catppuccin.flavor ]
+          if
+            xelib.globals.catppuccin.flavor == "frappe" || xelib.globals.catppuccin.flavor == "macchiato"
+          then
+            [ xelib.globals.catppuccin.flavor ]
           else
             [ ]
         );
@@ -198,11 +199,11 @@ in
       };
       #lookAndFeel = "org.kde.breezedark.desktop";
       iconTheme = "Papirus-Dark";
-      theme = "Catppuccin-${utils.toTitleCase globals.catppuccin.flavor}-${utils.toTitleCase globals.catppuccin.accent}";
-      colorScheme = "Catppuccin${utils.toTitleCase globals.catppuccin.flavor}${utils.toTitleCase globals.catppuccin.accent}";
+      theme = "Catppuccin-${xelib.toTitleCase xelib.globals.catppuccin.flavor}-${xelib.toTitleCase xelib.globals.catppuccin.accent}";
+      colorScheme = "Catppuccin${xelib.toTitleCase xelib.globals.catppuccin.flavor}${xelib.toTitleCase xelib.globals.catppuccin.accent}";
       windowDecorations = {
         library = "org.kde.kwin.aurorae";
-        theme = "__aurorae__svg__Catppuccin${utils.toTitleCase globals.catppuccin.flavor}-Classic";
+        theme = "__aurorae__svg__Catppuccin${xelib.toTitleCase xelib.globals.catppuccin.flavor}-Classic";
       };
     };
     panels = [

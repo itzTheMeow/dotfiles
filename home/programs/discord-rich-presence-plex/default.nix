@@ -1,4 +1,4 @@
-{ pkgs, utils, ... }:
+{ pkgs, xelib, ... }:
 let
   config = {
     logging = {
@@ -44,7 +44,7 @@ in
 {
   home = {
     packages = [ pkgs.discord-rich-presence-plex ];
-    file = utils.mkSecretFile ".local/share/discord-rich-presence-plex/data/config.yaml" (
+    file = xelib.mkSecretFile ".local/share/discord-rich-presence-plex/data/config.yaml" (
       builtins.readFile ((pkgs.formats.yaml { }).generate "discord-plex-config" config).outPath
     );
 
