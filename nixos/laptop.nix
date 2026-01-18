@@ -2,6 +2,7 @@
   pkgs,
   username,
   xelib,
+  xelpkgs,
   ...
 }:
 {
@@ -136,7 +137,7 @@
     kdePackages.plasma-browser-integration
 
     # desktop theme stuff
-    (pkgs.callPackage ../lib/colloid-cursors.nix { })
+    xelpkgs.colloid-cursors
     (catppuccin-kde.override {
       flavour = [ globals.catppuccin.flavor ];
       accents = [ globals.catppuccin.accent ];

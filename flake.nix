@@ -49,10 +49,11 @@
 
       # extra global modules to enable
       xelib = import ./xelib nixpkgs.lib;
+      xelpkgs = pkgs: import ./pkgs pkgs;
 
       mkHomeConfiguration =
         system: hostname:
-        home-manager.lib.homeManagerConfiguration {
+        home-manager.lib.homeManagerConfiguration rec {
           pkgs = nixpkgs.legacyPackages.${builtins.elemAt system 0};
 
           modules = [
@@ -89,14 +90,17 @@
               home-manager
               xelib
               ;
+            xelpkgs = xelpkgs pkgs;
             isNixOS = (builtins.elemAt system 1);
           };
         };
 
       mkNixosConfiguration =
         hostname: username:
-        nixpkgs.lib.nixosSystem {
+        nixpkgs.lib.nixosSystem rec {
           system = builtins.elemAt nixos 0;
+          pkgs = nixpkgs.legacyPackages.${system};
+
           modules = [
             catppuccin.nixosModules.catppuccin
             ./nixos/${hostname}.nix
