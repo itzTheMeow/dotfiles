@@ -8,14 +8,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    catppuccin.url = "github:catppuccin/nix";
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    opinject.url = "github:itzTheMeow/opinject";
-    #opnix.url = "github:itzTheMeow/opnix/a18b32d338d2316f12afe8c694525f1ef5b01c75";
+    opinject = {
+      url = "github:itzTheMeow/opinject";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
