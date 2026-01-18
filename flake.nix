@@ -59,8 +59,8 @@
             {
               nixpkgs.config.allowUnfree = true;
 
-              # fix fish on macos
               nixpkgs.overlays = [
+                # fix fish on macos
                 (
                   final: prev:
                   if prev.stdenv.isDarwin then
