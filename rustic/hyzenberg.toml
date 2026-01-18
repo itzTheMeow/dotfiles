@@ -1,0 +1,13 @@
+[global]
+use-profiles = ["default"]
+
+[repository]
+repository = "rclone:pcloud:Misc/Backups/hyzenberg"
+password-command = "opunattended op://Private/fxxd4a76am6kr6okubzdohp3nm/password"
+
+[backup]
+host = "meow-pc"
+glob-files = ["/opt/rustic/default.glob", "/opt/rustic/hyzenberg.glob"]
+
+[[backup.snapshots]]
+sources = ["/"]
