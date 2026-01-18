@@ -21,6 +21,7 @@ in
     ../programs/fastfetch
     ../programs/oh-my-posh
     ../programs/rclone
+    ../programs/rustic
   ]
   ++ xelib.optionalImport ../../local.nix;
   news.display = "silent";
@@ -68,7 +69,6 @@ in
       restic
 
       # custom scripts
-      (writeShellScriptBin "_rustic_finally" (builtins.readFile ../../scripts/_rustic_finally.sh))
       (writeShellScriptBin "0x0" (builtins.readFile ../../scripts/0x0.sh))
       (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
       (writeShellScriptBin "opunattended" (builtins.readFile ../../scripts/opunattended.sh))
@@ -104,7 +104,6 @@ in
     };
 
     file.".config/ncdu/config".text = "--exclude pCloudDrive";
-    file.".config/rustic".source = ../../rustic;
   };
 
   programs = {

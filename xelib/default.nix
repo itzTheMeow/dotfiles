@@ -1,4 +1,4 @@
-lib: rec {
+pkgs: rec {
   # import globals
   globals = import ./globals.nix;
 
@@ -23,7 +23,9 @@ lib: rec {
       firstChar = builtins.substring 0 1 str;
       rest = builtins.substring 1 (builtins.stringLength str) str;
     in
-    (lib.strings.toUpper firstChar) + rest;
+    (pkgs.lib.strings.toUpper firstChar) + rest;
+  # convert an attr set to toml
+  toTOMLFile = (pkgs.formats.toml { }).generate;
 
   # make an ssh config entry
   mkSSHConfig =
@@ -38,9 +40,9 @@ lib: rec {
           extraOptions ? { },
         }:
         let
-          keyName = lib.strings.stringAsChars (c: if builtins.match "[a-z0-9]" c != null then c else "") (
-            lib.strings.toLower name
-          );
+          keyName = pkgs.lib.strings.stringAsChars (
+            c: if builtins.match "[a-z0-9]" c != null then c else ""
+          ) (pkgs.lib.strings.toLower name);
         in
         {
           inherit host keyName;
