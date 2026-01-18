@@ -4,7 +4,7 @@
 # make sure directory exists
 mkdir -p /mnt/pcloud
 # and is unmounted
-fusermount -u "$1" 2>/dev/null || umount "$1" || true
+fusermount -u /mnt/pcloud 2>/dev/null || umount /mnt/pcloud || true
 
 # then actually mount rclone
 rclone mount pcloud:/ /mnt/pcloud \

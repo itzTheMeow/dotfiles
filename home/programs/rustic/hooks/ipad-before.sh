@@ -4,7 +4,7 @@
 # make sure directory exists
 mkdir -p /mnt/ipad
 # and is unmounted
-fusermount -u "$1" 2>/dev/null || umount "$1" || true
+fusermount -u /mnt/ipad 2>/dev/null || umount /mnt/ipad || true
 
 # then actually mount rclone
 rclone mount ipad:/ /mnt/ipad \
