@@ -79,6 +79,11 @@ in
         ];
         run-finally = [ (mkBash hookFinallyLogs) ];
       };
+      webdav = {
+        address = "localhost:18898";
+        path-template = "[{hostname}]/[{label}]/{time}";
+        time-template = "%Y-%m-%d_%H-%M-%S";
+      };
     };
     # backblaze config
     "rustic/backblaze.toml".source = xelib.toTOMLFile "backblaze.toml" {
@@ -105,6 +110,19 @@ in
           run-finally = [ "${hookFinallyUnmount} /mnt/pcloud" ];
         };
         set-xattrs = "no";
+      };
+      copy = {
+        targets = [ "glacier" ];
+      };
+    };
+    # s3 glacier config
+    "rustic/glacier.toml".source = xelib.toTOMLFile "glacier.toml" {
+      global = {
+        use-profiles = [ "default" ];
+      };
+      repository = {
+        repository = "opendal:s3";
+        password-command = "op read op://Private/qwz2w5hvt4jezzxhz4yastqyoe/password";
       };
     };
   }
