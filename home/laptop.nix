@@ -88,7 +88,7 @@ in
     // xelib.mkSecretFile ".config/ntfy/client.yml" "default-token: op://Private/ntfy/Access Tokens/hwqse4uueo5q5mh6ffik5oiyym"
     // xelib.mkSecretFile ".local/share/beszel/env" "TOKEN=\"op://Private/xoznbnccpqcu2pbzonqxih2tba/password\""
     # opunattended secrets
-    // xelib.mkOPUnattendedSecret "op://Private/eirlaudkqrmqs3wiv3uxt5lv5i/password"
+    // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password"
     # remote views
     // xelib.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
     // xelib.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
