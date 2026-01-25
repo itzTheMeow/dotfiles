@@ -8,6 +8,8 @@
 let
   username = "xela";
   sshConfig = import ./common/ssh.nix { inherit pkgs xelib; };
+
+  gtk2rcPath = "gtk-2.0/gtkrc"; # custom path for gtk 2 rc file
 in
 {
   imports = [
@@ -82,6 +84,8 @@ in
         force = true;
         source = ./plasma/user-places.xbel;
       };
+      # force overwriting the gtk2rc file
+      "/home/${username}/.config/${gtk2rcPath}".force = pkgs.lib.mkForce true;
     }
     # secrets
     // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
@@ -101,9 +105,7 @@ in
   # GTK theme configuration
   gtk = {
     enable = true;
-
-    # prevent KDE from overwriting GTK config
-    gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
+    gtk2.configLocation = "${config.xdg.configHome}/${gtk2rcPath}";
 
     theme = {
       name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
