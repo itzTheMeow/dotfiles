@@ -47,9 +47,6 @@
         false
       ];
 
-      # extra global modules to enable
-      xelib = import ./xelib nixpkgs.lib;
-
       mkHomeConfiguration =
         system: hostname:
         home-manager.lib.homeManagerConfiguration rec {
