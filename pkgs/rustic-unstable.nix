@@ -18,6 +18,7 @@ rustPlatform.buildRustPackage rec {
   };
 
   cargoHash = "sha256-2Wt9kJ5TSl4On0ijp0Fu43uMRlkya6eAGjYPH6eKRQk=";
+  cargoBuildFlags = [ "--features=mount" ];
 
   doCheck = false;
 
