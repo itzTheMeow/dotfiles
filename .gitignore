@@ -1,5 +1,6 @@
 # private local nix config
-/local_hm.nix
+/local/*
+!/local/flake.nix
 
 # nix build results
 /result
