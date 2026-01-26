@@ -138,7 +138,7 @@ in
 
   # alias to run backblaze with env file
   home.shellAliases = {
-    rustic-backblaze = ''eval $(op signin); op run --env-file="${./backblaze.env}" -- rustic-unstable -P backblaze'';
+    rustic-backblaze = ''eval $(op signin); op run --env-file="${./backblaze.env}" --env-file="${./glacier.env}" -- rustic-unstable -P backblaze'';
     rustic-glacier = ''eval $(op signin); op run --env-file="${./glacier.env}" -- rustic -P glacier'';
   };
 }
