@@ -2,7 +2,8 @@
   description = "Home Manager config";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,6 +29,7 @@
       catppuccin,
       home-manager,
       nixpkgs,
+      nixpkgs-unstable,
       opinject,
       plasma-manager,
       ...
@@ -49,6 +51,9 @@
 
       mkHomeConfiguration =
         system: hostname:
+        let
+          pkgs-unstable = nixpkgs-unstable.legacyPackages.${builtins.elemAt system 0};
+        in
         home-manager.lib.homeManagerConfiguration rec {
           pkgs = nixpkgs.legacyPackages.${builtins.elemAt system 0};
 
@@ -84,7 +89,7 @@
               inputs
               hostname
               home-manager
-
+              pkgs-unstable
               ;
             xelib = import ./xelib pkgs;
             xelpkgs = import ./pkgs pkgs;
@@ -108,6 +113,7 @@
               username
               ;
 
+            pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
             _npkgs = nixpkgs.legacyPackages.${system};
             xelib = import ./xelib _npkgs;
             xelpkgs = import ./pkgs _npkgs;
