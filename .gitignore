@@ -1,7 +1,3 @@
-# private local nix config
-/local/*
-!/local/flake.nix
-
 # nix build results
 /result
 /*.qcow2
