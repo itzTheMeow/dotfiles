@@ -5,6 +5,8 @@
   imports = [
     # import hardware config for host
     ../${hostname}-hardware.nix
+    # import local config
+    ../../local/nixos.nix
   ];
 
   nix.settings = {
