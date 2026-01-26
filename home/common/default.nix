@@ -17,13 +17,13 @@ let
 in
 {
   imports = [
+    ../../local/home-manager.nix
     ../programs/btop
     ../programs/fastfetch
     ../programs/oh-my-posh
     ../programs/rclone
     ../programs/rustic
-  ]
-  ++ xelib.optionalImport ../../local.nix;
+  ];
   news.display = "silent";
 
   # apply only on standalone home-manager
