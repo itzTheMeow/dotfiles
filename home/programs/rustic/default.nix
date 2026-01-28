@@ -64,6 +64,15 @@ let
   # shell hooks
   hookFinallyLogs = mkHook "finally-logs";
   hookFinallyUnmount = mkHook "finally-unmount";
+
+  backblazeENV = xelib.toENVFile "backblaze.env" {
+    RS_B2_APPLICATION_KEY_ID = "op://Private/Backblaze/Application Keys/xela-codes-nas-id";
+    RS_B2_APPLICATION_KEY = "op://Private/Backblaze/Application Keys/xela-codes-nas-applicationKey";
+  };
+  glacierENV = xelib.toENVFile "glacier.env" {
+    RS_S3_ACCESS_KEY_ID = "op://Private/Amazon AWS/Application Keys/rustic";
+    RS_S3_SECRET_ACCESS_KEY = "op://Private/Amazon AWS/Application Keys/rustic-key";
+  };
 in
 {
   xdg.configFile = {
@@ -148,12 +157,19 @@ in
       };
       repository = {
         repository = "opendal:s3";
+        repo-hot = "opendal:s3";
         password-command = "op read op://Private/qwz2w5hvt4jezzxhz4yastqyoe/password";
         options = {
-          bucket = "xela-codes-nas";
-          default_storage_class = "DEEP_ARCHIVE";
           region = "us-east-2";
           root = "/";
+        };
+        options-cold = {
+          bucket = "xela.codes-nas-cold";
+          default_storage_class = "DEEP_ARCHIVE";
+        };
+        options-hot = {
+          bucket = "xela.codes-nas-hot";
+          default_storage_class = "STANDARD";
         };
       };
     };
@@ -170,7 +186,7 @@ in
 
   # alias to run backblaze with env file
   home.shellAliases = {
-    rustic-backblaze = ''eval $(op signin); op run --env-file="${./backblaze.env}" --env-file="${./glacier.env}" -- rustic-unstable -P backblaze'';
-    rustic-glacier = ''eval $(op signin); op run --env-file="${./glacier.env}" -- rustic -P glacier'';
+    rustic-backblaze = ''eval $(op signin); op run --env-file="${backblazeENV}" --env-file="${glacierENV}" -- rustic-unstable -P backblaze'';
+    rustic-glacier = ''eval $(op signin); op run --env-file="${glacierENV}" -- rustic -P glacier'';
   };
 }

@@ -24,8 +24,15 @@ pkgs: rec {
       rest = builtins.substring 1 (builtins.stringLength str) str;
     in
     (pkgs.lib.strings.toUpper firstChar) + rest;
+
   # convert an attr set to toml
   toTOMLFile = (pkgs.formats.toml { }).generate;
+  # convert an attr set to env file
+  toENVFile =
+    name: data:
+    pkgs.writeText name (
+      builtins.concatStringsSep "\n" (map (k: ''${k}="${data.${k}}"'') (builtins.attrNames data))
+    );
 
   # make an ssh config entry
   mkSSHConfig =
