@@ -73,9 +73,9 @@ in
         log-file = logFileLocation;
       };
       backup.hooks = {
-        # clear log file before backup
         run-before = [
-          (mkBash ''echo -n "" > ${logFileLocation}'')
+          # clear log file before backup
+          (mkBash "false > ${logFileLocation}")
         ];
         run-finally = [ (mkBash hookFinallyLogs) ];
       };
@@ -88,11 +88,26 @@ in
     # backblaze config
     "rustic/backblaze.toml".source = xelib.toTOMLFile "backblaze.toml" {
       global = {
-        use-profiles = [ "default" ];
+        profile-substitute-env = true;
+        use-profiles = [
+          "default"
+          (builtins.replaceStrings [ ".toml" ] [ "" ]
+            "${xelib.toTOMLFile "backblaze_secrets.toml" {
+              repository.options = {
+                application_key_id = "$RS_B2_APPLICATION_KEY_ID";
+                application_key = "$RS_B2_APPLICATION_KEY";
+              };
+            }}"
+          )
+        ];
       };
       repository = {
         repository = "opendal:b2";
         password-command = "op read op://Private/uysjliggwgwtjvqltlc222cagu/password";
+        options = {
+          bucket = "xela-codes-nas";
+          bucket_id = "7040eaf12da21a4599af0417";
+        };
       };
       backup = {
         host = "backblaze";
@@ -118,11 +133,28 @@ in
     # s3 glacier config
     "rustic/glacier.toml".source = xelib.toTOMLFile "glacier.toml" {
       global = {
-        use-profiles = [ "default" ];
+        profile-substitute-env = true;
+        use-profiles = [
+          "default"
+          (builtins.replaceStrings [ ".toml" ] [ "" ]
+            "${xelib.toTOMLFile "glacier_secrets.toml" {
+              repository.options = {
+                access_key_id = "$RS_S3_ACCESS_KEY_ID";
+                secret_access_key = "$RS_S3_SECRET_ACCESS_KEY";
+              };
+            }}"
+          )
+        ];
       };
       repository = {
         repository = "opendal:s3";
         password-command = "op read op://Private/qwz2w5hvt4jezzxhz4yastqyoe/password";
+        options = {
+          bucket = "xela-codes-nas";
+          default_storage_class = "DEEP_ARCHIVE";
+          region = "us-east-2";
+          root = "/";
+        };
       };
     };
   }
