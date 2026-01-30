@@ -84,7 +84,7 @@ in
       backup.hooks = {
         run-before = [
           # clear log file before backup
-          (mkBash "false > ${logFileLocation}")
+          (mkBash "true > ${logFileLocation}")
         ];
         run-finally = [ (mkBash hookFinallyLogs) ];
       };
