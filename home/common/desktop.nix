@@ -75,17 +75,7 @@ in
     # add ssh public keys
     // sshConfig.files
     // xelib.mkSecretFile ".ssh/github_signing.pub" "op://Private/Github Signing SSH Key/public key"
-    // xelib.mkSecretFile ".ssh/github_auth.pub" "op://Private/GitHub Authentication SSH Key/public key"
-    # merge in the kitty session files
-    // {
-      ".config/kitty/sessions/default.conf".text = ''
-        cd ~
-        focus
-        focus_os_window
-        launch --os-window-state maximized
-      '';
-    }
-    // sshConfig.kittySessions;
+    // xelib.mkSecretFile ".ssh/github_auth.pub" "op://Private/GitHub Authentication SSH Key/public key";
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
     # only on non-nixos

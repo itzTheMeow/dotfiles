@@ -1,8 +1,10 @@
-{ pkgs, ... }:
+{ pkgs, xelib, ... }:
+let
+  sshConfig = import ../../common/ssh.nix { inherit pkgs xelib; };
+in
 {
   programs.kitty = {
     enable = true;
-    #package = (pkgs.callPackage ./patch.nix { inherit pkgs; });
     font.name = "CaskaydiaMono NFM";
     keybindings = {
       "f5" = "load_config_file";
@@ -13,10 +15,21 @@
 
       editor = "nano";
       scrollback_lines = 5000;
+      startup_session = "./sessions/default.conf";
       tab_bar_min_tabs = 1;
       tab_bar_style = "slant";
     };
     shellIntegration.mode = "no-cursor";
   };
   catppuccin.kitty.enable = true;
+
+  # config profiles
+  xdg.configFile."kitty/sessions/default.conf".text = ''
+    cd ~
+    focus
+    focus_os_window
+    os_window_state maximized
+    launch
+  '';
+  home.file = sshConfig.kittySessions;
 }

@@ -79,7 +79,8 @@ pkgs: rec {
                 cd ~
                 focus
                 focus_os_window
-                launch --os-window-state maximized --title "${name} (${host})" ${builtins.toString ../scripts/sshkitten.sh} ${args}
+                os_window_state maximized
+                launch --title "${name} (${host})" ${builtins.toString ../scripts/sshkitten.sh} ${args}
               '';
             };
           };
