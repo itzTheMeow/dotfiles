@@ -82,7 +82,7 @@ in
         cd ~
         focus
         focus_os_window
-        launch
+        launch --os-window-state maximized
       '';
     }
     // sshConfig.kittySessions;
