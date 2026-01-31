@@ -12,6 +12,7 @@
 !/var/cron
 !/var/db/sudo
 !/var/lib/AccountsService/users
+!/var/lib/bluetooth
 !/var/lib/cups
 !/var/lib/fwupd
 !/var/lib/logrotate.status
