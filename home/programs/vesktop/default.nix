@@ -1,8 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, pkgs-unstable, ... }:
 let
   vesktop-custom = pkgs.symlinkJoin {
     name = "vesktop";
-    paths = [ pkgs.vesktop ];
+    paths = [ pkgs-unstable.vesktop ];
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/vesktop \
