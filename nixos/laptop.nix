@@ -34,6 +34,13 @@
   services.desktopManager.plasma6.enable = true;
 
   environment.sessionVariables = xelib.globals.environment // {
+    # this is for node-canvas...
+    LD_LIBRARY_PATH =
+      with pkgs;
+      lib.makeLibraryPath [
+        libuuid
+      ];
+    # set the 1password ssh auth socket
     SSH_AUTH_SOCK = "/home/${username}/.1password/agent.sock";
   };
 
