@@ -9,6 +9,7 @@
     ../../local/nixos.nix
   ];
 
+  # base nix settings
   nix.settings = {
     experimental-features = [
       "nix-command"

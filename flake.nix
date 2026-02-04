@@ -123,8 +123,10 @@
     {
       homeConfigurations = {
         laptop = mkHomeConfiguration nixos "laptop";
-        hyzenberg = mkHomeConfiguration nixos "hyzenberg";
         tv = mkHomeConfiguration nixos "tv";
+
+        hyzenberg = mkHomeConfiguration nixos "hyzenberg";
+        ehrman = mkHomeConfiguration nixos "ehrman";
 
         netrohost = mkHomeConfiguration linux "netrohost";
 
@@ -133,8 +135,10 @@
 
       nixosConfigurations = {
         laptop = mkNixosConfiguration "laptop" "xela";
-        hyzenberg = mkNixosConfiguration "hyzenberg" "walt";
         tv = mkNixosConfiguration "tv" "tv";
+
+        hyzenberg = mkNixosConfiguration "hyzenberg" "walt";
+        ehrman = mkNixosConfiguration "ehrman" "mike";
       };
     };
 }

@@ -8,6 +8,7 @@
   xelib,
   ...
 }:
+
 {
   imports = [
     ./common
@@ -16,8 +17,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "hyzenberg";
-
+  networking.hostName = "ehrman";
   networking.networkmanager.enable = true;
 
   users.users.${username} = {

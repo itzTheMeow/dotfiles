@@ -1,6 +1,6 @@
 { xelib, xelpkgs, ... }:
 let
-  username = "root";
+  username = "walt";
 in
 {
   imports = [
@@ -10,7 +10,7 @@ in
 
   home = {
     inherit username;
-    homeDirectory = "/root";
+    homeDirectory = "/home/${username}";
 
     sessionVariables = {
       NTFY_TAGS = "hyzenberg";
