@@ -23,8 +23,8 @@ in
     file =
       { }
       # secrets
-      // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/Hyzenberg SSH Key/public key"
-      # opunattended secrets
-      // xelib.mkOPUnattendedSecret "op://Private/fxxd4a76am6kr6okubzdohp3nm/password";
+      // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/eka63wejfdkiypenxptm6xky54/public key";
+    # opunattended secrets
+    #// xelib.mkOPUnattendedSecret "op://Private/fxxd4a76am6kr6okubzdohp3nm/password";
   };
 }
