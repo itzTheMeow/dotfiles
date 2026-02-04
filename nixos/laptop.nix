@@ -212,7 +212,7 @@
     environment = {
       HUB_URL = "https://beszel.xela.codes";
       KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEo5fZ+VvHWvO+ZfdALT36n9EyUNBoz7TgV/qnTHJ8cr";
-      LISTEN = "100.64.0.19:45876";
+      LISTEN = "${xelib.hosts.meow-pc}:${builtins.toString xelib.ports.beszel-agent-meow-pc}";
     };
     environmentFile = "/home/${username}/.local/share/beszel/env";
   };
