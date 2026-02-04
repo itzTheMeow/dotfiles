@@ -47,6 +47,8 @@
 
   # passwordless sudo
   security.sudo.wheelNeedsPassword = false;
+  # disable root login password
+  users.users.root.hashedPassword = null;
 
   # clear /tmp on boot
   boot.tmp.cleanOnBoot = true;
@@ -64,4 +66,10 @@
 
   # enable zsh
   programs.zsh.enable = true;
+
+  # default ssh settings
+  services.openssh.settings = {
+    PermitRootLogin = "no";
+    PasswordAuthentication = false;
+  };
 }
