@@ -28,6 +28,9 @@
   # allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # timezone should be synced
+  time.timeZone = "America/New_York";
+
   # english language
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
