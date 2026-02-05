@@ -25,7 +25,6 @@ in
 
   # config profiles
   xdg.configFile."kitty/sessions/default.conf".text = ''
-    cd ~
     focus
     focus_os_window
     os_window_state maximized
