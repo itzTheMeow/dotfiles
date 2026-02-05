@@ -5,6 +5,8 @@
   };
 
   ports = {
+    prowlarr = 49696;
+
     beszel-agent-meow-pc = 45876;
     ssh-hyzenberg = 12896;
   };
