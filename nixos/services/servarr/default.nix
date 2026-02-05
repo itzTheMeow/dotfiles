@@ -13,6 +13,5 @@
     name = "servarr-backups";
     remote = "pcloud:/Misc/Backups/Servarr/";
     mountPoint = "/mnt/servarr_backups";
-    system = true;
   };
 }
