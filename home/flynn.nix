@@ -26,7 +26,6 @@ in
 
   home = {
     username = host.username;
-    homeDirectory = "/home/${host.username}";
 
     sessionVariables = {
       NTFY_TAGS = "meow-pc";
