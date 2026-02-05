@@ -10,7 +10,7 @@
     options = [
       "nofail"
       "allow_other"
-      "config=/home/${username}/rclone/rclone.conf"
+      "config=/home/${username}/.config/rclone/rclone.conf"
     ];
   };
 }
