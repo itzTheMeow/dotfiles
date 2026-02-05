@@ -12,6 +12,7 @@
 {
   imports = [
     ./common
+    ./services/tailscale
   ];
 
   boot.loader.systemd-boot.enable = true;
