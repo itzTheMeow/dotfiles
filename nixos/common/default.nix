@@ -62,6 +62,7 @@
     nano
     pandoc
     pciutils
+    rclone
     texliveSmall
   ];
 
