@@ -27,7 +27,7 @@ os)
 	# actually rebuild config
 	sudo nixos-rebuild switch --flake ~/.dotfiles#$HOSTNAME
 	# show home-manager logs from this run
-	journalctl -u "home-manager-$USER" --since "$START_TIME" --no-pager -o cat | sed -n '/^Starting Home Manager activation$/,/^Deactivated successfully.$/p'
+	journalctl -u "home-manager-$USER" --since "$START_TIME" --no-pager -o cat | sed -n '/^Starting Home Manager activation$/,/Deactivated successfully.$/p'
 	;;
 hm)
 	# prompt to sign into 1password first
