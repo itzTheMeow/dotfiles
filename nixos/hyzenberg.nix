@@ -8,6 +8,7 @@
 {
   imports = [
     ./common
+    ./services/ssh
     ./services/tailscale
 
     ./services/servarr
@@ -28,17 +29,4 @@
       "wheel"
     ];
   };
-
-  # ssh
-  services.openssh = {
-    enable = true;
-    listenAddresses = [
-      {
-        addr = xelib.hosts.hyzenberg.ip;
-        port = xelib.hosts.hyzenberg.ports.ssh;
-      }
-    ];
-  };
-
-  systemd.services.sshd.after = [ "tailscale-online.service" ];
 }
