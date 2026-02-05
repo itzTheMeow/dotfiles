@@ -29,4 +29,8 @@
       "wheel"
     ];
   };
+
+  systemd.services."home-manager-${host.username}" = {
+    serviceConfig.EnvironmentFile = "-/run/1password-session";
+  };
 }
