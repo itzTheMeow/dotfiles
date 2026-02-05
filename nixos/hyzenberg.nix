@@ -7,7 +7,7 @@
 {
   imports = [
     ./common
-    ./services/prowlarr
+    ./services/servarr
   ];
 
   boot.loader.systemd-boot.enable = true;
