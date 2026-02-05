@@ -18,6 +18,10 @@
     "virtio_net" # Essential for Gbit+ networking
     "virtio_balloon" # Allows the host to manage RAM efficiently
     "ahci" # Compatibility driver for disk controllers
+
+    "ata_piix"
+    "uhci_hcd"
+    "sr_mod"
   ];
   boot.initrd.kernelModules = [ ];
   # Ensure the AMD-specific KVM optimizations are enabled
