@@ -100,25 +100,43 @@
 
       mkNixosConfiguration =
         hostname:
-        nixpkgs.lib.nixosSystem rec {
+        let
           system = builtins.elemAt nixos 0;
+          pkgs = nixpkgs.legacyPackages.${system};
+          xelib = import ./xelib pkgs;
+
+          extras = {
+            inherit inputs hostname xelib;
+            xelpkgs = import ./pkgs pkgs;
+            pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
+            host = xelib.hosts.${hostname};
+          };
+        in
+        nixpkgs.lib.nixosSystem {
+          inherit system;
 
           modules = [
             catppuccin.nixosModules.catppuccin
             ./nixos/${hostname}.nix
-          ];
-          specialArgs = rec {
-            inherit
-              inputs
-              hostname
-              ;
 
-            pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
-            _npkgs = nixpkgs.legacyPackages.${system};
-            xelib = import ./xelib _npkgs;
-            host = xelib.hosts.${hostname};
-            xelpkgs = import ./pkgs _npkgs;
-          };
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = {
+                inherit home-manager;
+                isNixOS = true;
+              }
+              // extras;
+              home-manager.sharedModules = [
+                catppuccin.homeModules.catppuccin
+                plasma-manager.homeModules.plasma-manager
+                opinject.homeManagerModules.default
+              ];
+              home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
+            }
+          ];
+          specialArgs = extras;
         };
     in
     {
