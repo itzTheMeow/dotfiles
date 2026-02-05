@@ -141,14 +141,7 @@
     in
     {
       homeConfigurations = {
-        flynn = mkHomeConfiguration nixos "flynn";
-        pete = mkHomeConfiguration nixos "pete";
-
-        hyzenberg = mkHomeConfiguration nixos "hyzenberg";
-        ehrman = mkHomeConfiguration nixos "ehrman";
-
         # non-nixos
-        netrohost = mkHomeConfiguration linux "netrohost";
         macintosh = mkHomeConfiguration darwin "macintosh";
       };
 
@@ -158,6 +151,7 @@
 
         hyzenberg = mkNixosConfiguration "hyzenberg";
         ehrman = mkNixosConfiguration "ehrman";
+        huell = mkNixosConfiguration "huell";
       };
     };
 }

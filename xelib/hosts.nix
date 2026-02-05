@@ -34,8 +34,16 @@
       };
     };
 
-    # temporary, needs organized
-    netrohost = { };
+    # NetroHost VM
+    huell = {
+      username = "huell";
+      ip = "usest1.netro.host";
+      ports = {
+        ssh = 22;
+      };
+    };
+
+    # mac, needs organized
     macintosh = { };
   };
 
