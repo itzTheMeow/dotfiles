@@ -3,7 +3,7 @@
   services.tailscale.enable = true;
 
   # systemd service to wait for ip assignment
-  systemd.services.tailscale-wait = {
+  systemd.services.tailscale-online = {
     description = "Wait for Tailscale IP assignment";
     after = [
       "tailscaled.service"
