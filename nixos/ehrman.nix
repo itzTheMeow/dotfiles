@@ -12,6 +12,8 @@
 {
   imports = [
     ./common
+    ./common/headless.nix
+
     ./services/ssh
     ./services/tailscale
   ];
