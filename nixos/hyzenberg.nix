@@ -7,6 +7,8 @@
 {
   imports = [
     ./common
+    ./services/tailscale
+
     ./services/servarr
   ];
 
@@ -38,7 +40,6 @@
       }
     ];
   };
-  systemd.services.sshd = xelib.wantsTailscale;
 
-  services.tailscale.enable = true;
+  systemd.services.sshd.after = [ "tailscale-online.service" ];
 }

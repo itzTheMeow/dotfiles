@@ -14,5 +14,5 @@
       };
     };
   };
-  systemd.services.prowlarr = xelib.wantsTailscale;
+  systemd.services.prowlarr.after = [ "tailscale-online.service" ];
 }
