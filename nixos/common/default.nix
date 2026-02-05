@@ -65,6 +65,9 @@
     texliveSmall
   ];
 
+  # allow other flag for fuse mounts
+  programs.fuse.userAllowOther = true;
+
   # enable zsh
   programs.zsh.enable = true;
 
