@@ -38,10 +38,7 @@
       }
     ];
   };
-  systemd.services.sshd = {
-    after = [ "tailscaled.service" ];
-    wants = [ "tailscaled.service" ];
-  };
+  systemd.services.sshd = xelib.wantsTailscale;
 
   services.tailscale.enable = true;
 }
