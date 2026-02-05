@@ -60,6 +60,7 @@
     gnumake
     home-manager
     nano
+    net-tools
     pandoc
     pciutils
     rclone
