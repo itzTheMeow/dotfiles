@@ -68,8 +68,8 @@ xelib.mkSSHConfig [
   }
   {
     name = "NetroHost";
-    host = "usest1.netro.host";
-    args = "meow@usest1.netro.host -p 2034";
+    host = xelib.hosts.huell.ip;
+    args = "${xelib.hosts.huell.username}@${xelib.hosts.huell.ip} -p 2034";
     publicKey = "op://Private/NetroHost SSH/public key";
   }
 ]
