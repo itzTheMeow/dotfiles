@@ -150,4 +150,13 @@ pkgs: rec {
         };
       };
     };
+
+  wantsTailscale = {
+    after = [
+      "tailscaled.service"
+      "network-online.target"
+    ];
+    requires = [ "tailscaled.service" ];
+    wants = [ "network-online.target" ];
+  };
 }

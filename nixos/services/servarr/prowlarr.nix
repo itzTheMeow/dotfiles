@@ -14,4 +14,5 @@
       };
     };
   };
+  systemd.services.prowlarr = xelib.wantsTailscale;
 }
