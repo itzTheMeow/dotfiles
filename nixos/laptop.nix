@@ -8,6 +8,7 @@
 {
   imports = [
     ./common
+    ./services/tailscale
   ];
 
   # Bootloader.
@@ -153,10 +154,8 @@
     polkitPolicyOwners = [ username ];
   };
 
-  services.tailscale = {
-    enable = true;
-    useRoutingFeatures = "client";
-  };
+  # enable usage of exit nodes for tailscale
+  services.tailscale.useRoutingFeatures = "client";
 
   # VNC server on Tailscale
   systemd.user.services.krfb = {
