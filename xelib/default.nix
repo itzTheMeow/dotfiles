@@ -124,33 +124,30 @@ pkgs: rec {
   # create an rclone mount systemd service
   mkRcloneMount =
     {
-      config ? "%h/.config/rclone/rclone.conf",
+      config,
       name,
       remote,
       mountPoint,
       description ? "Rclone mount for ${name}",
-      system ? false,
-      user ? null,
       extraArgs ? [
         "--allow-other"
       ],
     }:
     {
       "rclone-mount-${name}" = {
-        Unit = {
-          Description = description;
-          After = [ "network-online.target" ];
-        };
-        Service = {
-          Type = "notify";
+        description = description;
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network-online.target" ];
+        requires = [ "network-online.target" ];
+        serviceConfig = {
+          Type = "simple";
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
           ExecStart = "${pkgs.rclone}/bin/rclone --config=${config} ${builtins.concatStringsSep " " extraArgs} mount \"${remote}\" \"${mountPoint}\"";
-          ExecStop = "/run/wrappers/bin/fusermount -u ${mountPoint}";
+          ExecStop = "/run/current-system/sw/bin/umount -l ${mountPoint}";
           Restart = "on-failure";
           RestartSec = "10s";
-        }
-        // (if system && user != null then { User = user; } else { });
-        Install.WantedBy = [ (if system then "multi-user.target" else "default.target") ];
+          Environment = [ "PATH=/run/wrappers/bin" ];
+        };
       };
     };
 }
