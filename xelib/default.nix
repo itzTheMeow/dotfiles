@@ -146,6 +146,8 @@ pkgs: rec {
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
           ExecStart = "${pkgs.rclone}/bin/rclone --config=${config} ${builtins.concatStringsSep " " extraArgs} mount \"${remote}\" \"${mountPoint}\"";
           ExecStop = "/run/wrappers/bin/fusermount -u ${mountPoint}";
+          Restart = "on-failure";
+          RestartSec = "10s";
         }
         // (if system && user != null then { User = user; } else { });
         Install.WantedBy = [ (if system then "multi-user.target" else "default.target") ];
