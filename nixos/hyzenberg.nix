@@ -1,6 +1,7 @@
 {
+  host,
+  hostname,
   pkgs,
-  username,
   xelib,
   ...
 }:
@@ -16,13 +17,11 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 1;
 
-  networking.hostName = "hyzenberg";
-
+  networking.hostName = hostname;
   networking.networkmanager.enable = true;
 
-  users.users.${username} = {
+  users.users.${host.username} = {
     isNormalUser = true;
-    description = xelib.toTitleCase username;
     shell = pkgs.zsh;
     extraGroups = [
       "networkmanager"
@@ -35,8 +34,8 @@
     enable = true;
     listenAddresses = [
       {
-        addr = xelib.hosts.hyzenberg;
-        port = xelib.ports.ssh-hyzenberg;
+        addr = xelib.hosts.hyzenberg.ip;
+        port = xelib.hosts.hyzenberg.ports.ssh;
       }
     ];
   };

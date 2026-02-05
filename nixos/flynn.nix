@@ -1,6 +1,6 @@
 {
+  host,
   pkgs,
-  username,
   xelib,
   xelpkgs,
   ...
@@ -40,7 +40,7 @@
         libuuid
       ];
     # set the 1password ssh auth socket
-    SSH_AUTH_SOCK = "/home/${username}/.1password/agent.sock";
+    SSH_AUTH_SOCK = "/home/${host.username}/.1password/agent.sock";
   };
 
   # exclude default KDE apps
@@ -77,7 +77,7 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
 
-  users.users.${username} = {
+  users.users.${host.username} = {
     isNormalUser = true;
     description = "Alex";
     shell = pkgs.zsh;
@@ -151,7 +151,7 @@
   programs._1password.enable = true;
   programs._1password-gui = {
     enable = true;
-    polkitPolicyOwners = [ username ];
+    polkitPolicyOwners = [ host.username ];
   };
 
   # enable usage of exit nodes for tailscale
@@ -194,7 +194,7 @@
     environment = xelib.globals.environment;
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "${pkgs.zsh}/bin/zsh -c 'export PATH=/home/${username}/.nix-profile/bin:$PATH && ${pkgs.rustic}/bin/rustic -P meow-pc backup'";
+      ExecStart = "${pkgs.zsh}/bin/zsh -c 'export PATH=/home/${host.username}/.nix-profile/bin:$PATH && ${pkgs.rustic}/bin/rustic -P meow-pc backup'";
     };
   };
   systemd.user.timers.rustic-backup = {
@@ -211,9 +211,9 @@
     environment = {
       HUB_URL = "https://beszel.xela.codes";
       KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEo5fZ+VvHWvO+ZfdALT36n9EyUNBoz7TgV/qnTHJ8cr";
-      LISTEN = "${xelib.hosts.meow-pc}:${builtins.toString xelib.ports.beszel-agent-meow-pc}";
+      LISTEN = "${xelib.hosts.flynn.ip}:${builtins.toString xelib.hosts.flynn.ports.beszel-agent}";
     };
-    environmentFile = "/home/${username}/.local/share/beszel/env";
+    environmentFile = "/home/${host.username}/.local/share/beszel/env";
   };
 
   # Open ports in the firewall.
@@ -223,6 +223,6 @@
   # networking.firewall.enable = false;
 
   systemd.tmpfiles.rules = [
-    "L+ /home/pcloud - - - - /home/${username}/pCloudDrive"
+    "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"
   ];
 }

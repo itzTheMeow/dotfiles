@@ -9,7 +9,7 @@ let
   pCloudPath = # pCloud Drive path changes per system
     if pkgs.stdenv.isDarwin then
       "/Users/meow/pCloud Drive"
-    else if hostname == "laptop" then
+    else if hostname == "flynn" then
       "/home/pcloud"
     else
       "rclone:pcloud:";

@@ -1,8 +1,9 @@
 # most of this is from this PR: https://github.com/NixOS/nixpkgs/pull/428353
 # and this VM: https://git.allpurposem.at/mat/bigscreen-waydroid-vm/src/commit/d5a30a4cc69065a84c4ae16b59b54d8b06174347/configuration.nix
 {
+  host,
   pkgs,
-  username,
+  xelib,
   xelpkgs,
   ...
 }:
@@ -14,9 +15,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  users.users.${username} = {
+  users.users.${host.username} = {
     isNormalUser = true;
-    description = "TV";
+    description = xelib.toTitleCase host.username;
     shell = pkgs.zsh;
     extraGroups = [
       "networkmanager"
@@ -36,7 +37,7 @@
       settings = {
         Autologin = {
           Session = "plasma-bigscreen-wayland";
-          User = username;
+          User = host.username;
         };
       };
     };
