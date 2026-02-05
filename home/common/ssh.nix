@@ -10,6 +10,15 @@ xelib.mkSSHConfig [
     };
   }
   {
+    name = "Hyzenberg (new)";
+    host = xelib.hosts.hyzenberg;
+    args = "walt@${xelib.hosts.hyzenberg}";
+    publicKey = "op://Private/eka63wejfdkiypenxptm6xky54/public key";
+    extraOptions = {
+      forwardAgent = true;
+    };
+  }
+  {
     name = "Macintosh";
     host = "macintosh.xela.internal";
     args = "meow@macintosh.xela.internal";
