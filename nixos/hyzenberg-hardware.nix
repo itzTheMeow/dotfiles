@@ -12,15 +12,27 @@
   ];
 
   boot.initrd.availableKernelModules = [
-    "ata_piix"
-    "uhci_hcd"
-    "virtio_pci"
-    "sr_mod"
-    "virtio_blk"
+    "virtio_pci" # Standard for KVM communication
+    "virtio_blk" # High-performance block storage driver
+    "virtio_scsi" # Alternative driver; often faster for SSDs
+    "virtio_net" # Essential for Gbit+ networking
+    "virtio_balloon" # Allows the host to manage RAM efficiently
+    "ahci" # Compatibility driver for disk controllers
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ ];
+  # Ensure the AMD-specific KVM optimizations are enabled
+  boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
+  boot.kernelParams = [
+    "elevator=none" # Disables OS-level disk scheduling (best for NVMe/Virtio)
+    "amd_iommu=on" # Enables hardware-level VM isolation
+    "amd_pstate=active" # Forces the modern AMD power driver for better boosting
+  ];
+  powerManagement.cpuFreqGovernor = "performance";
+  # For dedicated AMD power management:
+  boot.kernel.sysctl = {
+    "vm.swappiness" = 1; # Prioritize RAM over slow disk swap
+  };
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/f9e9c22e-5945-40b9-816e-34ce6d434995";
