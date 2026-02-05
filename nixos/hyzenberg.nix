@@ -30,6 +30,13 @@
     ];
   };
 
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    listenAddresses = [
+      {
+        addr = xelib.hosts.hyzenberg;
+      }
+    ];
+  };
   services.tailscale.enable = true;
 }
