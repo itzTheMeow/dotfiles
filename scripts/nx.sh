@@ -39,12 +39,15 @@ hm)
 		# this will be loaded by the systemd unit
 		# if the machine isnt headless, then 1password desktop will prompt for authorization
 	fi
+	START_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 	# then rebuild the system
 	sudo nixos-rebuild switch --flake ~/.dotfiles#$HOSTNAME
 	# remove saved session token
 	if [ -f /run/1password-session ]; then
 		sudo rm -f /run/1password-session
 	fi
+	# show home-manager logs from this run
+	journalctl -u "home-manager-$USER" --since "$START_TIME" --no-pager -o cat | sed -n '/^Starting Home Manager activation$/,/Deactivated successfully.$/p'
 	;;
 *)
 	echo "Usage: nx [os/hm|clean|update|edit|pull|hash|optimize]"
