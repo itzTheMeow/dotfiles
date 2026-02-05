@@ -95,6 +95,7 @@ in
     // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password"
     # remote views
     // xelib.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
+    // xelib.mkRemoteView "Hyzenberg New" "fish://walt@${xelib.hosts.hyzenberg}:${builtins.toString xelib.ports.ssh-hyzenberg}/home/walt"
     // xelib.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
     // xelib.mkRemoteView "NVSTly SSD" "fish://th@pi.nvst.ng:22/home/th/mnt/ssd"
     // xelib.mkRemoteView "odroid" "fish://odroid@odroid.nvst.ng:2222/"
