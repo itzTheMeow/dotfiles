@@ -28,6 +28,7 @@
     ];
   };
 
+  # ssh
   services.openssh = {
     enable = true;
     listenAddresses = [
@@ -37,5 +38,10 @@
       }
     ];
   };
+  systemd.services.sshd = {
+    after = [ "tailscaled.service" ];
+    wants = [ "tailscaled.service" ];
+  };
+
   services.tailscale.enable = true;
 }
