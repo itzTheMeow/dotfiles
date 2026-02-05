@@ -35,6 +35,7 @@
     listenAddresses = [
       {
         addr = xelib.hosts.hyzenberg;
+        port = xelib.ports.ssh-hyzenberg;
       }
     ];
   };
