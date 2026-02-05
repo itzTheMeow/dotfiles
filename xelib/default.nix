@@ -142,7 +142,7 @@ pkgs: rec {
         serviceConfig = {
           Type = "simple";
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
-          ExecStart = "${pkgs.rclone}/bin/rclone --config=${config} ${builtins.concatStringsSep " " extraArgs} mount \"${remote}\" \"${mountPoint}\"";
+          ExecStart = "${pkgs.rclone}/bin/rclone mount \"${remote}\" \"${mountPoint}\" --config=${config} ${builtins.concatStringsSep " " extraArgs}";
           ExecStop = "/run/current-system/sw/bin/umount -l ${mountPoint}";
           Restart = "on-failure";
           RestartSec = "10s";
