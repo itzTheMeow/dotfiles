@@ -7,6 +7,7 @@
         instancename = "Prowlarr";
         theme = "dark";
       };
+      auth.authenticationmethod = "external";
       server = {
         bindaddress = xelib.hosts.hyzenberg;
         port = xelib.ports.prowlarr;
