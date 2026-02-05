@@ -6,5 +6,6 @@
 
   ports = {
     beszel-agent-meow-pc = 45876;
+    ssh-hyzenberg = 12896;
   };
 }

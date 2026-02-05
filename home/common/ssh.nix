@@ -15,6 +15,7 @@ xelib.mkSSHConfig [
     args = "walt@${xelib.hosts.hyzenberg}";
     publicKey = "op://Private/eka63wejfdkiypenxptm6xky54/public key";
     extraOptions = {
+      port = xelib.ports.ssh-hyzenberg;
       forwardAgent = true;
     };
   }
