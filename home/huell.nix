@@ -7,6 +7,5 @@
 
   home = {
     username = host.username;
-    homeDirectory = "/home/${host.username}";
   };
 }
