@@ -41,12 +41,8 @@ hm)
 	if command -v op &>/dev/null; then
 		eval $(op signin)
 	fi
-	# for nixos, rebuild the system
-	if [ -f /etc/NIXOS ]; then
-		sudo nixos-rebuild switch --flake ~/.dotfiles#$HOSTNAME
-	fi
-	# then run home manager
-	home-manager switch --flake ~/.dotfiles#$HOSTNAME
+	# then rebuild the system
+	sudo nixos-rebuild switch --flake ~/.dotfiles#$HOSTNAME
 	;;
 *)
 	echo "Usage: nx [os/hm|clean|update|edit|pull|hash|optimize]"
