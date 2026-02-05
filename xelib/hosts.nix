@@ -28,7 +28,7 @@
     # Proxy Server
     ehrman = {
       username = "mike";
-      ip = "";
+      ip = "100.64.0.10";
       ports = {
         ssh = 39877;
       };
