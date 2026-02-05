@@ -84,7 +84,7 @@
             ./home/${hostname}.nix
           ];
 
-          extraSpecialArgs = {
+          extraSpecialArgs = rec {
             inherit
               inputs
               hostname
@@ -92,13 +92,14 @@
               pkgs-unstable
               ;
             xelib = import ./xelib pkgs;
+            host = xelib.hosts.${hostname};
             xelpkgs = import ./pkgs pkgs;
             isNixOS = (builtins.elemAt system 1);
           };
         };
 
       mkNixosConfiguration =
-        hostname: username:
+        hostname:
         nixpkgs.lib.nixosSystem rec {
           system = builtins.elemAt nixos 0;
 
@@ -110,35 +111,35 @@
             inherit
               inputs
               hostname
-              username
               ;
 
             pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
             _npkgs = nixpkgs.legacyPackages.${system};
             xelib = import ./xelib _npkgs;
+            host = xelib.hosts.${hostname};
             xelpkgs = import ./pkgs _npkgs;
           };
         };
     in
     {
       homeConfigurations = {
-        laptop = mkHomeConfiguration nixos "laptop";
-        tv = mkHomeConfiguration nixos "tv";
+        flynn = mkHomeConfiguration nixos "flynn";
+        pete = mkHomeConfiguration nixos "pete";
 
         hyzenberg = mkHomeConfiguration nixos "hyzenberg";
         ehrman = mkHomeConfiguration nixos "ehrman";
 
+        # non-nixos
         netrohost = mkHomeConfiguration linux "netrohost";
-
         macintosh = mkHomeConfiguration darwin "macintosh";
       };
 
       nixosConfigurations = {
-        laptop = mkNixosConfiguration "laptop" "xela";
-        tv = mkNixosConfiguration "tv" "tv";
+        flynn = mkNixosConfiguration "flynn";
+        pete = mkNixosConfiguration "pete";
 
-        hyzenberg = mkNixosConfiguration "hyzenberg" "walt";
-        ehrman = mkNixosConfiguration "ehrman" "mike";
+        hyzenberg = mkNixosConfiguration "hyzenberg";
+        ehrman = mkNixosConfiguration "ehrman";
       };
     };
 }

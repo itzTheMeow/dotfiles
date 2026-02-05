@@ -3,7 +3,7 @@ pkgs: rec {
   globals = import ./globals.nix;
 
   # import hosts and ports
-  inherit (import ./hosts.nix) hosts ports;
+  inherit (import ./hosts.nix) hosts services;
 
   # makes a secret-injectable file with opinject
   mkSecretFile = name: content: {

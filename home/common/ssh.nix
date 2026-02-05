@@ -11,11 +11,21 @@ xelib.mkSSHConfig [
   }
   {
     name = "Hyzenberg (new)";
-    host = xelib.hosts.hyzenberg;
-    args = "walt@${xelib.hosts.hyzenberg}";
+    host = xelib.hosts.hyzenberg.ip;
+    args = "${xelib.hosts.hyzenberg.username}@${xelib.hosts.hyzenberg.ip}";
     publicKey = "op://Private/eka63wejfdkiypenxptm6xky54/public key";
     extraOptions = {
-      port = xelib.ports.ssh-hyzenberg;
+      port = xelib.hosts.hyzenberg.ports.ssh;
+      forwardAgent = true;
+    };
+  }
+  {
+    name = "Ehrman";
+    host = xelib.hosts.ehrman.ip;
+    args = "${xelib.hosts.ehrman.username}@${xelib.hosts.ehrman.ip}";
+    publicKey = "op://Private/vywbzem32jihjjvgldmz5tr5mu/public key";
+    extraOptions = {
+      port = xelib.hosts.ehrman.ports.ssh;
       forwardAgent = true;
     };
   }

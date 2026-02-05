@@ -3,12 +3,12 @@
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 {
+  host,
+  hostname,
   pkgs,
-  username,
   xelib,
   ...
 }:
-
 {
   imports = [
     ./common
@@ -16,13 +16,13 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.timeout = 1;
 
-  networking.hostName = "ehrman";
+  networking.hostName = hostname;
   networking.networkmanager.enable = true;
 
-  users.users.${username} = {
+  users.users.${host.username} = {
     isNormalUser = true;
-    description = xelib.toTitleCase username;
     shell = pkgs.zsh;
     extraGroups = [
       "networkmanager"

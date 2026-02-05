@@ -1,12 +1,12 @@
 {
   config,
+  host,
   pkgs,
   xelib,
   xelpkgs,
   ...
 }:
 let
-  username = "xela";
   sshConfig = import ./common/ssh.nix { inherit pkgs xelib; };
 
   gtk2rcPath = "gtk-2.0/gtkrc"; # custom path for gtk 2 rc file
@@ -25,8 +25,8 @@ in
   ];
 
   home = {
-    inherit username;
-    homeDirectory = "/home/${username}";
+    username = host.username;
+    homeDirectory = "/home/${host.username}";
 
     sessionVariables = {
       NTFY_TAGS = "meow-pc";
@@ -85,7 +85,7 @@ in
         source = ./plasma/user-places.xbel;
       };
       # force overwriting the gtk2rc file
-      "/home/${username}/.config/${gtk2rcPath}".force = pkgs.lib.mkForce true;
+      "/home/${host.username}/.config/${gtk2rcPath}".force = pkgs.lib.mkForce true;
     }
     # secrets
     // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
@@ -95,7 +95,7 @@ in
     // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password"
     # remote views
     // xelib.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
-    // xelib.mkRemoteView "Hyzenberg New" "fish://walt@${xelib.hosts.hyzenberg}:${builtins.toString xelib.ports.ssh-hyzenberg}/home/walt"
+    // xelib.mkRemoteView "Hyzenberg New" "fish://${xelib.hosts.hyzenberg.username}@${xelib.hosts.hyzenberg.ip}:${builtins.toString xelib.hosts.hyzenberg.ports.ssh}/home/walt"
     // xelib.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
     // xelib.mkRemoteView "NVSTly SSD" "fish://th@pi.nvst.ng:22/home/th/mnt/ssd"
     // xelib.mkRemoteView "odroid" "fish://odroid@odroid.nvst.ng:2222/"

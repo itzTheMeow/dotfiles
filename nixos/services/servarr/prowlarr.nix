@@ -1,4 +1,7 @@
 { xelib, ... }:
+let
+  svc = xelib.services.prowlarr;
+in
 {
   services.prowlarr = {
     enable = true;
@@ -8,8 +11,8 @@
         theme = "dark";
       };
       server = {
-        bindaddress = xelib.hosts.hyzenberg;
-        port = xelib.ports.prowlarr;
+        bindaddress = xelib.hosts.${svc.host}.ip;
+        port = svc.port;
         urlbase = "/prowlarr";
       };
     };

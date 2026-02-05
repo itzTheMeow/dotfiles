@@ -1,7 +1,9 @@
-{ xelib, xelpkgs, ... }:
-let
-  username = "mike";
-in
+{
+  host,
+  hostname,
+  xelib,
+  ...
+}:
 {
   imports = [
     ./common
@@ -9,11 +11,11 @@ in
   ];
 
   home = {
-    inherit username;
-    homeDirectory = "/home/${username}";
+    username = host.username;
+    homeDirectory = "/home/${host.username}";
 
     sessionVariables = {
-      NTFY_TAGS = "ehrman";
+      NTFY_TAGS = hostname;
     };
 
     file =
