@@ -8,9 +8,12 @@
 {
   imports = [
     ./common
+    ./common/headless.nix
+
     ./services/ssh
     ./services/tailscale
 
+    # specific to this host
     ./services/servarr
   ];
 
@@ -28,9 +31,5 @@
       "networkmanager"
       "wheel"
     ];
-  };
-
-  systemd.services."home-manager-${host.username}" = {
-    serviceConfig.EnvironmentFile = "-/run/1password-session";
   };
 }
