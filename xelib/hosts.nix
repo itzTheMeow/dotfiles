@@ -37,7 +37,7 @@
     # NetroHost VM
     huell = {
       username = "huell";
-      ip = "usest1.netro.host";
+      ip = "0.0.0.0";
       ports = {
         ssh = 22;
       };
