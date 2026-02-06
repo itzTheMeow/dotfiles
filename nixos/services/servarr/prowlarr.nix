@@ -14,6 +14,7 @@ in
       server = {
         inherit bindaddress;
         port = svc.port;
+        urlbase = "/";
       };
     };
   };
