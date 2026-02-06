@@ -1,8 +1,8 @@
 { host, pkgs, ... }:
 {
   systemd.services."home-manager-${host.username}" = {
-    # stops from reactivating on system boot
-    wantedBy = pkgs.lib.mkForce [ ];
+    # only run if 1password session file exists (prevents running on boot)
+    unitConfig.ConditionPathExists = "/run/1password-session";
 
     serviceConfig = {
       # include saved 1password session in environment
