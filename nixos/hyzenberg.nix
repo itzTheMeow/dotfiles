@@ -8,6 +8,7 @@
   imports = [
     ./common
     ./common/headless.nix
+    ./common/media-center.nix
 
     ./services/ssh
     ./services/tailscale
