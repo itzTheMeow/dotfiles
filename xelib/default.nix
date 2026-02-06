@@ -183,7 +183,7 @@ pkgs: rec {
       # For local CA domains, configure ACME to use step-ca
       security.acme.certs."${domain}" = {
         email = "ca@xela.codes";
-        webroot = "/var/lib/acme/acme-challenge";
+        listenHTTP = ":80";
         group = "nginx";
       }
       // (
@@ -192,7 +192,9 @@ pkgs: rec {
             server = "https://${caHost}:${toString caPort}/acme/acme/directory";
           }
         else
-          { }
+          {
+            webroot = "/var/lib/acme/acme-challenge";
+          }
       );
     };
 }
