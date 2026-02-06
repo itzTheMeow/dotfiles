@@ -85,6 +85,7 @@ lib.mkMerge [
       serviceConfig = {
         Environment = [
           "HOMEPAGE_BIND_ADDR=${bindIP}"
+          "HOMEPAGE_ALLOWED_HOSTS=${svc.domain}"
         ];
       };
     };
