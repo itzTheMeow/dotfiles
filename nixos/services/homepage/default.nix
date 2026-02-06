@@ -28,7 +28,8 @@ lib.mkMerge [
         background = ./background.jpeg;
         headerStyle = "boxed";
         target = "_self";
-        color = "violet";
+        theme = "dark";
+        color = "purple";
         layout = {
           Media = {
             style = "columns";
