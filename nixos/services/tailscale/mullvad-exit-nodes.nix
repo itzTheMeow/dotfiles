@@ -76,19 +76,27 @@ let
                   sleep 1
                 done
 
-                # Connect to Mullvad
+                # Check if Mullvad is logged in
+                if ! ${pkgs.mullvad}/bin/mullvad account get &> /dev/null; then
+                  echo "Mullvad not logged in. Please run: mullvad account login <account-number>"
+                  exit 0
+                fi
+
+                # Configure Mullvad
                 ${pkgs.mullvad}/bin/mullvad relay set location ${country} ${city}
                 ${pkgs.mullvad}/bin/mullvad lan set allow
                 ${pkgs.mullvad}/bin/mullvad auto-connect set on
-                ${pkgs.mullvad}/bin/mullvad connect
 
-                # Wait for connection
-                for i in {1..60}; do
-                  if ${pkgs.mullvad}/bin/mullvad status | grep -q "Connected"; then
-                    break
-                  fi
-                  sleep 1
-                done
+                # Try to connect to Mullvad
+                if ${pkgs.mullvad}/bin/mullvad connect; then
+                  # Wait for connection
+                  for i in {1..30}; do
+                    if ${pkgs.mullvad}/bin/mullvad status | grep -q "Connected"; then
+                      break
+                    fi
+                    sleep 1
+                  done
+                fi
 
                 # Wait for Tailscale daemon
                 for i in {1..30}; do
