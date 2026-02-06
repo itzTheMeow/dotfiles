@@ -33,5 +33,5 @@ lib.mkMerge [
 
     systemd.services.nzbget.after = [ "tailscale-online.service" ];
   }
-  (xelib.mkNginxProxy "nzbget.xela" "http://${ControlIP}:${toString svc.port}" { })
+  (xelib.mkNginxProxy svc.domain "http://${ControlIP}:${toString svc.port}" { })
 ]
