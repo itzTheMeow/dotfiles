@@ -32,35 +32,14 @@ let
             networking.firewall.enable = false;
             networking.useHostResolvConf = lib.mkForce false;
 
-            # Disable systemd-resolved to avoid conflicts with dnsmasq
-            services.resolved.enable = false;
-
             # Forward DNS queries to Mullvad's DNS
-            networking.nameservers = [ "127.0.0.1" ];
-
-            # Configure dnsmasq to forward DNS to Mullvad
-            services.dnsmasq = {
-              enable = true;
-              settings = {
-                # Listen on all interfaces (including Tailscale)
-                bind-interfaces = false;
-                bind-dynamic = true;
-                # Forward to Mullvad DNS
-                server = [ "10.64.0.1" ];
-                # Don't read /etc/resolv.conf
-                no-resolv = true;
-                # Cache size
-                cache-size = 1000;
-                # Log queries for debugging
-                log-queries = true;
-              };
-            };
+            networking.nameservers = [ "10.64.0.1" ];
 
             # Install necessary packages
             environment.systemPackages = with pkgs; [
               tailscale
               wireguard-tools
-              dnsmasq
+              openresolv
             ];
 
             # WireGuard will be configured dynamically from configs
@@ -69,11 +48,6 @@ let
             # Enable Tailscale
             services.tailscale.enable = true;
             services.tailscale.useRoutingFeatures = "server";
-
-            # Configure environment for Tailscale to use netstack
-            systemd.services.tailscaled.environment = {
-              TS_DEBUG_NETSTACK = "true";
-            };
 
             # Systemd service to setup Mullvad WireGuard
             systemd.services.mullvad-wireguard = {
@@ -115,7 +89,10 @@ let
                 # This ensures Tailscale can authenticate even with killswitch active
                 WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
                 if [ -n "$WG_IFACE" ]; then
-                  # Insert rule at position 1 (before the killswitch REJECT rule)
+                  # Allow DNS to Mullvad's DNS server (required for DNS resolution)
+                  ${pkgs.iptables}/bin/iptables -I OUTPUT 1 -d 10.64.0.1 -j ACCEPT
+                  
+                  # Allow Tailscale control server
                   ${pkgs.iptables}/bin/iptables -I OUTPUT 1 -p tcp --dport 443 -d 5.161.177.144 -j ACCEPT
                   
                   # Add MSS clamping to prevent MTU issues
@@ -123,7 +100,7 @@ let
                   ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
                   ${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
                   
-                  echo "Added exception for Tailscale control server and MSS clamping"
+                  echo "Added iptables exceptions for DNS and Tailscale control server"
                 fi
               '';
 
@@ -143,7 +120,6 @@ let
                 "network.target"
                 "mullvad-wireguard.service"
                 "tailscaled.service"
-                "dnsmasq.service"
               ];
               requires = [ "mullvad-wireguard.service" ];
               wantedBy = [ "multi-user.target" ];
@@ -167,10 +143,9 @@ let
 
                 # Configure Tailscale as exit node
                 if ! ${pkgs.tailscale}/bin/tailscale status &> /dev/null; then
-                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --advertise-exit-node --netfilter-mode=off --login-server=https://pond.whenducksfly.com --timeout=30s"
-                else                  
-                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --advertise-exit-node --netfilter-mode=off --login-server=https://pond.whenducksfly.com --timeout=30s || true
-
+                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s"
+                else
+                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s || true
                   echo "Tailscale exit node configured for ${city} via Mullvad"
                 fi
               '';
