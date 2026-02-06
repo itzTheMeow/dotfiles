@@ -48,6 +48,19 @@
 
   # passwordless sudo
   security.sudo.wheelNeedsPassword = false;
+
+  # Trust the local step-ca root certificate system-wide
+  security.pki.certificateFiles = [
+    ../services/step-ca/root_ca.crt
+  ];
+
+  # Configure ACME for automatic SSL certificate management
+  security.acme = {
+    acceptTerms = true;
+    defaults = {
+      email = "ca@xela.codes";
+    };
+  };
   # disable root login password
   users.users.root.hashedPassword = null;
 

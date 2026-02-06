@@ -52,5 +52,9 @@
       host = "hyzenberg";
       port = 49696;
     };
+    step-ca = {
+      host = "hyzenberg";
+      port = 44433;
+    };
   };
 }
