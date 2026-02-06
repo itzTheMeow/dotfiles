@@ -173,8 +173,6 @@ pkgs: rec {
       services.nginx.virtualHosts."${domain}" = {
         forceSSL = true;
         enableACME = true;
-        # Override ACME server for local domains
-        acmeRoot = if useLocalCA then null else "/var/lib/acme/acme-challenge";
         locations."/" = {
           proxyPass = target;
           proxyWebsockets = proxyWebsockets;
@@ -183,10 +181,16 @@ pkgs: rec {
       };
 
       # For local CA domains, configure ACME to use step-ca
-      security.acme.certs."${domain}" = pkgs.lib.mkIf useLocalCA {
-        server = "https://${caHost}:${toString caPort}/acme/acme/directory";
-        email = "ca@xela.codes";
+      security.acme.certs."${domain}" = {
         webroot = "/var/lib/acme/acme-challenge";
-      };
+      }
+      // (
+        if useLocalCA then
+          {
+            server = "https://${caHost}:${toString caPort}/acme/acme/directory";
+          }
+        else
+          { }
+      );
     };
 }
