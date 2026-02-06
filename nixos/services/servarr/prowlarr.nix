@@ -1,6 +1,9 @@
 { xelib, ... }:
 let
   svc = xelib.services.prowlarr;
+  proxyConfig =
+    xelib.mkNginxProxy "prowlarr.xela" "http://${xelib.hosts.${svc.host}.ip}:${toString svc.port}"
+      { };
 in
 {
   services.prowlarr = {
@@ -18,4 +21,7 @@ in
     };
   };
   systemd.services.prowlarr.after = [ "tailscale-online.service" ];
-} // xelib.mkNginxProxy "prowlarr.xela" "http://${xelib.hosts.${svc.host}.ip}:${toString svc.port}" {}
+
+  services.nginx.virtualHosts = proxyConfig.services.nginx.virtualHosts;
+  security.acme.certs = proxyConfig.security.acme.certs;
+}
