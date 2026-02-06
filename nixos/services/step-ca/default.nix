@@ -9,6 +9,8 @@ let
   caPort = xelib.services.step-ca.port;
 in
 {
+  environment.systemPackages = [ pkgs.step-cli ];
+
   services.step-ca = {
     enable = true;
     address = tailscaleIP;
