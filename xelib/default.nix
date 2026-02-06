@@ -184,6 +184,7 @@ pkgs: rec {
       security.acme.certs."${domain}" = {
         email = "ca@xela.codes";
         webroot = "/var/lib/acme/acme-challenge";
+        group = "nginx";
       }
       // (
         if useLocalCA then
