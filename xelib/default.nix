@@ -186,6 +186,7 @@ pkgs: rec {
       security.acme.certs."${domain}" = pkgs.lib.mkIf useLocalCA {
         server = "https://${caHost}:${toString caPort}/acme/acme/directory";
         email = "ca@xela.codes";
+        webroot = "/var/lib/acme/acme-challenge";
       };
     };
 }
