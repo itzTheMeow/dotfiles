@@ -82,6 +82,15 @@ let
 
                 # Start WireGuard with the selected config
                 ${pkgs.wireguard-tools}/bin/wg-quick up "$RANDOM_CONFIG"
+
+                # Add iptables rule to allow Tailscale control connections before the killswitch
+                # This ensures Tailscale can authenticate even with killswitch active
+                WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                if [ -n "$WG_IFACE" ]; then
+                  # Insert rule at position 1 (before the killswitch REJECT rule)
+                  ${pkgs.iptables}/bin/iptables -I OUTPUT 1 -p tcp --dport 443 -d 5.161.177.144 -j ACCEPT
+                  echo "Added exception for Tailscale control server"
+                fi
               '';
 
               preStop = ''
@@ -123,9 +132,9 @@ let
 
                 # Configure Tailscale as exit node
                 if ! ${pkgs.tailscale}/bin/tailscale status &> /dev/null; then
-                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com"
+                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s"
                 else
-                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com
+                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s || true
                   echo "Tailscale exit node configured for ${city} via Mullvad"
                 fi
               '';
