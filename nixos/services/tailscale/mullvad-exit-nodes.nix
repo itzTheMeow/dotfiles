@@ -16,6 +16,14 @@ let
         hostAddress = "10.250.0.1";
         localAddress = "10.250.0.${toString ipSuffix}";
 
+        # Allow TUN device for VPN
+        allowedDevices = [
+          {
+            node = "/dev/net/tun";
+            modifier = "rwm";
+          }
+        ];
+
         config =
           { pkgs, ... }:
           {
