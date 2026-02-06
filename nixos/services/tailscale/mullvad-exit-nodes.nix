@@ -122,6 +122,7 @@ in
   # Configure bridge network for containers
   networking.bridges.br0.interfaces = [ ];
   networking.interfaces.br0 = {
+    useDHCP = false;
     ipv4.addresses = [
       {
         address = "10.250.0.1";
@@ -130,11 +131,18 @@ in
     ];
   };
 
+  # Ensure bridge is created early
+  systemd.services."container@".after = [
+    "network.target"
+    "sys-subsystem-net-devices-br0.device"
+  ];
+  systemd.services."container@".wants = [ "sys-subsystem-net-devices-br0.device" ];
+
   # Enable NAT for container network
   networking.nat = {
     enable = true;
     internalInterfaces = [ "br0" ];
-    externalInterface = "ens3"; # Adjust this to your actual network interface
+    externalInterface = "ens3";
   };
 
   # Enable IP forwarding
