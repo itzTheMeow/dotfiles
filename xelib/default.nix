@@ -167,11 +167,11 @@ pkgs: rec {
         locations."/" = {
           proxyPass = target;
           inherit proxyWebsockets;
-        };
+        }
+        # local domains dont have a body size limit
+        // (if useLocalCA then { extraConfig = "client_max_body_size 0;"; } else { });
       }
-      // extraConfig
-      # local domains dont have a body size limit
-      // (if useLocalCA then { clientMaxBodySize = "0"; } else { });
+      // extraConfig;
 
       # create cert for this domain
       security.acme.certs."${domain}" = {
