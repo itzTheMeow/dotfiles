@@ -48,6 +48,10 @@
   };
 
   services = {
+    nzbget = {
+      host = "hyzenberg";
+      port = 58815;
+    };
     prowlarr = {
       host = "hyzenberg";
       port = 49696;
