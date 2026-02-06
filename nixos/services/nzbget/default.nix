@@ -5,21 +5,16 @@ let
 in
 lib.mkMerge [
   {
+    # shared download directory
+    systemd.tmpfiles.rules = [
+      "d /home/downloads 0777 root root -"
+    ];
+
     services.nzbget = {
       enable = true;
       settings = {
         MainDir = "/var/lib/nzbget";
-        # might not need these
-        /*
-          DestDir = "/var/lib/nzbget/completed";
-          InterDir = "/var/lib/nzbget/intermediate";
-          NzbDir = "/var/lib/nzbget/nzb";
-          QueueDir = "/var/lib/nzbget/queue";
-          TempDir = "/var/lib/nzbget/tmp";
-          ScriptDir = "/var/lib/nzbget/scripts";
-          WebDir = "/var/lib/nzbget/webui";
-          LogFile = "/var/lib/nzbget/nzbget.log";
-        */
+        DestDir = "/home/downloads";
 
         inherit ControlIP;
         ControlPort = svc.port;
