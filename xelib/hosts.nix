@@ -48,21 +48,30 @@
   };
 
   services = {
+    homepage = {
+      host = "hyzenberg";
+      port = 50983;
+      domain = "xela.internal";
+    };
     nzbget = {
       host = "hyzenberg";
       port = 58815;
+      domain = "nzbget.xela";
     };
     radarr = {
       host = "hyzenberg";
       port = 47878;
+      domain = "radarr.xela";
     };
     prowlarr = {
       host = "hyzenberg";
       port = 49696;
+      domain = "prowlarr.xela";
     };
     sonarr = {
       host = "hyzenberg";
       port = 48989;
+      domain = "sonarr.xela";
     };
     step-ca = {
       host = "hyzenberg";

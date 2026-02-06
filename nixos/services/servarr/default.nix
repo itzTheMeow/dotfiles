@@ -29,7 +29,7 @@ let
         };
         systemd.services.${name}.after = [ "tailscale-online.service" ];
       }
-      (xelib.mkNginxProxy "${name}.xela" "http://${bindaddress}:${toString svc.port}" { })
+      (xelib.mkNginxProxy svc.domain "http://${bindaddress}:${toString svc.port}" { })
     ];
 in
 lib.mkMerge [

@@ -17,6 +17,7 @@
     # specific to this host
     ./services/nzbget
     ./services/servarr
+    ./services/homepage
   ];
 
   boot.loader.systemd-boot.enable = true;
