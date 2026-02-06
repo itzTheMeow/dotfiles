@@ -91,9 +91,13 @@ let
                 ${pkgs.mullvad}/bin/mullvad lan set allow
                 ${pkgs.mullvad}/bin/mullvad auto-connect set on
 
+                # Disconnect first to ensure clean state
+                ${pkgs.mullvad}/bin/mullvad disconnect || true
+                sleep 1
+
                 # Try to connect to Mullvad
                 if ${pkgs.mullvad}/bin/mullvad connect; then
-                  # Wait for connection
+                  # Wait for connection and for Mullvad to set up firewall rules
                   for i in {1..30}; do
                     if ${pkgs.mullvad}/bin/mullvad status | grep -q "Connected"; then
                       echo "Mullvad connected to ${city}"
@@ -102,10 +106,32 @@ let
                     sleep 1
                   done
                   
-                  # Wait a bit for Mullvad to set up routing
+                  # Mullvad doesn't set up routes properly in containers
+                  # We need to manually configure routing through the tunnel
+                  
+                  # Wait for the interface to be fully up
                   sleep 2
                   
-                  echo "Routing configured through Mullvad"
+                  # Check if wg0-mullvad exists
+                  if ${pkgs.iproute2}/bin/ip link show wg0-mullvad &> /dev/null; then
+                    # Get the Mullvad gateway
+                    MULLVAD_GW=$(${pkgs.iproute2}/bin/ip route show dev wg0-mullvad | grep -oP '10\.64\.0\.\d+' | head -n1)
+                    
+                    if [ -n "$MULLVAD_GW" ]; then
+                      # Add a more specific default route through Mullvad (doesn't delete existing)
+                      # This uses a lower metric so it takes precedence
+                      ${pkgs.iproute2}/bin/ip route add default via $MULLVAD_GW dev wg0-mullvad metric 100 || true
+                      
+                      # Keep route to container host network with higher metric
+                      ${pkgs.iproute2}/bin/ip route add 10.250.0.0/24 via 10.250.0.1 dev eth0 metric 50 || true
+                      
+                      echo "Routing configured: default via $MULLVAD_GW through wg0-mullvad"
+                    else
+                      echo "Warning: Could not find Mullvad gateway"
+                    fi
+                  else
+                    echo "Warning: wg0-mullvad interface not found"
+                  fi
                 else
                   echo "Failed to connect to Mullvad"
                   exit 0
