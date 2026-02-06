@@ -31,6 +31,7 @@
     enable = true;
     recommendedProxySettings = true;
     recommendedTlsSettings = true;
+    clientMaxBodySize = "1g";
   };
 
   users.users.${host.username} = {
