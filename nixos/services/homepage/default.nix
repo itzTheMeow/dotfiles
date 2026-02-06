@@ -4,7 +4,7 @@
   ...
 }:
 let
-  svc = xelib.services.homepage-dashboard;
+  svc = xelib.services.homepage;
   bindIP = xelib.hosts.${svc.host}.ip;
 in
 lib.mkMerge [
