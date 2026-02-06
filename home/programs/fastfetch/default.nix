@@ -1,14 +1,10 @@
-{ hostname, ... }:
+{
+  hostname,
+  xelib,
+  ...
+}:
 let
-  accent =
-    if hostname == "flynn" then
-      "#cba6f7"
-    else if hostname == "hyzenberg" then
-      "#f38ba8"
-    else if hostname == "macintosh" then
-      "#b4befe"
-    else
-      "blue";
+  accent = xelib.hosts.${hostname}.accent or "blue";
 in
 {
   programs.fastfetch = {

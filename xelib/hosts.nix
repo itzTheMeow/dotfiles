@@ -4,6 +4,7 @@
     flynn = {
       username = "xela";
       ip = "100.64.0.19";
+      accent = "#cba6f7"; # Mauve
       ports = {
         beszel-agent = 45876;
       };
@@ -12,6 +13,7 @@
     pete = {
       username = "tv";
       ip = "";
+      accent = "#a6e3a1"; # Green
       ports = {
         ssh = 40938;
       };
@@ -21,6 +23,7 @@
     hyzenberg = {
       username = "walt";
       ip = "100.64.0.3";
+      accent = "#f38ba8"; # Red
       ports = {
         ssh = 12896;
       };
@@ -29,6 +32,7 @@
     ehrman = {
       username = "mike";
       ip = "100.64.0.10";
+      accent = "#89dceb"; # Sky
       ports = {
         ssh = 39877;
       };
@@ -38,13 +42,16 @@
     huell = {
       username = "huell";
       ip = "0.0.0.0";
+      accent = "#eba0ac"; # Maroon
       ports = {
         ssh = 22;
       };
     };
 
     # mac, needs organized
-    macintosh = { };
+    macintosh = {
+      accent = "#b4befe"; # Lavender
+    };
   };
 
   services = {
