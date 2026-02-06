@@ -52,6 +52,10 @@
       host = "hyzenberg";
       port = 58815;
     };
+    radarr = {
+      host = "hyzenberg";
+      port = 47878;
+    };
     prowlarr = {
       host = "hyzenberg";
       port = 49696;
