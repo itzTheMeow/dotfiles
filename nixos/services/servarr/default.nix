@@ -14,5 +14,10 @@
     name = "servarr-backups";
     remote = "pcloud:/Misc/Backups/Servarr";
     mountPoint = "/mnt/servarr_backups";
+    extraArgs = [
+      "--allow-other"
+      "--dir-perms=0777"
+      "--file-perms=0666"
+    ];
   };
 }
