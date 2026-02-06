@@ -6,6 +6,7 @@
 {
   imports = [
     ./prowlarr.nix
+    ./sonarr.nix
   ];
 
   # mount the shared backup directory

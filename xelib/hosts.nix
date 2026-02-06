@@ -56,6 +56,10 @@
       host = "hyzenberg";
       port = 49696;
     };
+    sonarr = {
+      host = "hyzenberg";
+      port = 48989;
+    };
     step-ca = {
       host = "hyzenberg";
       port = 44433;
