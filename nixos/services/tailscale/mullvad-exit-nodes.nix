@@ -30,6 +30,7 @@ let
             system.stateVersion = "25.11";
 
             networking.firewall.enable = false;
+            networking.resolvconf.enable = true;
             networking.useHostResolvConf = lib.mkForce false;
 
             # Forward DNS queries to Mullvad's DNS
