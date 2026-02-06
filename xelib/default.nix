@@ -151,45 +151,39 @@ pkgs: rec {
       };
     };
 
-  # create an nginx reverse proxy with automatic SSL certificate management
-  # domain: the domain name (e.g., "prowlarr.xela")
-  # target: the backend URL (e.g., "http://127.0.0.1:9696")
-  # options:
-  #   - useLocalCA: whether to use local step-ca (default: true for .xela/.internal, false otherwise)
-  #   - extraConfig: extra nginx location config
-  #   - proxyWebsockets: enable websocket support (default: true)
+  # create a custom domain with nginx
   mkNginxProxy =
     domain: target:
     {
+      # if domain is .xela or .internal, then automatically use the local ca
       useLocalCA ? (builtins.match ".+\\.(xela|internal)$" domain != null),
-      extraConfig ? "",
+      extraConfig ? { },
       proxyWebsockets ? true,
     }:
-    let
-      caHost = hosts.${services.step-ca.host}.ip;
-      caPort = services.step-ca.port;
-    in
     {
       services.nginx.virtualHosts."${domain}" = {
         forceSSL = true;
         useACMEHost = domain;
         locations."/" = {
           proxyPass = target;
-          proxyWebsockets = proxyWebsockets;
-          extraConfig = extraConfig;
+          inherit proxyWebsockets;
         };
-      };
+      }
+      // extraConfig;
 
-      # For local CA domains, configure ACME to use step-ca
+      # create cert for this domain
       security.acme.certs."${domain}" = {
         email = "ca@xela.codes";
         webroot = "/var/lib/acme/acme-challenge";
         group = "nginx";
       }
       // (
+        # use the custom ACME server
         if useLocalCA then
           {
-            server = "https://${caHost}:${toString caPort}/acme/acme/directory";
+            server = "https://${
+              hosts.${services.step-ca.host}.ip
+            }:${toString services.step-ca.port}/acme/acme/directory";
           }
         else
           { }

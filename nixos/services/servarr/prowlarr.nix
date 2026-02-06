@@ -1,9 +1,7 @@
 { xelib, ... }:
 let
   svc = xelib.services.prowlarr;
-  proxyConfig =
-    xelib.mkNginxProxy "prowlarr.xela" "http://${xelib.hosts.${svc.host}.ip}:${toString svc.port}"
-      { };
+  bindaddress = xelib.hosts.${svc.host}.ip;
 in
 {
   services.prowlarr = {
@@ -14,14 +12,12 @@ in
         theme = "dark";
       };
       server = {
-        bindaddress = xelib.hosts.${svc.host}.ip;
+        inherit bindaddress;
         port = svc.port;
-        urlbase = "/prowlarr";
       };
     };
   };
   systemd.services.prowlarr.after = [ "tailscale-online.service" ];
-
-  security.acme.certs = proxyConfig.security.acme.certs;
-  services.nginx.virtualHosts = proxyConfig.services.nginx.virtualHosts;
 }
+# include the host settings for the domain
+// xelib.mkNginxProxy "prowlarr.xela" "http://${bindaddress}:${toString svc.port}" { }
