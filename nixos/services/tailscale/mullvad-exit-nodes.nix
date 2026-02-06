@@ -35,7 +35,7 @@ let
             services.resolved.enable = true;
             services.resolved.extraConfig = ''
               DNS=10.64.0.1
-              DNSStubListener=no
+              DNSStubListener=yes
             '';
 
             # Forward DNS queries to Mullvad's DNS
@@ -96,7 +96,13 @@ let
                 if [ -n "$WG_IFACE" ]; then
                   # Insert rule at position 1 (before the killswitch REJECT rule)
                   ${pkgs.iptables}/bin/iptables -I OUTPUT 1 -p tcp --dport 443 -d 5.161.177.144 -j ACCEPT
-                  echo "Added exception for Tailscale control server"
+                  
+                  # Add MSS clamping to prevent MTU issues
+                  # Clamp MSS to 1380 (1420 WG MTU - 40 bytes for IP/TCP headers)
+                  ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+                  ${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+                  
+                  echo "Added exception for Tailscale control server and MSS clamping"
                 fi
               '';
 
@@ -139,9 +145,9 @@ let
 
                 # Configure Tailscale as exit node
                 if ! ${pkgs.tailscale}/bin/tailscale status &> /dev/null; then
-                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s"
+                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s"
                 else
-                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s || true
+                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s || true
                   echo "Tailscale exit node configured for ${city} via Mullvad"
                 fi
               '';
