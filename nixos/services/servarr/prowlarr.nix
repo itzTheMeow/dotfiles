@@ -18,4 +18,4 @@ in
     };
   };
   systemd.services.prowlarr.after = [ "tailscale-online.service" ];
-}
+} // xelib.mkNginxProxy "prowlarr.xela" "http://${xelib.hosts.${svc.host}.ip}:${toString svc.port}" {}
