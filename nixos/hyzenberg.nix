@@ -2,7 +2,6 @@
   host,
   hostname,
   pkgs,
-  xelib,
   ...
 }:
 {
@@ -15,6 +14,7 @@
     ./services/step-ca
 
     # specific to this host
+    ./services/nzbget
     ./services/servarr
   ];
 
