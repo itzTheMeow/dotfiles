@@ -91,7 +91,7 @@ let
 
                 # Configure Tailscale as exit node
                 if ! ${pkgs.tailscale}/bin/tailscale status &> /dev/null; then
-                  echo "Tailscale not authenticated. Please run tailscale up
+                  echo "Tailscale not authenticated. Please run tailscale up"
                 else
                   ${pkgs.tailscale}/bin/tailscale up --advertise-exit-node
                 fi
