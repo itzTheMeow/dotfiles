@@ -114,13 +114,13 @@ let
   exitNodes = [
     {
       name = "ashburn";
-      city = "ashburn";
+      city = "qas";
       country = "us";
       ipSuffix = 10;
     }
     {
       name = "atlanta";
-      city = "atlanta";
+      city = "atl";
       country = "us";
       ipSuffix = 11;
     }
