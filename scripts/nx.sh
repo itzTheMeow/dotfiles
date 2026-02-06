@@ -40,7 +40,7 @@ hm)
 		# if the machine isnt headless, then 1password desktop will prompt for authorization
 	else
 		# if we arent fetching a token, create an empty file so the systemd service will still run
-		touch /run/1password-session
+		sudo touch /run/1password-session
 	fi
 	START_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 	# then rebuild the system
