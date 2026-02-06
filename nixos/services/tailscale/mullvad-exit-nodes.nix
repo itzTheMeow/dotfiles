@@ -6,13 +6,15 @@ let
       name,
       city,
       country ? "us",
+      ipSuffix,
     }:
     {
       name = "mullvad-${name}";
       value = {
         autoStart = true;
         privateNetwork = true;
-        hostBridge = "br0";
+        hostAddress = "10.250.0.1";
+        localAddress = "10.250.0.${toString ipSuffix}";
 
         config =
           { pkgs, ... }:
@@ -106,11 +108,13 @@ let
       name = "ashburn";
       city = "ashburn";
       country = "us";
+      ipSuffix = 10;
     }
     {
       name = "atlanta";
       city = "atlanta";
       country = "us";
+      ipSuffix = 11;
     }
   ];
 
@@ -119,29 +123,10 @@ in
   # Create containers for each exit node
   containers = builtins.listToAttrs (map mkMullvadExitNode exitNodes);
 
-  # Configure bridge network for containers
-  networking.bridges.br0.interfaces = [ ];
-  networking.interfaces.br0 = {
-    useDHCP = false;
-    ipv4.addresses = [
-      {
-        address = "10.250.0.1";
-        prefixLength = 24;
-      }
-    ];
-  };
-
-  # Ensure bridge is created early
-  systemd.services."container@".after = [
-    "network.target"
-    "sys-subsystem-net-devices-br0.device"
-  ];
-  systemd.services."container@".wants = [ "sys-subsystem-net-devices-br0.device" ];
-
   # Enable NAT for container network
   networking.nat = {
     enable = true;
-    internalInterfaces = [ "br0" ];
+    internalInterfaces = [ "ve-+" ];
     externalInterface = "ens3";
   };
 
