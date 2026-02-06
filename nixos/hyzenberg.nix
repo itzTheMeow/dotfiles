@@ -25,6 +25,10 @@
 
   networking.hostName = hostname;
   networking.networkmanager.enable = true;
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
 
   # Enable and configure Nginx
   services.nginx = {
