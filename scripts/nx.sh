@@ -21,6 +21,9 @@ pull)
 hash)
 	nix hash convert --hash-algo sha256 "$(nix-prefetch-url "$2")"
 	;;
+container)
+	sudo nixos-container root-login "$2"
+	;;
 hm)
 	# prompt to sign into 1password first
 	if command -v op &>/dev/null; then
@@ -53,6 +56,6 @@ hm)
 	journalctl -u "home-manager-$USER" --since "$START_TIME" --no-pager -o cat | sed -n '/^Starting Home Manager activation$/,/Deactivated successfully.$/p'
 	;;
 *)
-	echo "Usage: nx [os/hm|clean|update|edit|pull|hash|optimize]"
+	echo "Usage: nx [os/hm|clean|update|edit|pull|hash|optimize|container]"
 	;;
 esac

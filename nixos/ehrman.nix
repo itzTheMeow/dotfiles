@@ -16,6 +16,7 @@
 
     ./services/ssh
     ./services/tailscale
+    ./services/tailscale/mullvad-exit-nodes.nix
   ];
 
   boot.loader.systemd-boot.enable = true;
