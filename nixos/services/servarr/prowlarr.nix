@@ -22,6 +22,6 @@ in
   };
   systemd.services.prowlarr.after = [ "tailscale-online.service" ];
 
-  services.nginx.virtualHosts = proxyConfig.services.nginx.virtualHosts;
   security.acme.certs = proxyConfig.security.acme.certs;
+  services.nginx.virtualHosts = proxyConfig.services.nginx.virtualHosts;
 }
