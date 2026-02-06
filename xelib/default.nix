@@ -172,7 +172,7 @@ pkgs: rec {
     {
       services.nginx.virtualHosts."${domain}" = {
         forceSSL = true;
-        enableACME = true;
+        useACMEHost = domain;
         locations."/" = {
           proxyPass = target;
           proxyWebsockets = proxyWebsockets;
