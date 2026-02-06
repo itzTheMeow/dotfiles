@@ -70,7 +70,7 @@ lib.mkMerge [
   }
   (xelib.mkNginxProxy svc.domain "http://${bindIP}:${toString svc.port}" {
     extraConfig = {
-      locations."/background.jpeg" = {
+      locations."= /background.jpeg" = {
         alias = "${./background.jpeg}";
       };
     };
