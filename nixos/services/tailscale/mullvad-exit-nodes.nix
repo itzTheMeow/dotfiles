@@ -44,9 +44,13 @@ let
             services.mullvad-vpn.enable = true;
             services.mullvad-vpn.package = pkgs.mullvad;
 
-            # Enable Tailscale
+            # Enable Tailscale but don't start it automatically
+            # We'll start it manually after Mullvad is connected
             services.tailscale.enable = true;
             services.tailscale.useRoutingFeatures = "server";
+
+            # Prevent Tailscale from starting automatically
+            systemd.services.tailscaled.wantedBy = lib.mkForce [ ];
 
             # Systemd service to configure Mullvad and Tailscale
             systemd.services.mullvad-tailscale-setup = {
@@ -92,11 +96,18 @@ let
                   # Wait for connection
                   for i in {1..30}; do
                     if ${pkgs.mullvad}/bin/mullvad status | grep -q "Connected"; then
+                      echo "Mullvad connected to ${city}"
                       break
                     fi
                     sleep 1
                   done
+                else
+                  echo "Failed to connect to Mullvad"
+                  exit 0
                 fi
+
+                # Now start Tailscale
+                systemctl start tailscaled.service
 
                 # Wait for Tailscale daemon
                 for i in {1..30}; do
@@ -109,9 +120,10 @@ let
 
                 # Configure Tailscale as exit node
                 if ! ${pkgs.tailscale}/bin/tailscale status &> /dev/null; then
-                  echo "Tailscale not authenticated. Please run tailscale up"
+                  echo "Tailscale not authenticated. Please run: tailscale up --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com"
                 else
-                  ${pkgs.tailscale}/bin/tailscale up --advertise-exit-node
+                  ${pkgs.tailscale}/bin/tailscale up --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com
+                  echo "Tailscale exit node configured"
                 fi
               '';
             };
