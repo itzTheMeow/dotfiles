@@ -29,39 +29,112 @@ let
           {
             system.stateVersion = "25.11";
 
-            networking.firewall.enable = false;
+            networking.firewall.enable = true;
+            networking.firewall.checkReversePath = false;
+            networking.firewall.allowedUDPPorts = [ 51820 ]; # WireGuard
+
+            # Killswitch: Only allow traffic through mullvad and local networks
+            networking.firewall.extraCommands = ''
+              # Allow loopback
+              iptables -A OUTPUT -o lo -j ACCEPT
+
+              # Allow container host network
+              iptables -A OUTPUT -d 10.250.0.0/24 -j ACCEPT
+
+              # Allow Tailscale network
+              iptables -A OUTPUT -o tailscale0 -j ACCEPT
+
+              # Allow traffic through Mullvad tunnel
+              iptables -A OUTPUT -o mullvad -j ACCEPT
+
+              # Allow WireGuard to establish connection
+              iptables -A OUTPUT -p udp --dport 51820 -j ACCEPT
+
+              # Block everything else (killswitch)
+              iptables -A OUTPUT -j REJECT
+            '';
+
+            networking.firewall.extraStopCommands = ''
+              iptables -D OUTPUT -o lo -j ACCEPT 2>/dev/null || true
+              iptables -D OUTPUT -d 10.250.0.0/24 -j ACCEPT 2>/dev/null || true
+              iptables -D OUTPUT -o tailscale0 -j ACCEPT 2>/dev/null || true
+              iptables -D OUTPUT -o mullvad -j ACCEPT 2>/dev/null || true
+              iptables -D OUTPUT -p udp --dport 51820 -j ACCEPT 2>/dev/null || true
+              iptables -D OUTPUT -j REJECT 2>/dev/null || true
+            '';
+
             networking.useHostResolvConf = lib.mkForce false;
 
             services.resolved.enable = true;
 
             # Install necessary packages
             environment.systemPackages = with pkgs; [
-              mullvad
               tailscale
+              wireguard-tools
             ];
 
-            # Enable Mullvad VPN
-            services.mullvad-vpn.enable = true;
-            services.mullvad-vpn.package = pkgs.mullvad;
+            # WireGuard will be configured dynamically from configs
+            # Place Mullvad configs in /var/lib/mullvad-configs/*.conf
 
-            # Enable Tailscale but don't start it automatically
-            # We'll start it manually after Mullvad is connected
+            # Enable Tailscale
             services.tailscale.enable = true;
             services.tailscale.useRoutingFeatures = "server";
 
-            # Prevent Tailscale from starting automatically
-            systemd.services.tailscaled.wantedBy = lib.mkForce [ ];
+            # Systemd service to setup Mullvad WireGuard
+            systemd.services.mullvad-wireguard = {
+              description = "Mullvad WireGuard VPN for ${city}";
+              after = [ "network-pre.target" ];
+              before = [ "network.target" ];
+              wants = [ "network-pre.target" ];
+              wantedBy = [ "multi-user.target" ];
 
-            # Systemd service to configure Mullvad and Tailscale
-            systemd.services.mullvad-tailscale-setup = {
-              description = "Configure Mullvad VPN and Tailscale exit node for ${city}";
+              serviceConfig = {
+                Type = "oneshot";
+                RemainAfterExit = true;
+              };
+
+              script = ''
+                CONFIG_DIR="/var/lib/mullvad-configs"
+
+                if [ ! -d "$CONFIG_DIR" ]; then
+                  echo "Config directory $CONFIG_DIR does not exist. Please create it and add Mullvad configs."
+                  echo "Download configs from: https://mullvad.net/en/account/wireguard-config"
+                  exit 1
+                fi
+
+                # Count available configs
+                CONFIG_COUNT=$(ls -1 "$CONFIG_DIR"/*.conf 2>/dev/null | wc -l)
+                if [ "$CONFIG_COUNT" -eq 0 ]; then
+                  echo "No .conf files found in $CONFIG_DIR"
+                  exit 1
+                fi
+
+                # Pick a random config
+                RANDOM_CONFIG=$(ls -1 "$CONFIG_DIR"/*.conf | shuf -n 1)
+                echo "Selected config: $(basename "$RANDOM_CONFIG")"
+
+                # Start WireGuard with the selected config
+                ${pkgs.wireguard-tools}/bin/wg-quick up "$RANDOM_CONFIG"
+              '';
+
+              preStop = ''
+                # Find and stop any active WireGuard interfaces
+                for iface in $(${pkgs.wireguard-tools}/bin/wg show interfaces); do
+                  echo "Stopping WireGuard interface: $iface"
+                  ${pkgs.wireguard-tools}/bin/wg-quick down "$iface" 2>/dev/null || true
+                done
+              '';
+            };
+
+            # Systemd service to configure Tailscale exit node
+            systemd.services.tailscale-exit-setup = {
+              description = "Configure Tailscale exit node for ${city}";
               after = [
                 "network.target"
-                "mullvad-daemon.service"
+                "mullvad-wireguard.service"
                 "tailscaled.service"
-                "tailscale-online.service"
               ];
-              wants = [ "network.target" ];
+              requires = [ "mullvad-wireguard.service" ];
               wantedBy = [ "multi-user.target" ];
 
               serviceConfig = {
@@ -72,74 +145,6 @@ let
               };
 
               script = ''
-                # Wait for Mullvad daemon to be ready
-                for i in {1..30}; do
-                  if ${pkgs.mullvad}/bin/mullvad status &> /dev/null; then
-                    break
-                  fi
-                  sleep 1
-                done
-
-                # Check if Mullvad is logged in
-                if ! ${pkgs.mullvad}/bin/mullvad account get &> /dev/null; then
-                  echo "Mullvad not logged in. Please run: mullvad account login <account-number>"
-                  exit 0
-                fi
-
-                # Configure Mullvad
-                ${pkgs.mullvad}/bin/mullvad relay set location ${country} ${city}
-                ${pkgs.mullvad}/bin/mullvad lan set allow
-                ${pkgs.mullvad}/bin/mullvad auto-connect set on
-
-                # Disconnect first to ensure clean state
-                ${pkgs.mullvad}/bin/mullvad disconnect || true
-                sleep 1
-
-                # Try to connect to Mullvad
-                if ${pkgs.mullvad}/bin/mullvad connect; then
-                  # Wait for connection and for Mullvad to set up firewall rules
-                  for i in {1..30}; do
-                    if ${pkgs.mullvad}/bin/mullvad status | grep -q "Connected"; then
-                      echo "Mullvad connected to ${city}"
-                      break
-                    fi
-                    sleep 1
-                  done
-                  
-                  # Mullvad doesn't set up routes properly in containers
-                  # We need to manually configure routing through the tunnel
-                  
-                  # Wait for the interface to be fully up
-                  sleep 2
-                  
-                  # Check if wg0-mullvad exists
-                  if ${pkgs.iproute2}/bin/ip link show wg0-mullvad &> /dev/null; then
-                    # Get the Mullvad gateway
-                    MULLVAD_GW=$(${pkgs.iproute2}/bin/ip route show dev wg0-mullvad | grep -oP '10\.64\.0\.\d+' | head -n1)
-                    
-                    if [ -n "$MULLVAD_GW" ]; then
-                      # Add a more specific default route through Mullvad (doesn't delete existing)
-                      # This uses a lower metric so it takes precedence
-                      ${pkgs.iproute2}/bin/ip route add default via $MULLVAD_GW dev wg0-mullvad metric 100 || true
-                      
-                      # Keep route to container host network with higher metric
-                      ${pkgs.iproute2}/bin/ip route add 10.250.0.0/24 via 10.250.0.1 dev eth0 metric 50 || true
-                      
-                      echo "Routing configured: default via $MULLVAD_GW through wg0-mullvad"
-                    else
-                      echo "Warning: Could not find Mullvad gateway"
-                    fi
-                  else
-                    echo "Warning: wg0-mullvad interface not found"
-                  fi
-                else
-                  echo "Failed to connect to Mullvad"
-                  exit 0
-                fi
-
-                # Now start Tailscale
-                systemctl start tailscaled.service
-
                 # Wait for Tailscale daemon
                 for i in {1..30}; do
                   if ${pkgs.tailscale}/bin/tailscale status &> /dev/null 2>&1 || \
@@ -151,10 +156,10 @@ let
 
                 # Configure Tailscale as exit node
                 if ! ${pkgs.tailscale}/bin/tailscale status &> /dev/null; then
-                  echo "Tailscale not authenticated. Please run: tailscale up --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com"
+                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com"
                 else
-                  ${pkgs.tailscale}/bin/tailscale up --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com
-                  echo "Tailscale exit node configured"
+                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com
+                  echo "Tailscale exit node configured for ${city} via Mullvad"
                 fi
               '';
             };
