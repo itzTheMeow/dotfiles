@@ -182,6 +182,7 @@ pkgs: rec {
 
       # For local CA domains, configure ACME to use step-ca
       security.acme.certs."${domain}" = {
+        email = "ca@xela.codes";
         webroot = "/var/lib/acme/acme-challenge";
       }
       // (
