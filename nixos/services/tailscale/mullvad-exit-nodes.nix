@@ -32,19 +32,35 @@ let
             networking.firewall.enable = false;
             networking.useHostResolvConf = lib.mkForce false;
 
-            services.resolved.enable = true;
-            services.resolved.extraConfig = ''
-              DNS=10.64.0.1
-              DNSStubListener=yes
-            '';
+            # Disable systemd-resolved to avoid conflicts with dnsmasq
+            services.resolved.enable = false;
 
             # Forward DNS queries to Mullvad's DNS
-            networking.nameservers = [ "10.64.0.1" ];
+            networking.nameservers = [ "127.0.0.1" ];
+
+            # Configure dnsmasq to forward DNS to Mullvad
+            services.dnsmasq = {
+              enable = true;
+              settings = {
+                # Listen on all interfaces (including Tailscale)
+                bind-interfaces = false;
+                bind-dynamic = true;
+                # Forward to Mullvad DNS
+                server = [ "10.64.0.1" ];
+                # Don't read /etc/resolv.conf
+                no-resolv = true;
+                # Cache size
+                cache-size = 1000;
+                # Log queries for debugging
+                log-queries = true;
+              };
+            };
 
             # Install necessary packages
             environment.systemPackages = with pkgs; [
               tailscale
               wireguard-tools
+              dnsmasq
             ];
 
             # WireGuard will be configured dynamically from configs
@@ -53,6 +69,11 @@ let
             # Enable Tailscale
             services.tailscale.enable = true;
             services.tailscale.useRoutingFeatures = "server";
+
+            # Configure environment for Tailscale to use netstack
+            systemd.services.tailscaled.environment = {
+              TS_DEBUG_NETSTACK = "true";
+            };
 
             # Systemd service to setup Mullvad WireGuard
             systemd.services.mullvad-wireguard = {
@@ -122,6 +143,7 @@ let
                 "network.target"
                 "mullvad-wireguard.service"
                 "tailscaled.service"
+                "dnsmasq.service"
               ];
               requires = [ "mullvad-wireguard.service" ];
               wantedBy = [ "multi-user.target" ];
@@ -145,9 +167,10 @@ let
 
                 # Configure Tailscale as exit node
                 if ! ${pkgs.tailscale}/bin/tailscale status &> /dev/null; then
-                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s"
-                else
-                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --advertise-exit-node --login-server=https://pond.whenducksfly.com --timeout=30s || true
+                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --advertise-exit-node --netfilter-mode=off --login-server=https://pond.whenducksfly.com --timeout=30s"
+                else                  
+                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --advertise-exit-node --netfilter-mode=off --login-server=https://pond.whenducksfly.com --timeout=30s || true
+
                   echo "Tailscale exit node configured for ${city} via Mullvad"
                 fi
               '';
