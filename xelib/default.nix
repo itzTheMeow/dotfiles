@@ -169,7 +169,9 @@ pkgs: rec {
           inherit proxyWebsockets;
         };
       }
-      // extraConfig;
+      // extraConfig
+      # local domains dont have a body size limit
+      // (if useLocalCA then { clientMaxBodySize = "0"; } else { });
 
       # create cert for this domain
       security.acme.certs."${domain}" = {
