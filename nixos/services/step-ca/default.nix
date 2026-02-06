@@ -1,32 +1,32 @@
 {
-  config,
   pkgs,
   xelib,
   ...
 }:
 let
-  tailscaleIP = xelib.hosts.hyzenberg.ip;
-  caPort = xelib.services.step-ca.port;
+  address = xelib.hosts.hyzenberg.ip;
+  port = xelib.services.step-ca.port;
 in
 {
+  # we want the cli to work too
   environment.systemPackages = [ pkgs.step-cli ];
 
   services.step-ca = {
     enable = true;
-    address = tailscaleIP;
-    port = caPort;
+    inherit address port;
+    # password must be put here from 1password
     intermediatePasswordFile = "/var/lib/step-ca/password.txt";
     settings = {
       root = "/var/lib/step-ca/certs/root_ca.crt";
       federatedRoots = null;
       crt = "/var/lib/step-ca/certs/intermediate_ca.crt";
       key = "/var/lib/step-ca/secrets/intermediate_ca_key";
-      address = "${tailscaleIP}:${toString caPort}";
+      address = "${address}:${toString port}";
       insecureAddress = "";
       dnsNames = [
         "localhost"
         "hyzenberg"
-        tailscaleIP
+        address
       ];
       logger = {
         format = "text";
@@ -42,7 +42,8 @@ in
             type = "ACME";
             name = "acme";
             claims = {
-              defaultTLSCertDuration = "336h"; # 14 days
+              # issued certificates will expire after 14 days
+              defaultTLSCertDuration = "336h";
               maxTLSCertDuration = "336h";
             };
           }
