@@ -60,9 +60,12 @@ in
     };
   };
 
-  # Ensure the step-ca service starts on boot
+  # start on boot and wait for tailscale
   systemd.services.step-ca = {
-    after = [ "network-online.target" ];
+    after = [
+      "network-online.target"
+      "tailscale-online.service"
+    ];
     wants = [ "network-online.target" ];
   };
 }
