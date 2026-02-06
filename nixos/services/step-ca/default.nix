@@ -39,6 +39,10 @@ in
           {
             type = "ACME";
             name = "acme";
+            claims = {
+              defaultTLSCertDuration = "336h"; # 14 days
+              maxTLSCertDuration = "336h";
+            };
           }
         ];
       };
