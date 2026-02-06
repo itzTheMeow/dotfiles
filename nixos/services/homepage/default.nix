@@ -25,6 +25,7 @@ lib.mkMerge [
       settings = {
         title = svc.domain;
         base = "https://${svc.domain}";
+        background = ./background.jpeg;
         headerStyle = "boxed";
         target = "_self";
         color = "violet";
