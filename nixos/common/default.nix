@@ -85,6 +85,7 @@
     gcc
     gnumake
     home-manager
+    kitty
     nano
     net-tools
     pandoc
