@@ -101,6 +101,22 @@ let
                     fi
                     sleep 1
                   done
+                  
+                  # Fix routing - route all traffic through Mullvad
+                  MULLVAD_GW=$(${pkgs.iproute2}/bin/ip route show dev wg0-mullvad | grep -oP '(?<=via )\S+' | head -n1)
+                  if [ -z "$MULLVAD_GW" ]; then
+                    # If no gateway in route, use the peer endpoint from wireguard
+                    MULLVAD_GW="10.64.0.1"
+                  fi
+                  
+                  # Delete default route through container host
+                  ${pkgs.iproute2}/bin/ip route del default via 10.250.0.1 2>/dev/null || true
+                  
+                  # Add default route through Mullvad, keeping host route for container access
+                  ${pkgs.iproute2}/bin/ip route add default dev wg0-mullvad
+                  ${pkgs.iproute2}/bin/ip route add 10.250.0.0/24 via 10.250.0.1 dev eth0
+                  
+                  echo "Routing configured through Mullvad"
                 else
                   echo "Failed to connect to Mullvad"
                   exit 0
