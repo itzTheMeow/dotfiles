@@ -25,7 +25,7 @@ lib.mkMerge [
       settings = {
         title = svc.domain;
         base = "https://${svc.domain}";
-        background = "${./background.jpeg}";
+        background = "/background.jpeg";
         headerStyle = "boxed";
         target = "_self";
         theme = "dark";
@@ -68,5 +68,11 @@ lib.mkMerge [
       };
     };
   }
-  (xelib.mkNginxProxy svc.domain "http://${bindIP}:${toString svc.port}" { })
+  (xelib.mkNginxProxy svc.domain "http://${bindIP}:${toString svc.port}" {
+    extraConfig = {
+      locations."/background.jpeg" = {
+        alias = "${./background.jpeg}";
+      };
+    };
+  })
 ]
