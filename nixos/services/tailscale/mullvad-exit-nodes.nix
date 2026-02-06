@@ -29,40 +29,7 @@ let
           {
             system.stateVersion = "25.11";
 
-            networking.firewall.enable = true;
-            networking.firewall.checkReversePath = false;
-            networking.firewall.allowedUDPPorts = [ 51820 ]; # WireGuard
-
-            # Killswitch: Only allow traffic through mullvad and local networks
-            networking.firewall.extraCommands = ''
-              # Allow loopback
-              iptables -A OUTPUT -o lo -j ACCEPT
-
-              # Allow container host network
-              iptables -A OUTPUT -d 10.250.0.0/24 -j ACCEPT
-
-              # Allow Tailscale network
-              iptables -A OUTPUT -o tailscale0 -j ACCEPT
-
-              # Allow traffic through Mullvad tunnel
-              iptables -A OUTPUT -o mullvad -j ACCEPT
-
-              # Allow WireGuard to establish connection
-              iptables -A OUTPUT -p udp --dport 51820 -j ACCEPT
-
-              # Block everything else (killswitch)
-              iptables -A OUTPUT -j REJECT
-            '';
-
-            networking.firewall.extraStopCommands = ''
-              iptables -D OUTPUT -o lo -j ACCEPT 2>/dev/null || true
-              iptables -D OUTPUT -d 10.250.0.0/24 -j ACCEPT 2>/dev/null || true
-              iptables -D OUTPUT -o tailscale0 -j ACCEPT 2>/dev/null || true
-              iptables -D OUTPUT -o mullvad -j ACCEPT 2>/dev/null || true
-              iptables -D OUTPUT -p udp --dport 51820 -j ACCEPT 2>/dev/null || true
-              iptables -D OUTPUT -j REJECT 2>/dev/null || true
-            '';
-
+            networking.firewall.enable = false;
             networking.useHostResolvConf = lib.mkForce false;
 
             services.resolved.enable = true;
