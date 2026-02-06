@@ -133,6 +133,7 @@
                 plasma-manager.homeModules.plasma-manager
                 opinject.homeManagerModules.default
               ];
+              home-manager.users.root = import ./home/common;
               home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
             }
           ];
