@@ -6,6 +6,15 @@
 let
   svc = xelib.services.homepage;
   bindIP = xelib.hosts.${svc.host}.ip;
+
+  mkService = name: icon: description: domain: {
+    ${name} = {
+      icon = "${icon}.png";
+      href = "https://${domain}";
+      inherit description;
+      ping = domain;
+    };
+  };
 in
 lib.mkMerge [
   {
@@ -21,8 +30,7 @@ lib.mkMerge [
         color = "violet";
         layout = {
           Media = {
-            style = "row";
-            columns = 4;
+            style = "columns";
           };
         };
       };
@@ -30,42 +38,10 @@ lib.mkMerge [
       services = [
         {
           Media = [
-            {
-              Sonarr = {
-                icon = "sonarr.png";
-                href = "https://sonarr.xela";
-                description = "TV Shows";
-                server = "sonarr";
-                container = "sonarr";
-              };
-            }
-            {
-              Radarr = {
-                icon = "radarr.png";
-                href = "https://radarr.xela";
-                description = "Movies";
-                server = "radarr";
-                container = "radarr";
-              };
-            }
-            {
-              Prowlarr = {
-                icon = "prowlarr.png";
-                href = "https://prowlarr.xela";
-                description = "Indexer Manager";
-                server = "prowlarr";
-                container = "prowlarr";
-              };
-            }
-            {
-              NZBGet = {
-                icon = "nzbget.png";
-                href = "https://nzbget.xela";
-                description = "Download Client";
-                server = "nzbget";
-                container = "nzbget";
-              };
-            }
+            (mkService "Sonarr" "sonarr" "TV Shows" "sonarr.xela")
+            (mkService "Radarr" "radarr" "Movies" "radarr.xela")
+            (mkService "Prowlarr" "prowlarr" "Indexer Manager" "prowlarr.xela")
+            (mkService "NZBGet" "nzbget" "Download Client" "nzbget.xela")
           ];
         }
       ];
