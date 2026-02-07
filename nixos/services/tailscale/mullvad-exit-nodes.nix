@@ -46,6 +46,9 @@ let
               tailscale
               wireguard-tools
               openresolv
+              # debug
+              iptables
+              tcpdump
             ];
 
             # WireGuard will be configured dynamically from configs
