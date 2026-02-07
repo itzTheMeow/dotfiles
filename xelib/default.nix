@@ -238,6 +238,8 @@ rec {
             return = "301 https://$host$request_uri";
           };
         };
+        # add nginx user to acme group so it can read challenge files
+        users.users.nginx.extraGroups = [ "acme" ];
       })
     ];
 }
