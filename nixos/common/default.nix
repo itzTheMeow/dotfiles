@@ -82,16 +82,30 @@
 
   environment.systemPackages = with pkgs; [
     # system-level utilities
+    ## build tools
     gcc
     gnumake
+
+    ## nix-related
     home-manager
-    kitty
+
+    ## editors
     nano
-    net-tools
-    pandoc
+
+    ## system
     pciutils
-    rclone
+
+    ## pandoc
+    pandoc
     texliveSmall
+
+    ## networking
+    dig
+    net-tools
+    tcpdump
+
+    kitty # needed so ssh will work from kitty
+    rclone # used by some core services
   ];
 
   # allow other flag for fuse mounts

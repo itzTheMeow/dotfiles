@@ -1,11 +1,10 @@
 { pkgs, lib, ... }:
 let
-  # Function to create a Mullvad exit node container
+  configDir = "/var/lib/mullvad-configs";
   mkMullvadExitNode =
     {
       name,
       city,
-      country ? "us",
       ipSuffix,
     }:
     {
@@ -38,29 +37,25 @@ let
               DNSStubListener=yes
             '';
 
-            # Forward DNS queries to Mullvad's DNS
+            # forward DNS queries to Mullvad's DNS
             networking.nameservers = [ "10.64.0.1" ];
 
-            # Install necessary packages
             environment.systemPackages = with pkgs; [
+              openresolv
               tailscale
               wireguard-tools
-              openresolv
               # debug
-              iptables
-              tcpdump
-              net-tools
               dig
+              iptables
+              net-tools
+              tcpdump
             ];
 
-            # WireGuard will be configured dynamically from configs
-            # Place Mullvad configs in /var/lib/mullvad-configs/*.conf
-
-            # Enable Tailscale
             services.tailscale.enable = true;
             services.tailscale.useRoutingFeatures = "both";
 
-            # Systemd service to setup Mullvad WireGuard
+            # set up Mullvad WireGuard connection
+            # put Mullvad configs in /var/lib/mullvad-configs/*.conf (configDir)
             systemd.services.mullvad-wireguard = {
               description = "Mullvad WireGuard VPN for ${city}";
               after = [ "network-pre.target" ];
@@ -74,7 +69,7 @@ let
               };
 
               script = ''
-                CONFIG_DIR="/var/lib/mullvad-configs"
+                CONFIG_DIR="${configDir}"
 
                 if [ ! -d "$CONFIG_DIR" ]; then
                   echo "Config directory $CONFIG_DIR does not exist. Please create it and add Mullvad configs."
@@ -108,7 +103,7 @@ let
 
             # Setup NAT for Tailscale exit node traffic through Mullvad
             systemd.services.mullvad-exit-nat = {
-              description = "NAT rules for Tailscale exit node via Mullvad";
+              description = "NAT rules for Tailscale => Mullvad";
               after = [ "mullvad-wireguard.service" ];
               requires = [ "mullvad-wireguard.service" ];
               wantedBy = [ "multi-user.target" ];
@@ -121,13 +116,13 @@ let
               script = ''
                 # Get the WireGuard interface name
                 WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-                
+
                 if [ -z "$WG_IFACE" ]; then
                   echo "No WireGuard interface found"
                   exit 1
                 fi
 
-                echo "Setting up NAT for Tailscale -> $WG_IFACE"
+                echo "Setting up NAT for Tailscale => $WG_IFACE"
 
                 # IPv4 NAT and forwarding rules
                 ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
@@ -162,9 +157,9 @@ let
               '';
             };
 
-            # Systemd service to configure Tailscale exit node
+            # im not entirely sure that this is needed
             systemd.services.tailscale-exit-setup = {
-              description = "Configure Tailscale exit node for ${city}";
+              description = "Configure Tailscale exit node";
               after = [
                 "network.target"
                 "mullvad-wireguard.service"
@@ -207,36 +202,30 @@ let
       };
     };
 
+  # exit node definitions
   exitNodes = [
     {
       name = "ashburn";
-      city = "qas";
-      country = "us";
       ipSuffix = 10;
     }
-    /*
-      {
-        name = "atlanta";
-        city = "atl";
-        country = "us";
-        ipSuffix = 11;
-      }
-    */
+    {
+      name = "atlanta";
+      ipSuffix = 11;
+    }
   ];
-
 in
 {
-  # Create containers for each exit node
+  # create the actual containers for each exit node
   containers = builtins.listToAttrs (map mkMullvadExitNode exitNodes);
 
-  # Enable NAT for container network
+  # enable NAT for container network
   networking.nat = {
     enable = true;
     internalInterfaces = [ "ve-+" ];
     externalInterface = "ens3";
   };
 
-  # Enable IP forwarding
+  # enable IP forwarding
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = 1;
     "net.ipv6.conf.all.forwarding" = 1;
