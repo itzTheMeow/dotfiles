@@ -1,9 +1,4 @@
-{
-  pkgs,
-  lib,
-  inputs,
-  ...
-}@extras:
+{ lib, ... }:
 let
   configDir = "/var/lib/mullvad-configs";
   mkMullvadExitNode =
@@ -28,27 +23,9 @@ let
         ];
 
         config =
-          { pkgs, lib, ... }:
+          { pkgs, ... }:
           {
             system.stateVersion = "25.11";
-
-            # Import home-manager for container
-            imports = [ inputs.home-manager.nixosModules.home-manager ];
-
-            # Configure home-manager for root user
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {
-              inherit (extras) xelib hostname;
-              isNixOS = true;
-              inherit inputs;
-            };
-            home-manager.sharedModules = [
-              inputs.catppuccin.homeModules.catppuccin
-              inputs.plasma-manager.homeModules.plasma-manager
-              inputs.opinject.homeManagerModules.default
-            ];
-            home-manager.users.root = import ../../../home/common;
 
             networking.firewall.enable = false;
             networking.useHostResolvConf = lib.mkForce false;
