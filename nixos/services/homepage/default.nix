@@ -33,7 +33,7 @@ lib.mkMerge [
         headerStyle = "boxed";
         target = "_self";
         theme = "dark";
-        color = "purple";
+        color = "stone";
         layout = {
           Media = {
             style = "columns";
