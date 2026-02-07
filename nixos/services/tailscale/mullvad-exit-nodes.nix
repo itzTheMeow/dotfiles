@@ -124,15 +124,67 @@ let
               '';
             };
 
+            # Setup NAT for Tailscale exit node traffic through Mullvad
+            systemd.services.mullvad-exit-nat = {
+              description = "NAT rules for Tailscale exit node via Mullvad";
+              after = [ "mullvad-wireguard.service" ];
+              requires = [ "mullvad-wireguard.service" ];
+              wantedBy = [ "multi-user.target" ];
+
+              serviceConfig = {
+                Type = "oneshot";
+                RemainAfterExit = true;
+              };
+
+              script = ''
+                # Get the WireGuard interface name
+                WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                
+                if [ -z "$WG_IFACE" ]; then
+                  echo "No WireGuard interface found"
+                  exit 1
+                fi
+
+                echo "Setting up NAT for Tailscale -> $WG_IFACE"
+
+                # NAT traffic from Tailscale through Mullvad VPN
+                ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
+
+                # Allow forwarding from Tailscale to Mullvad
+                ${pkgs.iptables}/bin/iptables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
+
+                # Allow established connections back
+                ${pkgs.iptables}/bin/iptables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+                echo "NAT rules configured successfully"
+              '';
+
+              preStop = ''
+                # Get the WireGuard interface name
+                WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                
+                if [ -n "$WG_IFACE" ]; then
+                  echo "Removing NAT rules for $WG_IFACE"
+                  ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
+                  ${pkgs.iptables}/bin/iptables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
+                  ${pkgs.iptables}/bin/iptables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
+                fi
+              '';
+            };
+
             # Systemd service to configure Tailscale exit node
             systemd.services.tailscale-exit-setup = {
               description = "Configure Tailscale exit node for ${city}";
               after = [
                 "network.target"
                 "mullvad-wireguard.service"
+                "mullvad-exit-nat.service"
                 "tailscaled.service"
               ];
-              requires = [ "mullvad-wireguard.service" ];
+              requires = [
+                "mullvad-wireguard.service"
+                "mullvad-exit-nat.service"
+              ];
               wantedBy = [ "multi-user.target" ];
 
               serviceConfig = {
