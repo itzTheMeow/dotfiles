@@ -10,6 +10,7 @@
     ./common/headless.nix
     ./common/media-center.nix
 
+    ./services/nginx
     ./services/ssh
     ./services/tailscale
     ./services/step-ca
@@ -26,18 +27,6 @@
 
   networking.hostName = hostname;
   networking.networkmanager.enable = true;
-  networking.firewall.allowedTCPPorts = [
-    80
-    443
-  ];
-
-  # Enable and configure Nginx
-  services.nginx = {
-    enable = true;
-    recommendedProxySettings = true;
-    recommendedTlsSettings = true;
-    clientMaxBodySize = "1g";
-  };
 
   users.users.${host.username} = {
     isNormalUser = true;
