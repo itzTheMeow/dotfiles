@@ -30,6 +30,11 @@ let
             system.stateVersion = "25.11";
 
             networking.firewall.enable = false;
+
+            # Disable systemd-resolved (not available in containers)
+            services.resolved.enable = false;
+
+            # Use manual DNS configuration
             networking.resolvconf.enable = true;
             networking.useHostResolvConf = lib.mkForce false;
 
@@ -48,7 +53,7 @@ let
 
             # Enable Tailscale
             services.tailscale.enable = true;
-            services.tailscale.useRoutingFeatures = "server";
+            services.tailscale.useRoutingFeatures = "both";
 
             # Systemd service to setup Mullvad WireGuard
             systemd.services.mullvad-wireguard = {
