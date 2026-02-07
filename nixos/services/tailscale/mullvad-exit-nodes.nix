@@ -41,6 +41,7 @@ let
 
             environment.systemPackages = with pkgs; [
               # actually needed
+              openresolv
               tailscale
               wireguard-tools
               # debug
