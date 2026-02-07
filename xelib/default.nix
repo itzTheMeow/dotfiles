@@ -1,4 +1,8 @@
-pkgs: rec {
+pkgs:
+let
+  lib = pkgs.lib;
+in
+rec {
   # import globals
   globals = import ./globals.nix;
 
@@ -26,7 +30,7 @@ pkgs: rec {
       firstChar = builtins.substring 0 1 str;
       rest = builtins.substring 1 (builtins.stringLength str) str;
     in
-    (pkgs.lib.strings.toUpper firstChar) + rest;
+    (lib.strings.toUpper firstChar) + rest;
 
   # convert an attr set to toml
   toTOMLFile = (pkgs.formats.toml { }).generate;
@@ -50,9 +54,9 @@ pkgs: rec {
           extraOptions ? { },
         }:
         let
-          keyName = pkgs.lib.strings.stringAsChars (
-            c: if builtins.match "[a-z0-9]" c != null then c else ""
-          ) (pkgs.lib.strings.toLower name);
+          keyName = lib.strings.stringAsChars (c: if builtins.match "[a-z0-9]" c != null then c else "") (
+            lib.strings.toLower name
+          );
         in
         {
           inherit host keyName;
@@ -161,37 +165,39 @@ pkgs: rec {
       proxyWebsockets ? true,
     }:
     {
-      services.nginx.virtualHosts."${domain}" = {
-        forceSSL = true;
-        useACMEHost = domain;
-        locations."/" = {
-          proxyPass = target;
-          inherit proxyWebsockets;
+      services.nginx.virtualHosts."${domain}" = lib.mkMerge [
+        {
+          forceSSL = true;
+          useACMEHost = domain;
+          locations."/" = {
+            proxyPass = target;
+            inherit proxyWebsockets;
+          }
+          // (
+            if useLocalCA then
+              {
+                extraConfig = ''
+                  # local domains dont have a body size limit
+                  client_max_body_size 0;
+
+                  # allow Tailscale IP ranges
+                  allow 100.64.0.0/10;
+                  allow fd7a:115c:a1e0::/48;
+
+                  # allow local ips
+                  allow 127.0.0.1;
+                  allow ::1;
+
+                  # block all other traffic
+                  deny all;
+                '';
+              }
+            else
+              { }
+          );
         }
-        // (
-          if useLocalCA then
-            {
-              extraConfig = ''
-                # local domains dont have a body size limit
-                client_max_body_size 0;
-
-                # allow Tailscale IP ranges
-                allow 100.64.0.0/10;
-                allow fd7a:115c:a1e0::/48;
-
-                # allow local ips
-                allow 127.0.0.1;
-                allow ::1;
-
-                # block all other traffic
-                deny all;
-              '';
-            }
-          else
-            { }
-        );
-      }
-      // extraConfig;
+        extraConfig
+      ];
 
       # create cert for this domain
       security.acme.certs."${domain}" = {
