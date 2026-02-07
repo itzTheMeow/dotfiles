@@ -55,6 +55,11 @@
   };
 
   services = {
+    headscale = {
+      host = "ehrman";
+      port = "18888";
+      domain = "pond.whenducksfly.com";
+    };
     homepage = {
       host = "hyzenberg";
       port = 50983;

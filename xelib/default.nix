@@ -32,6 +32,9 @@ rec {
     in
     (lib.strings.toUpper firstChar) + rest;
 
+  # check if a domain is local (.xela or .internal)
+  isLocalDomain = domain: builtins.match ".+\\.(xela|internal)$" domain != null;
+
   # convert an attr set to toml
   toTOMLFile = (pkgs.formats.toml { }).generate;
   # convert an attr set to env file
@@ -160,7 +163,7 @@ rec {
     domain: target:
     {
       # if domain is .xela or .internal, then automatically use the local ca
-      useLocalCA ? (builtins.match ".+\\.(xela|internal)$" domain != null),
+      useLocalCA ? (isLocalDomain domain),
       extraConfig ? { },
       proxyWebsockets ? true,
     }:

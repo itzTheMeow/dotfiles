@@ -16,6 +16,9 @@
 
     ./services/ssh
     ./services/tailscale
+
+    # specific to this host
+    ./services/headscale
     ./services/tailscale/mullvad-exit-nodes.nix
   ];
 
