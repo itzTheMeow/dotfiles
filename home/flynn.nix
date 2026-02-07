@@ -10,6 +10,14 @@ let
   sshConfig = import ./common/ssh.nix { inherit pkgs xelib; };
 
   gtk2rcPath = "gtk-2.0/gtkrc"; # custom path for gtk 2 rc file
+
+  # shorthand to create a remote view for a specific defined host
+  mkHostRemoteView =
+    name:
+    let
+      host = xelib.hosts.${name};
+    in
+    xelib.mkRemoteView (xelib.toTitleCase name) "fish://${host.username}@${host.ip}:${toString host.ports.ssh}/home/${host.username}";
 in
 {
   imports = [
@@ -95,6 +103,7 @@ in
     # remote views
     // xelib.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
     // xelib.mkRemoteView "Hyzenberg New" "fish://${xelib.hosts.hyzenberg.username}@${xelib.hosts.hyzenberg.ip}:${builtins.toString xelib.hosts.hyzenberg.ports.ssh}/home/walt"
+    // mkHostRemoteView "ehrman"
     // xelib.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
     // xelib.mkRemoteView "NVSTly SSD" "fish://th@pi.nvst.ng:22/home/th/mnt/ssd"
     // xelib.mkRemoteView "odroid" "fish://odroid@odroid.nvst.ng:2222/"
