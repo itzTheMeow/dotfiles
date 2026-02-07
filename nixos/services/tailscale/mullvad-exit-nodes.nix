@@ -59,11 +59,12 @@ let
 
                 echo "Initializing Tailscale exit node..."
                 ${pkgs.tailscale}/bin/tailscale up \
-                  --authkey="$1" \
                   --accept-dns=false \
+                  --accept-routes=false \
                   --advertise-exit-node \
-                  --hostname="mullvad-${name}" \
-                  --login-server=https://pond.whenducksfly.com
+                  --hostname="mullvad-ashburn" \
+                  --login-server=https://pond.whenducksfly.com \
+                  --authkey="$1"
 
                 echo "Tailscale exit node configured successfully!"
               '')
