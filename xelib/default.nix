@@ -206,6 +206,7 @@ rec {
       security.acme.certs."${domain}" = {
         email = "ca@xela.codes";
         webroot = "/var/lib/acme/acme-challenge";
+        group = "nginx";
       }
       // (
         # use the custom ACME server
@@ -214,7 +215,6 @@ rec {
             server = "https://${
               hosts.${services.step-ca.host}.ip
             }:${toString services.step-ca.port}/acme/acme/directory";
-            group = "nginx";
           }
         else
           { }
