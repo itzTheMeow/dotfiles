@@ -167,81 +167,57 @@ rec {
       extraConfig ? { },
       proxyWebsockets ? true,
     }:
-    lib.mkMerge [
-      {
-        services.nginx.virtualHosts."${domain}" = lib.mkMerge [
-          {
-            forceSSL = true;
-            useACMEHost = domain;
-            locations."/" = {
-              proxyPass = target;
-              inherit proxyWebsockets;
-            }
-            // (
-              if useLocalCA then
-                {
-                  extraConfig = ''
-                    # local domains dont have a body size limit
-                    client_max_body_size 0;
-
-                    # allow Tailscale IP ranges
-                    allow 100.64.0.0/10;
-                    allow fd7a:115c:a1e0::/48;
-
-                    # allow local ips
-                    allow 127.0.0.1;
-                    allow ::1;
-
-                    # block all other traffic
-                    deny all;
-                  '';
-                }
-              else
-                { }
-            );
+    {
+      services.nginx.virtualHosts."${domain}" = lib.mkMerge [
+        {
+          forceSSL = true;
+          useACMEHost = domain;
+          locations."/" = {
+            proxyPass = target;
+            inherit proxyWebsockets;
           }
-          extraConfig
-        ];
-
-        # create cert for this domain
-        security.acme.certs."${domain}" = {
-          email = "ca@xela.codes";
-          webroot = "/var/lib/acme/acme-challenge";
-          group = "nginx";
-        }
-        // (
-          # use the custom ACME server
-          if useLocalCA then
-            {
-              server = "https://${
-                hosts.${services.step-ca.host}.ip
-              }:${toString services.step-ca.port}/acme/acme/directory";
-            }
-          else
-            { }
-        );
-      }
-      # for public domains, add HTTP vhost for ACME challenges
-      (lib.mkIf (!useLocalCA) {
-        /*
-          services.nginx.virtualHosts."${domain}-acme" = {
-            serverName = domain;
-            listen = [
+          // (
+            if useLocalCA then
               {
-                addr = "0.0.0.0";
-                port = 80;
+                extraConfig = ''
+                  # local domains dont have a body size limit
+                  client_max_body_size 0;
+
+                  # allow Tailscale IP ranges
+                  allow 100.64.0.0/10;
+                  allow fd7a:115c:a1e0::/48;
+
+                  # allow local ips
+                  allow 127.0.0.1;
+                  allow ::1;
+
+                  # block all other traffic
+                  deny all;
+                '';
               }
-            ];
-            locations."/.well-known/acme-challenge/" = {
-              alias = "/var/lib/acme/acme-challenge/.well-known/acme-challenge/";
-            };
-            locations."/" = {
-              return = "301 https://$host$request_uri";
-            };
-          };
-        */
-        # add nginx user to acme group so it can read challenge files
-        users.users.nginx.extraGroups = [ "acme" ];
-      })
-    ];
+            else
+              { }
+          );
+        }
+        extraConfig
+      ];
+
+      # create cert for this domain
+      security.acme.certs."${domain}" = {
+        email = "ca@xela.codes";
+        webroot = "/var/lib/acme/acme-challenge";
+        group = "nginx";
+      }
+      // (
+        # use the custom ACME server
+        if useLocalCA then
+          {
+            server = "https://${
+              hosts.${services.step-ca.host}.ip
+            }:${toString services.step-ca.port}/acme/acme/directory";
+          }
+        else
+          { }
+      );
+    };
 }
