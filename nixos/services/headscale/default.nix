@@ -23,7 +23,7 @@ in
       dns = {
         magic_dns = true;
         base_domain = xelib.services.homepage.domain; # base domain is the home page
-        override_local_dns = true;
+        override_local_dns = false;
         extra_records = [
           {
             name = "nvstly.internal";
