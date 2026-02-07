@@ -4,7 +4,6 @@ let
   mkMullvadExitNode =
     {
       name,
-      city,
       ipSuffix,
     }:
     {
@@ -41,7 +40,7 @@ let
             networking.nameservers = [ "10.64.0.1" ];
 
             environment.systemPackages = with pkgs; [
-              openresolv
+              # actually needed
               tailscale
               wireguard-tools
               # debug
@@ -49,6 +48,24 @@ let
               iptables
               net-tools
               tcpdump
+
+              # init script
+              (pkgs.writeShellScriptBin "tailscale-init" ''
+                if [ -z "$1" ]; then
+                  echo "Usage: tailscale-init <authkey>"
+                  exit 1
+                fi
+
+                echo "Initializing Tailscale exit node..."
+                ${pkgs.tailscale}/bin/tailscale up \
+                  --authkey="$1" \
+                  --accept-dns=false \
+                  --advertise-exit-node \
+                  --hostname="mullvad-${name}" \
+                  --login-server=https://pond.whenducksfly.com
+
+                echo "Tailscale exit node configured successfully!"
+              '')
             ];
 
             services.tailscale.enable = true;
@@ -57,7 +74,7 @@ let
             # set up Mullvad WireGuard connection
             # put Mullvad configs in /var/lib/mullvad-configs/*.conf (configDir)
             systemd.services.mullvad-wireguard = {
-              description = "Mullvad WireGuard VPN for ${city}";
+              description = "Mullvad WireGuard VPN";
               after = [ "network-pre.target" ];
               before = [ "network.target" ];
               wants = [ "network-pre.target" ];
@@ -153,48 +170,6 @@ let
                   ${pkgs.iptables}/bin/ip6tables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
                   ${pkgs.iptables}/bin/ip6tables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
                   ${pkgs.iptables}/bin/ip6tables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
-                fi
-              '';
-            };
-
-            # im not entirely sure that this is needed
-            systemd.services.tailscale-exit-setup = {
-              description = "Configure Tailscale exit node";
-              after = [
-                "network.target"
-                "mullvad-wireguard.service"
-                "mullvad-exit-nat.service"
-                "tailscaled.service"
-              ];
-              requires = [
-                "mullvad-wireguard.service"
-                "mullvad-exit-nat.service"
-              ];
-              wantedBy = [ "multi-user.target" ];
-
-              serviceConfig = {
-                Type = "oneshot";
-                RemainAfterExit = true;
-                Restart = "on-failure";
-                RestartSec = "10s";
-              };
-
-              script = ''
-                # Wait for Tailscale daemon
-                for i in {1..30}; do
-                  if ${pkgs.tailscale}/bin/tailscale status &> /dev/null 2>&1 || \
-                     ${pkgs.tailscale}/bin/tailscale status 2>&1 | grep -q "Logged out"; then
-                    break
-                  fi
-                  sleep 1
-                done
-
-                # Configure Tailscale as exit node
-                if ! ${pkgs.tailscale}/bin/tailscale status &> /dev/null; then
-                  echo "Tailscale not authenticated. Run: tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com"
-                else
-                  ${pkgs.tailscale}/bin/tailscale up --accept-routes=false --accept-dns=false --advertise-exit-node --login-server=https://pond.whenducksfly.com || true
-                  echo "Tailscale exit node configured for ${city} via Mullvad"
                 fi
               '';
             };
