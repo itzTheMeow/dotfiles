@@ -50,6 +50,7 @@ let
               iptables
               tcpdump
               net-tools
+              dig
             ];
 
             # WireGuard will be configured dynamically from configs
