@@ -94,26 +94,6 @@ let
                 # Start WireGuard with the selected config
                 ${pkgs.wireguard-tools}/bin/wg-quick up "$RANDOM_CONFIG"
               '';
-              /*
-                  # Add iptables rule to allow Tailscale control connections before the killswitch
-                  # This ensures Tailscale can authenticate even with killswitch active
-                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-                  if [ -n "$WG_IFACE" ]; then
-                    # Allow DNS to Mullvad's DNS server (required for DNS resolution)
-                    ${pkgs.iptables}/bin/iptables -I OUTPUT 1 -d 10.64.0.1 -j ACCEPT
-
-                    # Allow Tailscale control server
-                    ${pkgs.iptables}/bin/iptables -I OUTPUT 1 -p tcp --dport 443 -d 5.161.177.144 -j ACCEPT
-
-                    # Add MSS clamping to prevent MTU issues
-                    # Clamp MSS to 1380 (1420 WG MTU - 40 bytes for IP/TCP headers)
-                    ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-                    ${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-
-                    echo "Added iptables exceptions for DNS and Tailscale control server"
-                  fi
-                '';
-              */
 
               preStop = ''
                 # Find and stop any active WireGuard interfaces
@@ -139,7 +119,7 @@ let
               script = ''
                 # Get the WireGuard interface name
                 WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-                
+
                 if [ -z "$WG_IFACE" ]; then
                   echo "No WireGuard interface found"
                   exit 1
@@ -156,13 +136,18 @@ let
                 # Allow established connections back
                 ${pkgs.iptables}/bin/iptables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 
+                # Add MSS clamping to prevent MTU issues
+                # Clamp MSS to 1380 (1420 WG MTU - 40 bytes for IP/TCP headers)
+                ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+                ${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
                 echo "NAT rules configured successfully"
               '';
 
               preStop = ''
                 # Get the WireGuard interface name
                 WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-                
+
                 if [ -n "$WG_IFACE" ]; then
                   echo "Removing NAT rules for $WG_IFACE"
                   ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
