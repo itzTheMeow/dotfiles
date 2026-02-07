@@ -42,7 +42,6 @@ let
               inherit (extras) xelib hostname;
               isNixOS = true;
               inherit inputs;
-              inherit (extras) home-manager;
             };
             home-manager.sharedModules = [
               inputs.catppuccin.homeModules.catppuccin
