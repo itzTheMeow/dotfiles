@@ -47,6 +47,7 @@ let
               # debug
               dig
               iptables
+              iputils
               net-tools
               tcpdump
 
@@ -173,6 +174,67 @@ let
                   ${pkgs.iptables}/bin/ip6tables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
                   ${pkgs.iptables}/bin/ip6tables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
                 fi
+              '';
+            };
+
+            # Health check and auto-recovery for Mullvad WireGuard
+            systemd.services.mullvad-health-check = {
+              description = "Mullvad WireGuard Health Check";
+              after = [ "mullvad-wireguard.service" ];
+              requires = [ "mullvad-wireguard.service" ];
+              wantedBy = [ "multi-user.target" ];
+
+              serviceConfig = {
+                Type = "simple";
+                Restart = "always";
+                RestartSec = "30s";
+              };
+
+              script = ''
+                echo "Starting Mullvad health check service..."
+
+                while true; do
+                  # Wait between checks
+                  sleep 60
+                  
+                  # Check if WireGuard interface is up
+                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                  
+                  if [ -z "$WG_IFACE" ]; then
+                    echo "ERROR: No WireGuard interface found. Restarting mullvad-wireguard service..."
+                    systemctl restart mullvad-wireguard.service
+                    sleep 1
+                    systemctl restart mullvad-exit-nat.service
+                    continue
+                  fi
+                  
+                  # Check if interface has received data recently (handshake is active)
+                  HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes | awk '{print $2}')
+                  CURRENT_TIME=$(date +%s)
+                  
+                  if [ -n "$HANDSHAKE" ]; then
+                    TIME_SINCE_HANDSHAKE=$((CURRENT_TIME - HANDSHAKE))
+                    
+                    # If no handshake in the last 3 minutes, connection is likely dead
+                    if [ "$TIME_SINCE_HANDSHAKE" -gt 180 ]; then
+                      echo "WARNING: No handshake in $TIME_SINCE_HANDSHAKE seconds. Connection may be dead."
+                    fi
+                  fi
+                  
+                  # Perform connectivity test - try to ping Mullvad's DNS
+                  if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 -I "$WG_IFACE" 10.64.0.1 &>/dev/null; then
+                    echo "ERROR: Ping to Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
+                    
+                    # Restart mullvad-wireguard which will pick a new random config
+                    systemctl restart mullvad-wireguard.service
+                    sleep 1
+                    systemctl restart mullvad-exit-nat.service
+                    
+                    echo "Switched to new Mullvad server config"
+                  else
+                    echo "Health check passed - connection is healthy"
+                  fi
+                done
               '';
             };
           };
