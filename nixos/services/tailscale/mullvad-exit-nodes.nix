@@ -74,6 +74,39 @@ let
             services.tailscale.enable = true;
             services.tailscale.useRoutingFeatures = "both";
 
+            # optimize UDP forwarding performance for Tailscale exit nodes
+            # > Warning: UDP GRO forwarding is suboptimally configured on eth0, UDP forwarding throughput capability will increase with a configuration change.
+            # > See https://tailscale.com/s/ethtool-config-udp-gro
+            systemd.services.tailscale-udp-gro = {
+              description = "Optimize UDP GRO forwarding for Tailscale";
+              after = [
+                "network-online.target"
+                "tailscale.service"
+              ];
+              wants = [ "network-online.target" ];
+              wantedBy = [ "multi-user.target" ];
+
+              serviceConfig = {
+                Type = "oneshot";
+                RemainAfterExit = true;
+              };
+
+              script = ''
+                # Get the main network interface (the one with default route to internet)
+                NETDEV=$(${pkgs.iproute2}/bin/ip -o route get 8.8.8.8 | ${pkgs.gawk}/bin/awk '{print $5}')
+
+                if [ -z "$NETDEV" ]; then
+                  echo "Could not determine network interface"
+                  exit 1
+                fi
+
+                echo "Optimizing UDP GRO forwarding on interface: $NETDEV"
+                ${pkgs.ethtool}/bin/ethtool -K "$NETDEV" rx-udp-gro-forwarding on rx-gro-list off
+
+                echo "UDP GRO forwarding optimization applied successfully"
+              '';
+            };
+
             # set up Mullvad WireGuard connection
             # put Mullvad configs in /var/lib/mullvad-configs/*.conf (configDir)
             systemd.services.mullvad-wireguard = {
