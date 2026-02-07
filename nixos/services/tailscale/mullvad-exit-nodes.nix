@@ -30,13 +30,13 @@ let
             system.stateVersion = "25.11";
 
             networking.firewall.enable = false;
-
-            # Disable systemd-resolved (not available in containers)
-            services.resolved.enable = false;
-
-            # Use manual DNS configuration
-            networking.resolvconf.enable = true;
             networking.useHostResolvConf = lib.mkForce false;
+
+            services.resolved.enable = true;
+            services.resolved.extraConfig = ''
+              DNS=10.64.0.1
+              DNSStubListener=yes
+            '';
 
             # Forward DNS queries to Mullvad's DNS
             networking.nameservers = [ "10.64.0.1" ];
