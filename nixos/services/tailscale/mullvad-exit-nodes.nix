@@ -63,7 +63,7 @@ let
                   --accept-dns=false \
                   --accept-routes=false \
                   --advertise-exit-node \
-                  --hostname="mullvad-ashburn" \
+                  --hostname="mullvad-${name}" \
                   --login-server=https://pond.whenducksfly.com \
                   --authkey="$1"
 
