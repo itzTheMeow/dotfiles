@@ -146,10 +146,18 @@ let
               '';
 
               preStop = ''
-                # Find and stop any active WireGuard interfaces
-                for iface in $(${pkgs.wireguard-tools}/bin/wg show interfaces); do
-                  echo "Stopping WireGuard interface: $iface"
-                  ${pkgs.wireguard-tools}/bin/wg-quick down "$iface" 2>/dev/null || true
+                CONFIG_DIR="${configDir}"
+
+                # Stop all active WireGuard interfaces using their config files
+                for iface in $(${pkgs.wireguard-tools}/bin/wg show interfaces 2>/dev/null); do
+                  CONFIG="$CONFIG_DIR/$iface.conf"
+                  if [ -f "$CONFIG" ]; then
+                    echo "Stopping WireGuard interface $iface using config: $(basename "$CONFIG")"
+                    ${pkgs.wireguard-tools}/bin/wg-quick down "$CONFIG" 2>/dev/null || true
+                  else
+                    echo "Config not found for interface $iface, removing interface directly"
+                    ${pkgs.iproute2}/bin/ip link delete dev "$iface" 2>/dev/null || true
+                  fi
                 done
               '';
             };
@@ -231,18 +239,18 @@ let
                   sleep 60
                   
                   # Check if WireGuard interface is up
-                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces 2>/dev/null | head -n1)
                   
                   if [ -z "$WG_IFACE" ]; then
                     echo "ERROR: No WireGuard interface found. Restarting mullvad-wireguard service..."
                     systemctl restart mullvad-wireguard.service
-                    sleep 1
+                    sleep 5
                     systemctl restart mullvad-exit-nat.service
                     continue
                   fi
                   
                   # Check if interface has received data recently (handshake is active)
-                  HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes | ${pkgs.gawk}/bin/awk '{print $2}')
+                  HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
                   CURRENT_TIME=$(date +%s)
                   
                   if [ -n "$HANDSHAKE" ]; then
@@ -255,12 +263,12 @@ let
                   fi
                   
                   # Perform connectivity test - try to ping Mullvad's DNS
-                  if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 -I "$WG_IFACE" 10.64.0.1 &>/dev/null; then
+                  if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 10.64.0.1 &>/dev/null; then
                     echo "ERROR: Ping to Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
                     
                     # Restart mullvad-wireguard which will pick a new random config
                     systemctl restart mullvad-wireguard.service
-                    sleep 1
+                    sleep 5
                     systemctl restart mullvad-exit-nat.service
                     
                     echo "Switched to new Mullvad server config"
