@@ -11,4 +11,6 @@
     80
     443
   ];
+  # add nginx user to acme group so it can read challenge files
+  users.users.nginx.extraGroups = [ "acme" ];
 }
