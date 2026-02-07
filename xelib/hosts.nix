@@ -57,7 +57,7 @@
   services = {
     headscale = {
       host = "ehrman";
-      port = "18888";
+      port = 18888;
       domain = "pond.whenducksfly.com";
     };
     homepage = {
