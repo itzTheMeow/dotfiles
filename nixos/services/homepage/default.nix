@@ -27,8 +27,9 @@ lib.mkMerge [
         base = "https://${svc.domain}";
         background = {
           image = "/background.jpeg";
-          blur = "sm";
+          blur = "xs";
         };
+        cardBlur = "sm";
         headerStyle = "boxed";
         target = "_self";
         theme = "dark";
