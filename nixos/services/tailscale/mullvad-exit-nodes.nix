@@ -209,7 +209,7 @@ let
                   fi
                   
                   # Check if interface has received data recently (handshake is active)
-                  HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes | awk '{print $2}')
+                  HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes | ${pkgs.gawk}/bin/awk '{print $2}')
                   CURRENT_TIME=$(date +%s)
                   
                   if [ -n "$HANDSHAKE" ]; then
