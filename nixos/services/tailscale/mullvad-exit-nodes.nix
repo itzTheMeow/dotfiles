@@ -121,7 +121,7 @@ let
               script = ''
                 # Get the WireGuard interface name
                 WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-
+                
                 if [ -z "$WG_IFACE" ]; then
                   echo "No WireGuard interface found"
                   exit 1
@@ -129,21 +129,17 @@ let
 
                 echo "Setting up NAT for Tailscale -> $WG_IFACE"
 
-                # NAT traffic from Tailscale through Mullvad VPN
+                # IPv4 NAT and forwarding rules
                 ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
-
-                # Allow forwarding from Tailscale to Mullvad
                 ${pkgs.iptables}/bin/iptables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
-
-                # Allow established connections back
                 ${pkgs.iptables}/bin/iptables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-                # Add MSS clamping to prevent MTU issues
-                # Clamp MSS to 1380 (1420 WG MTU - 40 bytes for IP/TCP headers)
-                #${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-                #${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+                # IPv6 NAT and forwarding rules
+                ${pkgs.iptables}/bin/ip6tables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
+                ${pkgs.iptables}/bin/ip6tables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
+                ${pkgs.iptables}/bin/ip6tables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-                echo "NAT rules configured successfully"
+                echo "NAT rules (IPv4 and IPv6) configured successfully"
               '';
 
               preStop = ''
@@ -152,9 +148,16 @@ let
 
                 if [ -n "$WG_IFACE" ]; then
                   echo "Removing NAT rules for $WG_IFACE"
+                  
+                  # IPv4 cleanup
                   ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
                   ${pkgs.iptables}/bin/iptables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
                   ${pkgs.iptables}/bin/iptables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
+                  
+                  # IPv6 cleanup
+                  ${pkgs.iptables}/bin/ip6tables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
+                  ${pkgs.iptables}/bin/ip6tables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
+                  ${pkgs.iptables}/bin/ip6tables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
                 fi
               '';
             };
