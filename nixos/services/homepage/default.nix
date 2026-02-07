@@ -25,7 +25,10 @@ lib.mkMerge [
       settings = {
         title = svc.domain;
         base = "https://${svc.domain}";
-        background = "/background.jpeg";
+        background = {
+          image = "/background.jpeg";
+          blur = "sm";
+        };
         headerStyle = "boxed";
         target = "_self";
         theme = "dark";
