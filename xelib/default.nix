@@ -223,21 +223,23 @@ rec {
       }
       # for public domains, add HTTP vhost for ACME challenges
       (lib.mkIf (!useLocalCA) {
-        services.nginx.virtualHosts."${domain}-acme" = {
-          serverName = domain;
-          listen = [
-            {
-              addr = "0.0.0.0";
-              port = 80;
-            }
-          ];
-          locations."/.well-known/acme-challenge/" = {
-            alias = "/var/lib/acme/acme-challenge/.well-known/acme-challenge/";
+        /*
+          services.nginx.virtualHosts."${domain}-acme" = {
+            serverName = domain;
+            listen = [
+              {
+                addr = "0.0.0.0";
+                port = 80;
+              }
+            ];
+            locations."/.well-known/acme-challenge/" = {
+              alias = "/var/lib/acme/acme-challenge/.well-known/acme-challenge/";
+            };
+            locations."/" = {
+              return = "301 https://$host$request_uri";
+            };
           };
-          locations."/" = {
-            return = "301 https://$host$request_uri";
-          };
-        };
+        */
         # add nginx user to acme group so it can read challenge files
         users.users.nginx.extraGroups = [ "acme" ];
       })
