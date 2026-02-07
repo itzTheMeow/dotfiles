@@ -231,8 +231,8 @@ rec {
               port = 80;
             }
           ];
-          locations."/.well-known/acme-challenge" = {
-            root = "/var/lib/acme/acme-challenge";
+          locations."/.well-known/acme-challenge/" = {
+            alias = "/var/lib/acme/acme-challenge/.well-known/acme-challenge/";
           };
           locations."/" = {
             return = "301 https://$host$request_uri";
