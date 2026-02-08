@@ -24,6 +24,7 @@
     auto-optimise-store = true;
   };
   nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
+  nix.channel.enable = false;
 
   # garbage collection for derivations
   nix.gc = {
