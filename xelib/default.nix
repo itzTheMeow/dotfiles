@@ -35,6 +35,8 @@ rec {
   # check if a domain is local (.xela or .internal)
   isLocalDomain = domain: builtins.match ".+\\.(xela|internal)$" domain != null;
 
+  # convert an attr set to yaml
+  toYAMLFile = (pkgs.formats.yaml { }).generate;
   # convert an attr set to toml
   toTOMLFile = (pkgs.formats.toml { }).generate;
   # convert an attr set to env file
