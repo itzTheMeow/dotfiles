@@ -94,4 +94,16 @@ lib.mkMerge [
   }
   (import ./headplane.nix inputs)
   (xelib.mkNginxProxy svc.domain "http://127.0.0.1:${toString svc.port}" { })
+  # 404 page for base domain
+  {
+    services.nginx.virtualHosts."whenducksfly.com" = {
+      enableACME = true;
+      locations."/" = {
+        return = "404 'NOT FOUND'";
+        extraConfig = ''
+          default_type text/plain;
+        '';
+      };
+    };
+  }
 ]
