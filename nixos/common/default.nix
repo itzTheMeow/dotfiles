@@ -74,7 +74,11 @@
   # configure ACME for cert management
   security.acme = {
     acceptTerms = true;
-    defaults.email = "ca@xela.codes";
+    defaults = {
+      email = "ca@xela.codes";
+      webroot = "/var/lib/acme/acme-challenge";
+      group = "nginx";
+    };
   };
 
   # disable root login password

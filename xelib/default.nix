@@ -205,21 +205,18 @@ rec {
       ];
 
       # create cert for this domain
-      security.acme.certs."${domain}" = {
-        email = "ca@xela.codes";
-        webroot = "/var/lib/acme/acme-challenge";
-        group = "nginx";
-      }
-      // (
-        # use the custom ACME server
-        if useLocalCA then
-          {
-            server = "https://${
-              hosts.${services.step-ca.host}.ip
-            }:${toString services.step-ca.port}/acme/acme/directory";
-          }
-        else
-          { }
-      );
+      security.acme.certs."${domain}" =
+        { }
+        // (
+          # use the custom ACME server
+          if useLocalCA then
+            {
+              server = "https://${
+                hosts.${services.step-ca.host}.ip
+              }:${toString services.step-ca.port}/acme/acme/directory";
+            }
+          else
+            { }
+        );
     };
 }
