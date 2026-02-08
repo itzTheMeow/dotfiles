@@ -3,16 +3,12 @@
   pkgs,
   xelib,
   ...
-}:
+}@inputs:
 let
   svc = xelib.services.headscale;
 in
 lib.mkMerge [
   {
-    imports = [
-      ./headplane.nix
-    ];
-
     # add the CLI
     environment.systemPackages = [ pkgs.headscale ];
 
@@ -96,5 +92,6 @@ lib.mkMerge [
       };
     };
   }
+  (import ./headplane.nix inputs)
   (xelib.mkNginxProxy svc.domain "http://127.0.0.1:${toString svc.port}" { })
 ]
