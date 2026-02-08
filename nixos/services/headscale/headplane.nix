@@ -59,5 +59,11 @@ lib.mkMerge [
       '';
     };
   }
-  (xelib.mkNginxProxy svc.domain "http://${IP}:${toString svc.port}" { })
+  (xelib.mkNginxProxy svc.domain "http://${IP}:${toString svc.port}" { 
+    extraLocationConfig = ''
+      if ($request_uri = /) {
+        return 302 /admin;
+      }
+    '';
+  })
 ]
