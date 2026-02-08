@@ -55,6 +55,11 @@
   };
 
   services = {
+    headplane = {
+      host = "ehrman";
+      port = 18889;
+      domain = "headplane.xela";
+    };
     headscale = {
       host = "ehrman";
       port = 18888;

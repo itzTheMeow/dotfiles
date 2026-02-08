@@ -9,6 +9,10 @@ let
 in
 lib.mkMerge [
   {
+    imports = [
+      ./headplane.nix
+    ];
+
     # add the CLI
     environment.systemPackages = [ pkgs.headscale ];
 
