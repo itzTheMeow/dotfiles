@@ -22,31 +22,28 @@
       url = "github:itzTheMeow/opinject";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    headplane = {
+      url = "github:tale/headplane";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     {
       catppuccin,
+      headplane,
       home-manager,
-      nixpkgs,
       nixpkgs-unstable,
+      nixpkgs,
       opinject,
       plasma-manager,
       ...
     }@inputs:
     let
-      # OS types
-      nixos = [
-        "x86_64-linux"
-        true
-      ];
-      linux = [
-        "x86_64-linux"
-        false
-      ];
-      darwin = [
-        "x86_64-darwin"
-        false
+      home-manager-modules = [
+        catppuccin.homeModules.catppuccin
+        plasma-manager.homeModules.plasma-manager
+        opinject.homeManagerModules.default
       ];
 
       mkHomeConfiguration =
@@ -57,14 +54,12 @@
         home-manager.lib.homeManagerConfiguration rec {
           pkgs = nixpkgs.legacyPackages.${builtins.elemAt system 0};
 
-          modules = [
+          modules = home-manager-modules ++ [
             {
               nixpkgs.config.allowUnfree = true;
-
               nixpkgs.overlays = [
-                # fix fish on macos
                 (
-                  final: prev:
+                  final: prev: # fixes fish on macos
                   if prev.stdenv.isDarwin then
                     {
                       fish = prev.fish.overrideAttrs (_: {
@@ -76,11 +71,6 @@
                 )
               ];
             }
-          ]
-          ++ [
-            catppuccin.homeModules.catppuccin
-            plasma-manager.homeModules.plasma-manager
-            opinject.homeManagerModules.default
             ./home/${hostname}.nix
           ];
 
@@ -101,7 +91,7 @@
       mkNixosConfiguration =
         hostname:
         let
-          system = builtins.elemAt nixos 0;
+          system = "x86_64-linux";
           pkgs = nixpkgs.legacyPackages.${system};
           xelib = import ./xelib pkgs;
 
@@ -119,6 +109,9 @@
             catppuccin.nixosModules.catppuccin
             ./nixos/${hostname}.nix
 
+            headplane.nixosModules.headplane
+            { nixpkgs.overlays = [ headplane.overlays.default ]; }
+
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
@@ -128,11 +121,7 @@
                 isNixOS = true;
               }
               // extras;
-              home-manager.sharedModules = [
-                catppuccin.homeModules.catppuccin
-                plasma-manager.homeModules.plasma-manager
-                opinject.homeManagerModules.default
-              ];
+              home-manager.sharedModules = home-manager-modules;
               home-manager.users.root = import ./home/common;
               home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
             }
@@ -143,7 +132,7 @@
     {
       homeConfigurations = {
         # non-nixos
-        macintosh = mkHomeConfiguration darwin "macintosh";
+        macintosh = mkHomeConfiguration "x86_64-darwin" "macintosh";
       };
 
       nixosConfigurations = {
