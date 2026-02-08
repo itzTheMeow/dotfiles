@@ -1,6 +1,7 @@
 {
   host,
   hostname,
+  inputs,
   pkgs,
   ...
 }:
@@ -22,6 +23,7 @@
     ];
     auto-optimise-store = true;
   };
+  nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
 
   # garbage collection for derivations
   nix.gc = {
