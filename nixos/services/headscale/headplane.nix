@@ -8,13 +8,6 @@
 let
   svc = xelib.services.headplane;
   headscale = xelib.services.headscale;
-  headscaleConfig = xelib.toYAMLFile "headscale.yml" (
-    lib.recursiveUpdate config.services.headscale.settings {
-      tls_cert_path = "/dev/null";
-      tls_key_path = "/dev/null";
-      policy.path = "/dev/null";
-    }
-  );
 
   IP = xelib.hosts.${svc.host}.ip;
   secretFile = "/var/lib/headplane/secret.txt";
@@ -32,7 +25,8 @@ lib.mkMerge [
         };
         headscale = {
           url = "https://${headscale.domain}";
-          config_path = "${headscaleConfig}";
+          config_path = "${xelib.toYAMLFile "headscale.yml" config.services.headscale.settings}";
+          config_strict = false;
         };
         integration.agent = {
           enabled = true;
