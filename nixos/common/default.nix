@@ -83,6 +83,7 @@
   environment.systemPackages = with pkgs; [
     # system-level utilities
     ## build tools
+    check
     gcc
     gnumake
 
