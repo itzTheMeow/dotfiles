@@ -1,3 +1,21 @@
 {
-  "makefile.configureOnOpen": false
+  "makefile.configureOnOpen": false,
+  "nix.serverSettings": {
+    "nixd": {
+      "nixpkgs": {
+        "expr": "import (builtins.getFlake (builtins.getEnv \"HOME\" + \"/.dotfiles\")).inputs.nixpkgs { }"
+      },
+      "formatting": {
+        "command": ["nixfmt"]
+      },
+      "options": {
+        "nixos": {
+          "expr": "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.flynn.options"
+        },
+        "home-manager": {
+          "expr": "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.flynn.options.home-manager.users.type.getSubOptions []"
+        }
+      }
+    }
+  }
 }
