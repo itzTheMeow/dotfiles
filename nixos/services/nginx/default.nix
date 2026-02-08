@@ -10,15 +10,16 @@
     # default catch-all host for random requests
     virtualHosts."_" = {
       default = true;
-      # Self-signed cert for the default HTTPS server
-      sslCertificate = "/var/lib/acme/default-cert/fullchain.pem";
-      sslCertificateKey = "/var/lib/acme/default-cert/key.pem";
       locations."/" = {
         return = "404 'NOT FOUND'";
         extraConfig = ''
           default_type text/plain;
         '';
       };
+      # Self-signed cert for the default HTTPS server
+      addSSL = true;
+      sslCertificate = "/var/lib/acme/default-cert/fullchain.pem";
+      sslCertificateKey = "/var/lib/acme/default-cert/key.pem";
     };
   };
 
