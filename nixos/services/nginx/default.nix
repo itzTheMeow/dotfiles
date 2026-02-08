@@ -1,4 +1,7 @@
 { pkgs, ... }:
+let
+  defaultCertDir = "/var/lib/acme/default-cert";
+in
 {
   # enable and configure NGINX
   services.nginx = {
@@ -16,14 +19,14 @@
           default_type text/plain;
         '';
       };
-      # Self-signed cert for the default HTTPS server
+      # add self-signed cert for SSL catch-all
       addSSL = true;
-      sslCertificate = "/var/lib/acme/default-cert/fullchain.pem";
-      sslCertificateKey = "/var/lib/acme/default-cert/key.pem";
+      sslCertificate = "${defaultCertDir}/fullchain.pem";
+      sslCertificateKey = "${defaultCertDir}/key.pem";
     };
   };
 
-  # Generate self-signed certificate for the default server
+  # generate a dummy 100-year cert for catchall requests
   systemd.services.nginx-default-cert = {
     description = "Generate self-signed certificate for nginx default server";
     wantedBy = [ "multi-user.target" ];
@@ -33,7 +36,7 @@
       RemainAfterExit = true;
     };
     script = ''
-      CERT_DIR="/var/lib/acme/default-cert"
+      CERT_DIR="${defaultCertDir}"
       mkdir -p "$CERT_DIR"
       if [ ! -f "$CERT_DIR/fullchain.pem" ]; then
         echo "Generating self-signed certificate for nginx default server..."
