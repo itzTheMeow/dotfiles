@@ -86,6 +86,7 @@
     check
     gcc
     gnumake
+    pkg-config
 
     ## nix-related
     home-manager
