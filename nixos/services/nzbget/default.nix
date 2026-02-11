@@ -7,7 +7,7 @@ lib.mkMerge [
   {
     # shared download directory
     systemd.tmpfiles.rules = [
-      "d /home/downloads 0777 root root -"
+      "d /home/downloads 0777 nzbget nzbget -"
     ];
 
     services.nzbget = {
