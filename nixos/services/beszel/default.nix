@@ -9,8 +9,8 @@ in
     host = xelib.hosts.${svc.host}.ip;
     port = svc.port;
     environment = {
-      DISABLE_PASSWORD_AUTH = true;
-      USER_CREATION = true;
+      DISABLE_PASSWORD_AUTH = "true";
+      USER_CREATION = "true";
     };
   };
 }
