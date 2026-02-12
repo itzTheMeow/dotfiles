@@ -34,8 +34,6 @@ in
   ];
 
   home = {
-    username = host.username;
-
     sessionVariables = {
       NTFY_TAGS = "meow-pc";
     };
