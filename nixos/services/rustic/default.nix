@@ -7,15 +7,15 @@ profileName:
 }:
 {
   # rustic backup scheduler
-  systemd.user.services.rustic-backup = {
+  systemd.services.rustic-backup = {
     description = "Rustic backup";
     environment = xelib.globals.environment;
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "${pkgs.zsh}/bin/zsh -c 'export PATH=/home/${host.username}/.nix-profile/bin:$PATH && ${pkgs.rustic}/bin/rustic -P ${profileName} backup'";
+      ExecStart = "${pkgs.zsh}/bin/zsh -c 'export PATH=/home/${host.username}/.nix-profile/bin:$PATH && HOME=/home/${host.username} RCLONE_CONFIG=/home/${host.username}/.config/rclone/rclone.conf ${pkgs.rustic}/bin/rustic -P ${profileName} backup'";
     };
   };
-  systemd.user.timers.rustic-backup = {
+  systemd.timers.rustic-backup = {
     description = "Rustic backup timer";
     wantedBy = [ "timers.target" ];
     timerConfig = {
