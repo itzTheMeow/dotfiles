@@ -31,6 +31,7 @@
     "elevator=none" # Disables OS-level disk scheduling (best for NVMe/Virtio)
     "amd_iommu=on" # Enables hardware-level VM isolation
     "amd_pstate=active" # Forces the modern AMD power driver for better boosting
+    "nomodeset" # Disable kernel modesetting for better compatibility in VMs
   ];
   powerManagement.cpuFreqGovernor = "performance";
   # For dedicated AMD power management:
@@ -41,6 +42,10 @@
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/f9e9c22e-5945-40b9-816e-34ce6d434995";
     fsType = "ext4";
+    options = [
+      "noatime"
+      "nodiratime"
+    ];
   };
 
   fileSystems."/boot" = {
