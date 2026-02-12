@@ -10,14 +10,16 @@
     ./common/headless.nix
     ./common/media-center.nix
 
+    ./services/beszel/agent.nix
     ./services/nginx
     ./services/ssh
     ./services/tailscale
-    ./services/step-ca
 
     # specific to this host
+    ./services/beszel
     ./services/nzbget
     ./services/servarr
+    ./services/step-ca
     ./services/homepage
   ];
 

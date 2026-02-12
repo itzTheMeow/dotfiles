@@ -24,6 +24,7 @@ in
     ./common
     ./common/desktop.nix
     ./programs/activitywatch
+    ./programs/beszel-agent
     ./programs/discordchatexporter
     ./programs/discord-rich-presence-plex
     ./programs/logisim
@@ -97,7 +98,6 @@ in
     # secrets
     // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
     // xelib.mkSecretFile ".config/ntfy/client.yml" "default-token: op://Private/ntfy/Access Tokens/hwqse4uueo5q5mh6ffik5oiyym"
-    // xelib.mkSecretFile ".local/share/beszel/env" "TOKEN=\"op://Private/xoznbnccpqcu2pbzonqxih2tba/password\""
     # opunattended secrets
     // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password"
     # remote views

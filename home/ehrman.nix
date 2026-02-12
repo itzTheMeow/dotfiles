@@ -8,11 +8,12 @@
   imports = [
     ./common
     ./common/headless.nix
+
+    ./programs/beszel-agent
   ];
 
   home = {
     username = host.username;
-    homeDirectory = "/home/${host.username}";
 
     sessionVariables = {
       NTFY_TAGS = hostname;

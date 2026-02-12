@@ -8,6 +8,7 @@
 {
   imports = [
     ./common
+    ./services/beszel/agent.nix
     ./services/tailscale
   ];
 
@@ -204,16 +205,6 @@
       OnCalendar = "05:00";
       Persistent = true;
     };
-  };
-
-  services.beszel.agent = {
-    enable = true;
-    environment = {
-      HUB_URL = "https://beszel.xela.codes";
-      KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEo5fZ+VvHWvO+ZfdALT36n9EyUNBoz7TgV/qnTHJ8cr";
-      LISTEN = "${xelib.hosts.flynn.ip}:${builtins.toString xelib.hosts.flynn.ports.beszel-agent}";
-    };
-    environmentFile = "/home/${host.username}/.local/share/beszel/env";
   };
 
   # Open ports in the firewall.

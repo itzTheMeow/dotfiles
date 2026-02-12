@@ -13,6 +13,7 @@
     ./common
     ./common/headless.nix
 
+    ./services/beszel/agent.nix
     ./services/nginx
     ./services/ssh
     ./services/tailscale
