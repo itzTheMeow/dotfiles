@@ -1,6 +1,7 @@
 profileName:
 {
   host,
+  hostname,
   pkgs,
   xelib,
   ...
@@ -16,6 +17,7 @@ profileName:
         "PATH=${home}/.nix-profile/bin:$PATH"
         "RCLONE_CONFIG=${home}/.config/rclone/rclone.conf"
         "NTFY_CONFIG=${home}/.config/ntfy/client.yml"
+        "NTFY_TAGS=${hostname}"
       ];
     in
     {
