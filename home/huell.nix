@@ -1,4 +1,4 @@
-{ host, ... }:
+{ ... }:
 {
   imports = [
     ./common
@@ -6,6 +6,6 @@
   ];
 
   home = {
-    username = host.username;
+    # ...
   };
 }

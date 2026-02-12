@@ -13,8 +13,6 @@
   ];
 
   home = {
-    username = host.username;
-
     sessionVariables = {
       NTFY_TAGS = hostname;
     };

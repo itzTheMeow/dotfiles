@@ -1,4 +1,4 @@
-{ pkgs, xelib, ... }:
+{ xelib, ... }:
 let
   username = "meow";
 in
@@ -10,6 +10,7 @@ in
   ];
 
   home = {
+    # todo since darwin
     inherit username;
     homeDirectory = "/Users/meow";
 
