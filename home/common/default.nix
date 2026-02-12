@@ -42,8 +42,8 @@ in
   );
 
   home = {
-    username = host.username;
-    homeDirectory = "/home/${host.username}";
+    #username = host.username;
+    #homeDirectory = "/home/${host.username}";
     stateVersion = "25.05"; # not to be changed
 
     packages = with pkgs; [

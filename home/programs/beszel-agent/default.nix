@@ -2,7 +2,7 @@
 {
   # write agent env file
   home.file = xelib.mkSecretFile ".local/share/beszel/env" (
-    builtins.readFile xelib.toENVFile {
+    xelib.toENVString {
       KEY = "op://Private/xoznbnccpqcu2pbzonqxih2tba/username";
       TOKEN = "op://Private/xoznbnccpqcu2pbzonqxih2tba/password";
     }

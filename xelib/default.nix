@@ -35,16 +35,16 @@ rec {
   # check if a domain is local (.xela or .internal)
   isLocalDomain = domain: builtins.match ".+\\.(xela|internal)$" domain != null;
 
+  # convert an attr set to env string
+  toENVString =
+    data: builtins.concatStringsSep "\n" (map (k: ''${k}="${data.${k}}"'') (builtins.attrNames data));
+
   # convert an attr set to yaml
   toYAMLFile = (pkgs.formats.yaml { }).generate;
   # convert an attr set to toml
   toTOMLFile = (pkgs.formats.toml { }).generate;
   # convert an attr set to env file
-  toENVFile =
-    name: data:
-    pkgs.writeText name (
-      builtins.concatStringsSep "\n" (map (k: ''${k}="${data.${k}}"'') (builtins.attrNames data))
-    );
+  toENVFile = name: data: pkgs.writeText name (toENVString data);
 
   # make an ssh config entry
   mkSSHConfig =
