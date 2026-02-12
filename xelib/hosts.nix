@@ -25,6 +25,7 @@
       ip = "100.64.0.3";
       accent = "#f38ba8"; # Red
       ports = {
+        beszel-agent = 59835;
         ssh = 12896;
       };
     };
@@ -34,6 +35,7 @@
       ip = "100.64.0.10";
       accent = "#89dceb"; # Sky
       ports = {
+        beszel-agent = 61753;
         ssh = 39877;
       };
     };
@@ -55,6 +57,11 @@
   };
 
   services = {
+    beszel = {
+      host = "hyzenberg";
+      port = 48976;
+      domain = "beszel.xela";
+    };
     headplane = {
       host = "ehrman";
       port = 18889;
