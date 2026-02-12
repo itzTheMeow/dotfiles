@@ -9,11 +9,11 @@ profileName:
   # rustic backup scheduler
   systemd.services.rustic-backup =
     let
-      home = /home/${host.username};
+      home = "/home/${host.username}";
       env = [
         # define these so rustic will work properly off of the user config
-        "PATH=${home}/.nix-profile/bin:$PATH"
         "HOME=${home}"
+        "PATH=${home}/.nix-profile/bin:$PATH"
         "RCLONE_CONFIG=${home}/.config/rclone/rclone.conf"
         "NTFY_CONFIG=${home}/.config/ntfy/client.yml"
       ];
