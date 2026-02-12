@@ -173,8 +173,32 @@ in
         };
       };
     };
+
+    # temporary new machine
+    "rustic/hyzen2.toml".source = xelib.toTOMLFile "hyzen2.toml" {
+      global = {
+        use-profiles = [ "default" ];
+      };
+      repository = {
+        repository = "${pCloudPath}/Misc/Backups/rustic";
+        password-command = "opunattended op://Private/6z2tlumg4aiznrno7mnryjunsq/password";
+      };
+      backup = {
+        host = "hyzenberg";
+        glob-files = [
+          ./globs/default.glob
+        ];
+        snapshots = [
+          {
+            sources = [ "/" ];
+          }
+        ];
+      };
+    };
   }
   // mkConfig "meow-pc" true "op://Private/6z2tlumg4aiznrno7mnryjunsq/password" "/" { }
+  // mkConfig "ehrman" true "op://Private/6z2tlumg4aiznrno7mnryjunsq/password" "/" { }
+
   // mkConfig "hyzenberg" false "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" "/" { }
   // mkConfig "macintosh" false "op://Private/o7hdiy7mwdifj2k7dmvq2qbl6a/password" "/" { }
   // mkConfig "ipad" false "op://Private/7kaur74rgd5da4kfcabgy3ahb4/password" "/mnt/ipad" {

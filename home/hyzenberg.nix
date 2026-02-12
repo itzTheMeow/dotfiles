@@ -1,5 +1,4 @@
 {
-  host,
   hostname,
   xelib,
   xelpkgs,
@@ -25,8 +24,8 @@
     file =
       { }
       # secrets
-      // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/eka63wejfdkiypenxptm6xky54/public key";
-    # opunattended secrets
-    #// xelib.mkOPUnattendedSecret "op://Private/fxxd4a76am6kr6okubzdohp3nm/password";
+      // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/eka63wejfdkiypenxptm6xky54/public key"
+      # opunattended secrets
+      // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password";
   };
 }

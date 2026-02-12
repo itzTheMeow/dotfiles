@@ -15,6 +15,7 @@
 
     ./services/beszel/agent.nix
     ./services/nginx
+    (import ./services/rustic hostname)
     ./services/ssh
     ./services/tailscale
 
