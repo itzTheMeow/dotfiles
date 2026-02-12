@@ -9,6 +9,7 @@
   imports = [
     ./common
     ./services/beszel/agent.nix
+    (import ./services/rustic "meow-pc")
     ./services/tailscale
   ];
 
@@ -188,30 +189,6 @@
   };
 
   services.openssh.enable = true;
-
-  # rustic backup scheduler
-  systemd.user.services.rustic-backup = {
-    description = "Rustic backup";
-    environment = xelib.globals.environment;
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.zsh}/bin/zsh -c 'export PATH=/home/${host.username}/.nix-profile/bin:$PATH && ${pkgs.rustic}/bin/rustic -P meow-pc backup'";
-    };
-  };
-  systemd.user.timers.rustic-backup = {
-    description = "Rustic backup timer";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "05:00";
-      Persistent = true;
-    };
-  };
-
-  # Open ports in the firewall.
-  #networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
   systemd.tmpfiles.rules = [
     "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"

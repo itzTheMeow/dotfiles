@@ -1,3 +1,6 @@
+let
+  EVERY_6H = "*-*-* 00,06,12,18:00:00";
+in
 {
   hosts = {
     # HP Laptop
@@ -8,6 +11,7 @@
       ports = {
         beszel-agent = 45876;
       };
+      backupFrequency = "05:00";
     };
     # Intel Compute Stick
     pete = {
@@ -17,6 +21,7 @@
       ports = {
         ssh = 40938;
       };
+      backupFrequency = EVERY_6H;
     };
 
     # Main Server
@@ -28,6 +33,7 @@
         beszel-agent = 59835;
         ssh = 12896;
       };
+      backupFrequency = EVERY_6H;
     };
     # Proxy Server
     ehrman = {
@@ -38,6 +44,7 @@
         beszel-agent = 61753;
         ssh = 39877;
       };
+      backupFrequency = EVERY_6H;
     };
 
     # NetroHost VM
@@ -48,6 +55,7 @@
       ports = {
         ssh = 22;
       };
+      backupFrequency = EVERY_6H;
     };
 
     # mac, needs organized
