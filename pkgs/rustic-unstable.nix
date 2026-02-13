@@ -5,19 +5,18 @@
   rustPlatform,
   installShellFiles,
 }:
-
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   pname = "rustic-unstable";
-  version = "unstable-2025-01-17";
+  version = "unstable-2025-02-12";
 
   src = fetchFromGitHub {
     owner = "rustic-rs";
     repo = "rustic";
-    rev = "1d75ad8e2f8bf7707b6a27436d1af1366d2968da";
-    hash = "sha256-yzSFV4IDKXtVQbdwiRKuy07d0gunYmXmLkaIXDidm+s=";
+    rev = "9820d6ad9fa524305c941736c21f37a043c7482a";
+    hash = "sha256-2xSQ+nbP7/GsIWvj9sgG+jgIIIesfEW8T9z5Tijd90E=";
   };
 
-  cargoHash = "sha256-2Wt9kJ5TSl4On0ijp0Fu43uMRlkya6eAGjYPH6eKRQk=";
+  cargoHash = "sha256-4yiWIlibYldr3qny0KRRIHBqHCx6R9gDiiheGkJrwEY=";
   cargoBuildFlags = [ "--features=mount" ];
 
   doCheck = false;
