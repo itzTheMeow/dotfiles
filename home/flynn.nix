@@ -51,6 +51,7 @@ in
       }))
       pcloud
       remmina
+      qdiskinfo
 
       # games
       prismlauncher
