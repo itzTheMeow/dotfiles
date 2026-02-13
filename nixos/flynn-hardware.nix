@@ -7,7 +7,6 @@
   modulesPath,
   ...
 }:
-
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -22,8 +21,14 @@
     "sd_mod"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
+  boot.kernelModules = [
+    "kvm-intel"
+    "88x2bu"
+  ];
+  boot.extraModulePackages = [
+    # for wifi adapter
+    config.boot.kernelPackages.rtl88x2bu
+  ];
 
   fileSystems."/" = {
     device = "/dev/mapper/luks-4bb005d6-36e7-4dcb-a42c-1e2237953f99";
