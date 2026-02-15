@@ -28,6 +28,7 @@ let
           };
         };
         systemd.services.${name}.after = [ "tailscale-online.service" ];
+        systemd.services.${name}.serviceConfig.SupplementaryGroups = [ "nzbget" ];
       }
       (xelib.mkNginxProxy svc.domain "http://${bindaddress}:${toString svc.port}" { })
     ];
