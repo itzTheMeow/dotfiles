@@ -1,6 +1,8 @@
 {
   config,
   host,
+  isNixOS,
+  osConfig,
   pkgs,
   xelib,
   xelpkgs,
@@ -329,5 +331,20 @@ in
         ShowZoomSlider = true; # show zoom slider in bottom status bar
       };
     };
+  };
+
+  programs.lutris = {
+    enable = true;
+    extraPackages = with pkgs; [
+      winetricks
+    ];
+    steamPackage = if isNixOS then osConfig.programs.steam.package else pkgs.steam;
+    defaultWinePackage = pkgs.proton-ge-bin;
+    winePackages = with pkgs; [
+      wineWow64Packages.waylandFull
+    ];
+    protonPackages = with pkgs; [
+      proton-ge-bin
+    ];
   };
 }
