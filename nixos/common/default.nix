@@ -103,6 +103,7 @@
 
     ## system
     pciutils
+    usbutils
 
     ## pandoc
     pandoc
