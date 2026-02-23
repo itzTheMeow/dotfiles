@@ -1,7 +1,6 @@
 {
   config,
   host,
-  hostname,
   ...
 }:
 {
@@ -27,7 +26,7 @@
   };
   sops.opSecrets.authorized_keys = {
     keys = {
-      public_key = host.sshPublicKey;
+      public_key = host.publicKey;
     };
   };
 }
