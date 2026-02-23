@@ -20,6 +20,7 @@
 
   sops.secrets.public_key = {
     sopsFile = ../../../${config.sops.opSecrets.authorized_keys.path};
+    mode = "0444";
   };
   sops.opSecrets.authorized_keys = {
     keys = {
