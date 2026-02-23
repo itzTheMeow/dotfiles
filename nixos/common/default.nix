@@ -13,6 +13,8 @@
     ../${hostname}-hardware.nix
     # import local config
     ../../local/nixos.nix
+
+    ./sops.nix
   ];
 
   # base nix settings

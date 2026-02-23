@@ -10,7 +10,10 @@ in
       accent = "#cba6f7"; # Mauve
       ports = {
         beszel-agent = 45876;
+        ssh = 19487;
       };
+      sshPublicKey = "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key";
+      hostPublicKey = "op://Private/rcbgglqbacsvmzwwygtpx73774/public key";
       backupFrequency = "05:00";
     };
     # Intel Compute Stick
@@ -21,6 +24,8 @@ in
       ports = {
         ssh = 40938;
       };
+      sshPublicKey = "";
+      hostPublicKey = "";
       backupFrequency = EVERY_6H;
     };
 
@@ -33,6 +38,8 @@ in
         beszel-agent = 59835;
         ssh = 12896;
       };
+      sshPublicKey = "op://Private/eka63wejfdkiypenxptm6xky54/public key";
+      hostPublicKey = "op://Private/ptvgkvjl5ugrylkpausc3misma/public key";
       backupFrequency = EVERY_6H;
     };
     # Proxy Server
@@ -44,6 +51,8 @@ in
         beszel-agent = 61753;
         ssh = 39877;
       };
+      sshPublicKey = "";
+      hostPublicKey = "";
       backupFrequency = EVERY_6H;
     };
 
@@ -55,6 +64,8 @@ in
       ports = {
         ssh = 22;
       };
+      sshPublicKey = "";
+      hostPublicKey = "";
       backupFrequency = EVERY_6H;
     };
 

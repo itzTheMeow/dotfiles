@@ -8,6 +8,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     catppuccin = {
       url = "github:catppuccin/nix";
@@ -37,6 +41,7 @@
       nixpkgs,
       opinject,
       plasma-manager,
+      sops-nix,
       ...
     }@inputs:
     let
@@ -106,12 +111,21 @@
           inherit system;
 
           modules = [
-            catppuccin.nixosModules.catppuccin
-            ./nixos/${hostname}.nix
+            # sops
+            sops-nix.nixosModules.sops
+            ./xelib/opsecrets.nix
 
+            # headplane
             headplane.nixosModules.headplane
             { nixpkgs.overlays = [ headplane.overlays.default ]; }
 
+            # misc
+            catppuccin.nixosModules.catppuccin
+
+            # main config
+            ./nixos/${hostname}.nix
+
+            # home-manager
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
