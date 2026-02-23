@@ -7,8 +7,6 @@
   imports = [
     ./common
     ./common/headless.nix
-
-    ./programs/beszel-agent
   ];
 
   home = {

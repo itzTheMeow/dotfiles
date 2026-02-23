@@ -26,7 +26,6 @@ in
     ./common
     ./common/desktop.nix
     ./programs/activitywatch
-    ./programs/beszel-agent
     ./programs/discordchatexporter
     ./programs/discord-rich-presence-plex
     ./programs/logisim
