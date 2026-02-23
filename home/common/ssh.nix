@@ -1,7 +1,19 @@
 { xelib, ... }:
+let
+  mkHostSSHItem = name: {
+    name = xelib.toTitleCase name;
+    host = xelib.hosts.${name}.ip;
+    args = "${xelib.hosts.${name}.username}@${xelib.hosts.${name}.ip}";
+    publicKey = xelib.hosts.${name}.publicKey;
+    extraOptions = {
+      port = xelib.hosts.${name}.ports.ssh;
+      forwardAgent = true;
+    };
+  };
+in
 xelib.mkSSHConfig [
   {
-    name = "Hyzenberg";
+    name = "Old Hyzenberg";
     host = "hyzen.xela.codes";
     args = "root@hyzen.xela.codes";
     publicKey = "op://Private/Hyzenberg SSH Key/public key";
@@ -9,26 +21,8 @@ xelib.mkSSHConfig [
       forwardAgent = true;
     };
   }
-  {
-    name = "Hyzenberg (new)";
-    host = xelib.hosts.hyzenberg.ip;
-    args = "${xelib.hosts.hyzenberg.username}@${xelib.hosts.hyzenberg.ip}";
-    publicKey = "op://Private/eka63wejfdkiypenxptm6xky54/public key";
-    extraOptions = {
-      port = xelib.hosts.hyzenberg.ports.ssh;
-      forwardAgent = true;
-    };
-  }
-  {
-    name = "Ehrman";
-    host = xelib.hosts.ehrman.ip;
-    args = "${xelib.hosts.ehrman.username}@${xelib.hosts.ehrman.ip}";
-    publicKey = "op://Private/vywbzem32jihjjvgldmz5tr5mu/public key";
-    extraOptions = {
-      port = xelib.hosts.ehrman.ports.ssh;
-      forwardAgent = true;
-    };
-  }
+  (mkHostSSHItem "hyzenberg")
+  (mkHostSSHItem "ehrman")
   {
     name = "Macintosh";
     host = "macintosh.xela.internal";
