@@ -91,8 +91,6 @@ in
       # force overwriting the gtk2rc file
       "/home/${host.username}/.config/${gtk2rcPath}".force = pkgs.lib.mkForce true;
     }
-    # opunattended secrets
-    // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password"
     # remote views
     // xelib.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
     // xelib.mkRemoteView "Hyzenberg New" "fish://${xelib.hosts.hyzenberg.username}@${xelib.hosts.hyzenberg.ip}:${builtins.toString xelib.hosts.hyzenberg.ports.ssh}/home/walt"
