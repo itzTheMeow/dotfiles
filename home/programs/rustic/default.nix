@@ -30,7 +30,7 @@ let
         repository = {
           repository =
             if central then "${pCloudPath}/Misc/Backups/rustic" else "${pCloudPath}/Misc/Backups/${name}";
-          password-command = "opunattended ${password}";
+          password-command = if central then "cat /run/secrets/rustic_main" else "op read ${password}";
         };
         backup = {
           host = name;
@@ -175,7 +175,7 @@ in
       };
       repository = {
         repository = "${pCloudPath}/Misc/Backups/rustic";
-        password-command = "opunattended op://Private/6z2tlumg4aiznrno7mnryjunsq/password";
+        password-command = "cat /run/secrets/rustic_main";
       };
       backup = {
         host = "hyzenberg";

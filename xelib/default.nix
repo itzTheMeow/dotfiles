@@ -17,9 +17,6 @@ rec {
       opinject = true;
     };
   };
-  # creates an opunattended cached secret
-  mkOPUnattendedSecret =
-    secretRef: mkSecretFile ".cache/opunattended/${builtins.hashString "sha256" secretRef}" secretRef;
 
   # optionally import a module if it exists
   optionalImport = path: if builtins.pathExists path then [ path ] else [ ];

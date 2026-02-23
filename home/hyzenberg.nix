@@ -1,5 +1,4 @@
 {
-  xelib,
   xelpkgs,
   ...
 }:
@@ -13,10 +12,5 @@
     packages = [
       xelpkgs.rustic-unstable
     ];
-
-    file =
-      { }
-      # opunattended secrets
-      // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password";
   };
 }
