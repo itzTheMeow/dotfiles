@@ -10,6 +10,7 @@
     ./common
     ./services/beszel/agent.nix
     (import ./services/rustic "meow-pc")
+    ./services/ssh
     ./services/tailscale
   ];
 
@@ -187,8 +188,6 @@
       RestartSec = "5s";
     };
   };
-
-  services.openssh.enable = true;
 
   systemd.tmpfiles.rules = [
     "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"

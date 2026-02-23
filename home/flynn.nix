@@ -97,7 +97,6 @@ in
       "/home/${host.username}/.config/${gtk2rcPath}".force = pkgs.lib.mkForce true;
     }
     # secrets
-    // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key"
     // xelib.mkSecretFile ".config/ntfy/client.yml" "default-token: op://Private/ntfy/Access Tokens/hwqse4uueo5q5mh6ffik5oiyym"
     # opunattended secrets
     // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password"
