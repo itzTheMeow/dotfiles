@@ -1,4 +1,4 @@
-{ xelib, ... }:
+{ ... }:
 let
   username = "meow";
 in
@@ -20,7 +20,7 @@ in
 
     file = {
 
-    }
-    // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/ton3e65pkunjzq6gua2mef6gkq/public key";
+    };
+    # // xelib.mkSecretFile ".ssh/authorized_keys" "op://Private/ton3e65pkunjzq6gua2mef6gkq/public key";
   };
 }
