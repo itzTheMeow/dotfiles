@@ -65,7 +65,6 @@ in
       wget
 
       # more complex tools
-      ntfy-sh
       rustic
       speedtest-cli
       yt-dlp

@@ -36,10 +36,6 @@ in
   ];
 
   home = {
-    sessionVariables = {
-      NTFY_TAGS = "meow-pc";
-    };
-
     packages = with pkgs; [
       jdk21
 
@@ -96,8 +92,6 @@ in
       # force overwriting the gtk2rc file
       "/home/${host.username}/.config/${gtk2rcPath}".force = pkgs.lib.mkForce true;
     }
-    # secrets
-    // xelib.mkSecretFile ".config/ntfy/client.yml" "default-token: op://Private/ntfy/Access Tokens/hwqse4uueo5q5mh6ffik5oiyym"
     # opunattended secrets
     // xelib.mkOPUnattendedSecret "op://Private/6z2tlumg4aiznrno7mnryjunsq/password"
     # remote views

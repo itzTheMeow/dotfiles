@@ -15,6 +15,7 @@
     ../../local/nixos.nix
 
     ./sops.nix
+    ../programs/ntfy.nix
   ];
 
   # base nix settings
