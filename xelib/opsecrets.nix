@@ -5,10 +5,6 @@
   ...
 }:
 {
-  options.sops.opSecretsKey = lib.mkOption {
-    type = lib.types.nullOr lib.types.str;
-    default = null;
-  };
   options.sops.opSecrets = lib.mkOption {
     type = lib.types.attrsOf (
       lib.types.submodule (
@@ -24,6 +20,7 @@
               ];
               default = config.sops.defaultSopsFormat;
             };
+            # file path, relative to the root of the repo
             path = lib.mkOption {
               type = lib.types.str;
               default = "sops/${hostname}/${name}.${module.config.format}";
