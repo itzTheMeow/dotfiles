@@ -26,6 +26,7 @@
       "flakes"
     ];
     auto-optimise-store = true;
+
   };
   nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
   nix.channel.enable = false;
@@ -121,6 +122,9 @@
     kitty # needed so ssh will work from kitty
     rclone # used by some core services
   ];
+  environment.variables = {
+    NIXPKGS_ALLOW_UNFREE = "1";
+  };
 
   # allow other flag for fuse mounts
   programs.fuse.userAllowOther = true;
