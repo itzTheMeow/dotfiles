@@ -23,7 +23,10 @@
             # file path, relative to the root of the repo
             path = lib.mkOption {
               type = lib.types.str;
-              default = "sops/${hostname}/${name}.${module.config.format}";
+              default = "sops/${hostname}/${name}.${
+                # set extension to .env for dotenv
+                if module.config.format == "dotenv" then "env" else module.config.format
+              }";
             };
             keys = lib.mkOption { type = lib.types.attrsOf lib.types.str; }; # secret URIs
           };
