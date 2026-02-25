@@ -6,9 +6,8 @@
     {
       "label": "Refresh Secrets",
       "type": "shell",
-      "command": "make dev",
+      "command": "sops-build-secrets",
       "presentation": { "panel": "dedicated" },
-      //"isBackground": true,
       "icon": { "id": "key" }
     }
   ]
