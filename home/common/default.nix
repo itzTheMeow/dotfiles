@@ -4,6 +4,7 @@
   isNixOS,
   pkgs,
   xelib,
+  xelpkgs,
   ...
 }:
 let
@@ -80,11 +81,7 @@ in
         ${builtins.readFile ../../scripts/nx.sh}
       '')
       # custom packages
-      (buildGoModule {
-        name = "download-organizer";
-        src = ../../go/download-organizer;
-        vendorHash = null;
-      })
+      xelpkgs.download-organizer
     ];
 
     sessionVariables = xelib.globals.environment;
