@@ -8,10 +8,13 @@
 {
   imports = [
     ./common
+
     ./services/beszel/agent.nix
     (import ./services/rustic "meow-pc")
     ./services/ssh
     ./services/tailscale
+
+    ./programs/discord-rich-presence-plex.nix
   ];
 
   # Bootloader.
