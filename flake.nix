@@ -49,6 +49,7 @@
         catppuccin.homeModules.catppuccin
         plasma-manager.homeModules.plasma-manager
         opinject.homeManagerModules.default
+        sops-nix.homeManagerModules.sops
       ];
 
       mkHomeConfiguration =
