@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"os/exec"
 	"path"
@@ -12,7 +13,7 @@ import (
 	"time"
 
 	"github.com/1password/onepassword-sdk-go"
-	"github.com/Mic92/ssh-to-age"
+	agessh "github.com/Mic92/ssh-to-age"
 	"github.com/getsops/sops/v3"
 	sopsAes "github.com/getsops/sops/v3/aes"
 	sopsAge "github.com/getsops/sops/v3/age"
@@ -41,6 +42,14 @@ var UserPublicKeyURIs = []string{
 	"op://x4455gscttc5p7z42ff3dp2sky/vqhxrcxgookq6e6vu3etmjev2e/public key", // hyzenberg
 }
 
+type NixConfig =
+// hostname
+map[string](struct {
+	//          username   filename   config
+	HomeManager map[string]map[string]SecretConfig `json:"home-manager"`
+	//    filename   config
+	NixOS map[string]SecretConfig `json:"nixos"`
+})
 type SecretConfig struct {
 	Format string            `json:"format"`
 	Path   string            `json:"path"`
@@ -112,8 +121,14 @@ func main() {
 	}
 
 	log("parsing configs...")
-	var configs map[string]map[string]SecretConfig
-	if err := shellJSON(&configs, "nix", "eval", dotfiles+"#nixosConfigurations", "--json", "--apply", "builtins.mapAttrs (name: conf: conf.config.sops.opSecrets)"); err != nil {
+	var configs NixConfig
+	if err := shellJSON(&configs, "nix", "eval", dotfiles+"#nixosConfigurations", "--json", "--apply", `
+builtins.mapAttrs (name: conf: {
+	nixos = conf.config.sops.opSecrets or {};
+	home-manager = builtins.mapAttrs (user: userConf: 
+		userConf.sops.opSecrets or {}
+	) (conf.config.home-manager.users or {});
+})`); err != nil {
 		panic(fmt.Errorf("failed to get config list: %w", err))
 	}
 
@@ -125,26 +140,23 @@ func main() {
 	}
 
 	// create a list of all the secrets to be fetched
-	allSecretURIs := []string{}
+	secretURIList := make(map[string]struct{})
 	for hostname, config := range configs {
-		start := len(allSecretURIs)
+		start := len(secretURIList)
 		log("finding secrets for %s...", hostname)
-		for fileName, file := range config {
-			for name, key := range file.Keys {
-				// for some reason "Private" isnt a valid vault name for the SDK, so replace it with the vault ID
-				if strings.HasPrefix(key, "op://Private") {
-					key = strings.Replace(key, "op://Private", "op://x4455gscttc5p7z42ff3dp2sky", 1)
-					configs[hostname][fileName].Keys[name] = key
-				}
-
-				// then append the URI to the list
-				if !slices.Contains(allSecretURIs, key) {
-					allSecretURIs = append(allSecretURIs, key)
-				}
+		for fileName, file := range config.NixOS {
+			processSecrets(&secretURIList, file.Keys, fileName, &config.NixOS)
+		}
+		for username, files := range config.HomeManager {
+			for fileName, file := range files {
+				cfg := config.HomeManager[username]
+				processSecrets(&secretURIList, file.Keys, fileName, &cfg)
+				config.HomeManager[username] = cfg
 			}
 		}
-		log("found %d new secrets", len(allSecretURIs)-start)
+		log("found %d new secrets", len(secretURIList)-start)
 	}
+	allSecretURIs := slices.Collect(maps.Keys(secretURIList))
 
 	// we can fetch all the secrets in a single call
 	log("fetching secrets...")
@@ -168,7 +180,7 @@ func main() {
 		}
 
 		// partially based on https://github.com/getsops/sops/issues/1094#issuecomment-1923060495
-		for fileName, file := range config {
+		for fileName, file := range config.NixOS {
 			log("processing %s", fileName)
 
 			tree := sops.Tree{
@@ -234,4 +246,16 @@ func shellJSON(ptr any, cmd string, args ...string) error {
 		}
 	}
 	return nil
+}
+
+func processSecrets(list *map[string]struct{}, keys map[string]string, fileName string, ptr *map[string]SecretConfig) {
+	for name, key := range keys {
+		// for some reason "Private" isnt a valid vault name for the SDK, so replace it with the vault ID
+		if strings.HasPrefix(key, "op://Private") {
+			key = strings.Replace(key, "op://Private", "op://x4455gscttc5p7z42ff3dp2sky", 1)
+			(*ptr)[fileName].Keys[name] = key
+		}
+		// add the key to the list
+		(*list)[key] = struct{}{}
+	}
 }
