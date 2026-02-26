@@ -3,6 +3,7 @@
   isNixOS,
   lib,
   pkgs,
+  pkgs-unstable,
   xelib,
   ...
 }:
@@ -135,7 +136,7 @@ in
         key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUZNxXcceFgiGEGJlvFM1DLaYFMOYO+oVfVmCcUqXRw";
         signer =
           if isNixOS then
-            "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}"
+            "${lib.getExe' pkgs-unstable._1password-gui "op-ssh-sign"}"
           else if pkgs.stdenv.isDarwin then
             "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
           else

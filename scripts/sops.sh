@@ -7,12 +7,6 @@ eval "$(op signin)"
 
 # define PUBLIC_KEY_URIS associative array
 declare -A PUBLIC_KEY_URIS
-PUBLIC_KEY_URIS["ehrman"]="op://Private/l6owjdx7thnp52tuwmd4j5muda/public key"
-PUBLIC_KEY_URIS["ehrman_user"]="op://Private/zfo56rnxe3rtoigohaemc7lx6i/public key"
-PUBLIC_KEY_URIS["flynn"]="op://Private/rcbgglqbacsvmzwwygtpx73774/public key"
-PUBLIC_KEY_URIS["flynn_user"]="op://Private/3qhsyka4n4ivngmjow5tysb3da/public key"
-PUBLIC_KEY_URIS["hyzenberg"]="op://Private/ptvgkvjl5ugrylkpausc3misma/public key"
-PUBLIC_KEY_URIS["hyzenberg_user"]="op://Private/vqhxrcxgookq6e6vu3etmjev2e/public key"
 
 # get all nixosConfigurations hosts
 HOSTNAMES=$(nix eval '.#nixosConfigurations' --json --apply 'builtins.attrNames' | jq -r 'values[]')

@@ -4,6 +4,7 @@
   isNixOS,
   osConfig,
   pkgs,
+  pkgs-unstable,
   xelib,
   xelpkgs,
   ...
@@ -187,7 +188,7 @@ in
   xdg.autostart = {
     enable = true;
     entries = [
-      "${pkgs._1password-gui}/share/applications/1password.desktop"
+      "${pkgs-unstable._1password-gui}/share/applications/1password.desktop"
       "${pkgs.pcloud}/share/applications/pcloud.desktop"
     ];
   };
