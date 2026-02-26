@@ -1,7 +1,8 @@
 {
-  host,
   hostname,
   isNixOS,
+  lib,
+  osConfig,
   pkgs,
   xelib,
   xelpkgs,
@@ -157,6 +158,10 @@ in
         pull.rebase = false;
       };
     };
+  };
+
+  sops = lib.mkIf osConfig.sops.secrets.user_key {
+    age.keyFile = osConfig.sops.secrets.user_key.path;
   };
 
   catppuccin = {
