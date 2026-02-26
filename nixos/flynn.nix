@@ -1,4 +1,5 @@
 {
+  config,
   host,
   pkgs-unstable,
   pkgs,
@@ -201,4 +202,11 @@
   systemd.tmpfiles.rules = [
     "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"
   ];
+
+  sops.secrets.user_key = {
+    sopsFile = ../${config.sops.opSecrets.user_key.path};
+    key = "private_key";
+    owner = host.username;
+  };
+  sops.opSecrets.user_key.keys.private_key = "op://Private/3qhsyka4n4ivngmjow5tysb3da/private key";
 }
