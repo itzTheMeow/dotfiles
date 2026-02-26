@@ -1,4 +1,5 @@
 {
+  xelpkgs,
   ...
 }:
 {
@@ -7,5 +8,9 @@
     ./common/headless.nix
   ];
 
-  home = { };
+  home = {
+    packages = [
+      xelpkgs.rustic-unstable
+    ];
+  };
 }
