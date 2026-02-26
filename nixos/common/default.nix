@@ -121,6 +121,7 @@
 
     kitty # needed so ssh will work from kitty
     rclone # used by some core services
+    screen
   ];
   environment.variables = {
     NIXPKGS_ALLOW_UNFREE = "1";
