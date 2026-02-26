@@ -50,6 +50,7 @@
         plasma-manager.homeModules.plasma-manager
         opinject.homeManagerModules.default
         sops-nix.homeManagerModules.sops
+        (import ./xelib/opsecrets.nix).homeManagerModule
       ];
 
       mkHomeConfiguration =
@@ -123,7 +124,7 @@
           modules = [
             # sops
             sops-nix.nixosModules.sops
-            ./xelib/opsecrets.nix
+            (import ./xelib/opsecrets.nix).nixosModule
 
             # headplane
             headplane.nixosModules.headplane
