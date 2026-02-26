@@ -45,10 +45,9 @@ var UserPublicKeyURIs = []string{
 type NixConfig =
 // hostname
 map[string](struct {
-	//          username   filename   config
-	HomeManager map[string]map[string]SecretConfig `json:"home-manager"`
-	//    filename   config
-	NixOS map[string]SecretConfig `json:"nixos"`
+	//          filename   config
+	HomeManager map[string]SecretConfig `json:"home-manager"`
+	NixOS       map[string]SecretConfig `json:"nixos"`
 })
 type SecretConfig struct {
 	Format string            `json:"format"`
@@ -125,9 +124,11 @@ func main() {
 	if err := shellJSON(&configs, "nix", "eval", dotfiles+"#nixosConfigurations", "--json", "--apply", `
 builtins.mapAttrs (name: conf: {
 	nixos = conf.config.sops.opSecrets or {};
-	home-manager = builtins.mapAttrs (user: userConf: 
-		userConf.sops.opSecrets or {}
-	) (conf.config.home-manager.users or {});
+	
+	# flattens the home manager config for each user into a single block
+	home-manager = builtins.foldl' (acc: user: 
+		acc // (user.sops.opSecrets or {})
+	) {} (builtins.attrValues (conf.config.home-manager.users or {}));
 })`); err != nil {
 		panic(fmt.Errorf("failed to get config list: %w", err))
 	}
@@ -145,14 +146,10 @@ builtins.mapAttrs (name: conf: {
 		start := len(secretURIList)
 		log("finding secrets for %s...", hostname)
 		for fileName, file := range config.NixOS {
-			processSecrets(&secretURIList, file.Keys, fileName, &config.NixOS)
+			processSecretURIs(&secretURIList, file.Keys, fileName, &config.NixOS)
 		}
-		for username, files := range config.HomeManager {
-			for fileName, file := range files {
-				cfg := config.HomeManager[username]
-				processSecrets(&secretURIList, file.Keys, fileName, &cfg)
-				config.HomeManager[username] = cfg
-			}
+		for fileName, file := range config.HomeManager {
+			processSecretURIs(&secretURIList, file.Keys, fileName, &config.HomeManager)
 		}
 		log("found %d new secrets", len(secretURIList)-start)
 	}
@@ -179,59 +176,8 @@ builtins.mapAttrs (name: conf: {
 			panic(err)
 		}
 
-		// partially based on https://github.com/getsops/sops/issues/1094#issuecomment-1923060495
-		for fileName, file := range config.NixOS {
-			log("processing %s", fileName)
-
-			tree := sops.Tree{
-				Branches: sops.TreeBranches{},
-				Metadata: sops.Metadata{
-					KeyGroups: []sops.KeyGroup{
-						[]sopsKeys.MasterKey{masterKey},
-					},
-					UnencryptedSuffix: sops.DefaultUnencryptedSuffix,
-					Version:           sopsVersion.Version,
-				},
-			}
-
-			// put each key inside the branch
-			branch := sops.TreeBranch{}
-			for name, uri := range file.Keys {
-				branch = append(branch, sops.TreeItem{
-					Key:   name,
-					Value: fetchedSecrets.IndividualResponses[uri].Content.Secret,
-				})
-			}
-			tree.Branches = append(tree.Branches, branch)
-
-			// need to generate a data key and then
-			if dataKey, err := tree.GenerateDataKeyWithKeyServices(
-				[]sopsKeyService.KeyServiceClient{sopsKeyService.NewLocalClient()},
-			); err == nil {
-				sopsCommon.EncryptTree(sopsCommon.EncryptTreeOpts{
-					DataKey: dataKey,
-					Tree:    &tree,
-					Cipher:  sopsAes.NewCipher(),
-				})
-				var store sops.Store
-				switch file.Format {
-				case "yaml":
-					store = &sopsYAML.Store{}
-				case "json":
-					store = &sopsJSON.Store{}
-				case "dotenv":
-					store = &sopsENV.Store{}
-				}
-				if result, err := store.EmitEncryptedFile(tree); err != nil {
-					panic(err)
-				} else if err := os.WriteFile(path.Join(dotfiles, file.Path), result, 0644); err != nil {
-					panic(err)
-				}
-				log("written to %s", file.Path)
-			} else {
-				panic(err)
-			}
-		}
+		encryptSecrets("NixOS", dotfiles, config.NixOS, masterKey, fetchedSecrets)
+		encryptSecrets("Home Manager", dotfiles, config.HomeManager, masterKey, fetchedSecrets)
 	}
 
 	log("done.")
@@ -248,7 +194,7 @@ func shellJSON(ptr any, cmd string, args ...string) error {
 	return nil
 }
 
-func processSecrets(list *map[string]struct{}, keys map[string]string, fileName string, ptr *map[string]SecretConfig) {
+func processSecretURIs(list *map[string]struct{}, keys map[string]string, fileName string, ptr *map[string]SecretConfig) {
 	for name, key := range keys {
 		// for some reason "Private" isnt a valid vault name for the SDK, so replace it with the vault ID
 		if strings.HasPrefix(key, "op://Private") {
@@ -257,5 +203,61 @@ func processSecrets(list *map[string]struct{}, keys map[string]string, fileName 
 		}
 		// add the key to the list
 		(*list)[key] = struct{}{}
+	}
+}
+
+func encryptSecrets(sourceLabel string, dotfiles string, config map[string]SecretConfig, masterKey *sopsAge.MasterKey, fetchedSecrets onepassword.ResolveAllResponse) {
+	// partially based on https://github.com/getsops/sops/issues/1094#issuecomment-1923060495
+	for fileName, file := range config {
+		log("processing %s (%s)", fileName, sourceLabel)
+
+		tree := sops.Tree{
+			Branches: sops.TreeBranches{},
+			Metadata: sops.Metadata{
+				KeyGroups: []sops.KeyGroup{
+					[]sopsKeys.MasterKey{masterKey},
+				},
+				UnencryptedSuffix: sops.DefaultUnencryptedSuffix,
+				Version:           sopsVersion.Version,
+			},
+		}
+
+		// put each key inside the branch
+		branch := sops.TreeBranch{}
+		for name, uri := range file.Keys {
+			branch = append(branch, sops.TreeItem{
+				Key:   name,
+				Value: fetchedSecrets.IndividualResponses[uri].Content.Secret,
+			})
+		}
+		tree.Branches = append(tree.Branches, branch)
+
+		// need to generate a data key and then
+		if dataKey, err := tree.GenerateDataKeyWithKeyServices(
+			[]sopsKeyService.KeyServiceClient{sopsKeyService.NewLocalClient()},
+		); err == nil {
+			sopsCommon.EncryptTree(sopsCommon.EncryptTreeOpts{
+				DataKey: dataKey,
+				Tree:    &tree,
+				Cipher:  sopsAes.NewCipher(),
+			})
+			var store sops.Store
+			switch file.Format {
+			case "yaml":
+				store = &sopsYAML.Store{}
+			case "json":
+				store = &sopsJSON.Store{}
+			case "dotenv":
+				store = &sopsENV.Store{}
+			}
+			if result, err := store.EmitEncryptedFile(tree); err != nil {
+				panic(err)
+			} else if err := os.WriteFile(path.Join(dotfiles, file.Path), result, 0644); err != nil {
+				panic(err)
+			}
+			log("written to %s", file.Path)
+		} else {
+			panic(err)
+		}
 	}
 }
