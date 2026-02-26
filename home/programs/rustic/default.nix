@@ -79,6 +79,7 @@ in
         run-before = [
           # clear log file before backup
           (mkBash "true > ${logFileLocation}")
+          (mkBash "chmod 777 ${logFileLocation}")
         ];
         run-finally = [ (mkBash hookFinallyLogs) ];
       };
