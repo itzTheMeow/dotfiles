@@ -1,5 +1,6 @@
 {
   host,
+  pkgs-unstable,
   pkgs,
   xelib,
   xelpkgs,
@@ -158,6 +159,7 @@
   programs._1password-gui = {
     enable = true;
     polkitPolicyOwners = [ host.username ];
+    package = pkgs-unstable._1password-gui;
   };
 
   # enable usage of exit nodes for tailscale

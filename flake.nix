@@ -54,42 +54,40 @@
 
       mkHomeConfiguration =
         system: hostname:
-        let
-          pkgs-unstable = nixpkgs-unstable.legacyPackages.${builtins.elemAt system 0};
-        in
         home-manager.lib.homeManagerConfiguration rec {
-          pkgs = nixpkgs.legacyPackages.${builtins.elemAt system 0};
+          pkgs = import nixpkgs {
+            system = builtins.elemAt system 0;
+            config.allowUnfree = true;
+            overlays = [
+              (
+                final: prev: # fixes fish on macos
+                if prev.stdenv.isDarwin then
+                  {
+                    fish = prev.fish.overrideAttrs (_: {
+                      doCheck = false;
+                    });
+                  }
+                else
+                  { }
+              )
+            ];
+          };
 
-          modules = home-manager-modules ++ [
-            {
-              nixpkgs.config.allowUnfree = true;
-              nixpkgs.overlays = [
-                (
-                  final: prev: # fixes fish on macos
-                  if prev.stdenv.isDarwin then
-                    {
-                      fish = prev.fish.overrideAttrs (_: {
-                        doCheck = false;
-                      });
-                    }
-                  else
-                    { }
-                )
-              ];
-            }
-            ./home/${hostname}.nix
-          ];
+          modules = home-manager-modules ++ [ ./home/${hostname}.nix ];
 
           extraSpecialArgs = rec {
             inherit
               inputs
               hostname
               home-manager
-              pkgs-unstable
               ;
+            pkgs-unstable = import nixpkgs-unstable {
+              system = builtins.elemAt system 0;
+              config.allowUnfree = true;
+            };
             xelib = import ./xelib pkgs;
             host = xelib.hosts.${hostname};
-            xelpkgs = import ./pkgs pkgs;
+            xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
             isNixOS = (builtins.elemAt system 1);
           };
         };
@@ -98,13 +96,24 @@
         hostname:
         let
           system = "x86_64-linux";
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          pkgs-unstable = import nixpkgs-unstable {
+            inherit system;
+            config.allowUnfree = true;
+          };
           xelib = import ./xelib pkgs;
 
           extras = {
-            inherit inputs hostname xelib;
-            xelpkgs = import ./pkgs pkgs;
-            pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
+            inherit
+              inputs
+              hostname
+              xelib
+              pkgs-unstable
+              ;
+            xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
             host = xelib.hosts.${hostname};
           };
         in
