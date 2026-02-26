@@ -6,7 +6,7 @@
 buildGoModule {
   name = "sops-build-secrets";
   src = ../go/sops-build-secrets;
-  vendorHash = null;
+  vendorHash = "sha256-tNp2+hiIcX2WJ3iyyRHXbcj7jvq6IoNfERQfQdhyFy0=";
 
   nativeBuildInputs = [ makeWrapper ];
 
