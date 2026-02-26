@@ -14,7 +14,6 @@
     # import local config
     ../../local/nixos.nix
 
-    ./sops.nix
     ../programs/ntfy.nix
     ../programs/rustic.nix
   ];

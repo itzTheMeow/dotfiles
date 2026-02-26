@@ -153,13 +153,16 @@
     chromium
     libreoffice
     vlc
+
+    # custom packages
+    xelpkgs.sops-build-secrets
   ];
 
   programs._1password.enable = true;
   programs._1password-gui = {
     enable = true;
-    polkitPolicyOwners = [ host.username ];
     package = pkgs-unstable._1password-gui;
+    polkitPolicyOwners = [ host.username ];
   };
 
   # enable usage of exit nodes for tailscale
