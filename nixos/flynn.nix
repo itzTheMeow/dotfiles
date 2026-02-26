@@ -16,6 +16,7 @@
     ./services/tailscale
 
     ./programs/discord-rich-presence-plex.nix
+    ./programs/immich.nix
   ];
 
   # Bootloader.

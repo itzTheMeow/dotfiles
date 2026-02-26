@@ -32,6 +32,8 @@ rec {
   # check if a domain is local (.xela or .internal)
   isLocalDomain = domain: builtins.match ".+\\.(xela|internal)$" domain != null;
 
+  # convert an attr set to yaml string
+  toYAMLString = data: builtins.readFile (toYAMLFile "file.yaml" data).outPath;
   # convert an attr set to env string
   toENVString =
     data: builtins.concatStringsSep "\n" (map (k: ''${k}="${data.${k}}"'') (builtins.attrNames data));

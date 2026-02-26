@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  xelib,
   ...
 }:
 let
@@ -89,9 +90,7 @@ in
     key = "token";
   };
   sops.opSecrets.plex.keys.token = "op://Private/sqrukknhtojit3kzwplkvy3zji/Token";
-  sops.templates."${DRRP}-config.yaml".content =
-    builtins.readFile
-      ((pkgs.formats.yaml { }).generate DRRP configYAML).outPath;
+  sops.templates."${DRRP}-config.yaml".content = xelib.toYAMLString configYAML;
 
   # gives permission to groups to traverse the /run/user directory
   services.udev.extraRules = ''

@@ -53,9 +53,6 @@ in
 
       # fonts
       nerd-fonts.caskaydia-mono
-
-      # tools
-      immich-cli
     ];
 
     file = {
@@ -68,11 +65,6 @@ in
         vault = "NVSTly Internal"
       '';
     }
-    # secret files
-    // xelib.mkSecretFile ".config/immich/auth.yml" ''
-      url: https://immich.xela.codes/api
-      key: {{op://Private/Immich/API Keys/CLI}}
-    ''
     # add ssh public keys
     // sshConfig.files
     // xelib.mkSecretFile ".ssh/github_signing.pub" "op://Private/Github Signing SSH Key/public key"
