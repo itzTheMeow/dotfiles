@@ -39,4 +39,7 @@
       "wheel"
     ];
   };
+
+  sops.opSecrets.user_key.keys.private_key =
+    "op://Private/vqhxrcxgookq6e6vu3etmjev2e/private key?ssh-format=openssh";
 }
