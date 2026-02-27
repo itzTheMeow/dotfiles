@@ -40,5 +40,6 @@
     ];
   };
 
-  services.openssh.enable = true;
+  sops.opSecrets.user_key.keys.private_key =
+    "op://Private/zfo56rnxe3rtoigohaemc7lx6i/private key?ssh-format=openssh";
 }
