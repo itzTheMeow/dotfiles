@@ -159,9 +159,11 @@ in
     };
   };
 
-  sops = lib.mkIf (osConfig.sops.secrets ? user_key) {
-    age.sshKeyPaths = [ osConfig.sops.secrets.user_key.path ];
-  };
+  sops.age =
+    if (osConfig.sops.secrets ? user_key) then
+      { sshKeyPaths = [ osConfig.sops.secrets.user_key.path ]; }
+    else
+      { keyFile = "/dev/null"; };
 
   catppuccin = {
     flavor = xelib.globals.catppuccin.flavor;
