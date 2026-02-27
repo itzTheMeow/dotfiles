@@ -56,7 +56,7 @@ in
       # basic dependencies
       cloc
       dnsutils
-      ffmpeg
+      ffmpeg-full
       git
       jq
       killport
