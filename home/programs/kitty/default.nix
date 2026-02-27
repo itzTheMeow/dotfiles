@@ -12,19 +12,18 @@
 
       editor = "nano";
       scrollback_lines = 5000;
-      startup_session = "./sessions/default.conf";
+      startup_session = builtins.toString (
+        pkgs.writeText "default.conf" ''
+          focus
+          focus_os_window
+          os_window_state maximized
+          launch
+        ''
+      );
       tab_bar_min_tabs = 1;
       tab_bar_style = "slant";
     };
     shellIntegration.mode = "no-cursor";
   };
   catppuccin.kitty.enable = true;
-
-  # config profiles
-  xdg.configFile."kitty/sessions/default.conf".text = ''
-    focus
-    focus_os_window
-    os_window_state maximized
-    launch
-  '';
 }

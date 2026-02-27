@@ -72,21 +72,19 @@ rec {
             name = "SSH ${name} (${host})";
             genericName = "Terminal emulator";
             comment = "Fast, feature-rich, GPU based terminal";
-            exec = "kitty --session ./sessions/ssh-${keyName}.conf";
+            exec = "kitty --session ${pkgs.writeText "ssh-${keyName}.conf" ''
+              cd ~
+              focus
+              focus_os_window
+              os_window_state maximized
+              launch --title "${name} (${host})" ${builtins.toString ../scripts/sshkitten.sh} ${args}
+            ''}";
             icon = "kitty";
             categories = [
               "System"
               "TerminalEmulator"
             ];
           };
-          # kitty session
-          home.file.".config/kitty/sessions/ssh-${keyName}.conf".text = ''
-            cd ~
-            focus
-            focus_os_window
-            os_window_state maximized
-            launch --title "${name} (${host})" ${builtins.toString ../scripts/sshkitten.sh} ${args}
-          '';
         };
     in
     # merge all options together to return them
