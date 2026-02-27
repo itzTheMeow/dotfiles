@@ -161,7 +161,7 @@ in
   };
 
   sops = lib.mkIf (osConfig.sops.secrets ? user_key) {
-    age.keyFile = osConfig.sops.secrets.user_key.path;
+    age.sshKeyPaths = [ osConfig.sops.secrets.user_key.path ];
   };
 
   catppuccin = {
@@ -169,8 +169,3 @@ in
     accent = xelib.globals.catppuccin.accent;
   };
 }
-
-# [user]
-# {{- if eq .box_group "nvstly" }}
-# 	name = NVSTly
-# 	email = team@nvst.ly
