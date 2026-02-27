@@ -1,8 +1,5 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
 {
+  config,
   host,
   hostname,
   pkgs,
@@ -40,6 +37,11 @@
     ];
   };
 
+  sops.secrets.user_key = {
+    sopsFile = ../${config.sops.opSecrets.user_key.path};
+    key = "private_key";
+    owner = host.username;
+  };
   sops.opSecrets.user_key.keys.private_key =
     "op://Private/zfo56rnxe3rtoigohaemc7lx6i/private key?ssh-format=openssh";
 }
