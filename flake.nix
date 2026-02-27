@@ -22,10 +22,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    opinject = {
-      url = "github:itzTheMeow/opinject";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     headplane = {
       url = "github:tale/headplane";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -39,7 +35,6 @@
       home-manager,
       nixpkgs-unstable,
       nixpkgs,
-      opinject,
       plasma-manager,
       sops-nix,
       ...
@@ -48,7 +43,6 @@
       home-manager-modules = [
         catppuccin.homeModules.catppuccin
         plasma-manager.homeModules.plasma-manager
-        opinject.homeManagerModules.default
         sops-nix.homeManagerModules.sops
         (import ./xelib/opsecrets.nix).homeManagerModule
       ];

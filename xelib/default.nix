@@ -9,15 +9,6 @@ rec {
   # import hosts and ports
   inherit (import ./hosts.nix) hosts services;
 
-  # makes a secret-injectable file with opinject
-  mkSecretFile = name: content: {
-    "${name}" = {
-      text = content;
-      force = true;
-      opinject = true;
-    };
-  };
-
   # optionally import a module if it exists
   optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
   # convert string to title case
@@ -71,7 +62,7 @@ rec {
           sops.opSecrets.ssh_pubkeys.keys.${keyName} = publicKey;
           # ssh match block
           programs.ssh.matchBlocks."${host}" = {
-            identityFile = config.sops;
+            identityFile = config.sops.secrets."ssh_pub_${keyName}".path;
             identitiesOnly = true;
           }
           // extraOptions;
