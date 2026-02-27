@@ -16,10 +16,9 @@
   home = {
     packages = with pkgs; [
       # development
+      ## javascript
       bun
       deno
-
-      ## javascript
       nodejs_24
       pnpm_10
       tsx
@@ -45,6 +44,9 @@
       python3
       python3Packages.numpy
       python3Packages.tkinter
+
+      ## protobuf
+      protobuf
 
       ## swift
       #swiftformat
