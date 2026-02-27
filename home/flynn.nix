@@ -10,8 +10,6 @@
   ...
 }:
 let
-  sshConfig = import ./common/ssh.nix { inherit pkgs xelib; };
-
   gtk2rcPath = "gtk-2.0/gtkrc"; # custom path for gtk 2 rc file
 
   # shorthand to create a remote view for a specific defined host
@@ -168,9 +166,6 @@ in
       };
     */
   };
-
-  # create kitty ssh desktop files
-  xdg.desktopEntries = sshConfig.desktopEntries;
 
   # set default browser to Firefox Developer Edition
   xdg.mimeApps = {

@@ -1,4 +1,4 @@
-{ xelib, ... }:
+{ config, xelib, ... }:
 let
   mkHostSSHItem = name: {
     name = xelib.toTitleCase name;
@@ -11,7 +11,7 @@ let
     };
   };
 in
-xelib.mkSSHConfig [
+xelib.mkSSHConfig config [
   {
     name = "Old Hyzenberg";
     host = "hyzen.xela.codes";
