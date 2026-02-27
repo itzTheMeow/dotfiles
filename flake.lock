@@ -133,26 +133,6 @@
         "type": "github"
       }
     },
-    "opinject": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1766136346,
-        "narHash": "sha256-pz3af9710dCPXDJK5tcErzUBsBnA/25skH1qFcc1+kE=",
-        "owner": "itzTheMeow",
-        "repo": "opinject",
-        "rev": "0325c2b59d1c3de8889c023c016904000ccff63d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "itzTheMeow",
-        "repo": "opinject",
-        "type": "github"
-      }
-    },
     "plasma-manager": {
       "inputs": {
         "home-manager": [
@@ -183,7 +163,6 @@
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "opinject": "opinject",
         "plasma-manager": "plasma-manager",
         "sops-nix": "sops-nix"
       }

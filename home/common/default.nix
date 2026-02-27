@@ -109,7 +109,6 @@ in
 
   programs = {
     home-manager.enable = true;
-    opinject.cleanupBackups = true;
 
     bash = {
       enable = true;
