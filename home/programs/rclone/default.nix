@@ -1,10 +1,21 @@
 {
   config,
+  pkgs,
   ...
 }:
 {
   programs.rclone = {
     enable = true;
+    # wrap rclone to include env vars
+    package = pkgs.symlinkJoin {
+      name = "rclone-wrapped";
+      paths = [ pkgs.rclone ];
+      nativeBuildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/rclone \
+          --run "set -a; source ${config.sops.secrets.rclone.path}; set +a"
+      '';
+    };
     remotes = {
       ipad.config = {
         type = "sftp";
@@ -26,6 +37,7 @@
 
   sops.secrets.rclone = {
     sopsFile = ../../../${config.sops.opSecrets.rclone.path};
+    format = "dotenv";
   };
   sops.opSecrets.rclone = {
     format = "dotenv";
