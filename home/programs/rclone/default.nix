@@ -1,21 +1,10 @@
 {
   config,
-  pkgs,
   ...
 }:
 {
   programs.rclone = {
     enable = true;
-    # wrap rclone to include env vars
-    package = pkgs.symlinkJoin {
-      name = "rclone-wrapped";
-      paths = [ pkgs.rclone ];
-      nativeBuildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/rclone \
-          --run "set -a; source ${config.sops.secrets.rclone.path}; set +a"
-      '';
-    };
     remotes = {
       ipad.config = {
         type = "sftp";
@@ -28,21 +17,23 @@
         md5sum_command = "md5sum";
         sha1sum_command = "sha1sum";
       };
-      pcloud.config = {
-        type = "pcloud";
-        hostname = "api.pcloud.com";
+      pcloud = {
+        config = {
+          type = "pcloud";
+          hostname = "api.pcloud.com";
+        };
+        secrets.token = config.sops.secrets.rclone_pcloud_token.path;
       };
     };
   };
 
-  sops.secrets.rclone = {
+  sops.secrets.rclone_pcloud_token = {
     sopsFile = ../../../${config.sops.opSecrets.rclone.path};
-    format = "dotenv";
+    key = "pcloud_token";
   };
   sops.opSecrets.rclone = {
-    format = "dotenv";
     keys = {
-      RCLONE_CONFIG_PCLOUD_TOKEN = "op://Private/k3ixcrzwsqpl6wjnffg2co3bda/vzpq5ej7dhbolpakiabeell73e";
+      pcloud_token = "op://Private/k3ixcrzwsqpl6wjnffg2co3bda/vzpq5ej7dhbolpakiabeell73e";
     };
   };
 }

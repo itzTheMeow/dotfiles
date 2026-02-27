@@ -1,0 +1,16 @@
+pcloud_token: ENC[AES256_GCM,data:0Hv65cLGEiJwlgPwslGFoRS/ohgTUjeJrZjzVPx1pjYOWz75usR9oP0TixKzX1zcaqzzvpmc4bnt93TiOESUF1g5uR8ydYgqNI4Zfekp9rNq7/54YwHkyLE+p1nXkANBfI7/GJINivtvScPXyDzjXr3xrAHycEQntZoVb1lG,iv:mkAINP7QrLy7/bZcHC9N/cHTJygFZQfFDfWxdMuNF9A=,tag:HUC76+ZTV4l1YdNja27gmw==,type:str]
+sops:
+    age:
+        - recipient: age1rxcfmv2y3nsjs2gyy4vegeaazlpsensttjkhn0ue96z2edduf37q0kcdfw
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAydEluUVA0VGV2Nm5GYkRj
+            dXNzMjIvRHRjaXM3Rk5ZMjY4NW5oWS8vREJzCm80eS9XZ2IrWlVaa0U1RnJZc1Nm
+            VjYvTkFXaXdNS3lNYjFFU0Fseitqc3MKLS0tIHlUaGRXQ0VMNE55Y1dBL0xhY3RT
+            a3FrSk82TWVMREFHeE5xdjhSVzVBNFEKkhNICWqqz5436T5DTsXHjEsxPqD57bOo
+            Pcj5HgCEF6BHsi205mJKMyCBUMJgIk14JVqfhYYel9oYk9xwuvly/w==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-02-27T06:58:15Z"
+    mac: ENC[AES256_GCM,data:sUhkRFkJuIr5mDkC0IPvyANFf8/8xdpe67LgGMd2wpx/vgF/YB+5tVsEpY0FGUelhWzcDFhV1D3hUoTsP8/r3upgXayyyNotWpNt7nWPN/zpOcFIS7+e5X9e5XEFqwcurkz83juN2XWRFeHntglJ2bzaOof2a+NcYzXHzL6DZcQ=,iv:gOx2Z/VaJmW/eBtZ/29qaUnoAK7fyN3pIat1LaYe7yk=,tag:X4YNf+ejV0lw7/sOC63D7g==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.12.1
