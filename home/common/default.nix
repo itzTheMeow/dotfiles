@@ -160,7 +160,7 @@ in
     };
   };
 
-  sops = lib.mkIf osConfig.sops.secrets.user_key {
+  sops = lib.mkIf (osConfig.sops.secrets ? user_key) {
     age.keyFile = osConfig.sops.secrets.user_key.path;
   };
 
