@@ -171,13 +171,16 @@ builtins.mapAttrs (name: conf: {
 	for hostname, config := range configs {
 		log("encrypting secrets for %s...", hostname)
 
-		masterKey, err := sopsAge.MasterKeyFromRecipient(ServerPublicKeys[hostname])
-		if err != nil {
+		if masterKey, err := sopsAge.MasterKeyFromRecipient(ServerPublicKeys[hostname]); err == nil {
+			encryptSecrets("NixOS", dotfiles, config.NixOS, masterKey, fetchedSecrets)
+		} else {
 			panic(err)
 		}
-
-		encryptSecrets("NixOS", dotfiles, config.NixOS, masterKey, fetchedSecrets)
-		encryptSecrets("Home Manager", dotfiles, config.HomeManager, masterKey, fetchedSecrets)
+		if masterKey, err := sopsAge.MasterKeyFromRecipient(UserPublicKeys[hostname]); err == nil {
+			encryptSecrets("Home Manager", dotfiles, config.HomeManager, masterKey, fetchedSecrets)
+		} else {
+			panic(err)
+		}
 	}
 
 	log("done.")
