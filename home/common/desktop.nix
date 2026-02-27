@@ -50,7 +50,7 @@
       protoc-gen-go
 
       ## swift
-      swiftformat
+      #swiftformat
 
       # fonts
       nerd-fonts.caskaydia-mono
