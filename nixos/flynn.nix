@@ -27,7 +27,7 @@
       device = "nodev";
       efiSupport = true;
       useOSProber = true;
-      default = 3;
+      default = 2;
     };
     timeout = 1;
     efi.canTouchEfiVariables = true;
