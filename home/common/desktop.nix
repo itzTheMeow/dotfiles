@@ -1,4 +1,5 @@
 {
+  config,
   home-manager,
   isNixOS,
   lib,
@@ -66,9 +67,7 @@ in
       '';
     }
     # add ssh public keys
-    // sshConfig.files
-    // xelib.mkSecretFile ".ssh/github_signing.pub" "op://Private/Github Signing SSH Key/public key"
-    // xelib.mkSecretFile ".ssh/github_auth.pub" "op://Private/GitHub Authentication SSH Key/public key";
+    // sshConfig.files;
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
     # only on non-nixos
@@ -101,12 +100,11 @@ in
     ssh = {
       enable = true;
       enableDefaultConfig = false;
-      includes = [ "~/.ssh/config.private" ];
       matchBlocks = sshConfig.blocks // {
         "github.com" = {
           identityFile = [
-            "~/.ssh/github_signing.pub"
-            "~/.ssh/github_auth.pub"
+            config.sops.secrets.github_ssh_auth.path
+            config.sops.secrets.github_ssh_signing.path
           ];
           identitiesOnly = true;
         };
@@ -140,6 +138,21 @@ in
         "https://github.com/"
         "github:"
       ];
+    };
+  };
+
+  sops.secrets.github_ssh_auth = {
+    sopsFile = ../../${config.sops.opSecrets.github_ssh.path};
+    key = "github_auth";
+  };
+  sops.secrets.github_ssh_signing = {
+    sopsFile = ../../${config.sops.opSecrets.github_ssh.path};
+    key = "github_signing";
+  };
+  sops.opSecrets.github_ssh = {
+    keys = {
+      github_auth = "op://Private/royxpwncznclgwwbtp5gq4syle/public key";
+      github_signing = "op://Private/brpzxia4pb2uk7ujbyf3nj7qci/public key";
     };
   };
 }
