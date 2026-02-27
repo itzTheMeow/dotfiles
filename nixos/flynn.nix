@@ -208,5 +208,6 @@
     key = "private_key";
     owner = host.username;
   };
-  sops.opSecrets.user_key.keys.private_key = "op://Private/3qhsyka4n4ivngmjow5tysb3da/private key";
+  sops.opSecrets.user_key.keys.private_key =
+    "op://Private/3qhsyka4n4ivngmjow5tysb3da/private key?ssh-format=openssh";
 }
