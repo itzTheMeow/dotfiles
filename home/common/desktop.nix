@@ -5,14 +5,11 @@
   lib,
   pkgs,
   pkgs-unstable,
-  xelib,
   ...
 }:
-let
-  sshConfig = import ./ssh.nix { inherit pkgs xelib; };
-in
 {
   imports = [
+    ./ssh.nix
     ../programs/kitty
   ];
 
@@ -65,9 +62,7 @@ in
         [[ssh-keys]]
         vault = "NVSTly Internal"
       '';
-    }
-    # add ssh public keys
-    // sshConfig.files;
+    };
 
     # prompts for 1password cli install, since we can't install via nix for desktop integration
     # only on non-nixos
@@ -100,7 +95,7 @@ in
     ssh = {
       enable = true;
       enableDefaultConfig = false;
-      matchBlocks = sshConfig.blocks // {
+      matchBlocks = {
         "github.com" = {
           identityFile = [
             config.sops.secrets.github_ssh_auth.path

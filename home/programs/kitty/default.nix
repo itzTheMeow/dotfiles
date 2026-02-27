@@ -1,7 +1,4 @@
-{ pkgs, xelib, ... }:
-let
-  sshConfig = import ../../common/ssh.nix { inherit pkgs xelib; };
-in
+{ pkgs, ... }:
 {
   programs.kitty = {
     enable = true;
@@ -30,5 +27,4 @@ in
     os_window_state maximized
     launch
   '';
-  home.file = sshConfig.kittySessions;
 }
