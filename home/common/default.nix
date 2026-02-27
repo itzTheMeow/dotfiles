@@ -163,6 +163,7 @@ in
     if (osConfig.sops.secrets ? user_key) then
       { sshKeyPaths = [ osConfig.sops.secrets.user_key.path ]; }
     else
+      # effectively disable
       { keyFile = "/dev/null"; };
 
   catppuccin = {
