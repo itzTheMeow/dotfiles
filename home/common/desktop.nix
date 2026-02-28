@@ -48,6 +48,7 @@
       ## protobuf
       protobuf
       protoc-gen-go
+      protoc-gen-go-grpc
 
       ## other
       openapi-generator-cli
