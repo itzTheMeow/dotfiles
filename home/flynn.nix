@@ -278,6 +278,8 @@ in
     configFile.kwinrc."Effect-overview".BorderActivate = "9";
     # change tab menu to sidebar
     configFile.kwinrc.TabBox.LayoutName = "sidebar";
+    # make baloo ignore pcloud mount
+    configFile."baloofilerc"."General"."exclude folders" = "/home/${host.username}/pCloudDrive";
 
     # Power management settings
     powerdevil = {
