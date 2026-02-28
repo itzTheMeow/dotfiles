@@ -19,21 +19,14 @@
 # Nix
 !/nix
 
-# Restic/Rustic
-!/home/*/.cache/restic
-!/root/.cache/restic
-!/home/*/.cache/rustic
-!/root/.cache/rustic
+# Home Files
+!.cache/
 
 # pCloud
 !.pcloud
 !/home/pcloud
 !/root/pcloud
 !pCloudDrive
-
-# rclone
-!/home/*/.cache/rclone
-!/root/.cache/rclone
 
 # Node/NPM
 !/home/*/.local/share/pnpm
