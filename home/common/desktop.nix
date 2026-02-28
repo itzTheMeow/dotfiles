@@ -49,6 +49,9 @@
       protobuf
       protoc-gen-go
 
+      ## other
+      openapi-generator-cli
+
       ## swift
       #swiftformat
 
