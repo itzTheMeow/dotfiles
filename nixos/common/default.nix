@@ -115,6 +115,10 @@
   environment.variables = {
     NIXPKGS_ALLOW_UNFREE = "1";
   };
+  # exclude default KDE apps from plasma
+  environment.plasma6.excludePackages = with pkgs; [
+    kdePackages.elisa
+  ];
 
   # allow other flag for fuse mounts
   programs.fuse.userAllowOther = true;
