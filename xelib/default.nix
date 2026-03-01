@@ -77,7 +77,7 @@ rec {
               focus
               focus_os_window
               os_window_state maximized
-              launch --title "${name} (${host})" ${builtins.toString ../scripts/sshkitten.sh} ${args}
+              launch --title "${name} (${host})" ${../scripts/sshkitten.sh} ${args}
             ''}";
             icon = "kitty";
             categories = [
