@@ -25,7 +25,10 @@
       "flakes"
     ];
     auto-optimise-store = true;
-
+    trusted-users = [
+      "root"
+      "@wheel"
+    ];
   };
   nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
   nix.channel.enable = false;
@@ -90,6 +93,7 @@
     pkg-config
 
     ## nix-related
+    cachix
     home-manager
 
     ## editors
