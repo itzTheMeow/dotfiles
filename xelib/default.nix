@@ -166,7 +166,7 @@ rec {
                   client_max_body_size 0;
 
                   # allow trusted tailscale hosts
-                  ${lib.concatMapStringsSep "\n" (h: "allow ${hosts.${h}.ip};") (
+                  ${lib.concatMapStringsSep "\n" (h: "allow ${hosts.${h}.ip}; # ${h}") (
                     lib.lists.unique (allowedHosts ++ trustedHosts)
                   )}
 
