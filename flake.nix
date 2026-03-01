@@ -101,9 +101,8 @@
         };
 
       mkNixosConfiguration =
-        hostname:
+        system: hostname:
         let
-          system = "x86_64-linux";
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
@@ -168,12 +167,12 @@
       };
 
       nixosConfigurations = {
-        flynn = mkNixosConfiguration "flynn";
-        pete = mkNixosConfiguration "pete";
+        flynn = mkNixosConfiguration "x86_64-linux" "flynn";
+        pete = mkNixosConfiguration "x86_64-linux" "pete";
 
-        hyzenberg = mkNixosConfiguration "hyzenberg";
-        ehrman = mkNixosConfiguration "ehrman";
-        huell = mkNixosConfiguration "huell";
+        hyzenberg = mkNixosConfiguration "x86_64-linux" "hyzenberg";
+        ehrman = mkNixosConfiguration "x86_64-linux" "ehrman";
+        huell = mkNixosConfiguration "x86_64-linux" "huell";
       };
     };
 }
