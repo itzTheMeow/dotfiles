@@ -34,7 +34,7 @@ let
       }
       (xelib.mkNginxProxy svc.domain "http://${bindaddress}:${toString svc.port}" {
         # the servarr programs can talk to eachother
-        allowedHosts = [
+        allowedHosts = xelib.mkServiceHosts [
           "prowlarr"
           "radarr"
           "sonarr"
