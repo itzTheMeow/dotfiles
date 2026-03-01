@@ -21,10 +21,11 @@ in
       ip = "";
       accent = "#a6e3a1"; # Green
       ports = {
+        beszel-agent = 59779;
         ssh = 40938;
       };
       publicKey = "op://Private/srsyuq6y32smf66o3cz4fxlqwy/public key";
-      backupFrequency = EVERY_6H;
+      backupFrequency = "00:00";
     };
 
     # Main Server
