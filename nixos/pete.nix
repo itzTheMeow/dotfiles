@@ -13,6 +13,7 @@
     ./common
 
     ./services/ssh
+    ./services/tailscale
   ];
 
   boot.loader.systemd-boot.enable = true;
