@@ -11,6 +11,8 @@
 {
   imports = [
     ./common
+
+    ./services/ssh
   ];
 
   boot.loader.systemd-boot.enable = true;
