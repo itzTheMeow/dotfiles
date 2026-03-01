@@ -26,5 +26,4 @@ jobs:
 
       - name: Build System
         run: |
-          nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel \
-            --extra-conf 'accept-flake-config = true'
+          nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel
