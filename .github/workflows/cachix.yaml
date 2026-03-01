@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: # list of hostnames to cache for
-        hostname: [flynn]
+        hostname: [ehrman]
     steps:
       - uses: actions/checkout@v4
 
@@ -26,4 +26,5 @@ jobs:
 
       - name: Build System
         run: |
-          nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel
+          nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel\
+            --option accept-flake-config true
