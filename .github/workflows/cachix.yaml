@@ -13,6 +13,7 @@ jobs:
   build-systems:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix: # list of hostnames to cache for
         hostname: [flynn, hyzenberg, ehrman, pete]
     steps:
