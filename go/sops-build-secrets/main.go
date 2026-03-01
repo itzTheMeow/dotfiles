@@ -26,20 +26,25 @@ import (
 	sopsVersion "github.com/getsops/sops/v3/version"
 )
 
+const PRIVATE_VAULT = "op://x4455gscttc5p7z42ff3dp2sky"
+
 var HostNames = []string{
 	"ehrman",
 	"flynn",
 	"hyzenberg",
+	"pete",
 }
 var ServerPublicKeyURIs = []string{
-	"op://x4455gscttc5p7z42ff3dp2sky/l6owjdx7thnp52tuwmd4j5muda/public key", // ehrman
-	"op://x4455gscttc5p7z42ff3dp2sky/rcbgglqbacsvmzwwygtpx73774/public key", // flynn
-	"op://x4455gscttc5p7z42ff3dp2sky/ptvgkvjl5ugrylkpausc3misma/public key", // hyzenberg
+	PRIVATE_VAULT + "/l6owjdx7thnp52tuwmd4j5muda/public key", // ehrman
+	PRIVATE_VAULT + "/rcbgglqbacsvmzwwygtpx73774/public key", // flynn
+	PRIVATE_VAULT + "/ptvgkvjl5ugrylkpausc3misma/public key", // hyzenberg
+	PRIVATE_VAULT + "/xroaipl44ipp5vtpqxvtczbnoa/public key", // pete
 }
 var UserPublicKeyURIs = []string{
-	"op://x4455gscttc5p7z42ff3dp2sky/zfo56rnxe3rtoigohaemc7lx6i/public key", // ehrman
-	"op://x4455gscttc5p7z42ff3dp2sky/3qhsyka4n4ivngmjow5tysb3da/public key", // flynn
-	"op://x4455gscttc5p7z42ff3dp2sky/vqhxrcxgookq6e6vu3etmjev2e/public key", // hyzenberg
+	PRIVATE_VAULT + "/zfo56rnxe3rtoigohaemc7lx6i/public key", // ehrman
+	PRIVATE_VAULT + "/3qhsyka4n4ivngmjow5tysb3da/public key", // flynn
+	PRIVATE_VAULT + "/vqhxrcxgookq6e6vu3etmjev2e/public key", // hyzenberg
+	PRIVATE_VAULT + "/wd7y5xz4qgp5loohnmc4wrj3t4/public key", // pete
 }
 
 type NixConfig =
