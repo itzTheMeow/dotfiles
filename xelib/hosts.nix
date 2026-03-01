@@ -56,7 +56,7 @@ in
     # NetroHost VM
     huell = {
       username = "huell";
-      ip = "100.64.1.0"; # TEMPORARY
+      ip = "0.0.0.0"; # TEMPORARY
       accent = "#eba0ac"; # Maroon
       ports = {
         ssh = 22;
