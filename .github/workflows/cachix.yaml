@@ -1,0 +1,29 @@
+name: "Build All NixOS Systems"
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-systems:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: # list of hostnames to cache for
+        hostname: [huell]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: xelacodes
+          # Use signingKey instead of authToken
+          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+
+      - name: Build System
+        run: |
+          nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel
