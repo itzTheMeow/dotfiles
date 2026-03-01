@@ -52,11 +52,6 @@
     SSH_AUTH_SOCK = "/home/${host.username}/.1password/agent.sock";
   };
 
-  # exclude default KDE apps
-  environment.plasma6.excludePackages = with pkgs; [
-    kdePackages.elisa
-  ];
-
   qt = {
     enable = true;
     platformTheme = "kde";
