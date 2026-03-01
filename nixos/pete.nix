@@ -12,6 +12,8 @@
   imports = [
     ./common
 
+    ./programs/rustic.nix
+
     ./services/ssh
     ./services/tailscale
   ];

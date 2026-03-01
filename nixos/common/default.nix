@@ -14,7 +14,6 @@
     ../../local/nixos.nix
 
     ../programs/ntfy.nix
-    ../programs/rustic.nix
   ];
 
   # base nix settings

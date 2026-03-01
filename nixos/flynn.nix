@@ -18,6 +18,7 @@
 
     ./programs/discord-rich-presence-plex.nix
     ./programs/immich.nix
+    ./programs/rustic.nix
   ];
 
   # Bootloader.

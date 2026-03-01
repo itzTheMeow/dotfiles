@@ -11,6 +11,8 @@
     ./common/headless.nix
     ./common/media-center.nix
 
+    ./programs/rustic.nix
+
     ./services/beszel/agent.nix
     ./services/nginx
     (import ./services/rustic "hyzen2")

@@ -26,7 +26,6 @@ in
     ../programs/btop
     ../programs/fastfetch
     ../programs/oh-my-posh
-    ../programs/rclone
     ../programs/rustic
   ];
   news.display = "silent";
