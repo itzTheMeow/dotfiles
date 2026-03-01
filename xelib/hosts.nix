@@ -65,11 +65,29 @@ in
       backupFrequency = EVERY_6H;
     };
 
+    # Other hosts that arent necessarily NixOS.
+    iphone = {
+      ip = "100.64.0.6";
+    };
+    ipad = {
+      username = "mobile";
+      ip = "100.64.0.1";
+      ports.ssh = 22;
+      publicKey = "op://Private/tc37c36m3m7h6atgatorajfq4i/public key";
+    };
+
     # mac, needs organized
     macintosh = {
       accent = "#b4befe"; # Lavender
     };
   };
+  # hosts that are trusted to access everything
+  trustedHosts = [
+    "flynn"
+    "pete"
+    "iphone"
+    "ipad"
+  ];
 
   services = {
     beszel = {
