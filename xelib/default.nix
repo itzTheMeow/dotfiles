@@ -23,7 +23,7 @@ rec {
   # check if a domain is local (.xela or .internal)
   isLocalDomain = domain: builtins.match ".+\\.(xela|internal)$" domain != null;
   # map a list of services to a list of the hosts they run on
-  mkServiceHosts = services: lib.lists.unique (map (name: services.${name}.host) services);
+  mkServiceHosts = svcs: lib.lists.unique (map (name: svcs.${name}.host) svcs);
 
   # convert an attr set to yaml string
   toYAMLString = data: builtins.readFile (toYAMLFile "file.yaml" data).outPath;
