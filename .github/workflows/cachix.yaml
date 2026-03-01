@@ -22,7 +22,7 @@ jobs:
         with:
           name: xelacodes
           # Use signingKey instead of authToken
-          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+          signingKey: "${{ secrets.CACHIX_PRIVATE_KEY }}"
 
       - name: Build System
         run: |
