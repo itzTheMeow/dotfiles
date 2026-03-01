@@ -24,10 +24,12 @@ in
   imports = [
     ./common
     ./common/desktop.nix
+
     ./programs/activitywatch
     ./programs/discordchatexporter
     ./programs/logisim
     ./programs/plexamp
+    ./programs/rclone
     ./programs/thunderbird
     ./programs/vesktop
   ];

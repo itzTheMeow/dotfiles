@@ -10,6 +10,8 @@
     ./common
     ./common/headless.nix
 
+    ./programs/rustic.nix
+
     ./services/beszel/agent.nix
     ./services/nginx
     (import ./services/rustic hostname)
