@@ -25,10 +25,7 @@
       "flakes"
     ];
     auto-optimise-store = true;
-    trusted-users = [
-      "root"
-      "@wheel"
-    ];
+    trusted-users = [ "@wheel" ];
   };
   nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
   nix.channel.enable = false;
