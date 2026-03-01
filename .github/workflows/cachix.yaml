@@ -28,7 +28,7 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
           signingKey: "${{ secrets.CACHIX_SECRET_KEY }}"
           # we have to ignore big ticket packages like 1password
-          pushFilter: "(-source$|nixpkgs\\.tar\\.gz$|\\.snap$|1password-8|vscode|plexamp|plex-desktop|joplin|mongodb-compass|geekbench)"
+          pushFilter: "(-source$|nixpkgs\\.tar\\.gz$|\\.snap$|1password-8|vscode|plexamp|plex-desktop|joplin-desktop|mongodb-compass|geekbench)"
 
       - name: Build System
         run: |
