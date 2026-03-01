@@ -32,7 +32,14 @@ let
       {
         systemd.services.${name}.serviceConfig.SupplementaryGroups = [ "nzbget" ];
       }
-      (xelib.mkNginxProxy svc.domain "http://${bindaddress}:${toString svc.port}" { })
+      (xelib.mkNginxProxy svc.domain "http://${bindaddress}:${toString svc.port}" {
+        # the servarr programs can talk to eachother
+        allowedHosts = [
+          "prowlarr"
+          "radarr"
+          "sonarr"
+        ];
+      })
     ];
 in
 lib.mkMerge [

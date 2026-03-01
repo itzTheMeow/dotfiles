@@ -21,5 +21,10 @@ lib.mkMerge [
       };
     };
   }
-  (xelib.mkNginxProxy svc.domain "http://${host}:${toString svc.port}" { })
+  (xelib.mkNginxProxy svc.domain "http://${host}:${toString svc.port}" {
+    # filter all hosts that have a beszel-agent port
+    allowedHosts = builtins.attrNames (
+      lib.attrsets.filterAttrs (name: value: (value ? ports) && (value.ports ? beszel-agent)) xelib.hosts
+    );
+  })
 ]
