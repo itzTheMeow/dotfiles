@@ -18,7 +18,7 @@ in
     # ODROID H4 Ultra
     pete = {
       username = "tv";
-      ip = "";
+      ip = "100.64.1.1";
       accent = "#a6e3a1"; # Green
       ports = {
         beszel-agent = 59779;
