@@ -7,7 +7,7 @@ rec {
   globals = import ./globals.nix;
 
   # import hosts and ports
-  inherit (import ./hosts.nix) hosts services;
+  inherit (import ./hosts.nix) hosts services trustedHosts;
 
   # optionally import a module if it exists
   optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
@@ -22,6 +22,8 @@ rec {
 
   # check if a domain is local (.xela or .internal)
   isLocalDomain = domain: builtins.match ".+\\.(xela|internal)$" domain != null;
+  # map a list of services to a list of the hosts they run on
+  mkServiceHosts = services: lib.lists.unique (map (name: services.${name}.host) services);
 
   # convert an attr set to yaml string
   toYAMLString = data: builtins.readFile (toYAMLFile "file.yaml" data).outPath;
@@ -142,7 +144,11 @@ rec {
       useLocalCA ? (isLocalDomain domain),
       extraConfig ? { },
       proxyWebsockets ? true,
+      allowedHosts ? [ ],
     }:
+    let
+      acmeServerIP = hosts.${services.step-ca.host}.ip;
+    in
     {
       services.nginx.virtualHosts."${domain}" = lib.mkMerge [
         {
@@ -159,9 +165,10 @@ rec {
                   # local domains dont have a body size limit
                   client_max_body_size 0;
 
-                  # allow Tailscale IP ranges
-                  allow 100.64.0.0/10;
-                  allow fd7a:115c:a1e0::/48;
+                  # allow trusted tailscale hosts
+                  ${lib.concatMapStringsSep "\n" (h: "allow ${hosts.${h}.ip};") (
+                    lib.lists.unique (allowedHosts ++ trustedHosts)
+                  )}
 
                   # allow local ips
                   allow 127.0.0.1;
@@ -185,9 +192,7 @@ rec {
           # use the custom ACME server
           if useLocalCA then
             {
-              server = "https://${
-                hosts.${services.step-ca.host}.ip
-              }:${toString services.step-ca.port}/acme/acme/directory";
+              server = "https://${acmeServerIP}:${toString services.step-ca.port}/acme/acme/directory";
             }
           else
             { }
