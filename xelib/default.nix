@@ -142,12 +142,36 @@ rec {
     {
       # if domain is .xela or .internal, then automatically use the local ca
       useLocalCA ? (isLocalDomain domain),
-      extraConfig ? { },
+      # a function where the argument is the locationExtraConfig and the return value is merged with the host
+      extraConfig ? (_: { }),
       proxyWebsockets ? true,
       allowedHosts ? [ ],
     }:
     let
       acmeServerIP = hosts.${services.step-ca.host}.ip;
+
+      locationExtraConfig =
+        if useLocalCA then
+          {
+            extraConfig = ''
+              # local domains dont have a body size limit
+              client_max_body_size 0;
+
+              # allow trusted tailscale hosts
+              ${lib.concatMapStringsSep "\n" (h: "allow ${hosts.${h}.ip}; # ${h}") (
+                lib.lists.unique (allowedHosts ++ trustedHosts)
+              )}
+
+              # allow local ips
+              allow 127.0.0.1;
+              allow ::1;
+
+              # block all other traffic
+              deny all;
+            '';
+          }
+        else
+          { };
     in
     {
       services.nginx.virtualHosts."${domain}" = lib.mkMerge [
@@ -158,31 +182,9 @@ rec {
             proxyPass = target;
             inherit proxyWebsockets;
           }
-          // (
-            if useLocalCA then
-              {
-                extraConfig = ''
-                  # local domains dont have a body size limit
-                  client_max_body_size 0;
-
-                  # allow trusted tailscale hosts
-                  ${lib.concatMapStringsSep "\n" (h: "allow ${hosts.${h}.ip}; # ${h}") (
-                    lib.lists.unique (allowedHosts ++ trustedHosts)
-                  )}
-
-                  # allow local ips
-                  allow 127.0.0.1;
-                  allow ::1;
-
-                  # block all other traffic
-                  deny all;
-                '';
-              }
-            else
-              { }
-          );
+          // locationExtraConfig;
         }
-        extraConfig
+        (extraConfig locationExtraConfig)
       ];
 
       # create cert for this domain
