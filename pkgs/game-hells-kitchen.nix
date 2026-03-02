@@ -2,13 +2,13 @@
   fetchurl,
   p7zip,
   pkgs,
-  wine,
+  wineWow64Packages,
   xelpkgs,
   ...
 }:
 # yeah yeah i know...
 let
-  winebin = "${wine}/bin/wine";
+  winebin = "${wineWow64Packages.staging}/bin/wine";
 
   gameISO = fetchurl {
     url = "https://archive.org/download/HellsKitchenPC/Hell%27s%20Kitchen.iso";
@@ -30,16 +30,19 @@ let
 
   setupScript = pkgs.writeShellScript "setup" ''
     # the game requires the installer to exist inside a cdrom to run
-    mkdir -p $WINEPREFIX/dosdevices/d:/Main
-    touch   "$WINEPREFIX/dosdevices/d:/Main/Hell's Kitchen-${gameSource.version}.exe"
+    ln -sfT ../cdrom "$WINEPREFIX/dosdevices/d:"
+    mkdir -p $WINEPREFIX/cdrom/Main
+    touch   "$WINEPREFIX/cdrom/Main/Hell's Kitchen-${gameSource.version}.exe"
     # set up the cdrom
     ${winebin} regedit ${pkgs.writeText "setup.reg" ''
       Windows Registry Editor Version 5.00
 
       ; type 4 is a cdrom, also set volume label to original disk name
-      [HKEY_CURRENT_USER\Software\Wine\Drives]
-      "d:"="Hell's Kitchen"
-      "d:type"=dword:00000004
+      [HKEY_LOCAL_MACHINE\Software\Wine\Drives]
+      "d:"="cdrom"
+      ; also disable the game's update checker
+      [HKEY_LOCAL_MACHINE\Software\\Wow6432Node\\Hell's Kitchen]
+      "CheckForUpdate"="Never"
     ''}
     ${winebin}server -w
   '';
