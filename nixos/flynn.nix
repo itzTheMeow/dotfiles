@@ -10,6 +10,7 @@
 {
   imports = [
     ./common
+    ./common/gaming.nix
 
     ./services/beszel/agent.nix
     (import ./services/rustic "meow-pc")
@@ -123,17 +124,6 @@
   programs.vscode = {
     enable = true;
     package = pkgs.vscode-fhs;
-  };
-
-  # games
-  programs.steam = {
-    enable = true;
-    package = pkgs.steam.override {
-      # steam needs access to the cursor theme
-      extraPkgs = _: [
-        xelpkgs.colloid-cursors
-      ];
-    };
   };
 
   environment.systemPackages = with pkgs; [
