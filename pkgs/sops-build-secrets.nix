@@ -2,6 +2,7 @@
   buildGoModule,
   makeWrapper,
   pkgs-unstable,
+  ...
 }:
 buildGoModule {
   name = "sops-build-secrets";
