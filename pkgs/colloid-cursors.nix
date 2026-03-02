@@ -4,6 +4,7 @@
   fetchFromGitHub,
   gitUpdater,
   variant ? "light", # light or dark
+  ...
 }:
 let
   variantString = lib.optionalString (variant == "dark") "-dark";

@@ -9,6 +9,7 @@
   shade ? "dark",
   size ? "standard",
   tweaks ? [ ],
+  ...
 }:
 let
   validAccents = [

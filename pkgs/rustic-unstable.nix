@@ -4,6 +4,7 @@
   fetchFromGitHub,
   rustPlatform,
   installShellFiles,
+  ...
 }:
 rustPlatform.buildRustPackage {
   pname = "rustic-unstable";

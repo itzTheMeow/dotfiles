@@ -3,13 +3,14 @@
   pkgs-unstable,
   ...
 }:
-{
-  colloid-cursors = pkgs.callPackage ./colloid-cursors.nix { };
-  download-organizer = pkgs.callPackage ./download-organizer.nix { };
-  magnetic-catppuccin-gtk = pkgs.callPackage ./magnetic-catppuccin-gtk.nix { };
-  plasma-bigscreen = pkgs.callPackage ./plasma-bigscreen.nix { };
-  rustic-unstable = pkgs.callPackage ./rustic-unstable.nix { };
-  sops-build-secrets = pkgs.callPackage ./sops-build-secrets.nix {
-    inherit (pkgs-unstable) _1password-gui;
-  };
-}
+let
+  # read the current directory and map it to package names
+  dirContents = builtins.readDir ./.;
+  packageFiles = builtins.filter (
+    # filter out valid packages (ignore this file)
+    name: name != "default.nix" && pkgs.lib.hasSuffix ".nix" name && dirContents.${name} == "regular"
+  ) (builtins.attrNames dirContents);
+in
+pkgs.lib.genAttrs (map (fn: pkgs.lib.removeSuffix ".nix" fn) packageFiles) (
+  name: pkgs.callPackage ./${name}.nix { inherit pkgs-unstable; }
+)

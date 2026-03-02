@@ -5,6 +5,7 @@
   kdePackages,
   lib,
   pkg-config,
+  ...
 }:
 kdePackages.mkKdeDerivation {
   pname = "plasma-bigscreen";

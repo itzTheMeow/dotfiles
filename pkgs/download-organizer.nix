@@ -1,4 +1,4 @@
-{ buildGoModule }:
+{ buildGoModule, ... }:
 buildGoModule {
   name = "download-organizer";
   src = ../go/download-organizer;
