@@ -37,11 +37,11 @@ let
     ${winebin} regedit ${pkgs.writeText "setup.reg" ''
       Windows Registry Editor Version 5.00
 
-      ; type 4 is a cdrom, also set volume label to original disk name
+      ; set D: as a cdrom
       [HKEY_LOCAL_MACHINE\Software\Wine\Drives]
       "d:"="cdrom"
       ; also disable the game's update checker
-      [HKEY_LOCAL_MACHINE\Software\\Wow6432Node\\Hell's Kitchen]
+      [HKEY_LOCAL_MACHINE\Software\Wow6432Node\Hell's Kitchen]
       "CheckForUpdate"="Never"
     ''}
     ${winebin}server -w
