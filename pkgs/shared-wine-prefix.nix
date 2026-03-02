@@ -1,13 +1,19 @@
 {
   stdenv,
-  wine,
+  winetricks,
+  wineWow64Packages,
   writeShellScriptBin,
   ...
 }:
 let
+  wine = wineWow64Packages.staging;
+
   shared-wine-prefix = stdenv.mkDerivation {
     name = "shared-wine-prefix";
-    nativeBuildInputs = [ wine ];
+    nativeBuildInputs = [
+      wine
+      winetricks
+    ];
     dontUnpack = true;
 
     installPhase = ''
@@ -16,6 +22,7 @@ let
       export WINEDEBUG="-all" # disable debugging
       mkdir -p $WINEPREFIX
 
+      # initialize wine
       echo "Initializing Wine..."
       wineboot --init
       wineserver -w
@@ -24,7 +31,7 @@ let
       cp -r $WINEPREFIX $out
 
       # remove any hardware links and created user directory
-      rm -rf $out/dosdevices $out/users/$USER
+      rm -rf $out/dosdevices $out/drive_c/users/$USER
     '';
   };
 
@@ -51,8 +58,10 @@ let
       ${wine}/bin/wineboot -u
       ${wine}/bin/wineserver -w
 
-      # register DLLs that didnt get registered
-      ${wine}/bin/wine regsvr32 /s mmdevapi.dll
+      # register DLLs that didnt get registered (on the 32 bit system)
+      for dll in mmdevapi.dll wbemprox.dll; do
+        ${wine}/bin/wine 'C:\windows\syswow64\regsvr32.exe' /s $dll
+      done
 
       # run exit script if provided
       if [ -f "$1" ]; then
