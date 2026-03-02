@@ -128,6 +128,12 @@
   # games
   programs.steam = {
     enable = true;
+    package = pkgs.steam.override {
+      # steam needs access to the cursor theme
+      extraPkgs = _: [
+        xelpkgs.colloid-cursors
+      ];
+    };
   };
 
   environment.systemPackages = with pkgs; [
