@@ -5,7 +5,6 @@
   kdePackages,
   lib,
   pkg-config,
-  plasma-workspace,
 }:
 kdePackages.mkKdeDerivation {
   pname = "plasma-bigscreen";
@@ -44,12 +43,12 @@ kdePackages.mkKdeDerivation {
 
   postPatch = ''
         substituteInPlace bin/plasma-bigscreen-wayland.in \
-          --replace-fail @KDE_INSTALL_FULL_LIBEXECDIR@ "${plasma-workspace}/libexec"
+          --replace-fail @KDE_INSTALL_FULL_LIBEXECDIR@ "${kdePackages.plasma-workspace}/libexec"
 
         # Plasma version numbers are required to match, but we are building an
         # unreleased package against a stable Plasma release.
         substituteInPlace CMakeLists.txt \
-          --replace-fail 'set(PROJECT_VERSION "6.4.80")' 'set(PROJECT_VERSION "${plasma-workspace.version}")'
+          --replace-fail 'set(PROJECT_VERSION "6.4.80")' 'set(PROJECT_VERSION "${kdePackages.plasma-workspace.version}")'
 
         # Fix for Qt 6.10+ which requires explicit find_package of private targets
         # Reference: https://github.com/NixOS/nixpkgs/pull/461599/changes
