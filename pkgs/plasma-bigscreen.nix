@@ -4,11 +4,10 @@
   fetchFromGitLab,
   kdePackages,
   lib,
-  mkKdeDerivation,
   pkg-config,
   plasma-workspace,
 }:
-mkKdeDerivation {
+kdePackages.mkKdeDerivation {
   pname = "plasma-bigscreen";
   version = "unstable-2026-01-17";
 
