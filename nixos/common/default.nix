@@ -81,8 +81,16 @@
 
   environment.systemPackages = with pkgs; [
     # system-level utilities
+    ## basic deps
+    curl
+    git
+    jq
+    killport
+    wget
+
     ## build tools
     check
+    cloc
     gcc
     gnumake
     pkg-config
@@ -95,10 +103,17 @@
     nano
 
     ## system
+    dnsutils
     pciutils
     usbutils
 
-    ## pandoc
+    ## file management
+    ncdu
+    renameutils
+    tree
+
+    ## ffmpeg/pandoc
+    ffmpeg-full
     pandoc
     texliveSmall
 
@@ -106,6 +121,10 @@
     dig
     net-tools
     tcpdump
+
+    ## archiving
+    p7zip
+    unzip
 
     kitty # needed so ssh will work from kitty
     rclone # used by some core services

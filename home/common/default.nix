@@ -52,19 +52,6 @@ in
       nh
       nix-your-shell
 
-      # basic dependencies
-      cloc
-      dnsutils
-      ffmpeg-full
-      git
-      jq
-      killport
-      ncdu
-      renameutils
-      tree
-      unzip
-      wget
-
       # more complex tools
       rustic
       speedtest-cli
