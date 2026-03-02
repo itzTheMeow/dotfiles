@@ -1,7 +1,7 @@
 {
-  _1password-gui,
   buildGoModule,
   makeWrapper,
+  pkgs-unstable,
 }:
 buildGoModule {
   name = "sops-build-secrets";
@@ -12,6 +12,6 @@ buildGoModule {
 
   postInstall = ''
     wrapProgram $out/bin/sops-build-secrets \
-      --set OP_SHARED_LIBRARY "${_1password-gui}/share/1password/libop_sdk_ipc_client.so"
+      --set OP_SHARED_LIBRARY "${pkgs-unstable._1password-gui}/share/1password/libop_sdk_ipc_client.so"
   '';
 }
