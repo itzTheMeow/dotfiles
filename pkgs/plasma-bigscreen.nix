@@ -1,26 +1,12 @@
 # NOTE: from https://github.com/NixOS/nixpkgs/pull/428353#issuecomment-3498917203
 # more info in tv.nix nixos config
 {
-  mkKdeDerivation,
-  lib,
   fetchFromGitLab,
+  kdePackages,
+  lib,
+  mkKdeDerivation,
   pkg-config,
-  ki18n,
-  kdeclarative,
-  kcmutils,
-  knotifications,
-  kio,
-  kwayland,
-  kwindowsystem,
   plasma-workspace,
-  qtmultimedia,
-  bluez-qt,
-  qtwebengine,
-  plasma-nano,
-  plasma-nm,
-  milou,
-  kscreen,
-  kdeconnect-kde,
 }:
 mkKdeDerivation {
   pname = "plasma-bigscreen";
@@ -38,23 +24,23 @@ mkKdeDerivation {
     pkg-config
   ];
 
-  buildInputs = [
-    ki18n
-    kdeclarative
+  buildInputs = with kdePackages; [
+    bluez-qt
     kcmutils
-    knotifications
+    kdeclarative
+    kdeconnect-kde
+    ki18n
     kio
+    knotifications
+    kscreen
     kwayland
     kwindowsystem
-    plasma-workspace
-    qtmultimedia
-    bluez-qt
-    qtwebengine
+    milou
     plasma-nano
     plasma-nm
-    milou
-    kscreen
-    kdeconnect-kde
+    plasma-workspace
+    qtmultimedia
+    qtwebengine
   ];
 
   postPatch = ''
