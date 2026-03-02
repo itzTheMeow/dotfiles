@@ -10,7 +10,8 @@ let
     # filter out valid packages (ignore this file)
     name: name != "default.nix" && pkgs.lib.hasSuffix ".nix" name && dirContents.${name} == "regular"
   ) (builtins.attrNames dirContents);
+  xelpkgs = pkgs.lib.genAttrs (map (fn: pkgs.lib.removeSuffix ".nix" fn) packageFiles) (
+    name: pkgs.callPackage ./${name}.nix { inherit pkgs-unstable xelpkgs; }
+  );
 in
-pkgs.lib.genAttrs (map (fn: pkgs.lib.removeSuffix ".nix" fn) packageFiles) (
-  name: pkgs.callPackage ./${name}.nix { inherit pkgs-unstable; }
-)
+xelpkgs
