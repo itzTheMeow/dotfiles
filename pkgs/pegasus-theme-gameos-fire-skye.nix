@@ -23,6 +23,12 @@ stdenv.mkDerivation {
         sha256 = "sha256-ydUUdyhJOm4jLUZS8hi/xHLQSLfO3J4c+60owQdJrtQ=";
       }
     } assets/images/gameOS-logo.png
+    cp ${
+      fetchurl {
+        url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/9d2cdedd73d64a068214482902adea3d02783ba8/logo/nixos-white.png";
+        sha256 = "sha256-2bY//ppmTwtovkdaRIj20tKcxOQPrP2Z2zbjQ+9FWtI=";
+      }
+    } assets/images/logospng/nix.png
   '';
 
   installPhase = ''

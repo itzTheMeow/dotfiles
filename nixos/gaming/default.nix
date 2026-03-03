@@ -48,7 +48,7 @@
       gameDirs = [ "/home/xela/tmp" ];
 
       collections."PC" = {
-        shortname = "pc";
+        shortname = "nix";
       };
       games = [
         {
