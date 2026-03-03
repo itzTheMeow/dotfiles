@@ -30,6 +30,13 @@ rec {
   # convert an attr set to env string
   toENVString =
     data: builtins.concatStringsSep "\n" (map (k: ''${k}="${data.${k}}"'') (builtins.attrNames data));
+  # convert an attr set to `key: value` string
+  toKVCommaString =
+    data:
+    lib.generators.toKeyValue {
+      mkKeyValue = lib.generators.mkKeyValueDefault { } ": ";
+      listsAsDuplicateKeys = true;
+    } data;
 
   # convert an attr set to yaml
   toYAMLFile = (pkgs.formats.yaml { }).generate;
