@@ -22,12 +22,13 @@ let
     summary = null;
     description = null;
   };
+  t = "\t";
 
   # Test cases with expected outputs
   tests = [
     {
       name = "Super Nintendo Entertainment System";
-      opts = emptyOpts // {
+      opts = {
         launch = ''snes9x "{file.path}"'';
         extensions = [
           "7z"
@@ -55,7 +56,7 @@ let
     }
     {
       name = "Platformer games";
-      opts = emptyOpts // {
+      opts = {
         files = [
           "mario1.bin"
           "mario2.bin"
@@ -71,12 +72,33 @@ let
     }
     {
       name = "Multi-game carts";
-      opts = emptyOpts // {
+      opts = {
         regex = ''\d+.in.1'';
       };
       expected = ''
         collection: Multi-game carts
         regex: \d+.in.1
+      '';
+    }
+    {
+      name = "multi line";
+      opts = {
+        description = ''
+          this is a long description
+          which is a test of the flow strings
+
+          ^ this should be a dot
+          if its not.... well
+        '';
+      };
+      expected = ''
+        collection: multi line
+        description: 
+        ${t}this is a long description
+        ${t}which is a test of the flow strings
+        ${t}.
+        ${t}^ this should be a dot
+        ${t}if its not.... well
       '';
     }
   ];
@@ -85,7 +107,7 @@ let
   runTest =
     test:
     let
-      generated = mkCollectionConfig test.name test.opts;
+      generated = mkCollectionConfig test.name (emptyOpts // test.opts);
       passed = generated == test.expected;
     in
     {
