@@ -4,9 +4,6 @@
   xelpkgs,
   ...
 }:
-let
-  pegasusTheme = "pegasus-theme-gameos-fire-skye";
-in
 {
   programs.steam = {
     enable = true;
@@ -48,11 +45,18 @@ in
         "pegasus_media"
         "steam"
       ];
-      favorites = [ "steam:960090" ];
+      gameDirs = [ "/home/xela/tmp" ];
+
+      collections."PC" = {
+        shortname = "pc";
+      };
+      games = [
+        {
+          title = "Hell's Kitchen: The Game";
+          collections = [ "PC" ];
+          files = [ "${xelpkgs.game-hells-kitchen}/bin/hells-kitchen" ];
+        }
+      ];
     };
   };
-
-  environment.systemPackages = [
-    xelpkgs.game-hells-kitchen
-  ];
 }

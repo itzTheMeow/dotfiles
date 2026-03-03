@@ -26,6 +26,7 @@ let
   inherit (import ./pegasus-lib.nix { inherit lib; })
     mkConfigString
     mkCollectionConfig
+    mkGamesConfig
     ;
 in
 {
@@ -143,8 +144,12 @@ in
             # Basics
             launch = mkOption {
               type = types.nullOr types.str;
-              default = null;
-              description = "A common launch command for the games in this collection. If a game has its own custom launch command, that will override this field.";
+              default = "{file.path}"; # most games will probably be a nix store path to a binary
+              description = ''
+                A common launch command for the games in this collection.
+                Defaults to "{file.path}". See https://pegasus-frontend.org/docs/user-guide/meta-files/#launch-command-parameters for details.
+                If a game has its own custom launch command, that will override this field.
+              '';
             };
             workdir = mkOption {
               type = types.nullOr types.str;
@@ -213,7 +218,96 @@ in
         }
       );
       default = { };
-      description = "Collections define which files in the directory should be treated as games.";
+      description = "Must also define games. Collections define which files in the directory should be treated as games.";
+    };
+
+    games = mkOption {
+      type = types.listOf (
+        types.submodule {
+          options = {
+            title = mkOption {
+              type = types.str;
+              description = "The title of the game.";
+            };
+            collections = mkOption {
+              type = types.listOf types.str;
+              description = ''
+                List of collection names this game belongs to.
+                Must have at least one entry to appear in the UI.
+                This game will be added to the `files` of the collection(s) configuration.
+              '';
+            };
+            sortBy = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "An alternate title that should be used for sorting.";
+            };
+            files = mkOption {
+              type = types.listOf types.str;
+              description = "The file path(s) that belong to this game.";
+            };
+
+            developers = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "The developer(s) of this game.";
+            };
+            publishers = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "The publisher(s) of this game.";
+            };
+            genres = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "The genre(s) of this game.";
+            };
+            tags = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "The tag(s) for this game.";
+            };
+
+            summary = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "A short description of the game in one paragraph.";
+            };
+            description = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "A possibly longer description of the game.";
+            };
+            players = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "The number of players who can play the game. Either a single number (eg. 2) or a number range (eg. 1-4).";
+            };
+            release = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "The date when the game was released, in YYYY-MM-DD format. Month and day can be omitted if unknown.";
+            };
+            rating = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "The rating of the game, in percentages. Either an integer percentage in the 0-100% range (eg. 70%), or a fractional value between 0 and 1 (eg. 0.7).";
+            };
+            launch = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "A custom launch command for this game.";
+            };
+            workdir = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "The working directory in which the game is launched. Defaults to the directory of the launched program.";
+            };
+          };
+        }
+      );
+      default = [ ];
+      description = "Must also define collections. Game entries store additional information about the individual games, such as title, developer(s) or release date.";
     };
   };
 
@@ -221,6 +315,22 @@ in
     let
       settings = cfg.settings;
       theme = cfg.theme;
+
+      # merge games into the proper collections
+      mergedCollections = lib.mapAttrs (
+        collName: collOpts:
+        let
+          # extract all files from each game
+          gameFiles = lib.concatMap (game: game.files) (
+            lib.filter (game: lib.elem collName game.collections) cfg.games
+          );
+        in
+        collOpts
+        // lib.optionalAttrs (gameFiles != [ ]) {
+          # merge and deduplicate file list
+          files = lib.lists.unique ((lib.optionals collOpts.files) ++ gameFiles);
+        }
+      ) cfg.collections;
     in
     mkIf cfg.enable {
       home.packages = [ cfg.package ];
@@ -242,17 +352,23 @@ in
         };
         "pegasus-frontend/game_dirs.txt".text = lib.concatStringsSep "\n" (
           cfg.gameDirs
-          # add the collections metadata if set
-          ++ lib.optionals (cfg.collections != { }) [
+          # add the collections and games metadata if set
+          ++ lib.optionals (cfg.collections != { } || cfg.games != [ ]) [
             (pkgs.runCommand "pegasus-metadata" { } (
               lib.concatStringsSep "\n" (
-                lib.mapAttrsToList (
+                [ "mkdir -p $out" ]
+                # collections
+                ++ lib.mapAttrsToList (
                   name: opts:
                   let # hash the name just in case
                     filename = "${lib.substring 0 32 (builtins.hashString "sha256" name)}.metadata.pegasus.txt";
                   in
                   "cp ${pkgs.writeText filename (mkCollectionConfig name opts)} $out/${filename}"
-                ) cfg.collections
+                ) mergedCollections
+                # games (single file)
+                ++ lib.optionals (cfg.games != [ ]) [
+                  "cp ${pkgs.writeText "games.metadata.pegasus.txt" (mkGamesConfig cfg.games)} $out/games.metadata.pegasus.txt"
+                ]
               )
             ))
           ]
