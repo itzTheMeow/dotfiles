@@ -143,6 +143,12 @@ in
       default = { };
       description = "Key bindings for Pegasus controls";
     };
+
+    gameDirs = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "List of absolute paths to game directories";
+    };
   };
 
   config =
@@ -168,6 +174,7 @@ in
           );
           keys = cfg.keybinds;
         };
+        "pegasus-frontend/game_dirs.txt".text = lib.concatStringsSep "\n" cfg.gameDirs;
       }
       # link in theme/settings if provided
       // lib.optionalAttrs (theme != null) {
