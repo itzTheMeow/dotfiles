@@ -9,10 +9,10 @@ stdenv.mkDerivation {
   version = "1.5.0";
 
   src = fetchFromGitHub {
-    owner = "HomeStarRunnerTron";
+    owner = "itzTheMeow";
     repo = "gameOS-fire-sKye";
-    rev = "a892817e2291dbac9ab323e07694f530356315b4";
-    sha256 = "sha256-puAfr1MN+bcHPvvislLz0p8JSaZJnmwYFEcrWbCzvSc=";
+    rev = "3f293297468680320ece41c4cf8f04097e6bf80a";
+    sha256 = "sha256-gmR6BQt0dASankAJj7FluyojpCiG6KHF1xmefI42bSA=";
   };
 
   # replace the default logo with the pegasus one

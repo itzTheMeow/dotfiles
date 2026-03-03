@@ -32,12 +32,6 @@ let
       7z e ${gameISO} "Main/Files/HellsKitchen.zip" -o$out
       7z e ${gameISO} "Support/Manual/eng/Manual_files/frontpage.jpg" -o$out
       mv $out/frontpage.jpg $out/cover.jpg
-      cp ${
-        fetchurl {
-          url = "https://web.archive.org/web/20260303014312/https://screens.16bit.pl/hells-kitchen-the-game/4.jpg";
-          sha256 = "sha256-9dbgsdzloJ0/H+9o9gwsMl7of7HnWRYA3mOqu/w9zuo=";
-        }
-      } $out/background.jpg
     '';
   };
 
