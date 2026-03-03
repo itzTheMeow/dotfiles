@@ -328,7 +328,7 @@ in
         collOpts
         // lib.optionalAttrs (gameFiles != [ ]) {
           # merge and deduplicate file list
-          files = lib.lists.unique ((lib.optionals collOpts.files) ++ gameFiles);
+          files = lib.lists.unique ((lib.optionals (collOpts.files != null) collOpts.files) ++ gameFiles);
         }
       ) cfg.collections;
     in
