@@ -31,7 +31,7 @@ rec {
   toENVString =
     data: builtins.concatStringsSep "\n" (map (k: ''${k}="${data.${k}}"'') (builtins.attrNames data));
   # convert an attr set to `key: value` string
-  toKVCommaString =
+  toKVColonString =
     data:
     lib.generators.toKeyValue {
       mkKeyValue = lib.generators.mkKeyValueDefault { } ": ";
@@ -44,6 +44,8 @@ rec {
   toTOMLFile = (pkgs.formats.toml { }).generate;
   # convert an attr set to env file
   toENVFile = name: data: pkgs.writeText name (toENVString data);
+  # convert an attr set to `key: value` string
+  toKVColonFile = name: data: pkgs.writeText name (toKVColonString data);
 
   # make an ssh config entry
   mkSSHConfig =
