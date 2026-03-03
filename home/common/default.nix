@@ -1,7 +1,6 @@
 {
   hostname,
   isNixOS,
-  lib,
   osConfig,
   pkgs,
   xelib,
@@ -46,6 +45,8 @@ in
     #username = host.username;
     #homeDirectory = "/home/${host.username}";
     stateVersion = "25.05"; # not to be changed
+    # i insist
+    enableNixpkgsReleaseCheck = false;
 
     packages = with pkgs; [
       # nix-related
