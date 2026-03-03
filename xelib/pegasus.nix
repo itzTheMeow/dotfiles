@@ -46,12 +46,75 @@ let
             ]
         ) (lib.attrNames attrs);
 
-      flattened = builtins.listToAttrs (flatten "" data);
+      # https://pegasus-frontend.org/docs/dev/meta-syntax/
+      processFlowingText =
+        text:
+        let
+          lines = lib.splitString "\n" text;
+          # add tab indendation to lines
+          processedLines = map (
+            line:
+            let
+              trimmed = lib.strings.trim line;
+            in
+            # empty lines are replaced with a '.'
+            if trimmed == "" then "\t." else "\t${trimmed}"
+          ) lines;
+        in
+        lib.concatStringsSep "\n" processedLines;
     in
     lib.generators.toKeyValue {
-      mkKeyValue = lib.generators.mkKeyValueDefault { } ": ";
+      mkKeyValue =
+        k: v:
+        "${k}: ${if lib.isString v && lib.strings.hasInfix "\n" v then "\n${processFlowingText v}" else v}";
       listsAsDuplicateKeys = true;
-    } flattened;
+    } (builtins.listToAttrs (flatten "" data));
+
+  # generates a config file for a collection definition
+  mkCollectionConfig =
+    name: opts:
+    mkConfigString {
+      collection = name;
+    }
+    // lib.optionalAttrs (opts.launch != null) {
+      launch = opts.launch;
+    }
+    // lib.optionalAttrs (opts.workdir != null) {
+      workdir = opts.workdir;
+    }
+    // lib.optionalAttrs (opts.extensions != null) {
+      extensions = lib.concatStringsSep ", " opts.extensions;
+    }
+    // lib.optionalAttrs (opts.files != null) {
+      files = opts.files;
+    }
+    // lib.optionalAttrs (opts.regex != null) {
+      regex = opts.regex;
+    }
+    // lib.optionalAttrs (opts.directories != null) {
+      directories = opts.directories;
+    }
+    // lib.optionalAttrs (opts.ignoreExtensions != null) {
+      "ignore-extensions" = lib.concatStringsSep ", " opts.ignoreExtensions;
+    }
+    // lib.optionalAttrs (opts.ignoreFiles != null) {
+      "ignore-files" = opts.ignoreFiles;
+    }
+    // lib.optionalAttrs (opts.ignoreRegex != null) {
+      "ignore-regex" = opts.ignoreRegex;
+    }
+    // lib.optionalAttrs (opts.shortname != null) {
+      shortname = opts.shortname;
+    }
+    // lib.optionalAttrs (opts.sortBy != null) {
+      "sort-by" = opts.sortBy;
+    }
+    // lib.optionalAttrs (opts.summary != null) {
+      summary = opts.summary;
+    }
+    // lib.optionalAttrs (opts.description != null) {
+      description = opts.description;
+    };
 in
 {
   options.programs.pegasus-frontend = {
@@ -159,6 +222,87 @@ in
         YOU WILL NOT BE ABLE TO MANAGE FAVORITES IN THE UI IF THIS IS SET
       '';
     };
+
+    # https://pegasus-frontend.org/docs/user-guide/meta-files/
+    collections = mkOption {
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            # Basics
+            launch = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "A common launch command for the games in this collection. If a game has its own custom launch command, that will override this field.";
+            };
+            workdir = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "The default working directory used when launching a game. Defaults to the directory of the launched program.";
+            };
+            # Include Files
+            extensions = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "A list of file extensions (without the . dot). All files with these extensions (including those in subdirectories) will be included.";
+            };
+            files = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "A single file or a list of files to add to the collection. You can use either absolute paths or paths relative to the metadata file.";
+            };
+            regex = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "A Perl-compatible regular expression string, without leading or trailing slashes. Relative file paths matching the regex will be included.";
+            };
+            directories = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "A list of directories to search for matching games.";
+            };
+            # Exclude Files
+            ignoreExtensions = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "Similarly to `extensions`.";
+            };
+            ignoreFiles = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "Similarly to `files`.";
+            };
+            ignoreRegex = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "Similarly to `regex`.";
+            };
+            # Metadata
+            shortname = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "An optional short name for the collection, in lowercase. Often an abbreviation, like MAME, NES, etc.";
+            };
+            sortBy = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "An alternate name that should be used for sorting.";
+            };
+            summary = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "A short description of the collection in one paragraph.";
+            };
+            description = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "A possibly longer description of the collection.";
+            };
+          };
+        }
+      );
+      default = { };
+      description = "Collections define which files in the directory should be treated as games.";
+    };
   };
 
   config =
@@ -184,7 +328,23 @@ in
           );
           keys = cfg.keybinds;
         };
-        "pegasus-frontend/game_dirs.txt".text = lib.concatStringsSep "\n" cfg.gameDirs;
+        "pegasus-frontend/game_dirs.txt".text = lib.concatStringsSep "\n" (
+          cfg.gameDirs
+          # add the collections metadata if set
+          ++ lib.optionals (cfg.collections != { }) [
+            (pkgs.runCommand "pegasus-metadata" { } (
+              lib.concatStringsSep "\n" (
+                lib.mapAttrsToList (
+                  name: opts:
+                  let # hash the name just in case
+                    filename = "${lib.substring 0 32 (builtins.hashString "sha256" name)}.metadata.pegasus.txt";
+                  in
+                  "cp ${pkgs.writeText filename (mkCollectionConfig name opts)} $out/${filename}"
+                ) cfg.collections
+              )
+            ))
+          ]
+        );
       }
       # link in theme/settings if provided
       // lib.optionalAttrs (theme != null) {
