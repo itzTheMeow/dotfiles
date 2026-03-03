@@ -58,6 +58,7 @@
         plasma-manager.homeModules.plasma-manager
         sops-nix.homeManagerModules.sops
         (import ./xelib/opsecrets.nix).homeManagerModule
+        ./xelib/pegasus.nix
       ];
 
       mkHomeConfiguration =
