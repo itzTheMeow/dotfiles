@@ -130,8 +130,7 @@ in
       type = types.nullOr (types.listOf types.str);
       default = null;
       description = ''
-        List of favorite game identifiers.
-        Format: `collection:id`
+        List of favorite game identifiers/paths.
         YOU WILL NOT BE ABLE TO MANAGE FAVORITES IN THE UI IF THIS IS SET
       '';
     };
@@ -237,6 +236,12 @@ in
                 This game will be added to the `files` of the collection(s) configuration.
               '';
             };
+            favorite = mkOption {
+              type = types.bool;
+              default = false;
+              description = "Whether this game should be marked as a favorite.";
+            };
+
             sortBy = mkOption {
               type = types.nullOr types.str;
               default = null;
@@ -293,6 +298,7 @@ in
               default = null;
               description = "The rating of the game, in percentages. Either an integer percentage in the 0-100% range (eg. 70%), or a fractional value between 0 and 1 (eg. 0.7).";
             };
+             
             launch = mkOption {
               type = types.nullOr types.str;
               default = null;
@@ -331,6 +337,12 @@ in
           files = lib.lists.unique ((lib.optionals (collOpts.files != null) collOpts.files) ++ gameFiles);
         }
       ) cfg.collections;
+
+      # extract favorite game files and merge with favorites
+      favoriteGameFiles = lib.concatMap (game: game.files) (lib.filter (game: game.favorite) cfg.games);
+      mergedFavorites = lib.optionals (favoriteGameFiles != [ ] || cfg.favorites != null) (
+        lib.lists.unique ((lib.optionals (cfg.favorites != null) cfg.favorites) ++ favoriteGameFiles)
+      );
     in
     mkIf cfg.enable {
       home.packages = [ cfg.package ];
@@ -381,9 +393,9 @@ in
       // lib.optionalAttrs (theme != null && theme.settings != null) {
         "pegasus-frontend/theme_settings/${theme.name}.json".text = builtins.toJSON theme.settings;
       }
-      # only manage favorites if its set
-      // lib.optionalAttrs (cfg.favorites != null) {
-        "pegasus-frontend/favorites.txt".text = lib.concatStringsSep "\n" cfg.favorites;
+      # only manage favorites if they are provided
+      // lib.optionalAttrs (mergedFavorites != [ ]) {
+        "pegasus-frontend/favorites.txt".text = lib.concatStringsSep "\n" mergedFavorites;
       };
     };
 }
