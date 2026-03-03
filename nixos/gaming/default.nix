@@ -55,14 +55,10 @@ in
         steam:960090
         steam:3590
       '';
-      "pegasus-frontend/game_dirs.txt".text = ''
-        /home/xela/tmp
-      '';
     };
   };
 
   environment.systemPackages = [
     xelpkgs.game-hells-kitchen
-    pkgs.pegasus-frontend
   ];
 }
