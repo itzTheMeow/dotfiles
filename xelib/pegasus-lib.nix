@@ -28,7 +28,7 @@ rec {
       processFlowingText =
         text:
         let
-          lines = lib.splitString "\n" text;
+          lines = lib.splitString "\n" (lib.strings.trim text);
           # add tab indendation to lines
           processedLines = map (
             line:
