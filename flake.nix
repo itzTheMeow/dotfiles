@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:itzTheMeow/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
@@ -58,7 +58,6 @@
         plasma-manager.homeModules.plasma-manager
         sops-nix.homeManagerModules.sops
         (import ./xelib/opsecrets.nix).homeManagerModule
-        ./xelib/pegasus.nix
       ];
 
       mkHomeConfiguration =
