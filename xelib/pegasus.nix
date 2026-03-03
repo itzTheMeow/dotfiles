@@ -100,7 +100,7 @@ in
               default = null;
               description = ''
                 Theme-specific settings as JSON.
-                Will not be linked if not provided, meaning you can change settings in the UI.
+                Will not be managed if not provided, meaning you can change theme settings in the UI.
               '';
             };
           };
@@ -149,6 +149,16 @@ in
       default = [ ];
       description = "List of absolute paths to game directories";
     };
+
+    favorites = mkOption {
+      type = types.nullOr (types.listOf types.str);
+      default = null;
+      description = ''
+        List of favorite game identifiers.
+        Format: `collection:id`
+        YOU WILL NOT BE ABLE TO MANAGE FAVORITES IN THE UI IF THIS IS SET
+      '';
+    };
   };
 
   config =
@@ -182,6 +192,10 @@ in
       }
       // lib.optionalAttrs (theme != null && theme.settings != null) {
         "pegasus-frontend/theme_settings/${theme.name}.json".text = builtins.toJSON theme.settings;
+      }
+      # only manage favorites if its set
+      // lib.optionalAttrs (cfg.favorites != null) {
+        "pegasus-frontend/favorites.txt".text = lib.concatStringsSep "\n" cfg.favorites;
       };
     };
 }
