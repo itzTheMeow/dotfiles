@@ -10,7 +10,7 @@
 {
   imports = [
     ./common
-    ./common/gaming.nix
+    ./gaming
 
     ./services/beszel/agent.nix
     (import ./services/rustic "meow-pc")

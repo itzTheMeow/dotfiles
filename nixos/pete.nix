@@ -11,6 +11,7 @@
 {
   imports = [
     ./common
+    ./gaming
 
     ./programs/rustic.nix
 
