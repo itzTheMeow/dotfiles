@@ -48,13 +48,7 @@ in
         "pegasus_media"
         "steam"
       ];
-    };
-    xdg.configFile = {
-      "pegasus-frontend/favorites.txt".text = ''
-        # List of favorites, one path per line
-        steam:960090
-        steam:3590
-      '';
+      favorites = [ "steam:960090" ];
     };
   };
 
