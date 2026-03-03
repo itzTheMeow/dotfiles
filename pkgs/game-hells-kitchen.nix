@@ -1,8 +1,12 @@
 {
   fetchurl,
   p7zip,
-  pkgs,
+  stdenv,
+  symlinkJoin,
   wineWow64Packages,
+  writeShellScript,
+  writeShellScriptBin,
+  writeText,
   xelpkgs,
   ...
 }:
@@ -15,7 +19,7 @@ let
     name = "hells-kitchen.iso"; # needs an explicit name because of invalid characters
     sha256 = "sha256-inMLFySuSCT7OlHY7+8YPYP3V5gqxFbL7uKnd3n+irM=";
   };
-  gameSource = pkgs.stdenv.mkDerivation {
+  gameSource = stdenv.mkDerivation {
     pname = "hells-kitchen-source";
     version = "1.1.5";
     nativeBuildInputs = [ p7zip ];
@@ -37,13 +41,13 @@ let
     '';
   };
 
-  setupScript = pkgs.writeShellScript "setup" ''
+  setupScript = writeShellScript "setup" ''
     # the game requires the installer to exist inside a cdrom to run
     ln -sfT ../cdrom "$WINEPREFIX/dosdevices/d:"
     mkdir -p $WINEPREFIX/cdrom/Main
     touch   "$WINEPREFIX/cdrom/Main/Hell's Kitchen-${gameSource.version}.exe"
     # set up the cdrom
-    ${winebin} regedit ${pkgs.writeText "setup.reg" ''
+    ${winebin} regedit ${writeText "setup.reg" ''
       Windows Registry Editor Version 5.00
 
       ; set D: as a cdrom
@@ -56,7 +60,7 @@ let
     ${winebin}server -w
   '';
 
-  launcher = pkgs.writeShellScriptBin "hells-kitchen" ''
+  launcher = writeShellScriptBin "hells-kitchen" ''
     # put the wine prefix in the data directory
     export WINEPREFIX="$HOME/.local/share/hells-kitchen"
 
@@ -68,7 +72,7 @@ let
     ${winebin} "${gameSource}/Hell's Kitchen.exe"
   '';
 in
-pkgs.symlinkJoin {
+symlinkJoin {
   name = "game-hells-kitchen";
   paths = [
     gameSource
