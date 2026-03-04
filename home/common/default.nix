@@ -15,7 +15,7 @@ let
 
     [ "$TERM_PROGRAM" != "vscode" ] && ${pkgs.fastfetch}/bin/fastfetch
   '';
-  shellHistorySize = 10000;
+  shellHistorySize = 100000;
 in
 {
   imports = [
