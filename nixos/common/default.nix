@@ -98,6 +98,7 @@
     ## nix-related
     cachix
     home-manager
+    nixpkgs-review
 
     ## editors
     nano
