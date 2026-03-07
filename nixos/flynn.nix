@@ -60,6 +60,13 @@
     style = "breeze";
   };
 
+  # portal settings
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
+    config.common.default = "kde";
+  };
+
   # keyboard map
   services.xserver.xkb = {
     layout = "us";
