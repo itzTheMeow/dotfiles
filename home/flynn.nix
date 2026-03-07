@@ -301,6 +301,13 @@ in
       };
     };
 
+    kscreenlocker = {
+      autoLock = true; # enable auto screen lock
+      lockOnResume = true; # lock screen on wake
+      timeout = 10; # lock after 10min
+      passwordRequiredDelay = 5; # password required 5sec after locking
+    };
+
     # set default terminal to kitty
     configFile.kdeglobals.General = {
       TerminalApplication = "kitty";
