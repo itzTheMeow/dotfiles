@@ -88,15 +88,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1772597843,
-        "narHash": "sha256-MDDTasYwejLLS9lTrzO+sBXsJKCvfz341W6aLPo6apo=",
+        "lastModified": 1772865791,
+        "narHash": "sha256-JtGF0e7zYYVdun1BTwc2WKbBHhEf2Ayd7031NPGp4Ec=",
         "owner": "itzTheMeow",
         "repo": "home-manager",
-        "rev": "d8d2c00a8c0638a9b18bb96f7fc0cc8a9daed35c",
+        "rev": "a608f6a2cd7cc6c626a5a4fdc01d6f55c3d85a53",
         "type": "github"
       },
       "original": {
         "owner": "itzTheMeow",
+        "ref": "pegasus-frontend",
         "repo": "home-manager",
         "type": "github"
       }

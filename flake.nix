@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     home-manager = {
-      url = "github:itzTheMeow/home-manager";
+      url = "github:itzTheMeow/home-manager/pegasus-frontend";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
