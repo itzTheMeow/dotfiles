@@ -109,7 +109,7 @@ in
 
     theme = {
       name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
-      package = xelpkgs.magnetic-catppuccin-gtk.override {
+      package = pkgs-unstable.magnetic-catppuccin-gtk.override {
         accent = [ xelib.globals.catppuccin.accent ];
         shade = if xelib.globals.catppuccin.flavor == "latte" then "light" else "dark";
         size = "standard";
