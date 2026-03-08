@@ -4,10 +4,8 @@
   stdenv,
   symlinkJoin,
   wineWow64Packages,
-  writeShellScript,
   writeShellScriptBin,
   writeText,
-  xelpkgs,
   ...
 }:
 # yeah yeah i know...
@@ -35,34 +33,24 @@ let
     '';
   };
 
-  setupScript = writeShellScript "setup" ''
+  launcher = writeShellScriptBin "hells-kitchen" ''
     # the game requires the installer to exist inside a cdrom to run
-    ln -sfT ../cdrom "$WINEPREFIX/dosdevices/d:"
-    mkdir -p $WINEPREFIX/cdrom/Main
-    touch   "$WINEPREFIX/cdrom/Main/Hell's Kitchen-${gameSource.version}.exe"
+    ln -sfT ../drive_h "$WINEPREFIX/dosdevices/h:"
+    mkdir -p $WINEPREFIX/drive_h/Main
+    touch   "$WINEPREFIX/drive_h/Main/Hell's Kitchen-${gameSource.version}.exe"
     # set up the cdrom
     ${winebin} regedit ${writeText "setup.reg" ''
       Windows Registry Editor Version 5.00
 
-      ; set D: as a cdrom
+      ; set H: as a cdrom
       [HKEY_LOCAL_MACHINE\Software\Wine\Drives]
-      "d:"="cdrom"
+      "h:"="cdrom"
       ; also disable the game's update checker
       [HKEY_LOCAL_MACHINE\Software\Wow6432Node\Hell's Kitchen]
       "CheckForUpdate"="Never"
     ''}
     ${winebin}server -w
-  '';
 
-  launcher = writeShellScriptBin "hells-kitchen" ''
-    # put the wine prefix in the data directory
-    export WINEPREFIX="$HOME/.local/share/hells-kitchen"
-
-    # initialize the wine prefix 
-    ${xelpkgs.shared-wine-prefix}/bin/setup ${setupScript}
-
-    # actually launch the game
-    echo "Launching..."
     ${winebin} "${gameSource}/Hell's Kitchen.exe"
   '';
 in

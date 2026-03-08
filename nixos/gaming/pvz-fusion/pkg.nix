@@ -1,10 +1,9 @@
 {
-  fetchurl,
   _7zz,
+  fetchurl,
   stdenv,
   wineWow64Packages,
   writeShellScriptBin,
-  xelpkgs,
   ...
 }:
 let
@@ -25,16 +24,9 @@ let
   };
 in
 writeShellScriptBin "pvz-fusion" ''
-  # put the wine prefix in the data directory
-  export WINEPREFIX="$HOME/.local/share/pvz-fusion"
   # needed for the game to launch
   export WINEDLLOVERRIDES="version=n,b"
   export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
-  # initialize the wine prefix 
-  ${xelpkgs.shared-wine-prefix}/bin/setup
-
-  # actually launch the game
-  echo "Launching..."
   ${wineWow64Packages.staging}/bin/wine "${gameSource}/PlantsVsZombiesRH.exe" --melonloader.hideconsole
 ''
