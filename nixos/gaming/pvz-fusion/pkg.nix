@@ -1,0 +1,40 @@
+{
+  fetchurl,
+  _7zz,
+  stdenv,
+  wineWow64Packages,
+  writeShellScriptBin,
+  xelpkgs,
+  ...
+}:
+let
+  gameSource = stdenv.mkDerivation {
+    pname = "pvz-fusion-source";
+    version = "3.4.2";
+    src = fetchurl {
+      url = "https://github.com/Teyliu/PVZF-Translation/releases/download/3.4.2_beta/PvZF.3.4.2.Multi-lang.Public.Beta.hotfix.2.By.Blooms.zip";
+      sha256 = "sha256-AkxZUewOQSvl9rkZztXpSjenil61NTXI1Qs9CRlJTSM=";
+    };
+    nativeBuildInputs = [ _7zz ];
+    dontUnpack = true;
+
+    installPhase = ''
+      7zz x $src -o$TMPDIR/game -y
+      mv "$TMPDIR/game/Game Files" $out
+    '';
+  };
+in
+writeShellScriptBin "pvz-fusion" ''
+  # put the wine prefix in the data directory
+  export WINEPREFIX="$HOME/.local/share/pvz-fusion"
+  # needed for the game to launch
+  export WINEDLLOVERRIDES="version=n,b"
+  export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+  # initialize the wine prefix 
+  ${xelpkgs.shared-wine-prefix}/bin/setup
+
+  # actually launch the game
+  echo "Launching..."
+  ${wineWow64Packages.staging}/bin/wine "${gameSource}/PlantsVsZombiesRH.exe" --melonloader.hideconsole
+''
