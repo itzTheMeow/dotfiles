@@ -6,8 +6,13 @@
 }@inputs:
 let
   dir = builtins.readDir ./.;
+
+  winebin = "${pkgs.wineWow64Packages.staging}/bin/wine";
+  wineprefix = ".wine";
+  wineprefixAbsolute = "/home/${host.username}/${wineprefix}";
 in
 {
+  # enable steam
   programs.steam = {
     enable = true;
     package = pkgs.steam.override {
@@ -17,8 +22,55 @@ in
       ];
     };
   };
+  # set global wineprefix for clarity
+  environment.variables.WINEPREFIX = wineprefixAbsolute;
+  # create user folder
+  systemd.tmpfiles.rules = [
+    "d ${wineprefixAbsolute}/user 0755 ${host.username} users -"
+  ];
 
-  home-manager.users.${host.username} = {
+  home-manager.users.${host.username} = hm: {
+    # link in the wine prefix files
+    home.file = {
+      "${wineprefix}/drive_c" = {
+        source = "${xelpkgs.wine-prefix}/drive_c";
+        recursive = true;
+      };
+      "${wineprefix}/drive_c/users/${host.username}" = {
+        source = hm.config.lib.file.mkOutOfStoreSymlink "${wineprefixAbsolute}/user";
+      };
+      # set up drives
+      "${wineprefix}/dosdevices/c:".source =
+        hm.config.lib.file.mkOutOfStoreSymlink "${wineprefixAbsolute}/drive_c";
+      "${wineprefix}/dosdevices/z:".source = hm.config.lib.file.mkOutOfStoreSymlink "/";
+    };
+    # this updates wine with the new prefix
+    home.activation.updateWinePrefix = hm.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      ${pkgs.xvfb-run}/bin/xvfb-run -a ${pkgs.bash}/bin/bash -c ${pkgs.writeScript "updateWinePrefix" ''
+        export WINEDEBUG="-all" # disable debugging
+        export WINEDLLOVERRIDES="mscoree=n" # disable mono popup
+
+        # initial update
+        ${winebin}boot -u
+        ${winebin}server -w
+
+        # register any DLLs that didnt get registered on the 32 bit system
+        for dll in mmdevapi.dll wbemprox.dll; do
+          ${winebin} 'C:\windows\syswow64\regsvr32.exe' /s $dll
+        done
+
+        # register the dotnet version
+        ${winebin} regedit ${pkgs.writeText "setup.reg" ''
+          Windows Registry Editor Version 5.00
+
+          [HKEY_LOCAL_MACHINE\Software\dotnet\Setup\InstalledVersions\x64\sharedhost]
+          "Path"="C:\\Program Files\\dotnet\\"
+          "Version"="${builtins.head (builtins.attrNames (builtins.readDir "${xelpkgs.wine-prefix}/drive_c/Program Files/dotnet/shared/Microsoft.NETCore.App"))}"
+        ''}
+        ${winebin}server -w
+      ''}
+    '';
+
     programs.pegasus-frontend = {
       enable = true;
       package = xelpkgs.pegasus-frontend;
