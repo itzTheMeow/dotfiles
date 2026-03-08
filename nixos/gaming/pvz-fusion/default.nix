@@ -15,5 +15,6 @@ in
       ./screenshot2.webp
     ];
   };
+  developers = [ "LanPiaoPiao" ];
   genres = [ "Strategy" ];
 }
