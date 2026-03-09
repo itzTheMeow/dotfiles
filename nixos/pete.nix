@@ -3,6 +3,7 @@
 {
   config,
   host,
+  hostname,
   pkgs,
   xelib,
   xelpkgs,
@@ -22,6 +23,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  networking.hostName = hostname;
+  networking.networkmanager.enable = true;
+
   users.users.${host.username} = {
     isNormalUser = true;
     description = xelib.toTitleCase host.username;
@@ -30,8 +34,6 @@
       "networkmanager"
       "wheel"
     ];
-
-    initialPassword = "test"; # temp:vm
   };
 
   services = {
