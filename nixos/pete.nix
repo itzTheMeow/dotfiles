@@ -4,8 +4,8 @@
   config,
   host,
   hostname,
+  lib,
   pkgs,
-  xelib,
   xelpkgs,
   ...
 }:
@@ -28,7 +28,7 @@
 
   users.users.${host.username} = {
     isNormalUser = true;
-    description = xelib.toTitleCase host.username;
+    description = lib.toUpper host.username;
     shell = pkgs.zsh;
     extraGroups = [
       "networkmanager"
