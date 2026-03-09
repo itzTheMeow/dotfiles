@@ -7,6 +7,7 @@
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
+    ./common/hardware-wifi-adapter.nix
   ];
 
   boot.initrd.availableKernelModules = [
@@ -18,9 +19,7 @@
     "sd_mod"
     "sdhci_pci"
   ];
-  boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
     device = "/dev/mapper/luks-1aa6d9d6-e0c0-4882-94e6-608ecf8fd264";
