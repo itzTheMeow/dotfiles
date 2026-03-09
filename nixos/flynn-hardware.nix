@@ -31,7 +31,6 @@
     device = "/dev/mapper/luks-4bb005d6-36e7-4dcb-a42c-1e2237953f99";
     fsType = "ext4";
   };
-
   boot.initrd.luks.devices."luks-4bb005d6-36e7-4dcb-a42c-1e2237953f99".device =
     "/dev/disk/by-uuid/4bb005d6-36e7-4dcb-a42c-1e2237953f99";
 

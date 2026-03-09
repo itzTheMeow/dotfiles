@@ -34,7 +34,7 @@
     dates = "weekly";
     options = "--delete-older-than 7d";
   };
-  boot.loader.systemd-boot.configurationLimit = 3;
+  boot.loader.systemd-boot.configurationLimit = 5;
 
   # allow unfree packages
   nixpkgs.config.allowUnfree = true;
