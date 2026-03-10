@@ -2,7 +2,7 @@
 {
   imports = [
     ./common
-    ./common/headless.nix
+    ./common/desktop.nix
 
     ./programs/rclone
   ];
