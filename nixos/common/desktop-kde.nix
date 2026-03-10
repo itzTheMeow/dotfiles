@@ -44,6 +44,24 @@
       ExecStart = "${pkgs.kdePackages.krfb}/bin/krfb --nodialog";
       Restart = "on-failure";
       RestartSec = "5s";
+      BusName = "org.kde.krfb";
+    };
+  };
+  systemd.user.services.flatpak-krfb-permissions = {
+    description = "Authorize KRFB for Remote Desktop";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    path = [ pkgs.flatpak ];
+    # authorize the krfb service to connect to the desktop
+    # https://develop.kde.org/docs/administration/portal-permissions/
+    script = ''
+      #sleep 5 # wait a bit
+      flatpak permission-set kde-authorized remote-desktop org.kde.krfb yes
+      echo "Authorized."
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
     };
   };
 }
