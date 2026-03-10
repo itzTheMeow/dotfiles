@@ -103,7 +103,6 @@ in
         "pegasus_media"
         "steam"
       ];
-      gameDirs = [ "/home/xela/tmp" ];
 
       collections."PC" = {
         shortname = "nix";
