@@ -19,12 +19,12 @@ in
 {
   home-manager.users.${host.username}.programs.rclone.remotes.pcloud.mounts = {
     "/Media/TVShows" = {
-      enabled = true;
+      enable = true;
       mountPoint = "/mnt/tv";
       inherit options;
     };
     "/Media/Movies" = {
-      enabled = true;
+      enable = true;
       mountPoint = "/mnt/movies";
       inherit options;
     };
