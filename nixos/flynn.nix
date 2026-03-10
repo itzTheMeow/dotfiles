@@ -1,6 +1,7 @@
 {
   config,
   host,
+  lib,
   pkgs-unstable,
   pkgs,
   xelib,
@@ -10,6 +11,10 @@
 {
   imports = [
     ./common
+    ./common/desktop.nix
+    ./common/desktop-kde.nix
+    ./common/desktop-workstation.nix
+
     ./gaming
 
     ./services/beszel/agent.nix
@@ -35,10 +40,9 @@
     efi.canTouchEfiVariables = true;
   };
 
-  networking.hostName = "meow-pc";
-  networking.networkmanager.enable = true;
+  # custom hostname for this device
+  networking.hostName = lib.mkForce "meow-pc";
 
-  services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
@@ -52,28 +56,6 @@
     # set the 1password ssh auth socket
     SSH_AUTH_SOCK = "/home/${host.username}/.1password/agent.sock";
   };
-
-  qt = {
-    enable = true;
-    platformTheme = "kde";
-    style = "breeze";
-  };
-
-  # portal settings
-  xdg.portal = {
-    enable = true;
-    extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
-    config.common.default = "kde";
-  };
-
-  # keyboard map
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
-  # enable document printing
-  services.printing.enable = true;
 
   # enable sound with pipewire
   services.pulseaudio.enable = false;

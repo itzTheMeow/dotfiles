@@ -79,6 +79,11 @@
   # clear /tmp on boot
   boot.tmp.cleanOnBoot = true;
 
+  networking = {
+    hostName = hostname;
+    networkmanager.enable = true;
+  };
+
   environment.systemPackages = with pkgs; [
     # system-level utilities
     ## basic deps

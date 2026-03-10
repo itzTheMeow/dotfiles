@@ -3,7 +3,6 @@
 {
   config,
   host,
-  hostname,
   lib,
   pkgs,
   xelpkgs,
@@ -12,6 +11,9 @@
 {
   imports = [
     ./common
+    ./common/desktop.nix
+    ./common/desktop-kde.nix
+
     ./gaming
 
     ./programs/rustic.nix
@@ -25,9 +27,6 @@
     memtest86.enable = true;
   };
   boot.loader.efi.canTouchEfiVariables = true;
-
-  networking.hostName = hostname;
-  networking.networkmanager.enable = true;
 
   users.users.${host.username} = {
     isNormalUser = true;

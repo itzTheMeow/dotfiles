@@ -1,7 +1,6 @@
 {
   config,
   host,
-  lib,
   pkgs,
   ...
 }:
@@ -15,7 +14,6 @@
   ];
 
   zramSwap.enable = true;
-  networking.hostName = "meow";
 
   users.users.${host.username} = {
     isNormalUser = true;
@@ -25,10 +23,6 @@
       "wheel"
     ];
   };
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAp+ia8qqQVHmHr8fzALeNBse6kBaKGXeWznDN0lAmYE"
-  ];
 
   sops.secrets.user_key = {
     sopsFile = ../${config.sops.opSecrets.user_key.path};
