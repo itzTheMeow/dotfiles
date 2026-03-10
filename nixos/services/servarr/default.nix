@@ -55,6 +55,9 @@ lib.mkMerge [
           file-perms = "0666";
         };
       };
+    systemd.tmpfiles.rules = [
+      "d /mnt/servarr_backups 0755 ${host.username} users -"
+    ];
   }
   (mkServarr "prowlarr")
   (mkServarr "sonarr")
