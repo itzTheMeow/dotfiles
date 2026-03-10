@@ -20,10 +20,8 @@
     "uhci_hcd"
     "sr_mod"
   ];
-  boot.initrd.kernelModules = [ ];
   # Ensure the AMD-specific KVM optimizations are enabled
   boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
   boot.kernelParams = [
     "elevator=none" # Disables OS-level disk scheduling (best for NVMe/Virtio)
     "amd_iommu=on" # Enables hardware-level VM isolation
@@ -44,7 +42,6 @@
       "nodiratime"
     ];
   };
-
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/AC7A-7F39";
     fsType = "vfat";

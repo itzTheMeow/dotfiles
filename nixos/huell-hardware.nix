@@ -9,6 +9,7 @@
     "vmw_pvscsi"
   ];
   boot.initrd.kernelModules = [ "nvme" ];
+
   fileSystems."/" = {
     device = "/dev/mapper/ubuntu--vg-ubuntu--lv";
     fsType = "ext4";
