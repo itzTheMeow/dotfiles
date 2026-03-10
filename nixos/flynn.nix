@@ -57,20 +57,6 @@
     SSH_AUTH_SOCK = "/home/${host.username}/.1password/agent.sock";
   };
 
-  # enable sound with pipewire
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
-
-  # enable bluetooth
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
-
   # browsing
   programs.firefox = {
     enable = true;
@@ -105,22 +91,6 @@
   };
 
   environment.systemPackages = with pkgs; [
-    # kde system utils
-    kdePackages.kate
-    kdePackages.kdenlive
-    kdePackages.krfb
-    kdePackages.partitionmanager
-    kdePackages.plasma-browser-integration
-
-    # desktop theme stuff
-    xelpkgs.colloid-cursors
-    (catppuccin-kde.override {
-      flavour = [ xelib.globals.catppuccin.flavor ];
-      accents = [ xelib.globals.catppuccin.accent ];
-      winDecStyles = [ "classic" ];
-    })
-    papirus-icon-theme
-
     # system-level apps
     chromium
     libreoffice
@@ -135,38 +105,6 @@
     enable = true;
     package = pkgs-unstable._1password-gui;
     polkitPolicyOwners = [ host.username ];
-  };
-
-  # enable usage of exit nodes for tailscale
-  services.tailscale.useRoutingFeatures = "client";
-
-  # VNC server on Tailscale
-  systemd.user.services.krfb = {
-    description = "KDE Remote Frame Buffer (VNC Server)";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
-    environment = {
-      DISPLAY = ":0";
-    };
-    serviceConfig = {
-      ExecStart = "${pkgs.kdePackages.krfb}/bin/krfb --nodialog";
-      Restart = "on-failure";
-      RestartSec = "5s";
-    };
-  };
-
-  # tailscale system tray
-  systemd.user.services.tailscale-systray = {
-    description = "Tailscale System Tray";
-    wantedBy = [ "plasma-workspace.target" ];
-    after = [ "plasma-workspace.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.tailscale}/bin/tailscale systray";
-      Restart = "always";
-      RestartSec = "5s";
-    };
   };
 
   systemd.tmpfiles.rules = [
