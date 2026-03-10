@@ -1,7 +1,9 @@
 {
+  host,
   hostname,
   inputs,
   pkgs,
+  xelib,
   ...
 }:
 {
@@ -76,9 +78,21 @@
   # disable root login password
   users.users.root.hashedPassword = null;
 
+  # configure default user
+  users.users.${host.username} = {
+    isNormalUser = true;
+    description = if (host ? fullname) then host.fullname else xelib.toTitleCase host.username;
+    shell = pkgs.zsh;
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
+  };
+
   # clear /tmp on boot
   boot.tmp.cleanOnBoot = true;
 
+  # networking settings
   networking = {
     hostName = hostname;
     networkmanager.enable = true;

@@ -71,16 +71,6 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
 
-  users.users.${host.username} = {
-    isNormalUser = true;
-    description = "Alex";
-    shell = pkgs.zsh;
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-    ];
-  };
-
   # browsing
   programs.firefox = {
     enable = true;
