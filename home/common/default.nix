@@ -42,9 +42,7 @@ in
   );
 
   home = {
-    #username = host.username;
-    #homeDirectory = "/home/${host.username}";
-    stateVersion = "25.05"; # not to be changed
+    stateVersion = "25.11"; # not to be changed
     # i insist
     enableNixpkgsReleaseCheck = false;
 
