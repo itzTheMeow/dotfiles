@@ -20,7 +20,7 @@ in
     pete = {
       username = "tv";
       fullname = "TV";
-      ip = "100.64.1.1";
+      ip = "100.64.0.13";
       accent = "#a6e3a1"; # Green
       ports = {
         beszel-agent = 59779;
