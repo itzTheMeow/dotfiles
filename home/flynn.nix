@@ -24,6 +24,7 @@ in
   imports = [
     ./common
     ./common/desktop.nix
+    ./common/desktop-workstation.nix
 
     ./programs/activitywatch
     ./programs/discordchatexporter
