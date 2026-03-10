@@ -1,0 +1,7 @@
+# any headless systems that are off-site
+{ ... }:
+{
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.timeout = 1;
+}

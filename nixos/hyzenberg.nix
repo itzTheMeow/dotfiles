@@ -8,6 +8,7 @@
   imports = [
     ./common
     ./common/headless.nix
+    ./common/headless-vps.nix
     ./common/media-center.nix
 
     ./programs/rustic.nix
@@ -25,10 +26,6 @@
     ./services/step-ca
     ./services/homepage
   ];
-
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.timeout = 1;
 
   users.users.${host.username} = {
     isNormalUser = true;

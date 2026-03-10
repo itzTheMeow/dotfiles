@@ -9,6 +9,7 @@
   imports = [
     ./common
     ./common/headless.nix
+    ./common/headless-vps.nix
 
     ./programs/rustic.nix
 
@@ -22,10 +23,6 @@
     ./services/headscale
     ./services/tailscale/mullvad-exit-nodes.nix
   ];
-
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.timeout = 1;
 
   users.users.${host.username} = {
     isNormalUser = true;
