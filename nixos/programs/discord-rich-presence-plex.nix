@@ -51,10 +51,15 @@ let
   };
 in
 {
+  systemd.paths.${DRRP} = {
+    description = "Watch for Discord IPC socket";
+    wantedBy = [ "multi-user.target" ];
+    pathConfig = {
+      PathExists = "/run/user/1000/discord-ipc-0";
+    };
+  };
   systemd.services.${DRRP} = {
     description = "Discord Rich Presence for Plex";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
 
     serviceConfig = {
       ExecStartPre = [
