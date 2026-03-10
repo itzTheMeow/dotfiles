@@ -21,6 +21,7 @@ xelib.mkSSHConfig config [
       forwardAgent = true;
     };
   }
+  (mkHostSSHItem "pete" null)
   (mkHostSSHItem "hyzenberg" null)
   (mkHostSSHItem "ehrman" null)
   (mkHostSSHItem "huell" null)
