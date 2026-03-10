@@ -115,36 +115,6 @@ rec {
     };
   };
 
-  # create an rclone mount systemd service
-  mkRcloneMount =
-    {
-      config,
-      name,
-      remote,
-      mountPoint,
-      description ? "Rclone mount for ${name}",
-      extraArgs ? [
-        "--allow-other"
-      ],
-    }:
-    {
-      "rclone-mount-${name}" = {
-        description = description;
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network-online.target" ];
-        requires = [ "network-online.target" ];
-        serviceConfig = {
-          Type = "simple";
-          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
-          ExecStart = "${pkgs.rclone}/bin/rclone mount \"${remote}\" \"${mountPoint}\" --config=${config} ${builtins.concatStringsSep " " extraArgs}";
-          ExecStop = "/run/current-system/sw/bin/umount -l ${mountPoint}";
-          Restart = "on-failure";
-          RestartSec = "10s";
-          Environment = [ "PATH=/run/wrappers/bin" ];
-        };
-      };
-    };
-
   # create a custom domain with nginx
   mkNginxProxy =
     domain: target:
