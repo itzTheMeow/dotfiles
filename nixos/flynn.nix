@@ -37,7 +37,6 @@
 
   networking.hostName = "meow-pc";
   networking.networkmanager.enable = true;
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
