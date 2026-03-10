@@ -29,4 +29,9 @@ in
       inherit options;
     };
   };
+
+  systemd.tmpfiles.rules = [
+    "d /mnt/tv 0755 ${host.username} users -"
+    "d /mnt/movies 0755 ${host.username} users -"
+  ];
 }
