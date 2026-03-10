@@ -1,7 +1,6 @@
 {
   config,
   host,
-  pkgs,
   ...
 }:
 {
@@ -26,15 +25,6 @@
     ./services/step-ca
     ./services/homepage
   ];
-
-  users.users.${host.username} = {
-    isNormalUser = true;
-    shell = pkgs.zsh;
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-    ];
-  };
 
   sops.secrets.user_key = {
     sopsFile = ../${config.sops.opSecrets.user_key.path};

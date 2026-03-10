@@ -6,6 +6,7 @@ in
     # HP Laptop
     flynn = {
       username = "xela";
+      fullname = "Alex";
       ip = "100.64.0.19";
       accent = "#cba6f7"; # Mauve
       ports = {
@@ -18,6 +19,7 @@ in
     # ODROID H4 Ultra
     pete = {
       username = "tv";
+      fullname = "TV";
       ip = "100.64.1.1";
       accent = "#a6e3a1"; # Green
       ports = {
