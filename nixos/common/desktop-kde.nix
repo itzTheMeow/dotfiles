@@ -38,6 +38,7 @@
     after = [ "graphical-session.target" ];
     environment = {
       DISPLAY = ":0";
+      QT_QPA_PLATFORM = "wayland";
     };
     serviceConfig = {
       ExecStart = "${pkgs.kdePackages.krfb}/bin/krfb --nodialog";
