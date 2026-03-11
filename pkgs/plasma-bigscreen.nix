@@ -84,8 +84,7 @@ kdePackages.mkKdeDerivation rec {
 
   postInstall = ''
     QML_PATH="${lib.makeSearchPath "lib/qt-${kdePackages.qtbase.version}/qml" buildInputs}"
-    echo "" >> $out/bin/plasma-bigscreen-common-env
-    echo "export QML2_IMPORT_PATH=\"$QML_PATH:\$QML2_IMPORT_PATH\"" >> $out/bin/plasma-bigscreen-common-env
+    sed -i "/# Apply environment settings/i export QML2_IMPORT_PATH=\"$QML_PATH:\$QML2_IMPORT_PATH\"" $out/bin/plasma-bigscreen-common-env
   '';
 
   passthru.providedSessions = [
