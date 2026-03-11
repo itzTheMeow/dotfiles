@@ -1,6 +1,7 @@
 {
   host,
   pkgs,
+  xelib,
   xelpkgs,
   ...
 }@inputs:
@@ -17,9 +18,7 @@ in
     enable = true;
     package = pkgs.steam.override {
       # steam needs access to the cursor theme
-      extraPkgs = _: [
-        xelpkgs.colloid-cursors
-      ];
+      extraPkgs = _: [ xelib.globals.cursors.package ];
     };
   };
   # set global wineprefix for clarity
