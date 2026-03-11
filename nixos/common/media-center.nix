@@ -1,6 +1,5 @@
 # shared options for media center related applications
 {
-  config,
   host,
   ...
 }:
@@ -10,7 +9,7 @@ let
     # allow access
     allow-other = true;
     umask = "002";
-    gid = config.ids.gids.mediacenter;
+    gid = "mediacenter";
     # performance
     dir-cache-time = "168h";
     poll-interval = "3m";
