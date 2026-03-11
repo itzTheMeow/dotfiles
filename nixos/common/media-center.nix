@@ -1,5 +1,6 @@
 # shared options for media center related applications
 {
+  config,
   host,
   ...
 }:
@@ -8,9 +9,8 @@ let
   options = {
     # allow access
     allow-other = true;
-    umask = "000";
-    dir-perms = "0777";
-    file-perms = "0666";
+    umask = "002";
+    gid = config.ids.gids.mediacenter;
     # performance
     dir-cache-time = "168h";
     poll-interval = "3m";
@@ -18,6 +18,9 @@ let
   };
 in
 {
+  users.groups.mediacenter = { };
+  users.users.${host.username}.extraGroups = [ "mediacenter" ];
+
   home-manager.users.${host.username}.programs.rclone.remotes.pcloud.mounts = {
     "/Media/TVShows" = {
       enable = true;
@@ -32,7 +35,7 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d /mnt/tv 0775 ${host.username} users -"
-    "d /mnt/movies 0775 ${host.username} users -"
+    "d /mnt/tv 0775 ${host.username} mediacenter -"
+    "d /mnt/movies 0775 ${host.username} mediacenter -"
   ];
 }
