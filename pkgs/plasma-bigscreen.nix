@@ -43,9 +43,22 @@ kdePackages.mkKdeDerivation {
   ];
 
   propagatedBuildInputs = with kdePackages; [
+    bluez-qt
+    kcmutils
     kdeclarative
-    plasma-framework
+    kdeconnect-kde
+    ki18n
+    kio
+    knotifications
+    kscreen
+    kwayland
+    kwindowsystem
+    milou
+    plasma-nano
+    plasma-nm
     plasma-workspace
+    qtmultimedia
+    qtwebengine
   ];
 
   postPatch = ''
