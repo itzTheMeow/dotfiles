@@ -103,6 +103,11 @@ in
         "pegasus_media"
         "steam"
       ];
+      keybinds = {
+        accept = "Return,Enter,GamepadA,Select";
+        cancel = "Esc,Backspace,GamepadB,Back";
+        menu = "F1,GamepadStart,Menu";
+      };
 
       collections."PC" = {
         shortname = "nix";
