@@ -30,15 +30,12 @@
     desktopManager.plasma6.enable = true;
     displayManager.sddm = {
       enable = true;
-      theme = "breeze";
-      wayland.enable = true;
-      enableHidpi = true;
-      settings = {
-        Autologin = {
-          Session = "plasma-bigscreen-wayland";
-          User = host.username;
-        };
-      };
+      #theme = "breeze";
+      #wayland.enable = true;
+    };
+    displayManager.autoLogin = {
+      enable = true;
+      user = host.username;
     };
     displayManager.sessionPackages = [
       xelpkgs.plasma-bigscreen
