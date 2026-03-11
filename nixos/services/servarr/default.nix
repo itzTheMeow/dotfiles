@@ -30,7 +30,10 @@ let
         systemd.services.${name}.after = [ "tailscale-online.service" ];
       }
       {
-        systemd.services.${name}.serviceConfig.SupplementaryGroups = [ "nzbget" ];
+        systemd.services.${name}.serviceConfig.SupplementaryGroups = [
+          "mediacenter"
+          "nzbget"
+        ];
       }
       (xelib.mkNginxProxy svc.domain "http://${bindaddress}:${toString svc.port}" {
         # the servarr programs can talk to eachother
