@@ -64,7 +64,7 @@
         system: hostname:
         home-manager.lib.homeManagerConfiguration rec {
           pkgs = import nixpkgs {
-            system = builtins.elemAt system 0;
+            inherit system;
             config.allowUnfree = true;
             overlays = [
               (
@@ -90,7 +90,7 @@
               home-manager
               ;
             pkgs-unstable = import nixpkgs-unstable {
-              system = builtins.elemAt system 0;
+              inherit system;
               config.allowUnfree = true;
             };
             xelib = import ./xelib pkgs;
@@ -149,7 +149,6 @@
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = {
                 inherit home-manager;
-                isNixOS = true;
               }
               // extras;
               home-manager.sharedModules = home-manager-modules;

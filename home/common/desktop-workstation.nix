@@ -1,7 +1,5 @@
 {
   config,
-  home-manager,
-  isNixOS,
   lib,
   pkgs,
   pkgs-unstable,
@@ -67,26 +65,6 @@
       '';
     };
 
-    # prompts for 1password cli install, since we can't install via nix for desktop integration
-    # only on non-nixos
-    activation.install1PasswordCLI = lib.mkIf (!isNixOS) (
-      home-manager.lib.hm.dag.entryAfter [ "installPackages" ] ''
-        if [ ! -f /usr/local/bin/op ]; then
-          cp ${pkgs._1password-cli}/bin/op /tmp/op-cli
-          cat << 'EOF' > /tmp/install_op.sh
-        #!/bin/bash
-        sudo mv /tmp/op-cli /usr/local/bin/op
-        sudo chgrp onepassword-cli /usr/local/bin/op
-        sudo chmod g+s /usr/local/bin/op
-        rm /tmp/install_op.sh
-        echo "Install complete."
-        EOF
-          chmod +x /tmp/install_op.sh
-          echo "Please run /tmp/install_op.sh to complete 1Password CLI installation"
-        fi
-      ''
-    );
-
     sessionVariables = {
       VIRTUAL_ENV_DISABLE_PROMPT = "1";
       VISUAL = "code --wait";
@@ -122,12 +100,10 @@
         format = "ssh";
         key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUZNxXcceFgiGEGJlvFM1DLaYFMOYO+oVfVmCcUqXRw";
         signer =
-          if isNixOS then
-            "${lib.getExe' pkgs-unstable._1password-gui "op-ssh-sign"}"
-          else if pkgs.stdenv.isDarwin then
+          if pkgs.stdenv.isDarwin then
             "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
           else
-            "/opt/1Password/op-ssh-sign";
+            "${lib.getExe' pkgs-unstable._1password-gui "op-ssh-sign"}";
         signByDefault = true;
       };
       # borrowed from https://github.com/bobvanderlinden/nixos-config/blob/0c09c5c162413816d3278c406d85c05f0010527c/home/default.nix#L938
