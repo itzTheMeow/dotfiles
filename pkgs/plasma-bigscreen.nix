@@ -7,7 +7,7 @@
   pkg-config,
   ...
 }:
-kdePackages.mkKdeDerivation {
+kdePackages.mkKdeDerivation rec {
   pname = "plasma-bigscreen";
   version = "unstable-2026-01-17";
 
@@ -79,8 +79,12 @@ kdePackages.mkKdeDerivation {
   '';
 
   preFixup = ''
-    wrapQtApp $out/bin/plasma-bigscreen-common-env
     wrapQtApp $out/bin/plasma-bigscreen-wayland
+  '';
+
+  postInstall = ''
+    QML_PATH="${lib.makeSearchPath "lib/qt-${kdePackages.qtbase.version}/qml" buildInputs}"
+    echo "export QML2_IMPORT_PATH=\"$QML_PATH:\$QML2_IMPORT_PATH\"" >> $out/bin/plasma-bigscreen-common-env
   '';
 
   passthru.providedSessions = [
