@@ -6,6 +6,7 @@
   };
   cursors = {
     name = "Colloid-cursors";
+    size = 24;
     package = xelpkgs.colloid-cursors;
   };
   environment = {
