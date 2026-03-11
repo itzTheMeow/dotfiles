@@ -1,6 +1,5 @@
 {
   hostname,
-  isNixOS,
   osConfig,
   pkgs,
   xelib,
@@ -28,18 +27,6 @@ in
     ../programs/rustic
   ];
   news.display = "silent";
-
-  # apply only on standalone home-manager
-  nix = (
-    if !isNixOS then
-      {
-        package = pkgs.nix;
-        settings.experimental-features = "nix-command flakes";
-        settings.auto-optimise-store = true;
-      }
-    else
-      { }
-  );
 
   home = {
     stateVersion = "25.11"; # not to be changed
