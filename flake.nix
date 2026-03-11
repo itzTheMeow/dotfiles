@@ -93,10 +93,9 @@
               inherit system;
               config.allowUnfree = true;
             };
-            xelib = import ./xelib pkgs;
-            host = xelib.hosts.${hostname};
             xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
-            isNixOS = (builtins.elemAt system 1);
+            xelib = import ./xelib { inherit pkgs pkgs-unstable xelpkgs; };
+            host = xelib.hosts.${hostname};
           };
         };
 
@@ -111,16 +110,17 @@
             inherit system;
             config.allowUnfree = true;
           };
-          xelib = import ./xelib pkgs;
+          xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
+          xelib = import ./xelib { inherit pkgs pkgs-unstable xelpkgs; };
 
           extras = {
             inherit
               inputs
               hostname
               xelib
+              xelpkgs
               pkgs-unstable
               ;
-            xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
             host = xelib.hosts.${hostname};
           };
         in

@@ -1,10 +1,10 @@
-pkgs:
+{ pkgs, ... }@inputs:
 let
   lib = pkgs.lib;
 in
 rec {
   # import globals
-  globals = import ./globals.nix;
+  globals = import ./globals.nix inputs;
 
   # import hosts and ports
   inherit (import ./hosts.nix) hosts services trustedHosts;

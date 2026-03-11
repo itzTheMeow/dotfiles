@@ -1,9 +1,9 @@
 # any device with a gui
-{ pkgs, xelpkgs, ... }:
+{ pkgs, xelib, ... }:
 {
   environment.systemPackages = with pkgs; [
     # desktop themeing
-    xelpkgs.colloid-cursors
+    xelib.globals.cursors.package
     papirus-icon-theme
   ];
 

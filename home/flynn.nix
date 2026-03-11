@@ -130,9 +130,9 @@ in
       package = pkgs.papirus-icon-theme;
     };
     cursorTheme = {
-      name = "Colloid-cursors";
+      name = xelib.globals.cursors.name;
       size = 24;
-      package = xelpkgs.colloid-cursors;
+      package = xelib.globals.cursors.package;
     };
     font = {
       name = "Noto Sans";
@@ -194,7 +194,7 @@ in
     enable = true;
     workspace = {
       cursor = {
-        theme = "Colloid-cursors";
+        theme = xelib.globals.cursors.name;
         size = 24;
       };
       #lookAndFeel = "org.kde.breezedark.desktop";
