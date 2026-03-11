@@ -33,11 +33,12 @@
     desktopManager.plasma6.enable = true;
     displayManager.sddm = {
       enable = true;
-      #wayland.enable = true;
-    };
-    displayManager.autoLogin = {
-      enable = true;
-      user = host.username;
+      settings = {
+        Autologin = {
+          Session = "plasma-bigscreen-wayland";
+          User = host.username;
+        };
+      };
     };
     displayManager.sessionPackages = [
       xelpkgs.plasma-bigscreen
