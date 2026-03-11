@@ -8,6 +8,7 @@ let
   options = {
     # allow access
     allow-other = true;
+    umask = "000";
     dir-perms = "0777";
     file-perms = "0666";
     # performance
@@ -31,7 +32,7 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d /mnt/tv 0755 ${host.username} users -"
-    "d /mnt/movies 0755 ${host.username} users -"
+    "d /mnt/tv 0775 ${host.username} users -"
+    "d /mnt/movies 0775 ${host.username} users -"
   ];
 }
