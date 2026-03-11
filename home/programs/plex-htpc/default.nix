@@ -2,14 +2,9 @@
 {
   home.packages = [
     ((xelib.injectCursorsFHS pkgs.plex-htpc).overrideAttrs (old: {
-      # we have to remove the qt6 paths and switch to a more generic theme for it to run under bigscreen
-      nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.makeWrapper ];
       postFixup = (old.postFixup or "") + ''
-        wrapProgram $out/bin/plex-htpc \
-          --unset QT_QUICK_CONTROLS_STYLE \
-          --unset QT_PLUGIN_PATH \
-          --unset QML2_IMPORT_PATH \
-          --set QT_QPA_PLATFORMTHEME "fusion"
+        sed -i '2i export QT_QPA_PLATFORMTHEME=fusion' $out/bin/plex-htpc
+        sed -i '3i unset QT_PLUGIN_PATH QML2_IMPORT_PATH QT_QUICK_CONTROLS_STYLE' $out/bin/plex-htpc
       '';
     }))
   ];
