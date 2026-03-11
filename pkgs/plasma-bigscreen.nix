@@ -20,7 +20,6 @@ let
     kwayland
     kwindowsystem
     milou
-    pipewire
     plasma-nano
     plasma-nm
     plasma-workspace
