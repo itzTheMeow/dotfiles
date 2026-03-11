@@ -1,12 +1,18 @@
 { pkgs, xelib, ... }:
 {
   home.packages = [
-    ((xelib.injectCursorsFHS pkgs.plex-htpc).overrideAttrs (old: {
-      postFixup = (old.postFixup or "") + ''
-        sed -i '2i export QT_QPA_PLATFORMTHEME=fusion' $out/bin/plex-htpc
-        sed -i '3i unset QT_PLUGIN_PATH QML2_IMPORT_PATH QT_QUICK_CONTROLS_STYLE' $out/bin/plex-htpc
+    (pkgs.symlinkJoin {
+      name = "plex-htpc-final";
+      paths = [ (xelib.injectCursorsFHS pkgs.plex-htpc) ];
+      nativeBuildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/plex-htpc \
+          --unset QT_QUICK_CONTROLS_STYLE \
+          --unset QT_PLUGIN_PATH \
+          --unset QML2_IMPORT_PATH \
+          --set QT_QPA_PLATFORMTHEME "fusion"
       '';
-    }))
+    })
   ];
   xdg.dataFile."plex/inputmaps/keyboard.json".source = ./inputmap-keyboard.json;
 }
