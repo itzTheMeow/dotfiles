@@ -1,5 +1,6 @@
 # shared options for media center related applications
 {
+  config,
   host,
   ...
 }:
@@ -9,7 +10,7 @@ let
     # allow access
     allow-other = true;
     umask = "002";
-    gid = "mediacenter";
+    gid = config.users.groups.mediacenter.gid;
     # performance
     dir-cache-time = "168h";
     poll-interval = "3m";
@@ -17,7 +18,9 @@ let
   };
 in
 {
-  users.groups.mediacenter = { };
+  users.groups.mediacenter = {
+    gid = 930;
+  };
   users.users.${host.username}.extraGroups = [ "mediacenter" ];
 
   home-manager.users.${host.username}.programs.rclone.remotes.pcloud.mounts = {
