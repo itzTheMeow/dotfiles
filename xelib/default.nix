@@ -47,6 +47,22 @@ rec {
   # convert an attr set to `key: value` string
   toKVColonFile = name: data: pkgs.writeText name (toKVColonString data);
 
+  injectCursorsFHS =
+    pkg: # add the cursors to the FHS env
+    (pkg.override {
+      extraEnv = {
+        XCURSOR_THEME = "${globals.cursors.name}";
+        XCURSOR_SIZE = globals.cursors.size;
+        XCURSOR_PATH = "/usr/share/icons:/run/current-system/sw/share/icons";
+      };
+    }).overrideAttrs
+      (oldAttrs: {
+        extraInstallCommands = (oldAttrs.extraInstallCommands or "") + ''
+          mkdir -p $out/share/icons
+          ln -snf ${globals.cursors.package}/share/icons/* $out/share/icons/
+        '';
+      });
+
   # make an ssh config entry
   mkSSHConfig =
     config: machines:

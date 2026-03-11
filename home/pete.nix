@@ -1,16 +1,12 @@
-{ pkgs, ... }:
+{ ... }:
 {
   imports = [
     ./common
     ./common/desktop.nix
 
+    ./programs/plex-htpc
     ./programs/rclone
   ];
 
-  home = {
-    packages = with pkgs; [
-      plex-desktop
-      plexamp
-    ];
-  };
+  home = { };
 }

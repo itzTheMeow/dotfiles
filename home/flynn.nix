@@ -27,7 +27,6 @@ in
     ./programs/activitywatch
     ./programs/discordchatexporter
     ./programs/logisim
-    ./programs/plexamp
     ./programs/rclone
     ./programs/thunderbird
     ./programs/vesktop
@@ -61,7 +60,8 @@ in
       yaak
 
       # media
-      plex-desktop
+      (xelib.injectCursorsFHS plex-desktop)
+      plexamp
       rssguard
 
       # editing
@@ -129,11 +129,7 @@ in
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
-    cursorTheme = {
-      name = xelib.globals.cursors.name;
-      size = 24;
-      package = xelib.globals.cursors.package;
-    };
+    cursorTheme = xelib.globals.cursors;
     font = {
       name = "Noto Sans";
       size = 10;
@@ -195,7 +191,7 @@ in
     workspace = {
       cursor = {
         theme = xelib.globals.cursors.name;
-        size = 24;
+        size = xelib.globals.cursors.size;
       };
       #lookAndFeel = "org.kde.breezedark.desktop";
       iconTheme = "Papirus-Dark";
