@@ -42,6 +42,12 @@ kdePackages.mkKdeDerivation {
     qtwebengine
   ];
 
+  propagatedBuildInputs = with kdePackages; [
+    kdeclarative
+    plasma-framework
+    plasma-workspace
+  ];
+
   postPatch = ''
         substituteInPlace bin/plasma-bigscreen-wayland.in \
           --replace-fail @KDE_INSTALL_FULL_LIBEXECDIR@ "${kdePackages.plasma-workspace}/libexec"
