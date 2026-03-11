@@ -85,7 +85,7 @@ kdePackages.mkKdeDerivation {
 
   preFixup = ''
     qtWrapperArgs+=(
-      --prefix QML2_IMPORT_PATH : "${lib.makeSearchPath "lib/qt-${kdePackages.qt6.version}/qml" KDE_INPUTS}"
+      --prefix QML2_IMPORT_PATH : "${lib.makeSearchPath "lib/qt-${kdePackages.qtbase.version}/qml" KDE_INPUTS}"
     )
   '';
 
