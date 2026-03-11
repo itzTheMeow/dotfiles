@@ -5,6 +5,7 @@
       name = "plex-htpc-final";
       paths = [ (xelib.injectCursorsFHS pkgs.plex-htpc) ];
       nativeBuildInputs = [ pkgs.makeWrapper ];
+      # we have to unset the qt6 env and use a more generic theme for it to launch properly
       postBuild = ''
         wrapProgram $out/bin/plex-htpc \
           --unset QT_QUICK_CONTROLS_STYLE \
