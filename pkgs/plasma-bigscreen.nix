@@ -7,6 +7,27 @@
   pkg-config,
   ...
 }:
+let
+  KDE_INPUTS = with kdePackages; [
+    bluez-qt
+    kcmutils
+    kdeclarative
+    kdeconnect-kde
+    ki18n
+    kio
+    knotifications
+    kscreen
+    kwayland
+    kwindowsystem
+    milou
+    pipewire
+    plasma-nano
+    plasma-nm
+    plasma-workspace
+    qtmultimedia
+    qtwebengine
+  ];
+in
 kdePackages.mkKdeDerivation {
   pname = "plasma-bigscreen";
   version = "unstable-2026-01-17";
@@ -23,43 +44,9 @@ kdePackages.mkKdeDerivation {
     pkg-config
   ];
 
-  buildInputs = with kdePackages; [
-    bluez-qt
-    kcmutils
-    kdeclarative
-    kdeconnect-kde
-    ki18n
-    kio
-    knotifications
-    kscreen
-    kwayland
-    kwindowsystem
-    milou
-    plasma-nano
-    plasma-nm
-    plasma-workspace
-    qtmultimedia
-    qtwebengine
-  ];
+  buildInputs = KDE_INPUTS;
 
-  propagatedBuildInputs = with kdePackages; [
-    bluez-qt
-    kcmutils
-    kdeclarative
-    kdeconnect-kde
-    ki18n
-    kio
-    knotifications
-    kscreen
-    kwayland
-    kwindowsystem
-    milou
-    plasma-nano
-    plasma-nm
-    plasma-workspace
-    qtmultimedia
-    qtwebengine
-  ];
+  propagatedBuildInputs = KDE_INPUTS;
 
   postPatch = ''
         substituteInPlace bin/plasma-bigscreen-wayland.in \
@@ -98,7 +85,9 @@ kdePackages.mkKdeDerivation {
   '';
 
   preFixup = ''
-    wrapQtApp $out/bin/plasma-bigscreen-wayland
+    qtWrapperArgs+=(
+      --prefix QML2_IMPORT_PATH : "${lib.makeSearchPath "lib/qt-${kdePackages.qt6.version}/qml" KDE_INPUTS}"
+    )
   '';
 
   passthru.providedSessions = [
