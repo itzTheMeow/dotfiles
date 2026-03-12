@@ -72,6 +72,9 @@ in
       obs-studio
       simplescreenrecorder
 
+      # bs
+      teams-for-linux
+
       ### the rest of these are in nixos programs
 
       # custom packages
