@@ -6,8 +6,8 @@
 {
   options.dnszones = {
     list = lib.mkOption {
-      type = lib.types.listOf dns.lib.types.zone;
-      default = [ ];
+      type = lib.types.attrsOf dns.lib.types.zone;
+      default = { };
       description = "List of DNS zones to create";
     };
   };

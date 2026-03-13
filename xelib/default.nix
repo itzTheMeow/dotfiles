@@ -1,4 +1,4 @@
-{ pkgs, ... }@inputs:
+{ pkgs, self, ... }@inputs:
 let
   lib = pkgs.lib;
 in
@@ -8,6 +8,32 @@ rec {
 
   # import hosts and ports
   inherit (import ./hosts.nix) hosts services trustedHosts;
+
+  dns = rec {
+    _ns1 = "ns1.xela.codes";
+    _ns2 = "ns2.xela.codes";
+    Master = "ehrman"; # main ns1
+
+    # IPs
+    addr = {
+      hyzenberg = "152.53.171.231";
+      ehrman = "152.53.53.232";
+    };
+
+    # util functions
+    fqdn = d: "${d}.";
+
+    # prebuilt zone config
+    SOA = {
+      nameServer = fqdn _ns1;
+      serial = self.lastModified; # auto-updating
+      adminEmail = "dns@xela.codes";
+    };
+    NS = [
+      (fqdn _ns1)
+      (fqdn _ns2)
+    ];
+  };
 
   # optionally import a module if it exists
   optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
