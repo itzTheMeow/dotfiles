@@ -6,7 +6,7 @@
   ...
 }:
 let
-  svc = xelib.services.nzbget;
+  svc = xelib.services.pocket-id;
 in
 lib.mkMerge [
   {
