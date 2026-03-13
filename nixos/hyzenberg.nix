@@ -20,10 +20,12 @@
 
     # specific to this host
     ./services/beszel
+    ./services/flixur-demo
+    ./services/homepage
+    ./services/nsd
     ./services/nzbget
     ./services/servarr
     ./services/step-ca
-    ./services/homepage
   ];
 
   sops.secrets.user_key = {

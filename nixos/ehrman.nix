@@ -20,6 +20,7 @@
 
     # specific to this host
     ./services/headscale
+    ./services/nsd
     ./services/pocket-id
     ./services/tailscale/mullvad-exit-nodes.nix
   ];

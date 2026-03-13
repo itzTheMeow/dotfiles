@@ -101,7 +101,14 @@
               config.allowUnfree = true;
             };
             xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
-            xelib = import ./xelib { inherit pkgs pkgs-unstable xelpkgs; };
+            xelib = import ./xelib {
+              inherit
+                pkgs
+                pkgs-unstable
+                self
+                xelpkgs
+                ;
+            };
             host = xelib.hosts.${hostname};
           };
         };
@@ -121,7 +128,14 @@
             config.allowUnfree = true;
           };
           xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
-          xelib = import ./xelib { inherit pkgs pkgs-unstable xelpkgs; };
+          xelib = import ./xelib {
+            inherit
+              pkgs
+              pkgs-unstable
+              self
+              xelpkgs
+              ;
+          };
 
           extras = {
             inherit

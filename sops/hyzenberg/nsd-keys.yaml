@@ -1,0 +1,16 @@
+nixos-master: ENC[AES256_GCM,data:G8Fsw0XIgQ0HbFEnOuBetscUAXLXzpTQ+8KTjPF/jw0SouA21kq1rgQNtmo=,iv:I32/BPkLj86gZtIBztCMbR+m8IR4SJpRmFjSdwyPry4=,tag:GiS0rYssN9IHJ7Eh4lcswg==,type:str]
+sops:
+    age:
+        - recipient: age1ys7j0me46jdes87e5hargcghn49974e7gs40u4mcph9ygt8slcgsxhf2gt
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBIbkZUTXVka2hhNmhJMGZJ
+            Q1BJTVJVVXlQSmtMcS9jK0pUMG1sRzhhb0VRCnZWOTMvVDlHclYzQXcybjdqK2hr
+            bzBGM3FyeWlsaFFTRFc3TENGR1l0OWMKLS0tIE1HZ0Jxem45eTVLbEgxeTY4emtm
+            QVdOL0V6OWtzT1BDQy84OE9MV1FhM3cKaHc9hvZKCthgoUCapQ/6GR6bplm7Eq2N
+            +VV1VVBJYTapct+wzT5Oo1pbsEum+FlgEW3NiT5lGUp2COMtPpVSkA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-03-13T07:10:35Z"
+    mac: ENC[AES256_GCM,data:pzDojTyNKJ7qHg4xNlYQvZPgC0o1LKfpry5StTrudCLGcm+Gy54UzMvk7Zbgd8NDer567uwvR2Q60hRZWih6kfbx5DN4amr7yUeFEA5BIjRzn5dBcdqjSPEJ0WYaifEoQeCNO0+cgkh8uGKyMzj/I74B42V5aM3/ZPB/hCnAIbo=,iv:PalGcd6AjuBa3OESGFU9XvyRjmGqnGODlW6qAl893Dg=,tag:vVhIMiEWowuMf0SPRQH4LA==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.12.1
