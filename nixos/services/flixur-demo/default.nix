@@ -20,4 +20,5 @@ in
         };
       };
     };
+  dnszones.dnssecEnabled = [ "flixur.app" ];
 }

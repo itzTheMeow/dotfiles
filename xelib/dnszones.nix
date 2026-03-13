@@ -10,5 +10,10 @@
       default = { };
       description = "List of DNS zones to create";
     };
+    dnssecEnabled = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "List of zones to enable dnssec for";
+    };
   };
 }

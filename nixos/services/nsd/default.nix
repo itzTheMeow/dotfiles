@@ -11,12 +11,17 @@ let
   collectedZones = lib.foldl' (acc: host: acc // host.config.dnszones.list) { } (
     lib.attrValues self.nixosConfigurations
   );
+  # merged list of zones with dnssec enabled
+  dnssecZones = lib.flatten (
+    map (host: host.config.dnszones.dnssecEnabled) (lib.attrValues self.nixosConfigurations)
+  );
 in
 {
   environment.systemPackages = [ pkgs.nsd ];
   services.nsd = {
     enable = true;
     keys.nixos-master.keyFile = config.sops.secrets.nsd-nixos-master.path;
+    nsid = "ascii_${hostname}";
     zones = lib.mapAttrs (
       name: zone:
       (
@@ -27,6 +32,7 @@ in
           in
           {
             data = toString zone;
+            dnssec = lib.elem name dnssecZones;
             notify = childNotifiers;
             provideXFR = childNotifiers;
           }
