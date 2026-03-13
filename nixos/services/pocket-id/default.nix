@@ -35,7 +35,7 @@ lib.mkMerge [
     sops.opSecrets = {
       pocket-id.keys = {
         key = "op://Private/pwdsgmanpl46sqdbxfsa7ylzzq/credential";
-        licence = "op://Private/yo5ksl7xuwir3ab3idjpjccaty/ko4vnnqfnsekir7iss47wdawvq/pzru4hfyoodf34v7uys6cee3ra";
+        license = "op://Private/yo5ksl7xuwir3ab3idjpjccaty/ko4vnnqfnsekir7iss47wdawvq/pzru4hfyoodf34v7uys6cee3ra";
       };
     };
   }
