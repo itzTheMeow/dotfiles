@@ -1,16 +1,16 @@
 nixos-master: ENC[AES256_GCM,data:/rqqByU1r+FJf+NrfkOKgEIez4E+pbQ1NQhSqWml8BiVnQtcn4CMCS6L9WY=,iv:8MK1kTJtDaukmejLcbFkjO3KELC5ES+2bh7Ks33V0/M=,tag:mIiAtbx+vXLNdW6qjdoZZw==,type:str]
 sops:
-    age:
-        - recipient: age1uj2dljx8vhkh3ueap9lw0km536tnrkn2h50vk0j0ud0hmvhl7sdqrp3a0h
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAwek1CY3FpVWFmOGh6OHFZ
-            ZFRNWmwyZ0xsNVJidjRaQTI0dGROd3lhVjJJCnpHelJRTzV4STlWaUxrT0FkWTJw
-            YzAzMFd4cXdQOXRwQXd3S0UwSkZJQWMKLS0tIGkzZ1RCZW5JRUZBNmFCVVlVT3Bv
-            em9LYkVZUytYVTVNdHVhZElSSXFRcHcKiLF6lGe8CrAOAe/rF0J3t9o8eGtZpi+j
-            FYi1/0HDVEt+5UF2OOV+/f9XgHOorRfmqrvmyKGegrnHdQ9NYWOFQA==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-03-13T07:10:35Z"
-    mac: ENC[AES256_GCM,data:5liJQKp4weLKNKXEQugAKgZmXHid+GP1E4n6nF1PrmBi/fzvu8N9rw/qtbVRjKUPI8vxTtnr/h73YLgySKcjA+5Ph82DHTGUumKYJCHnEw54FmQ5mIXQBtvja2KbrtW/FcIpks6XEH9ZUclETSzF+y3QlqLV4KvLvgIeRKC4y8E=,iv:EJ7kmOxcz1m34Os7ORukQOlMfD2q+fXe3zaCOEQOE+Y=,tag:wSBCv7XBj5mF19KQ6IXxcg==,type:str]
-    unencrypted_suffix: _unencrypted
-    version: 3.12.1
+  age:
+    - recipient: age1uj2dljx8vhkh3ueap9lw0km536tnrkn2h50vk0j0ud0hmvhl7sdqrp3a0h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAwek1CY3FpVWFmOGh6OHFZ
+        ZFRNWmwyZ0xsNVJidjRaQTI0dGROd3lhVjJJCnpHelJRTzV4STlWaUxrT0FkWTJw
+        YzAzMFd4cXdQOXRwQXd3S0UwSkZJQWMKLS0tIGkzZ1RCZW5JRUZBNmFCVVlVT3Bv
+        em9LYkVZUytYVTVNdHVhZElSSXFRcHcKiLF6lGe8CrAOAe/rF0J3t9o8eGtZpi+j
+        FYi1/0HDVEt+5UF2OOV+/f9XgHOorRfmqrvmyKGegrnHdQ9NYWOFQA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-03-13T07:10:35Z"
+  mac: ENC[AES256_GCM,data:5liJQKp4weLKNKXEQugAKgZmXHid+GP1E4n6nF1PrmBi/fzvu8N9rw/qtbVRjKUPI8vxTtnr/h73YLgySKcjA+5Ph82DHTGUumKYJCHnEw54FmQ5mIXQBtvja2KbrtW/FcIpks6XEH9ZUclETSzF+y3QlqLV4KvLvgIeRKC4y8E=,iv:EJ7kmOxcz1m34Os7ORukQOlMfD2q+fXe3zaCOEQOE+Y=,tag:wSBCv7XBj5mF19KQ6IXxcg==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1
