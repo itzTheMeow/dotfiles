@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -195,12 +196,25 @@ builtins.mapAttrs (name: conf: {
 }
 
 func shellJSON(ptr any, cmd string, args ...string) error {
-	if out, err := exec.Command(cmd, args...).Output(); err != nil {
-		return err
-	} else {
-		if err := json.Unmarshal(out, ptr); err != nil {
-			return err
+	command := exec.Command(cmd, args...)
+	var stdout bytes.Buffer
+	command.Stdout = &stdout
+	var stderr bytes.Buffer
+	command.Stderr = &stderr
+
+	if err := command.Run(); err != nil {
+		errText := strings.TrimSpace(stderr.String())
+		if errText == "" {
+			errText = strings.TrimSpace(stdout.String())
 		}
+		if errText != "" {
+			return fmt.Errorf("%w: %s", err, errText)
+		}
+		return err
+	}
+
+	if err := json.Unmarshal(stdout.Bytes(), ptr); err != nil {
+		return err
 	}
 	return nil
 }
