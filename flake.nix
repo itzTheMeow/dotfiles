@@ -178,13 +178,17 @@
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = extras // {inherit xelib;};
+              home-manager.extraSpecialArgs = extras // {
+                inherit xelib;
+              };
               home-manager.sharedModules = home-manager-modules;
               home-manager.users.root = import ./home/common;
               home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
             }
           ];
-          specialArgs = extras // {inherit xelib;};
+          specialArgs = extras // {
+            inherit xelib;
+          };
         };
     in
     {
