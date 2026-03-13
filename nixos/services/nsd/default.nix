@@ -43,7 +43,7 @@ in
           in
           {
             # non-master nodes get notifications from the master
-            zonefile = "/var/lib/nsd/zones/${name}";
+            data = toString zone;
             allowNotify = [ master ];
             requestXFR = [ master ];
           }
