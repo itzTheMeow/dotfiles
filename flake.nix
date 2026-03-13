@@ -142,9 +142,9 @@
             host = xelib.hosts.${hostname};
           };
           
-          xelib = import ./xelib extras // {
+          xelib = import ./xelib (extras // {
             inherit pkgs       ;
-          };
+          });
         in
         nixpkgs.lib.nixosSystem {
           inherit system;
