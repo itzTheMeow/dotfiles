@@ -16,8 +16,8 @@ rec {
 
     # IPs
     addr = {
-      hyzenberg = "152.53.171.231";
-      ehrman = "152.53.53.232";
+      ehrman = "152.53.53.232"; # NS1
+      hyzenberg = "152.53.171.231"; # NS2
     };
 
     # util functions
