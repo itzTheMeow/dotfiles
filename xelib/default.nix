@@ -1,4 +1,4 @@
-{ pkgs, self, ... }@inputs:
+{ dns, pkgs, self, ... }@inputs:
 let
   lib = pkgs.lib;
 in
@@ -22,6 +22,21 @@ rec {
 
     # util functions
     fqdn = d: "${d}.";
+    
+    # shorthand for github pages DNS
+    githubPages = with dns.combinators; {
+    A= [
+      (a 185.199.108.153)
+      (a 185.199.109.153)
+      (a 185.199.110.153)
+      (a 185.199.111.153)
+      ];
+      AAAA=[
+      (aaaa 2606:50c0:8000::153
+(aaaa 2606:50c0:8001::153)
+(aaaa 2606:50c0:8002::153)
+(aaaa 2606:50c0:8003::153)
+    ];};
 
     # prebuilt zone config
     SOA = {
