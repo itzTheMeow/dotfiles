@@ -21,14 +21,18 @@
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    plasma-manager = {
-      url = "github:nix-community/plasma-manager";
+    dns = {
+      url = "github:kirelagin/dns.nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
     };
     headplane = {
       url = "github:tale/headplane";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
   };
 
@@ -44,11 +48,13 @@
   outputs =
     {
       catppuccin,
+      dns,
       headplane,
       home-manager,
       nixpkgs-unstable,
       nixpkgs,
       plasma-manager,
+      self,
       sops-nix,
       ...
     }@inputs:
@@ -88,6 +94,7 @@
               inputs
               hostname
               home-manager
+              self
               ;
             pkgs-unstable = import nixpkgs-unstable {
               inherit system;
@@ -118,11 +125,13 @@
 
           extras = {
             inherit
-              inputs
+              dns
               hostname
+              inputs
+              pkgs-unstable
+              self
               xelib
               xelpkgs
-              pkgs-unstable
               ;
             host = xelib.hosts.${hostname};
           };
@@ -141,6 +150,7 @@
 
             # misc
             catppuccin.nixosModules.catppuccin
+            ./xelib/dnszones.nix
 
             # main config
             ./nixos/${hostname}.nix
