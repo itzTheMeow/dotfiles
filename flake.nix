@@ -102,6 +102,9 @@
       mkNixosConfiguration =
         system: hostname:
         let
+          # pete has to use unstable for bigscreen
+          nixpkgs = if hostname == "pete" then nixpkgs-unstable else nixpkgs;
+
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;

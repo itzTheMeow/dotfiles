@@ -1,19 +1,14 @@
 # NOTE: from https://github.com/NixOS/nixpkgs/pull/428353#issuecomment-3498917203
 # more info in tv.nix nixos config
 {
-  cmake,
   fetchFromGitLab,
-  #kdePackages,
+  kdePackages,
   lib,
-  pkg-config,
-  pkgs-unstable,
-  sdl3,
   libcec,
+  pkg-config,
+  sdl3,
   ...
 }:
-let
-  kdePackages = pkgs-unstable.kdePackages;
-in
 kdePackages.mkKdeDerivation rec {
   pname = "plasma-bigscreen";
   version = "unstable-2026-03-07";
@@ -27,7 +22,6 @@ kdePackages.mkKdeDerivation rec {
   };
 
   extraNativeBuildInputs = [
-    cmake
     pkg-config
   ];
 
@@ -56,7 +50,7 @@ kdePackages.mkKdeDerivation rec {
     # non-kde packages
     ++ [
       libcec
-      pkgs-unstable.sdl3
+      sdl3
     ];
 
   postPatch = ''
