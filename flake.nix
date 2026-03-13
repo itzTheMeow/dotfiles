@@ -128,14 +128,6 @@
             config.allowUnfree = true;
           };
           xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
-          xelib = import ./xelib {
-            inherit
-              pkgs
-              pkgs-unstable
-              self
-              xelpkgs
-              ;
-          };
 
           extras = {
             inherit
@@ -148,6 +140,10 @@
               xelpkgs
               ;
             host = xelib.hosts.${hostname};
+          };
+          
+          xelib = import ./xelib extras // {
+            inherit pkgs       ;
           };
         in
         nixpkgs.lib.nixosSystem {
@@ -183,7 +179,7 @@
               home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
             }
           ];
-          specialArgs = extras;
+          specialArgs = extras // {inherit xelib;};
         };
     in
     {
