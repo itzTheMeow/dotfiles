@@ -6,8 +6,11 @@ in
   # enable and configure NGINX
   services.nginx = {
     enable = true;
+    recommendedBrotliSettings = true;
+    recommendedGzipSettings = true;
     recommendedProxySettings = true;
     recommendedTlsSettings = true;
+
     clientMaxBodySize = "1g";
 
     # default catch-all host for random requests
