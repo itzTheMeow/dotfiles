@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+     flake-utils.url = "github:numtide/flake-utils";
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -49,6 +50,7 @@
     {
       catppuccin,
       dns,
+      flake-utils,
       headplane,
       home-manager,
       nixpkgs-unstable,
@@ -196,5 +198,32 @@
         ehrman = mkNixosConfiguration "x86_64-linux" "ehrman";
         huell = mkNixosConfiguration "x86_64-linux" "huell";
       };
-    };
+    } //     flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+        
+        formatScript = pkgs.writeShellApplication {
+          name = "format";
+          runtimeInputs = with pkgs; [
+            nixfmt
+            go
+            nodePackages.prettier
+          ];
+          text = ''
+            echo "Formatting Nix..."
+            find . -name "*.nix" -exec nixfmt {} +
+            echo "Formatting Go..."
+            gofmt -w .
+            echo "Formatting Prettier..."
+            prettier --write .
+          '';
+        };
+      in
+      {
+        apps.format = {
+          type = "app";
+          program = "${formatScript}/bin/format";
+        };
+      }
+    );
 }
