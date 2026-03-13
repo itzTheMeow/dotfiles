@@ -24,7 +24,7 @@ rec {
     fqdn = d: "${d}.";
     
     # shorthand for github pages DNS
-    githubPages = with inputs.dns.combinators; {
+    githubPages = with inputs.dns.lib.combinators; {
     A= [
       (a "185.199.108.153")
       (a "185.199.109.153")
