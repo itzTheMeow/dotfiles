@@ -51,6 +51,8 @@ in
   sops.secrets.nsd-nixos-master = {
     sopsFile = ../../../${config.sops.opSecrets.nsd-keys.path};
     key = "nixos-master";
+    owner = "nsd";
+    group = "nsd";
   };
   sops.opSecrets.nsd-keys.keys.nixos-master = "op://Private/varbqv6lwh75bxatyjh3i2gboe/credential";
 }
