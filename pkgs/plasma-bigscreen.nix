@@ -91,6 +91,11 @@ kdePackages.mkKdeDerivation rec {
         WebEngineQuick
         WaylandClient
     )'
+
+        # fixes duplicating tiles
+        # for some reason this actually works and i have no idea why...
+        substituteInPlace containments/homescreen/plugin/applicationlistmodel.cpp \
+          --replace-fail 'storageIdMap.find(service->storageId())' 'storageIdMap.find(service->desktopEntryName())'
   '';
 
   preFixup = ''
