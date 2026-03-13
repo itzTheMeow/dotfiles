@@ -20,6 +20,7 @@ in
   environment.systemPackages = [ pkgs.nsd ];
   services.nsd = {
     enable = true;
+    interfaces = [ "0.0.0.0" ];
     keys.nixos-master.keyFile = config.sops.secrets.nsd-nixos-master.path;
     nsid = "ascii_${hostname}";
     zones = lib.mapAttrs (
