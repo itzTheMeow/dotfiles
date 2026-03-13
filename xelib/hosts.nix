@@ -117,6 +117,11 @@ in
       port = 58815;
       domain = "nzbget.xela";
     };
+    pocket-id = {
+      host = "ehrman";
+      port = 11171;
+      domain = "auth.xela.codes";
+    };
     radarr = {
       host = "hyzenberg";
       port = 47878;
