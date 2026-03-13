@@ -24,7 +24,7 @@ in
 
   services.nginx.virtualHosts."flixur.app" = {
     enableACME = true;
-    #forceSSL = true;
+    forceSSL = true;
     locations."/" = {
       return = "301 https://www.flixur.app$request_uri";
     };
