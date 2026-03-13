@@ -24,10 +24,12 @@
     };
     dns = {
       url = "github:kirelagin/dns.nix";
+      inputs.flake-utils.follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     headplane = {
       url = "github:tale/headplane";
+      inputs.flake-utils.follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     plasma-manager = {
