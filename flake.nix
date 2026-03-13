@@ -220,7 +220,7 @@
             echo "Formatting Nix..."
             find . -name "*.nix" -exec nixfmt {} +
             echo "Formatting Go..."
-            gofmt -w .
+            gofmt -w ./go
             echo "Formatting Prettier..."
             prettier --write .
           '';
