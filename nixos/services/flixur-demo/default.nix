@@ -11,10 +11,10 @@ in
       "flixur.app" = {
         inherit SOA NS;
 
-        A = [ (a addr.${svcHost}) ];
+        inherit (githubPages) A AAAA;
 
         subdomains = {
-          www.CNAME = [ (cname "github.io.") ];
+          www.A = [ (a addr.${svcHost}) ];
           try.CNAME = [ (cname "hyzen.xela.codes.") ];
           "_github-challenge-flixurapp-org".TXT = [ (txt "3404e86f6c") ];
         };
@@ -22,11 +22,11 @@ in
     };
   dnszones.dnssecEnabled = [ "flixur.app" ];
 
-  services.nginx.virtualHosts."flixur.app" = {
+  services.nginx.virtualHosts."www.flixur.app" = {
     enableACME = true;
     forceSSL = true;
     locations."/" = {
-      return = "301 https://www.flixur.app$request_uri";
+      return = "301 https://flixur.app$request_uri";
     };
   };
 }
