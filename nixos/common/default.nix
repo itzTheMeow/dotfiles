@@ -41,6 +41,12 @@
   # allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # VM settings
+  virtualisation.vmVariant.virtualisation = {
+    memorySize = 6 * 1024;
+    cores = 5;
+  };
+
   # timezone should be synced
   time.timeZone = "America/New_York";
 
