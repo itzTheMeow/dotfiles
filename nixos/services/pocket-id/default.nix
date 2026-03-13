@@ -18,19 +18,18 @@ lib.mkMerge [
         PORT = svc.port;
         APP_URL = "https://${svc.domain}";
         TRUST_PROXY = true;
-      };
-      credentials = {
-        ENCRYPTION_KEY = config.sops.secrets.pocket-id-enc.path;
-        MAXMIND_LICENSE_KEY = config.sops.secrets.pocket-id-maxmind.path;
+        #TODO:nix-26.05 switch to credentials option
+        ENCRYPTION_KEY_FILE = config.sops.secrets.pocket-id-enc.path;
+        MAXMIND_LICENSE_KEY_FILE = config.sops.secrets.pocket-id-maxmind.path;
       };
     };
 
     sops.secrets.pocket-id-enc = {
-      sopsFile = ../../${config.sops.opSecrets.pocket-id.path};
+      sopsFile = ../../../${config.sops.opSecrets.pocket-id.path};
       key = "key";
     };
     sops.secrets.pocket-id-maxmind = {
-      sopsFile = ../../${config.sops.opSecrets.pocket-id.path};
+      sopsFile = ../../../${config.sops.opSecrets.pocket-id.path};
       key = "license";
     };
     sops.opSecrets = {
