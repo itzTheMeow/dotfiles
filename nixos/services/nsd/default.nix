@@ -32,7 +32,7 @@ in
           in
           {
             data = toString zone;
-            dnssec = lib.elem name dnssecZones;
+            dnssec = false; # TODO: fix bind somehow - lib.elem name dnssecZones;
             notify = childNotifiers;
             provideXFR = childNotifiers;
           }
