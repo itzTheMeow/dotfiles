@@ -21,12 +21,4 @@ in
       };
     };
   dnszones.dnssecEnabled = [ "flixur.app" ];
-
-  services.nginx.virtualHosts."www.flixur.app" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/" = {
-      return = "301 https://flixur.app$request_uri";
-    };
-  };
 }
