@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-     flake-utils.url = "github:numtide/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils";
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -143,10 +143,13 @@
               ;
             host = xelib.hosts.${hostname};
           };
-          
-          xelib = import ./xelib (extras // {
-            inherit pkgs       ;
-          });
+
+          xelib = import ./xelib (
+            extras
+            // {
+              inherit pkgs;
+            }
+          );
         in
         nixpkgs.lib.nixosSystem {
           inherit system;
@@ -181,7 +184,9 @@
               home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
             }
           ];
-          specialArgs = extras // {inherit xelib;};
+          specialArgs = extras // {
+            inherit xelib;
+          };
         };
     in
     {
@@ -198,10 +203,12 @@
         ehrman = mkNixosConfiguration "x86_64-linux" "ehrman";
         huell = mkNixosConfiguration "x86_64-linux" "huell";
       };
-    } //     flake-utils.lib.eachDefaultSystem (system:
+    }
+    // flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = import nixpkgs { inherit system; };
-        
+
         formatScript = pkgs.writeShellApplication {
           name = "format";
           runtimeInputs = with pkgs; [
