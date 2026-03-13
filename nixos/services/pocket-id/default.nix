@@ -26,8 +26,8 @@ in
           TRUST_PROXY = true;
         };
         credentials = {
-          ENCRYPTION_KEY_FILE = config.sops.secrets.pocket-id-enc.path;
-          MAXMIND_LICENSE_KEY_FILE = config.sops.secrets.pocket-id-maxmind.path;
+          ENCRYPTION_KEY = config.sops.secrets.pocket-id-enc.path;
+          MAXMIND_LICENSE_KEY = config.sops.secrets.pocket-id-maxmind.path;
         };
       };
 
