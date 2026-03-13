@@ -82,6 +82,7 @@ kdePackages.mkKdeDerivation rec {
     wrapQtApp $out/bin/plasma-bigscreen-wayland
   '';
 
+  # fixes plasma-bigscreen-swap-session
   postInstall = ''
     QML_PATH="${lib.makeSearchPath "lib/qt-6/qml" buildInputs}"
     sed -i "/# Apply environment settings/i export QML2_IMPORT_PATH=\"$QML_PATH:\$QML2_IMPORT_PATH\"" $out/bin/plasma-bigscreen-common-env
