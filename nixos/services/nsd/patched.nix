@@ -492,29 +492,7 @@ let
 
   dnssec = dnssecZones != { };
 
-  # https://github.com/NixOS/nixpkgs/issues/169442#issuecomment-2335750853
-  dnssecTools =
-    (pkgs.bind.overrideAttrs (_: rec {
-      pname = "bind";
-      version = "9.16.50";
-      patches = [ ];
-      outputs = [ "out" ]; # These two lines are needed because without them, I get this error:
-      postInstall = ""; # error: cycle detected in build of ... in the references of output 'dev' from output 'out'
-      postFixup = ''
-        sitepackages=$(find $out/lib -name site-packages -print)
-        substituteInPlace $out/bin/dnssec-keymgr \
-          --replace-fail \
-            'import isc.keymgr' \
-            "$(printf '%s\n%s\n' \
-              'sys.path.insert(1, "'$sitepackages'")' \
-              'import isc.keymgr')"
-      '';
-      src = pkgs.fetchurl {
-        url = "https://downloads.isc.org/isc/bind9/${version}/${pname}-${version}.tar.xz";
-        hash = "sha256-gW26o8EVAZ8w/OvZ6O+Pdjf0rd6Rx52qCZsDUlWhV5U=";
-      };
-    })).override
-      { enablePython = true; };
+  dnssecTools = (import ./bind { inherit pkgs; }).override { enablePython = true; };
 
   signZones = optionalString dnssec ''
     install -m 0600 -o "${username}" -g "${username}" -d "${stateDir}/dnssec"
