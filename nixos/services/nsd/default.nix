@@ -17,6 +17,10 @@ let
   );
 in
 {
+  # replace the module with our patched one
+  disabledModules = [ "services/security/pocket-id.nix" ];
+  imports = [ ./patched.nix ];
+
   environment.systemPackages = [ pkgs.nsd ];
   services.nsd = {
     enable = true;
@@ -33,7 +37,7 @@ in
           in
           {
             data = toString zone;
-            dnssec = false; # TODO: fix bind somehow - lib.elem name dnssecZones;
+            dnssec = lib.elem name dnssecZones;
             notify = childNotifiers;
             provideXFR = childNotifiers;
           }
