@@ -18,7 +18,7 @@ let
 in
 {
   # replace the module with our patched one
-  disabledModules = [ "services/security/pocket-id.nix" ];
+  disabledModules = [ "services/networking/nsd.nix" ];
   imports = [ ./patched.nix ];
 
   environment.systemPackages = [ pkgs.nsd ];
