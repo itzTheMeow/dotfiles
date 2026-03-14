@@ -142,6 +142,7 @@
               inputs
               pkgs-unstable
               self
+              system
               xelib
               xelpkgs
               ;
