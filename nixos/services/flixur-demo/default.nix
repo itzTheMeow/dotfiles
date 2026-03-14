@@ -1,15 +1,12 @@
 # for the flixur demo site and stuff
 { dns, xelib, ... }:
-let
-  svcHost = "hyzenberg";
-in
 {
   dnszones.list =
     with dns.lib.combinators;
     with xelib.dns;
     {
       "flixur.app" = {
-        inherit SOA NS;
+        inherit SOA NS TTL;
 
         inherit (githubPages) A AAAA;
 
