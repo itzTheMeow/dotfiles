@@ -14,7 +14,7 @@ in
         inherit (githubPages) A AAAA;
 
         subdomains = {
-          www.CNAME = [(cname (fqdn "flixurapp.github.io"))];
+          www.CNAME = [ (cname (fqdn "flixurapp.github.io")) ];
           try.CNAME = [ (cname "hyzen.xela.codes.") ];
           "_github-challenge-flixurapp-org".TXT = [ (txt "3404e86f6c") ];
         };
