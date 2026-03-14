@@ -23,7 +23,7 @@ rec {
     # util functions
     fqdn = d: "${d}.";
 
-    # shorthand for github pages DNS
+    # shorthand for github pages apex DNS
     githubPages = with inputs.dns.lib.combinators; {
       A = [
         (a "185.199.108.153")
@@ -49,6 +49,7 @@ rec {
       (fqdn _ns1)
       (fqdn _ns2)
     ];
+    TTL = 60 * 60; # 1hr
   };
 
   # optionally import a module if it exists
