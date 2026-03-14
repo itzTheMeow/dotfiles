@@ -52,6 +52,10 @@ rec {
     TTL = 60 * 60; # 1hr
   };
 
+  mail = {
+    domain = "mail.xela.codes";
+  };
+
   # optionally import a module if it exists
   optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
   # convert string to title case
