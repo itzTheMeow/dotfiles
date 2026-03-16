@@ -1,7 +1,4 @@
-{
-  xelpkgs,
-  ...
-}:
+{ ... }:
 {
   imports = [
     ./common
@@ -10,9 +7,5 @@
     ./programs/rclone
   ];
 
-  home = {
-    packages = [
-      xelpkgs.rustic-unstable
-    ];
-  };
+  home = { };
 }
