@@ -38,8 +38,7 @@ in
       nh
       nix-your-shell
 
-      # more complex tools
-      rustic
+      # more complex toolsk
       speedtest-cli
       yt-dlp
 

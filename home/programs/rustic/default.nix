@@ -1,5 +1,6 @@
 {
   pkgs,
+  pkgs-unstable,
   xelib,
   ...
 }:
@@ -69,6 +70,8 @@ let
   };
 in
 {
+  home.packages = [ pkgs-unstable.rustic ];
+
   xdg.configFile = {
     # default config for all hosts
     "rustic/default.toml".source = xelib.toTOMLFile "default.toml" {
@@ -205,7 +208,7 @@ in
 
   # alias to run backblaze with env file
   home.shellAliases = {
-    rustic-backblaze = ''eval $(op signin); op run --env-file="${backblazeENV}" --env-file="${glacierENV}" -- rustic-unstable -P backblaze'';
+    rustic-backblaze = ''eval $(op signin); op run --env-file="${backblazeENV}" --env-file="${glacierENV}" -- rustic -P backblaze'';
     rustic-glacier = ''eval $(op signin); op run --env-file="${glacierENV}" -- rustic -P glacier'';
   };
 }

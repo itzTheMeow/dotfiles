@@ -4,7 +4,6 @@
   pkgs,
   pkgs-unstable,
   xelib,
-  xelpkgs,
   ...
 }:
 let
@@ -77,8 +76,6 @@ in
 
       ### the rest of these are in nixos programs
 
-      # custom packages
-      xelpkgs.rustic-unstable
       # codearchive requires these to be available
       python3Packages.pygments
       wkhtmltopdf
