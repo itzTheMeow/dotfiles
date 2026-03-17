@@ -3,6 +3,7 @@ profileName:
   host,
   hostname,
   pkgs,
+  pkgs-unstable,
   xelib,
   ...
 }:
@@ -25,7 +26,7 @@ profileName:
       environment = xelib.globals.environment;
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = "${pkgs.zsh}/bin/zsh -c 'export ${builtins.concatStringsSep " " env} && ${pkgs.rustic}/bin/rustic -P ${profileName} backup'";
+        ExecStart = "${pkgs.zsh}/bin/zsh -c 'export ${builtins.concatStringsSep " " env} && ${pkgs-unstable.rustic}/bin/rustic -P ${profileName} backup'";
       };
     };
   systemd.timers.rustic-backup = {
