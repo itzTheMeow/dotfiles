@@ -9,6 +9,10 @@ rec {
   # import hosts and ports
   inherit (import ./hosts.nix) hosts services trustedHosts;
 
+  mail = {
+    domain = "mail.xela.codes";
+  };
+
   dns = rec {
     _ns1 = "ns1.xela.codes";
     _ns2 = "ns2.xela.codes";
@@ -50,10 +54,6 @@ rec {
       (fqdn _ns2)
     ];
     TTL = 60 * 60; # 1hr
-  };
-
-  mail = {
-    domain = "mail.xela.codes";
   };
 
   # optionally import a module if it exists
