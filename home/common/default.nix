@@ -38,9 +38,8 @@ in
       nh
       nix-your-shell
 
-      # more complex toolsk
+      # more complex tools
       speedtest-cli
-      yt-dlp
 
       # temporary
       restic
