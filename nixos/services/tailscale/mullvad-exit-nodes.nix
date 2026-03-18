@@ -175,8 +175,12 @@ let
               };
 
               script = ''
-                # Get the WireGuard interface name
-                WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                # wait for the WireGuard interface name
+                for i in {1..10}; do
+                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                  [ -n "$WG_IFACE" ] && break
+                  sleep 1
+                done
 
                 if [ -z "$WG_IFACE" ]; then
                   echo "No WireGuard interface found"
@@ -184,6 +188,12 @@ let
                 fi
 
                 echo "Setting up NAT for Tailscale => $WG_IFACE"
+
+                # clear old rules
+                ${pkgs.iptables}/bin/iptables -F FORWARD
+
+                # MSS Clamping
+                ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
                 # IPv4 NAT and forwarding rules
                 ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
