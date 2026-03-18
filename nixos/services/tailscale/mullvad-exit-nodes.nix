@@ -166,7 +166,10 @@ let
             systemd.services.mullvad-exit-nat = {
               description = "NAT rules for Tailscale => Mullvad";
               after = [ "mullvad-wireguard.service" ];
-              requires = [ "mullvad-wireguard.service" ];
+              requires = [
+                "mullvad-wireguard.service"
+                "tailscaled.service"
+              ];
               wantedBy = [ "multi-user.target" ];
 
               serviceConfig = {
@@ -190,7 +193,7 @@ let
                 echo "Setting up NAT for Tailscale => $WG_IFACE"
 
                 # clear old rules
-                ${pkgs.iptables}/bin/iptables -F FORWARD
+                #${pkgs.iptables}/bin/iptables -F FORWARD
 
                 # IPv4 NAT and forwarding rules
                 ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
