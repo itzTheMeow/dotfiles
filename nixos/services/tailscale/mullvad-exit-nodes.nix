@@ -192,18 +192,19 @@ let
                 # clear old rules
                 ${pkgs.iptables}/bin/iptables -F FORWARD
 
-                # MSS Clamping
-                ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-
                 # IPv4 NAT and forwarding rules
                 ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
-                ${pkgs.iptables}/bin/iptables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
-                ${pkgs.iptables}/bin/iptables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+                ${pkgs.iptables}/bin/iptables -I FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
+                ${pkgs.iptables}/bin/iptables -I FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 
                 # IPv6 NAT and forwarding rules
                 ${pkgs.iptables}/bin/ip6tables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
-                ${pkgs.iptables}/bin/ip6tables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
-                ${pkgs.iptables}/bin/ip6tables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+                ${pkgs.iptables}/bin/ip6tables -I FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
+                ${pkgs.iptables}/bin/ip6tables -I FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+                # MSS Clamping
+                ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
 
                 echo "NAT rules (IPv4 and IPv6) configured successfully"
               '';
