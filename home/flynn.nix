@@ -64,6 +64,7 @@ in
       rssguard
 
       # editing
+      blender
       footage
       gimp
       inkscape
