@@ -1,16 +1,16 @@
 token: ENC[AES256_GCM,data:DKVJiF0CyHp2isu1VwZS66W+UsI=,iv:Yijpg6nQ02iU6nXh42zY3idpR7cPcgDAfZDh3QNNjCE=,tag:z83yXKXCBBK3tklzpK9Iaw==,type:str]
 sops:
-    age:
-        - recipient: age1rdacpjg5z560vw9tws5dqmjpy6g36nvfxlueefxkkqrudnat0ezslwc233
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA0OXFkOVRoUXR1L2tndUxE
-            MjAwUTNNeVZTNXNZVW1XbWRkYTY2RURsSDBzCkZTN3ppb0R3NXBESGYzUnBCdzBh
-            VzBTclRCMkl1bFpvVnhBM25IUjFPVVkKLS0tIGpxVktQaUpUNFJzeFVsQjFScVdx
-            QTBmUDB0TitYMEtuNjB0UzdCR29MbjAKsowgexyyVFKkumIAdM9BYcRuHHjgzWMS
-            LUrbbTNyovPa6m0MpRVpQ2eRRSrGOCQimQQs68T45ysuFCatettQyQ==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-03-20T06:09:45Z"
-    mac: ENC[AES256_GCM,data:+59OdLPf14lWQbsIQb72EUOIaazTtOnjmqz5x3IRWxCyzn5Cc3gu415fyhvyDGbRh+658u03iWUB7H4p+acNCc+YIWUmD5kz0TRxY6mN/orxi3zywoP0oo8l2rBSm8cafp9W1SGbBj70W0ETo7BDaoAdoqwSehR+kk8ZGbagymk=,iv:LMFLglDHeklDQNTZY8P11RcAXvNpYSL81377aoO6fSc=,tag:HRs0ykquK1aE9ZVwJqH39w==,type:str]
-    unencrypted_suffix: _unencrypted
-    version: 3.12.1
+  age:
+    - recipient: age1rdacpjg5z560vw9tws5dqmjpy6g36nvfxlueefxkkqrudnat0ezslwc233
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA0OXFkOVRoUXR1L2tndUxE
+        MjAwUTNNeVZTNXNZVW1XbWRkYTY2RURsSDBzCkZTN3ppb0R3NXBESGYzUnBCdzBh
+        VzBTclRCMkl1bFpvVnhBM25IUjFPVVkKLS0tIGpxVktQaUpUNFJzeFVsQjFScVdx
+        QTBmUDB0TitYMEtuNjB0UzdCR29MbjAKsowgexyyVFKkumIAdM9BYcRuHHjgzWMS
+        LUrbbTNyovPa6m0MpRVpQ2eRRSrGOCQimQQs68T45ysuFCatettQyQ==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-03-20T06:09:45Z"
+  mac: ENC[AES256_GCM,data:+59OdLPf14lWQbsIQb72EUOIaazTtOnjmqz5x3IRWxCyzn5Cc3gu415fyhvyDGbRh+658u03iWUB7H4p+acNCc+YIWUmD5kz0TRxY6mN/orxi3zywoP0oo8l2rBSm8cafp9W1SGbBj70W0ETo7BDaoAdoqwSehR+kk8ZGbagymk=,iv:LMFLglDHeklDQNTZY8P11RcAXvNpYSL81377aoO6fSc=,tag:HRs0ykquK1aE9ZVwJqH39w==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1
