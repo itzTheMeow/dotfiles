@@ -55,7 +55,6 @@
     # authorize the krfb service to connect to the desktop
     # https://develop.kde.org/docs/administration/portal-permissions/
     script = ''
-      #sleep 5 # wait a bit
       flatpak permission-set kde-authorized remote-desktop org.kde.krfb yes
       echo "Authorized."
     '';
