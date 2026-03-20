@@ -120,6 +120,7 @@
     cloc
     gcc
     gnumake
+    just
     pkg-config
 
     ## nix-related
@@ -160,6 +161,8 @@
     screen
   ];
   environment.variables = {
+    DOTFILES = xelib.location;
+    HOSTNAME = hostname;
     NIXPKGS_ALLOW_UNFREE = "1";
   };
   # exclude default KDE apps from plasma

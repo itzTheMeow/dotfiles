@@ -47,6 +47,9 @@
       protoc-gen-go
       protoc-gen-go-grpc
 
+      ## just
+      just-lsp
+
       ## other
       openapi-generator-cli
 
