@@ -31,9 +31,6 @@
     sopsFile = ../../../${config.sops.opSecrets.rclone.path};
     key = "pcloud_token";
   };
-  sops.opSecrets.rclone = {
-    keys = {
-      pcloud_token = "op://Private/k3ixcrzwsqpl6wjnffg2co3bda/vzpq5ej7dhbolpakiabeell73e";
-    };
-  };
+  sops.opSecrets.rclone.keys.pcloud_token =
+    "op://Private/k3ixcrzwsqpl6wjnffg2co3bda/vzpq5ej7dhbolpakiabeell73e";
 }
