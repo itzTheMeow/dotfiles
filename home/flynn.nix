@@ -208,11 +208,18 @@ in
         location = "top";
         height = 24;
         widgets = [
-          "org.kde.plasma.kickoff"
           {
-            iconTasks = {
-              launchers = [ ];
+            kickoff = {
+              showButtonsFor.custom = [
+                "lock-screen"
+                "logout"
+                "reboot"
+                "shutdown"
+              ];
             };
+          }
+          {
+            iconTasks.launchers = [ ];
           }
           "org.kde.plasma.marginsseparator"
           {
@@ -222,10 +229,25 @@ in
                 "org.kde.plasma.brightness"
                 "org.kde.plasma.nightcolorcontrol"
                 "org.kde.kupapplet"
+                "xdg-desktop-portal-kde" # remote control icon
               ];
+              configs = {
+                battery.showPercentage = true;
+                # makes keyboard indicator show numlock
+                "org.kde.plasma.keyboardindicator".config.General.key = "Caps Lock,Num Lock";
+              };
             };
           }
-          "org.kde.plasma.digitalclock"
+          {
+            digitalClock.timeZone = {
+              selected = [
+                "America/Los_Angeles"
+                "Local"
+                "Europe/London"
+              ];
+              lastSelected = "Local";
+            };
+          }
           "org.kde.plasma.minimizeall"
         ];
       }
@@ -235,19 +257,32 @@ in
       sessionRestore.restoreOpenApplicationsOnLogin = "startWithEmptySession"; # dont restore apps on signin
     };
 
+    input.keyboard = {
+      numlockOnStartup = "on";
+      # enable use of extended function keys
+      options = [ "fkeys:basic_13-24" ];
+    };
     shortcuts = {
-      kwin.Overview = "Meta+Space";
-      kwin."Walk Through Windows" = "Alt+`";
-      kwin."Walk Through Windows (Reverse)" = "Alt+~";
-      kwin."Walk Through Windows Alternative" = "Alt+Tab";
-      kwin."Walk Through Windows Alternative (Reverse)" = "Alt+Shift+Tab";
-      kwin."Walk Through Windows of Current Application" = [ ];
-      kwin."Walk Through Windows of Current Application (Reverse)" = [ ];
-      "org.kde.spectacle.desktop".RectangularRegionScreenShot = [
-        "Meta+Shift+S"
-        "Print"
-      ];
-      "org.kde.spectacle.desktop"._launch = "Meta+Shift+Print";
+      kwin = {
+        Overview = "Meta+Space";
+        "Walk Through Windows" = "Alt+`";
+        "Walk Through Windows (Reverse)" = "Alt+~";
+        "Walk Through Windows Alternative" = "Alt+Tab";
+        "Walk Through Windows Alternative (Reverse)" = "Alt+Shift+Tab";
+        "Walk Through Windows of Current Application" = [ ];
+        "Walk Through Windows of Current Application (Reverse)" = [ ];
+        "Window Close" = [
+          "Alt+F4"
+          "F24"
+        ];
+      };
+      "org.kde.spectacle.desktop" = {
+        RectangularRegionScreenShot = [
+          "Meta+Shift+S"
+          "Print"
+        ];
+        _launch = "Meta+Shift+Print";
+      };
     };
 
     kwin = {
