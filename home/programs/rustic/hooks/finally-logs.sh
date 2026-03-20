@@ -1,47 +1,60 @@
 #!/usr/bin/env bash
-# Clean up rustic log file by removing timestamps and adding duration
+# Log latest snapshot information to ntfy from rustic.
 
-LOG_FILE="/tmp/rustic.log"
+format_int() {
+	printf "%'d" "$1"
+}
 
-if [[ ! -f "$LOG_FILE" ]]; then
-	exit 0
-fi
+format_bytes() {
+	numfmt --to=iec-i --suffix=B "$1"
+}
 
-# Read the log file into an array
-mapfile -t lines <"$LOG_FILE"
+# get snapshot json data
+SNAPSHOT_JSON=$(rustic -P "$1" snapshots latest --json)
 
-if [[ ${#lines[@]} -eq 0 ]]; then
-	exit 0
-fi
+# extract all values in 1 pass
+read -r FILES_NEW FILES_CHANGED FILES_UNMODIFIED \
+	DIRS_NEW DIRS_CHANGED DIRS_UNMODIFIED \
+	DATA_ADDED DATA_ADDED_PACKED \
+	TOTAL_FILES_PROCESSED TOTAL_BYTES_PROCESSED \
+	TOTAL_DURATION SNAPSHOT_TIME SNAPSHOT_ID <<<"$(
+		jq -r '
+			.[0].snapshots[0] as $s
+			| $s.summary as $sum
+			| [
+					$sum.files_new,
+					$sum.files_changed,
+					$sum.files_unmodified,
 
-# Extract first and last timestamps
-first_line="${lines[0]}"
-last_line="${lines[-1]}"
+					$sum.dirs_new,
+					$sum.dirs_changed,
+					$sum.dirs_unmodified,
 
-# Extract timestamps (ISO 8601 format with nanoseconds)
-first_ts="${first_line%%Z*}Z"
-last_ts="${last_line%%Z*}Z"
+					$sum.data_added,
+					$sum.data_added_packed,
 
-# Convert timestamps to seconds (removing nanoseconds for simplicity)
-first_epoch=$(date -d "${first_ts%.*}Z" +%s 2>/dev/null)
-last_epoch=$(date -d "${last_ts%.*}Z" +%s 2>/dev/null)
+					$sum.total_files_processed,
+					$sum.total_bytes_processed,
 
-# Calculate duration
-duration=$((last_epoch - first_epoch))
+					$sum.total_duration,
+					$s.time,
+					($s.id[0:8])
+				]
+			| @tsv
+		' <<<"$SNAPSHOT_JSON"
+	)"
 
-# Clear the log file and write cleaned output
-echo -n "" >"$LOG_FILE"
+# format times
+TIMESTAMP=$(date -d "$SNAPSHOT_TIME" '+%b %-d, %Y %-I:%M%P')
+DURATION_ROUNDED=$(printf "%.2f" "$TOTAL_DURATION")
 
-for line in "${lines[@]}"; do
-	# Remove timestamp (everything before and including '] ')
-	cleaned="${line#*] }"
-	echo "$cleaned" >>"$LOG_FILE"
-done
-
-# Add duration at the end if we could calculate it
-if [[ -n "$duration" && "$duration" -ge 0 ]]; then
-	echo "Total time: ${duration}s" >>"$LOG_FILE"
-fi
+# construct message
+MESSAGE="$TIMESTAMP - Took ${DURATION_ROUNDED}s
+Data Added: $(format_bytes "$DATA_ADDED_PACKED") ($(format_bytes "$DATA_ADDED") raw)
+Files:  $(format_int "$FILES_NEW") new, $(format_int "$FILES_CHANGED") changed, $(format_int "$FILES_UNMODIFIED") unchanged
+Dirs:   $(format_int "$DIRS_NEW") new, $(format_int "$DIRS_CHANGED") changed, $(format_int "$DIRS_UNMODIFIED") unchanged
+processed $(format_int "$TOTAL_FILES_PROCESSED") files, $(format_bytes "$TOTAL_BYTES_PROCESSED")
+snapshot $SNAPSHOT_ID saved"
 
 # send notification
-NTFY_TOPIC="$NTFY_TOPIC-backups" ntfy publish -t "Rustic Backup Complete" "$(cat $LOG_FILE)"
+NTFY_TOPIC="$NTFY_TOPIC-backups" ntfy publish -t "Backup Complete ($1)" "$MESSAGE"

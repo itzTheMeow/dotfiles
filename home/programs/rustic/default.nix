@@ -5,12 +5,9 @@
   ...
 }:
 let
-  logFileLocation = "/tmp/rustic.log";
   pCloudPath = # pCloud Drive path changes per system
     if pkgs.stdenv.isDarwin then "/Users/meow/pCloud Drive" else "rclone:pcloud:";
 
-  # bash commands need to be run with a log file env variable
-  mkBash = cmd: "bash -c 'LOG_FILE=${logFileLocation} ${cmd}'";
   # creates a hook shell script and points to its executable
   mkHook =
     name: "${pkgs.writeShellScriptBin name (builtins.readFile ./hooks/${name}.sh)}/bin/${name}";
@@ -49,7 +46,7 @@ let
           ];
           hooks = {
             run-before = before;
-            run-finally = finally;
+            run-finally = finally ++ [ "${hookFinallyLogs} ${name}" ];
           };
         }
         // (if noxattrs then { set-xattrs = "no"; } else { });
@@ -75,20 +72,9 @@ in
   xdg.configFile = {
     # default config for all hosts
     "rustic/default.toml".source = xelib.toTOMLFile "default.toml" {
-      global = {
-        log-file = logFileLocation;
-      };
-      backup.hooks = {
-        run-before = [
-          # clear log file before backup
-          (mkBash "true > ${logFileLocation}")
-          (mkBash "chmod 777 ${logFileLocation}")
-        ];
-        run-finally = [ (mkBash hookFinallyLogs) ];
-      };
       webdav = {
         address = "localhost:18898";
-        path-template = "[{hostname}]/[{label}]/{time}";
+        path-template = "[{hostname}]/{time}";
         time-template = "%Y-%m-%d_%H-%M-%S";
       };
     };
@@ -129,7 +115,10 @@ in
         ];
         hooks = {
           run-before = [ (mkHook "backblaze-before") ];
-          run-finally = [ "${hookFinallyUnmount} /mnt/pcloud" ];
+          run-finally = [
+            "${hookFinallyUnmount} /mnt/pcloud"
+            "${hookFinallyLogs} backblaze"
+          ];
         };
         set-xattrs = "no";
       };
