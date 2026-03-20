@@ -47,10 +47,6 @@ in
       # custom scripts
       (writeShellScriptBin "0x0" (builtins.readFile ../../scripts/0x0.sh))
       (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
-      (writeShellScriptBin "nx2" ''
-        export HOSTNAME="${hostname}"
-        ${builtins.readFile ../../scripts/nx.sh}
-      '')
       # custom packages
       xelpkgs.download-organizer
       xelpkgs.nx
