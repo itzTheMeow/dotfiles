@@ -68,6 +68,7 @@ in
       footage
       gimp
       inkscape
+      pkgs-unstable.mayo
       pinta
       obs-studio
       simplescreenrecorder
