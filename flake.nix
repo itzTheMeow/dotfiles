@@ -108,6 +108,7 @@
             xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
             xelib = import ./xelib {
               inherit
+                hostname
                 pkgs
                 pkgs-unstable
                 self

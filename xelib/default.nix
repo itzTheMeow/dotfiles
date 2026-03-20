@@ -1,4 +1,9 @@
-{ pkgs, self, ... }@inputs:
+{
+  hostname,
+  pkgs,
+  self,
+  ...
+}@inputs:
 let
   lib = pkgs.lib;
 in
@@ -8,6 +13,9 @@ rec {
 
   # import hosts and ports
   inherit (import ./hosts.nix) hosts services trustedHosts;
+
+  # location of the dotfiles repo
+  location = "/home/${hosts.${hostname}.username}/.dotfiles";
 
   mail = {
     domain = "mail.xela.codes";
