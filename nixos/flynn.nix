@@ -5,7 +5,6 @@
   pkgs-unstable,
   pkgs,
   xelib,
-  xelpkgs,
   ...
 }:
 {
