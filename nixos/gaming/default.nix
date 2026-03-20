@@ -43,31 +43,42 @@ in
         hm.config.lib.file.mkOutOfStoreSymlink "${wineprefixAbsolute}/drive_c";
       "${wineprefix}/dosdevices/z:".source = hm.config.lib.file.mkOutOfStoreSymlink "/";
     };
-    # this updates wine with the new prefix
+    # this updates wine with the new prefix only when it changes
     home.activation.updateWinePrefix = hm.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      ${pkgs.xvfb-run}/bin/xvfb-run -a ${pkgs.bash}/bin/bash -c ${pkgs.writeScript "updateWinePrefix" ''
-        export WINEDEBUG="-all" # disable debugging
-        export WINEDLLOVERRIDES="mscoree=n" # disable mono popup
+      stateFile="${wineprefixAbsolute}/.wine-state"
+      currentState="${xelpkgs.wine-prefix}"
+      savedState=""
 
-        # initial update
-        ${winebin}boot -u
-        ${winebin}server -w
+      if [ -f "$stateFile" ]; then
+        savedState=$(cat "$stateFile")
+      fi
 
-        # register any DLLs that didnt get registered on the 32 bit system
-        for dll in mmdevapi.dll wbemprox.dll; do
-          ${winebin} 'C:\windows\syswow64\regsvr32.exe' /s $dll
-        done
+      if [ "$currentState" != "$savedState" ]; then
+        ${pkgs.xvfb-run}/bin/xvfb-run -a ${pkgs.bash}/bin/bash -c ${pkgs.writeScript "updateWinePrefix" ''
+          export WINEDEBUG="-all" # disable debugging
+          export WINEDLLOVERRIDES="mscoree=n" # disable mono popup
 
-        # register the dotnet version
-        ${winebin} regedit ${pkgs.writeText "setup.reg" ''
-          Windows Registry Editor Version 5.00
+          # initial update
+          ${winebin}boot -u
+          ${winebin}server -w
 
-          [HKEY_LOCAL_MACHINE\Software\dotnet\Setup\InstalledVersions\x64\sharedhost]
-          "Path"="C:\\Program Files\\dotnet\\"
-          "Version"="${builtins.head (builtins.attrNames (builtins.readDir "${xelpkgs.wine-prefix}/drive_c/Program Files/dotnet/shared/Microsoft.NETCore.App"))}"
+          # register any DLLs that didnt get registered on the 32 bit system
+          for dll in mmdevapi.dll wbemprox.dll; do
+            ${winebin} 'C:\windows\syswow64\regsvr32.exe' /s $dll
+          done
+
+          # register the dotnet version
+          ${winebin} regedit ${pkgs.writeText "setup.reg" ''
+            Windows Registry Editor Version 5.00
+
+            [HKEY_LOCAL_MACHINE\Software\dotnet\Setup\InstalledVersions\x64\sharedhost]
+            "Path"="C:\\Program Files\\dotnet\\"
+            "Version"="${builtins.head (builtins.attrNames (builtins.readDir "${xelpkgs.wine-prefix}/drive_c/Program Files/dotnet/shared/Microsoft.NETCore.App"))}"
+          ''}
+          ${winebin}server -w
         ''}
-        ${winebin}server -w
-      ''}
+        echo "$currentState" > "$stateFile"
+      fi
     '';
 
     programs.pegasus-frontend = {
