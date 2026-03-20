@@ -1,16 +1,16 @@
-rustic_main: ENC[AES256_GCM,data:ncCBv3I/rZSpd6kz7olLONn/r91ZcsY3dFxoB/9VE13vCAWjn7faMR5U+SxFfX/vI4FxXdQBMAbaZXfRpgcpe0IkO9AEmjWPZ88hp3Gv8DtP2PIBd9GIM0fMXD/7qC88HVS9KA==,iv:na3kinIcIJmH3YPAtuVhNEQEpTp1iX/qspRaHbAoStI=,tag:bZTIkSYcfqV2ENEEPoEb/w==,type:str]
+rustic_main: ENC[AES256_GCM,data:Yj77EsaNDnFerRd57e3ztJ6pnwICFNjt9Dnp2LMJdcmV9fJNivOlmtzHcmTnLDKLeSQHGAppZL6NVT8HKZv3XSof/VM2R1k8RNiHDGlwEkXPdSIN4Mz2e8vtGeLEOLtsltkLmQ==,iv:a2GQHrbRBYLrpMwo1KotYOn7wmBSMeuyMgVV2lcAx3c=,tag:+lqu9vaFtpl1UJ2adK0rfQ==,type:str]
 sops:
-  age:
-    - recipient: age1er4227v3c5vjewwljsl6gg2lsm37vywvaflnxqfelf24rx4yw5fqup7dt8
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBYRHNUVlpJS24zN3EwT3hF
-        c1hjQ3k5S1c2UTZOWVNhbnljRVVIa3ZwY2xjClAydGM4SWhhazE1bE16a1NNVWhH
-        UG04QW5ZdVdCb2R0UVNETFJqd2hZbkUKLS0tIG1hU0ZvRmFuVGY1N01saXlKYU9R
-        WlhXUmt4ajIxRUdZY0k5c2ZkT2VvZ0EKavNBjaVqKYjlAumSG1Y+yr8OlPZE9d7U
-        y7JquLjpsn2pmHYs2IFFDSu6fKhtF5N70KT2dHTs2ykFSNFucEaiKQ==
-        -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-03-13T07:10:35Z"
-  mac: ENC[AES256_GCM,data:tiAGEYY9MR88vYdUE5cmoG3fdvSghjtzewfmYKMdIsxOQheNDkVtyZOjEMyifd5O37dHUdwduBiHzZhyudnzlhTv7/8ABc7OsBBT3bgQcpdYXBsbTq+vFtDq+lquVfiEkGD8q68XTG+v8lGLt3CYsM8uiNhpwaQ9Y6oZX4kPDSg=,iv:txGjQ+liKJWzinsYN2KbtMzikODUGTtv8DJ5k2vxKbU=,tag:davUn1NHDth3ClmjHXG66Q==,type:str]
-  unencrypted_suffix: _unencrypted
-  version: 3.12.1
+    age:
+        - recipient: age1er4227v3c5vjewwljsl6gg2lsm37vywvaflnxqfelf24rx4yw5fqup7dt8
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBMNmZUVjQ2U0x3RlBiRDVB
+            R3J4TlJZRkNSS2RRZkhOa05LRkFyVEpUL1dvCkJoY2xqYzEwV2VRWDBlbXQyUy9K
+            SkhUeGlXeHQ5NytHZ3pqdVordGFpN00KLS0tIFRYZy94d1dtYzVkUWtQdUVabjZj
+            b3hvL09jb1dESTFxcEdLUHo1VzcyTGcKOxhwfSP7QE4QeyNIXviuw/5tZJy8dCcS
+            JnX3B2QCjvwB/zkN6AvRsUuQDbYl4WIZKtTC0K2LnDEXBXIL55Z13Q==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-03-20T06:09:45Z"
+    mac: ENC[AES256_GCM,data:AVP7KC9S0ZkClx3tz5qs2xpOb6pGcsc7BsamzRy9EWDK5KSTgZDGdtFJWA5cmfsBF9+/OxGgoahziG9+B/IYkAOh0zAwND+EIscSSQxMy7nOe6FUpUGt15xNwYS4LYZslIr/eko0NBgI9/6NjEfn+XheaJAdDlCyfeCtiJFxikc=,iv:R8wqwlS2/wieTep4QwETNtN1lNdfeEK6IkcQqoALohA=,tag:glkBA7zqPdZQsWl8scvCSA==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.12.1
