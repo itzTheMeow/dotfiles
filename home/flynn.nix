@@ -1,9 +1,10 @@
 {
   config,
   host,
-  pkgs,
   pkgs-unstable,
+  pkgs,
   xelib,
+  xelpkgs,
   ...
 }:
 let
@@ -77,6 +78,12 @@ in
       teams-for-linux
 
       ### the rest of these are in nixos programs
+
+      # sops-build-secrets wrapper to add formatting
+      (writeShellScriptBin "sops-build-secrets" ''
+        ${xelpkgs.sops-build-secrets}/bin/sops-build-secrets
+        ${nodePackages.prettier}/bin/prettier --write --log-level silent /home/${host.username}/.dotfiles
+      '')
 
       # codearchive requires these to be available
       python3Packages.pygments

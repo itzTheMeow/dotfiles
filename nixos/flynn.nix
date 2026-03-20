@@ -95,9 +95,6 @@
     chromium
     libreoffice
     vlc
-
-    # custom packages
-    xelpkgs.sops-build-secrets
   ];
 
   programs._1password.enable = true;
