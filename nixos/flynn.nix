@@ -18,7 +18,7 @@
     ./gaming
 
     ./services/beszel/agent.nix
-    (import ./services/rustic "meow-pc")
+    ./services/rustic
     ./services/ssh
     ./services/tailscale
 

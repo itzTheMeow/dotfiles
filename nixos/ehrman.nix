@@ -1,7 +1,6 @@
 {
   config,
   host,
-  hostname,
   ...
 }:
 {
@@ -14,7 +13,7 @@
 
     ./services/beszel/agent.nix
     ./services/nginx
-    (import ./services/rustic hostname)
+    ./services/rustic
     ./services/ssh
     ./services/tailscale
 

@@ -14,7 +14,7 @@
 
     ./services/beszel/agent.nix
     ./services/nginx
-    (import ./services/rustic "hyzen2")
+    ./services/rustic
     ./services/ssh
     ./services/tailscale
 
