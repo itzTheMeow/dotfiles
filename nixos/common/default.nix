@@ -113,6 +113,7 @@
     jq
     killport
     wget
+    wev
 
     ## build tools
     check
