@@ -30,6 +30,17 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
 
+  # keymapper
+  services.keyd = {
+    enable = true;
+    keyboards.remotecontrol = {
+      ids = [ "1915:1001" ];
+      settings.main = {
+        voicecommand = "f24"; # re-bind the voice command button to F24
+      };
+    };
+  };
+
   # enable usage of exit nodes for tailscale
   services.tailscale.useRoutingFeatures = "client";
 
