@@ -1,5 +1,4 @@
 {
-  hostname,
   osConfig,
   pkgs,
   xelib,
