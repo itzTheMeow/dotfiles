@@ -90,6 +90,7 @@
     isNormalUser = true;
     description = if (host ? fullname) then host.fullname else xelib.toTitleCase host.username;
     shell = pkgs.zsh;
+    linger = true; # start user sessions on machine boot
     extraGroups = [
       "networkmanager"
       "wheel"
