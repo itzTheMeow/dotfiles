@@ -7,8 +7,6 @@ in
     ./common
     ./common/darwin.nix
     ./common/desktop.nix
-
-    ./programs/rclone
   ];
 
   home = {

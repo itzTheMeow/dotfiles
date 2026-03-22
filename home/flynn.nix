@@ -27,7 +27,6 @@ in
     ./programs/activitywatch
     ./programs/discordchatexporter
     ./programs/logisim
-    ./programs/rclone
     ./programs/thunderbird
     ./programs/vesktop
   ];

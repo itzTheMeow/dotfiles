@@ -1,8 +1,11 @@
 {
   config,
+  hostname,
+  lib,
   ...
 }:
-{
+# huell shouldnt have rclone mounts
+lib.mkIf (hostname != "huell") {
   programs.rclone = {
     enable = true;
     remotes = {
