@@ -19,7 +19,7 @@ let
 in
 {
   users.groups.mediacenter = {
-    gid = 930;
+    gid = 991;
   };
   users.users.${host.username}.extraGroups = [ "mediacenter" ];
 
