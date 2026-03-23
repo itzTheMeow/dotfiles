@@ -15,6 +15,7 @@
     };
     environmentFile = config.sops.secrets.beszel_agent.path;
   };
+  systemd.services.beszel-agent.after = [ "tailscale-online.service" ];
 
   sops.secrets.beszel_agent = {
     format = "dotenv";

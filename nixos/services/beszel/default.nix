@@ -20,6 +20,7 @@ lib.mkMerge [
         USER_CREATION = "true";
       };
     };
+    systemd.services.beszel-hub.after = [ "tailscale-online.service" ];
   }
   (xelib.mkNginxProxy svc.domain "http://${host}:${toString svc.port}" {
     # filter all hosts that have a beszel-agent port
