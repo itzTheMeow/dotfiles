@@ -30,6 +30,7 @@ in
           MAXMIND_LICENSE_KEY = config.sops.secrets.pocket-id-maxmind.path;
         };
       };
+      systemd.services.pocket-id.after = [ "tailscale-online.service" ];
 
       sops.secrets.pocket-id-enc = {
         sopsFile = ../../../${config.sops.opSecrets.pocket-id.path};
