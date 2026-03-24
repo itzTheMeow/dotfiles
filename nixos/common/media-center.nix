@@ -10,7 +10,7 @@ let
     # allow access
     allow-other = true;
     umask = "002";
-    gid = config.users.groups.mediacenter.gid;
+    inherit (config.users.groups.mediacenter) gid;
     # performance
     dir-cache-time = "168h";
     poll-interval = "3m";

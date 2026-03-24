@@ -199,7 +199,7 @@ in
     workspace = {
       cursor = {
         theme = xelib.globals.cursors.name;
-        size = xelib.globals.cursors.size;
+        inherit (xelib.globals.cursors) size;
       };
       #lookAndFeel = "org.kde.breezedark.desktop";
       iconTheme = "Papirus-Dark";

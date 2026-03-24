@@ -15,7 +15,7 @@ lib.mkMerge [
     services.headscale = {
       enable = true;
       package = pkgs.headscale;
-      port = svc.port;
+      inherit (svc) port;
 
       # most of these are just the defaults
       settings = {

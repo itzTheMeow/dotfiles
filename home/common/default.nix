@@ -134,7 +134,6 @@ in
       { keyFile = "/dev/null"; };
 
   catppuccin = {
-    flavor = xelib.globals.catppuccin.flavor;
-    accent = xelib.globals.catppuccin.accent;
+    inherit (xelib.globals.catppuccin) accent flavor;
   };
 }

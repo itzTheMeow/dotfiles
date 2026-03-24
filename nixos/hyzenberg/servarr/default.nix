@@ -22,7 +22,7 @@ let
             };
             server = {
               inherit bindaddress;
-              port = svc.port;
+              inherit (svc) port;
               urlbase = "/";
             };
           };
