@@ -52,19 +52,29 @@ rec {
     };
 
     # utils for mailcow domains
-    mailcow = with inputs.dns.lib.combinators; {
-      SRV = [
-        {
-          service = "autodiscover";
-          proto = "tcp";
-          port = 443;
-          target = mail.domain;
-        }
-      ];
-      subdomains.autoconfig.CNAME = [ (fqdn mail.domain) ];
-      subdomains.autodiscover.CNAME = [ (fqdn mail.domain) ];
-      subdomains._dmarc.TXT = [ (txt "v=DMARC1; p=reject") ];
-    };
+    mailcow =
+      dkimKey: with inputs.dns.lib.combinators; {
+        DMARC = [ { p = "reject"; } ];
+        DKIM = [
+          {
+            selector = "dkim";
+            p = dkimKey;
+            k = "rsa";
+            t = [ "s" ];
+            s = [ "email" ];
+          }
+        ];
+        SRV = [
+          {
+            service = "autodiscover";
+            proto = "tcp";
+            port = 443;
+            target = fqdn mail.domain;
+          }
+        ];
+        subdomains.autoconfig.CNAME = [ (cname (fqdn mail.domain)) ];
+        subdomains.autodiscover.CNAME = [ (cname (fqdn mail.domain)) ];
+      };
 
     # prebuilt zone config
     SOA = {
