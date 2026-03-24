@@ -51,10 +51,19 @@ rec {
       ];
     };
 
+    # utils for mailcow domains
     mailcow = with inputs.dns.lib.combinators; {
-      autoconfig.CNAME = fqdn mail.domain;
-      autodiscover.CNAME = fqdn mail.domain;
-      _dmarc.TXT = txt "v=DMARC1; p=reject";
+      SRV = [
+        {
+          service = "autodiscover";
+          proto = "tcp";
+          port = 443;
+          target = mail.domain;
+        }
+      ];
+      subdomains.autoconfig.CNAME = [ (fqdn mail.domain) ];
+      subdomains.autodiscover.CNAME = [ (fqdn mail.domain) ];
+      subdomains._dmarc.TXT = [ (txt "v=DMARC1; p=reject") ];
     };
 
     # prebuilt zone config
