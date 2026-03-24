@@ -1,4 +1,9 @@
-{ dns, xelib, ... }:
+{
+  dns,
+  lib,
+  xelib,
+  ...
+}:
 {
   dnszones.list =
     with dns.lib.combinators;
