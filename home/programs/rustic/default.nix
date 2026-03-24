@@ -134,7 +134,7 @@ let
     }
     // lib.optionalAttrs hasAccess {
       sops.secrets."rusticpw_${name}" = {
-        sopsFile = ../../../${config.sops.opSecrets.rustic.path};
+        sopsFile = config.sops.opSecrets.rustic.fullPath;
         key = name;
       };
       sops.opSecrets.rustic.keys.${name} = password;

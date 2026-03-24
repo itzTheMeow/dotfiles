@@ -61,7 +61,7 @@ in
 
   # tsig key
   sops.secrets.nsd-nixos-master = {
-    sopsFile = ../../../${config.sops.opSecrets.nsd-keys.path};
+    sopsFile = config.sops.opSecrets.nsd-keys.fullPath;
     key = "nixos-master";
     owner = "nsd";
     group = "nsd";

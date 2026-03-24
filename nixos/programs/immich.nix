@@ -9,7 +9,7 @@
   environment.systemPackages = [ pkgs.immich-cli ];
 
   sops.secrets.immich-cli = {
-    sopsFile = ../../${config.sops.opSecrets.immich.path};
+    sopsFile = config.sops.opSecrets.immich.fullPath;
     key = "key";
   };
   sops.opSecrets.immich.keys.key = "op://Private/lfuwax7zpv45oqen4zj7yu65tq/API Keys/CLI";

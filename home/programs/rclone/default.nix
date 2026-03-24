@@ -31,7 +31,7 @@ lib.mkIf (hostname != "huell") {
   };
 
   sops.secrets.rclone_pcloud_token = {
-    sopsFile = ../../../${config.sops.opSecrets.rclone.path};
+    sopsFile = config.sops.opSecrets.rclone.fullPath;
     key = "pcloud_token";
   };
   sops.opSecrets.rclone.keys.pcloud_token =
