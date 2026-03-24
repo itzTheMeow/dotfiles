@@ -53,8 +53,15 @@ rec {
 
     # utils for mailcow domains
     mailcow =
-      dkimKey: with inputs.dns.lib.combinators; {
-        DMARC = [ { p = "reject"; } ];
+      {
+        dkimKey,
+        spfAllowed ? [
+          "a"
+          "mx"
+        ],
+      }:
+      with inputs.dns.lib.combinators;
+      {
         DKIM = [
           {
             selector = "dkim";
@@ -64,6 +71,7 @@ rec {
             s = [ "email" ];
           }
         ];
+        DMARC = [ { p = "reject"; } ];
         MX = [ (mx.mx 10 (fqdn mail.domain)) ];
         SRV = [
           {
@@ -73,6 +81,7 @@ rec {
             target = fqdn mail.domain;
           }
         ];
+        TXT = [ (spf.strict spfAllowed) ];
         subdomains.autoconfig.CNAME = [ (cname (fqdn mail.domain)) ];
         subdomains.autodiscover.CNAME = [ (cname (fqdn mail.domain)) ];
       };
