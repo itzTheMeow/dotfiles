@@ -64,6 +64,7 @@ rec {
             s = [ "email" ];
           }
         ];
+        MX = [ (mx.mx 10 (fqdn mail.domain)) ];
         SRV = [
           {
             service = "autodiscover";
