@@ -11,8 +11,6 @@
   system.stateVersion = "25.11";
 
   imports = [
-    # import hardware config for host
-    ../${hostname}-hardware.nix
     # import local config
     ../../local/nixos.nix
 

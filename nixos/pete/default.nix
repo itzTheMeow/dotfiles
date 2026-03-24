@@ -1,21 +1,22 @@
 {
   config,
   host,
+  self,
   xelpkgs,
   ...
 }:
 {
   imports = [
-    ./common
-    ./common/desktop.nix
-    ./common/desktop-kde.nix
+    ../common
+    ../common/desktop.nix
+    ../common/desktop-kde.nix
 
-    ./gaming
+    ../gaming
 
-    ./programs/rustic.nix
+    ../programs/rustic.nix
 
-    ./services/ssh
-    ./services/tailscale
+    ../services/ssh
+    ../services/tailscale
   ];
 
   boot.loader = {
@@ -48,7 +49,7 @@
   ];
 
   sops.secrets.user_key = {
-    sopsFile = ../${config.sops.opSecrets.user_key.path};
+    sopsFile = "${self}/${config.sops.opSecrets.user_key.path}";
     key = "private_key";
     owner = host.username;
   };

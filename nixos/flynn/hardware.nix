@@ -7,29 +7,28 @@
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
-    ./common/hardware-wifi-adapter.nix
+    ../common/hardware-wifi-adapter.nix
   ];
 
   boot.initrd.availableKernelModules = [
     "xhci_pci"
     "ahci"
     "nvme"
-    "usb_storage"
     "usbhid"
+    "usb_storage"
     "sd_mod"
-    "sdhci_pci"
   ];
   boot.kernelModules = [ "kvm-intel" ];
 
   fileSystems."/" = {
-    device = "/dev/mapper/luks-1aa6d9d6-e0c0-4882-94e6-608ecf8fd264";
+    device = "/dev/mapper/luks-4bb005d6-36e7-4dcb-a42c-1e2237953f99";
     fsType = "ext4";
   };
-  boot.initrd.luks.devices."luks-1aa6d9d6-e0c0-4882-94e6-608ecf8fd264".device =
-    "/dev/disk/by-uuid/1aa6d9d6-e0c0-4882-94e6-608ecf8fd264";
+  boot.initrd.luks.devices."luks-4bb005d6-36e7-4dcb-a42c-1e2237953f99".device =
+    "/dev/disk/by-uuid/4bb005d6-36e7-4dcb-a42c-1e2237953f99";
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/F50A-91A2";
+    device = "/dev/disk/by-uuid/ADAA-A009";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -39,17 +38,15 @@
 
   swapDevices = [
     {
-      device = "/dev/mapper/luks-5e7badd8-c615-499f-a505-97bc1bdf41d7";
+      device = "/dev/disk/by-partuuid/d275409b-bb85-4bd3-b92d-3bb0274573a0";
       randomEncryption = {
         enable = true;
         # best based on performance
         cipher = "aes-xts-plain64";
-        keySize = 256;
+        keySize = 512;
       };
     }
   ];
-  boot.initrd.luks.devices."luks-5e7badd8-c615-499f-a505-97bc1bdf41d7".device =
-    "/dev/disk/by-uuid/5e7badd8-c615-499f-a505-97bc1bdf41d7";
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
