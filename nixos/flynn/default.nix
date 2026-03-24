@@ -8,24 +8,6 @@
   ...
 }:
 {
-  imports = [
-    ../common
-    ../common/desktop.nix
-    ../common/desktop-kde.nix
-    ../common/desktop-workstation.nix
-
-    ../gaming
-
-    ../services/beszel/agent.nix
-    ../services/rustic
-    ../services/ssh
-    ../services/tailscale
-
-    ../programs/discord-rich-presence-plex.nix
-    ../programs/immich.nix
-    ../programs/rustic.nix
-  ];
-
   # Bootloader.
   boot.loader = {
     grub = {
