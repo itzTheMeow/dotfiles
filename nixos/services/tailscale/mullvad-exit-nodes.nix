@@ -30,11 +30,7 @@ let
             networking.firewall.enable = false;
             networking.useHostResolvConf = lib.mkForce false;
 
-            services.resolved.enable = true;
-            services.resolved.extraConfig = ''
-              DNS=10.64.0.1
-              DNSStubListener=yes
-            '';
+            services.resolved.enable = false;
 
             # forward DNS queries to Mullvad's DNS
             networking.nameservers = [ "10.64.0.1" ];
@@ -338,9 +334,9 @@ let
                     fi
                   fi
                   
-                  # Perform connectivity test - try to ping Mullvad's DNS
-                  if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 10.64.0.1 &>/dev/null; then
-                    echo "ERROR: Ping to Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
+                  # Perform connectivity test using DNS query (more reliable than ICMP ping)
+                  if ! ${pkgs.dig}/bin/dig +time=3 +tries=1 @10.64.0.1 mullvad.net A >/dev/null 2>&1; then
+                    echo "ERROR: DNS query via Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
                     
                     # Restart mullvad-wireguard which will pick a new random config
                     restart_stack
