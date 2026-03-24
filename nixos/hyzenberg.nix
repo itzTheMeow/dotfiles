@@ -22,6 +22,7 @@
     ./services/beszel
     ./services/flixur-demo
     ./services/homepage
+    ./services/milfmail.net
     ./services/nsd
     ./services/nzbget
     ./services/servarr

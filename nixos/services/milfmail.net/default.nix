@@ -4,15 +4,18 @@
     with dns.lib.combinators;
     with xelib.dns;
     {
-      "milfmail.net" = {
-        inherit SOA NS TTL;
+      "milfmail.net" = lib.mkMerge [
+        {
+          inherit SOA NS TTL;
 
-        inherit (githubPages) A AAAA;
+          inherit (githubPages) A AAAA;
 
-        subdomains = {
+          subdomains = {
 
-        };
-      };
+          };
+        }
+        mailcow
+      ];
     };
   dnszones.dnssecEnabled = [ "milfmail.net" ];
 }
