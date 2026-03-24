@@ -88,6 +88,7 @@ in
       accent = "#eba0ac"; # Maroon
       features = [ "headless" ];
       ports = {
+        beszel-agent = 49821;
         ssh = 22;
       };
       publicKey = "op://Private/2rjhliu5gsrclcan6bdt6fz4cy/public key";
