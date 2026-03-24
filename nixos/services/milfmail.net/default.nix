@@ -5,12 +5,15 @@
   xelib,
   ...
 }:
+let
+  domain = "milfmail.net";
+in
 {
   dnszones.list =
     with dns.lib.combinators;
     with xelib.dns;
     {
-      "milfmail.net" = lib.mkMerge [
+      ${domain} = lib.mkMerge [
         { inherit SOA NS TTL; }
         (dns.pointHost hostname)
         (mailcow {
@@ -18,5 +21,11 @@
         })
       ];
     };
-  dnszones.dnssecEnabled = [ "milfmail.net" ];
+  dnszones.dnssecEnabled = [ domain ];
+
+  services.nginx.virtualHosts.${domain} = {
+    enableACME = true;
+    forceSSL = true;
+    locations."/".return = "301 https://${xelib.mail.domain}$request_uri";
+  };
 }
