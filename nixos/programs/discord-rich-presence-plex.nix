@@ -91,7 +91,7 @@ in
   };
 
   sops.secrets.${DRRP} = {
-    sopsFile = ../../${config.sops.opSecrets.plex.path};
+    sopsFile = config.sops.opSecrets.plex.fullPath;
     key = "token";
   };
   sops.opSecrets.plex.keys.token = "op://Private/sqrukknhtojit3kzwplkvy3zji/Token";

@@ -10,7 +10,7 @@
   environment.sessionVariables.NTFY_TAGS = hostname;
 
   sops.secrets.ntfy_cli = {
-    sopsFile = ../../${config.sops.opSecrets.ntfy_cli.path};
+    sopsFile = config.sops.opSecrets.ntfy_cli.fullPath;
     path = "/home/${host.username}/.config/ntfy/client.yml";
     owner = host.username;
     key = "";

@@ -19,7 +19,7 @@
   systemd.services.sshd.after = [ "tailscale-online.service" ];
 
   sops.secrets.public_key = {
-    sopsFile = ../../../${config.sops.opSecrets.authorized_keys.path};
+    sopsFile = config.sops.opSecrets.authorized_keys.fullPath;
     mode = "0444";
   };
   sops.opSecrets.authorized_keys = {

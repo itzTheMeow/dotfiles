@@ -118,11 +118,11 @@
   };
 
   sops.secrets.github_ssh_auth = {
-    sopsFile = ../../${config.sops.opSecrets.github_ssh.path};
+    sopsFile = config.sops.opSecrets.github_ssh.fullPath;
     key = "github_auth";
   };
   sops.secrets.github_ssh_signing = {
-    sopsFile = ../../${config.sops.opSecrets.github_ssh.path};
+    sopsFile = config.sops.opSecrets.github_ssh.fullPath;
     key = "github_signing";
   };
   sops.opSecrets.github_ssh = {

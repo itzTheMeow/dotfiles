@@ -178,7 +178,7 @@ rec {
         {
           # public key with SOPS
           sops.secrets."ssh_pub_${keyName}" = {
-            sopsFile = ../${config.sops.opSecrets.ssh_pubkeys.path};
+            sopsFile = config.sops.opSecrets.ssh_pubkeys.fullPath;
             key = keyName;
           };
           sops.opSecrets.ssh_pubkeys.keys.${keyName} = publicKey;

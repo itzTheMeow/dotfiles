@@ -1,7 +1,7 @@
 { config, host, ... }:
 {
   sops.secrets.rustic_main = {
-    sopsFile = ../../${config.sops.opSecrets.rustic.path};
+    sopsFile = config.sops.opSecrets.rustic.fullPath;
     owner = host.username;
   };
   sops.opSecrets.rustic = {

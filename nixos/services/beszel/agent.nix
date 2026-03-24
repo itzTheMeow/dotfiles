@@ -19,7 +19,7 @@
 
   sops.secrets.beszel_agent = {
     format = "dotenv";
-    sopsFile = ../../../${config.sops.opSecrets.beszel_agent.path};
+    sopsFile = config.sops.opSecrets.beszel_agent.fullPath;
     key = "";
   };
   sops.opSecrets.beszel_agent = {
