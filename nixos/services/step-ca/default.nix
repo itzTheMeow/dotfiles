@@ -5,7 +5,7 @@
 }:
 let
   address = xelib.hosts.hyzenberg.ip;
-  port = xelib.services.step-ca.port;
+  inherit (xelib.services.step-ca) port;
 in
 {
   # we want the cli to work too

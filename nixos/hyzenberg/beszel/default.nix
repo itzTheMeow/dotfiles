@@ -14,7 +14,7 @@ lib.mkMerge [
       enable = true;
       package = pkgs-unstable.beszel;
       inherit host;
-      port = svc.port;
+      inherit (svc) port;
       environment = {
         DISABLE_PASSWORD_AUTH = "true";
         USER_CREATION = "true";

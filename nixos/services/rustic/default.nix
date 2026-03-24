@@ -22,7 +22,7 @@
     in
     {
       description = "Rustic backup";
-      environment = xelib.globals.environment;
+      inherit (xelib.globals) environment;
       serviceConfig = {
         Type = "oneshot";
         ExecStart = "${pkgs.zsh}/bin/zsh -c 'export ${builtins.concatStringsSep " " env} && ${pkgs-unstable.rustic}/bin/rustic -P ${hostname} backup'";

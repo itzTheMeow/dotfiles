@@ -7,7 +7,7 @@
 }:
 let
   svc = xelib.services.headplane;
-  headscale = xelib.services.headscale;
+  inherit (xelib.services) headscale;
 
   IP = xelib.hosts.${svc.host}.ip;
   secretFile = "/var/lib/headplane/secret.txt";
@@ -19,7 +19,7 @@ lib.mkMerge [
       settings = {
         server = {
           host = IP;
-          port = svc.port;
+          inherit (svc) port;
           cookie_secret_path = secretFile;
           cookie_max_age = 604800; # 7 days in seconds
         };

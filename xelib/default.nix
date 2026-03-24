@@ -5,7 +5,7 @@
   ...
 }@inputs:
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 in
 rec {
   # import globals

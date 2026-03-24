@@ -4,7 +4,7 @@ let
     name = if name != null then name else (xelib.toTitleCase id);
     host = xelib.hosts.${id}.ip;
     args = "${xelib.hosts.${id}.username}@${xelib.hosts.${id}.ip}";
-    publicKey = xelib.hosts.${id}.publicKey;
+    inherit (xelib.hosts.${id}) publicKey;
     extraOptions = {
       port = xelib.hosts.${id}.ports.ssh;
       forwardAgent = true;
