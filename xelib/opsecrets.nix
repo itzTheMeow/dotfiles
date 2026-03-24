@@ -5,6 +5,7 @@ let
       config,
       lib,
       hostname,
+      self,
       ...
     }:
     {
@@ -30,6 +31,12 @@ let
                     # set extension to .env for dotenv
                     if module.config.format == "dotenv" then "env" else module.config.format
                   }";
+                };
+                # full path derived from the relative one, for ease of use
+                fullPath = lib.mkOption {
+                  type = lib.types.str;
+                  readOnly = true;
+                  default = "${self}/${module.config.path}";
                 };
                 keys = lib.mkOption { type = lib.types.attrsOf lib.types.str; }; # secret URIs
               };

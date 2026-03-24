@@ -1,7 +1,6 @@
 {
   config,
   host,
-  self,
   ...
 }:
 {
@@ -16,7 +15,7 @@
   zramSwap.enable = true;
 
   sops.secrets.user_key = {
-    sopsFile = "${self}/${config.sops.opSecrets.user_key.path}";
+    sopsFile = config.sops.opSecrets.user_key.fullPath;
     key = "private_key";
     owner = host.username;
   };
