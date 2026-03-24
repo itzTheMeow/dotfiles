@@ -28,12 +28,17 @@ let
             system.stateVersion = "25.11";
 
             networking.firewall.enable = false;
+            networking.enableIPv6 = false;
             networking.useHostResolvConf = lib.mkForce false;
 
             services.resolved.enable = false;
 
-            # forward DNS queries to Mullvad's DNS
-            networking.nameservers = [ "10.64.0.1" ];
+            # baseline resolvers for bootstrap/control-plane reachability
+            # Mullvad's DNS is still applied by wg-quick when the tunnel is up.
+            networking.nameservers = [
+              "1.1.1.1"
+              "9.9.9.9"
+            ];
 
             environment.systemPackages = with pkgs; [
               # actually needed
