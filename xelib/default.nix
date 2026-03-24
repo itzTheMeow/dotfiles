@@ -34,6 +34,11 @@ rec {
 
     # util functions
     fqdn = d: "${d}.";
+    pointHost =
+      hn: with inputs.dns.lib.combinators; {
+        A = [ (a addr.${hn}) ];
+        #TODO: AAAA = [];
+      };
 
     # shorthand for github pages apex DNS
     githubPages = with inputs.dns.lib.combinators; {
