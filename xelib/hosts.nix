@@ -9,10 +9,11 @@ in
       fullname = "Alex";
       ip = "100.64.0.19";
       accent = "#cba6f7"; # Mauve
-      flags = [
+      features = [
+        "gaming"
         "gui"
         "kde"
-        "gaming"
+        "rustic"
         "workstation"
       ];
       ports = {
@@ -28,10 +29,11 @@ in
       fullname = "TV";
       ip = "100.64.0.13";
       accent = "#a6e3a1"; # Green
-      flags = [
+      features = [
+        "gaming"
         "gui"
         "kde"
-        "gaming"
+        "rustic"
       ];
       ports = {
         beszel-agent = 59779;
@@ -46,7 +48,13 @@ in
       username = "walt";
       ip = "100.64.0.3";
       accent = "#f38ba8"; # Red
-      flags = [ "headless" ];
+      features = [
+        "headless"
+        "media-center"
+        "nginx"
+        "nsd"
+        "rustic"
+      ];
       ports = {
         beszel-agent = 59835;
         ssh = 12896;
@@ -59,7 +67,12 @@ in
       username = "mike";
       ip = "100.64.0.10";
       accent = "#89dceb"; # Sky
-      flags = [ "headless" ];
+      features = [
+        "headless"
+        "nginx"
+        "nsd"
+        "rustic"
+      ];
       ports = {
         beszel-agent = 61753;
         ssh = 39877;
@@ -73,7 +86,7 @@ in
       username = "huell";
       ip = "100.64.0.20";
       accent = "#eba0ac"; # Maroon
-      flags = [ "headless" ];
+      features = [ "headless" ];
       ports = {
         ssh = 22;
       };

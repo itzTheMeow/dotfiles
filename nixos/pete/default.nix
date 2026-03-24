@@ -5,19 +5,6 @@
   ...
 }:
 {
-  imports = [
-    ../common
-    ../common/desktop.nix
-    ../common/desktop-kde.nix
-
-    ../gaming
-
-    ../programs/rustic.nix
-
-    ../services/ssh
-    ../services/tailscale
-  ];
-
   boot.loader = {
     systemd-boot = {
       enable = true;

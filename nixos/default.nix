@@ -4,7 +4,10 @@ let
   entries = builtins.readDir hostDir;
 in
 {
-  imports = builtins.map (name: hostDir + "/${name}") (
+  imports = [
+    ./common
+  ]
+  ++ builtins.map (name: hostDir + "/${name}") (
     builtins.filter (
       name:
       entries.${name} == "directory"

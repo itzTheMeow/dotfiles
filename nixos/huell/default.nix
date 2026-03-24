@@ -4,14 +4,6 @@
   ...
 }:
 {
-  imports = [
-    ../common
-    ../common/headless.nix
-
-    ../services/ssh
-    ../services/tailscale
-  ];
-
   zramSwap.enable = true;
 
   sops.secrets.user_key = {

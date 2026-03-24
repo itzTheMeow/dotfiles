@@ -7,15 +7,27 @@
   xelib,
   ...
 }:
+let
+  features =
+    xelib.hosts.${hostname}.features
+    # default enabled features
+    ++ [
+      "beszel-agent"
+      "ntfy"
+      "ssh"
+      "tailscale"
+      "trust-cert"
+    ];
+in
 {
   system.stateVersion = "25.11";
 
   imports = [
     # import local config
     ../../local/nixos.nix
-
-    ../programs/ntfy.nix
-  ];
+  ]
+  # import all enabled features
+  ++ map (feature: ./${feature}) features;
 
   # base nix settings
   nix.settings = {
@@ -66,10 +78,6 @@
   # passwordless sudo
   security.sudo.wheelNeedsPassword = false;
 
-  # trust our custom CA
-  security.pki.certificateFiles = [
-    ../services/step-ca/root_ca.crt
-  ];
   # configure ACME for cert management
   security.acme = {
     acceptTerms = true;
