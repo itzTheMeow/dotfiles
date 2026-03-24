@@ -15,7 +15,7 @@ let
   mkHook =
     name: "${pkgs.writeShellScriptBin name (builtins.readFile ./hooks/${name}.sh)}/bin/${name}";
   mkConfigOld =
-    name: central: password: source:
+    name: password: source:
     {
       before ? [ ], # additional run-before hooks to add
       finally ? [ ], # additional run-finally hooks to add
@@ -29,9 +29,8 @@ let
           use-profiles = [ "default" ];
         };
         repository = {
-          repository =
-            if central then "${pCloudPath}/Misc/Backups/rustic" else "${pCloudPath}/Misc/Backups/${name}";
-          password-command = if central then "cat /run/secrets/rustic_main" else "op read ${password}";
+          repository = "${pCloudPath}/Misc/Backups/${name}";
+          password-command = "op read ${password}";
         };
         backup = {
           host = name;
@@ -248,30 +247,8 @@ lib.mkMerge [
           };
         };
       };
-
-      # temporary new machine
-      "rustic/hyzen2.toml".source = xelib.toTOMLFile "hyzen2.toml" {
-        global = {
-          use-profiles = [ "default" ];
-        };
-        repository = {
-          repository = "${pCloudPath}/Misc/Backups/rustic";
-          password-command = "cat /run/secrets/rustic_main";
-        };
-        backup = {
-          host = "hyzenberg";
-          glob-files = [
-            ./globs/default.glob
-          ];
-          snapshots = [
-            {
-              sources = [ "/" ];
-            }
-          ];
-        };
-      };
     }
-    // mkConfigOld "hyzenberg" false "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" "/" { };
+    // mkConfigOld "hyzenberg" "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" "/" { };
 
     # alias to run backblaze with env file
     home.shellAliases = {
