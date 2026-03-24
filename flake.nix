@@ -174,7 +174,7 @@
             ./xelib/dnszones.nix
 
             # main config
-            ./nixos/${hostname}.nix
+            (import ./nixos hostname)
 
             # home-manager
             home-manager.nixosModules.home-manager

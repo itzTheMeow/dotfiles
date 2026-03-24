@@ -1,21 +1,22 @@
 {
   config,
   host,
+  self,
   ...
 }:
 {
   imports = [
-    ./common
-    ./common/headless.nix
+    ../common
+    ../common/headless.nix
 
-    ./services/ssh
-    ./services/tailscale
+    ../services/ssh
+    ../services/tailscale
   ];
 
   zramSwap.enable = true;
 
   sops.secrets.user_key = {
-    sopsFile = ../${config.sops.opSecrets.user_key.path};
+    sopsFile = "${self}/${config.sops.opSecrets.user_key.path}";
     key = "private_key";
     owner = host.username;
   };

@@ -4,26 +4,27 @@
   lib,
   pkgs-unstable,
   pkgs,
+  self,
   xelib,
   ...
 }:
 {
   imports = [
-    ./common
-    ./common/desktop.nix
-    ./common/desktop-kde.nix
-    ./common/desktop-workstation.nix
+    ../common
+    ../common/desktop.nix
+    ../common/desktop-kde.nix
+    ../common/desktop-workstation.nix
 
-    ./gaming
+    ../gaming
 
-    ./services/beszel/agent.nix
-    ./services/rustic
-    ./services/ssh
-    ./services/tailscale
+    ../services/beszel/agent.nix
+    ../services/rustic
+    ../services/ssh
+    ../services/tailscale
 
-    ./programs/discord-rich-presence-plex.nix
-    ./programs/immich.nix
-    ./programs/rustic.nix
+    ../programs/discord-rich-presence-plex.nix
+    ../programs/immich.nix
+    ../programs/rustic.nix
   ];
 
   # Bootloader.
@@ -108,7 +109,7 @@
   ];
 
   sops.secrets.user_key = {
-    sopsFile = ../${config.sops.opSecrets.user_key.path};
+    sopsFile = "${self}/${config.sops.opSecrets.user_key.path}";
     key = "private_key";
     owner = host.username;
   };

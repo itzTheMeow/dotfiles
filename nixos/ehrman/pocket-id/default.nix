@@ -3,6 +3,7 @@
   inputs,
   lib,
   pkgs-unstable,
+  self,
   xelib,
   ...
 }:
@@ -33,11 +34,11 @@ in
       systemd.services.pocket-id.after = [ "tailscale-online.service" ];
 
       sops.secrets.pocket-id-enc = {
-        sopsFile = ../../../${config.sops.opSecrets.pocket-id.path};
+        sopsFile = "${self}/${config.sops.opSecrets.pocket-id.path}";
         key = "key";
       };
       sops.secrets.pocket-id-maxmind = {
-        sopsFile = ../../../${config.sops.opSecrets.pocket-id.path};
+        sopsFile = "${self}/${config.sops.opSecrets.pocket-id.path}";
         key = "license";
       };
       sops.opSecrets = {
