@@ -1,5 +1,4 @@
-_:
-{
+_: {
   programs.thunderbird = {
     enable = true;
     profiles.default = {
