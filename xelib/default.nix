@@ -51,6 +51,12 @@ rec {
       ];
     };
 
+    mailcow = with inputs.dns.lib.combinators; {
+      autoconfig.CNAME = fqdn mail.domain;
+      autodiscover.CNAME = fqdn mail.domain;
+      _dmarc.TXT = txt "v=DMARC1; p=reject";
+    };
+
     # prebuilt zone config
     SOA = {
       nameServer = fqdn _ns1;
