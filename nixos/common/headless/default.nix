@@ -4,6 +4,6 @@ _: {
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
-    loader.timeout = 1;
+    timeout = 1;
   };
 }
