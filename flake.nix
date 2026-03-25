@@ -172,8 +172,6 @@
 
             # misc
             catppuccin.nixosModules.catppuccin
-            ./xelib/dnszones.nix
-            ./xelib/nginx.nix
 
             # main config
             (import ./nixos hostname)
@@ -190,7 +188,8 @@
               home-manager.users.root = import ./home/common;
               home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
             }
-          ];
+          ]
+          ++ map (file: ./modules/${file}) (builtins.attrNames (builtins.readDir ./modules));
           specialArgs = extras // {
             inherit xelib;
           };
