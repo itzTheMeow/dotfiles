@@ -51,16 +51,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1768143854,
-        "narHash": "sha256-E5/kyPz4zAZn/lZdvqlF83jMgCWNxmqYjjWuadngCbk=",
-        "owner": "kirelagin",
+        "lastModified": 1768939908,
+        "narHash": "sha256-sD4UyILWAhk7aexE3YpDOdb71ZEeL+1/+LV05XIWCBo=",
+        "owner": "felixalbrigtsen",
         "repo": "dns.nix",
-        "rev": "a97cf4156e9f044fe4bed5be531061000dfabb07",
+        "rev": "f5a60ede524ee641256f878b1f28d4151577a727",
         "type": "github"
       },
       "original": {
-        "owner": "kirelagin",
+        "owner": "felixalbrigtsen",
         "repo": "dns.nix",
+        "rev": "f5a60ede524ee641256f878b1f28d4151577a727",
         "type": "github"
       }
     },
