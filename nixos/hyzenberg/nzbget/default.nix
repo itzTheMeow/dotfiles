@@ -1,4 +1,8 @@
-{ xelib, lib, ... }:
+{
+  lib,
+  xelib,
+  ...
+}:
 let
   svc = xelib.services.nzbget;
   ControlIP = xelib.hosts.${svc.host}.ip;
