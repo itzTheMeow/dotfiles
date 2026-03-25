@@ -1,8 +1,9 @@
 {
   config,
   lib,
-  pkgs,
   pkgs-unstable,
+  pkgs,
+  xelib,
   ...
 }:
 {
@@ -79,6 +80,13 @@
       enable = true;
       enableDefaultConfig = false;
       matchBlocks = {
+        ${xelib.apps.forgejo.domain} = {
+          identityFile = [
+            config.sops.secrets.forgejo_key.path
+            config.sops.secrets.github_ssh_signing.path
+          ];
+          identitiesOnly = true;
+        };
         "github.com" = {
           identityFile = [
             config.sops.secrets.github_ssh_auth.path
@@ -118,17 +126,22 @@
   };
 
   sops.secrets.github_ssh_auth = {
-    sopsFile = config.sops.opSecrets.github_ssh.fullPath;
+    sopsFile = config.sops.opSecrets.git_ssh.fullPath;
     key = "github_auth";
   };
   sops.secrets.github_ssh_signing = {
-    sopsFile = config.sops.opSecrets.github_ssh.fullPath;
+    sopsFile = config.sops.opSecrets.git_ssh.fullPath;
     key = "github_signing";
   };
-  sops.opSecrets.github_ssh = {
+  sops.secrets.forgejo_key = {
+    sopsFile = config.sops.opSecrets.git_ssh.fullPath;
+    key = "forgejo";
+  };
+  sops.opSecrets.git_ssh = {
     keys = {
       github_auth = "op://Private/royxpwncznclgwwbtp5gq4syle/public key";
       github_signing = "op://Private/brpzxia4pb2uk7ujbyf3nj7qci/public key";
+      forgejo = "op://Private/hgsv724d4jvdaqfljg664v62aq/public key";
     };
   };
 }
