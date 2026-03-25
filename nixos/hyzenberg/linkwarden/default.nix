@@ -20,12 +20,12 @@ lib.mkMerge [
       environment = {
         NEXTAUTH_URL = "https://${svc.domain}/api/v1/auth";
         # pocket id config
-        NEXT_PUBLIC_KEYCLOAK_ENABLED = true;
+        NEXT_PUBLIC_KEYCLOAK_ENABLED = "true";
         KEYCLOAK_CUSTOM_NAME = "Pocket ID";
         KEYCLOAK_ISSUER = "https://${xelib.services.pocket-id.domain}";
         # disable login for non-sso
-        NEXT_PUBLIC_CREDENTIALS_ENABLED = false;
-        DISABLE_NEW_SSO_USERS = true;
+        NEXT_PUBLIC_CREDENTIALS_ENABLED = "false";
+        DISABLE_NEW_SSO_USERS = "true";
         # ollama ai tagging
         NEXT_PUBLIC_OLLAMA_ENDPOINT_URL = "http://${xelib.hosts.${ollama.host}.ip}:${toString ollama.port}";
         inherit OLLAMA_MODEL;
