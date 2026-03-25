@@ -40,7 +40,7 @@ lib.mkMerge [
     nginx.proxy.${svc.domain} = {
       target.port = svc.port;
       # radar and sonarr need access to nzbget
-      allowedHosts = xelib.mkServiceHosts [
+      allowedServiceHosts = [
         "radarr"
         "sonarr"
       ];
