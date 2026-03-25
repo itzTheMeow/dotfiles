@@ -140,10 +140,20 @@ in
       port = 50983;
       domain = "xela.internal";
     };
+    linkwarden = {
+      host = "hyzenberg";
+      port = 19283;
+      domain = "linkwarden.xela";
+      publicDomain = "linkwarden.xela.codes";
+    };
     nzbget = {
       host = "hyzenberg";
       port = 58815;
       domain = "nzbget.xela";
+    };
+    ollama = {
+      host = "hyzenberg";
+      port = 11484;
     };
     pocket-id = {
       host = "ehrman";
