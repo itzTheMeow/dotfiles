@@ -2,7 +2,7 @@
   config,
   hostname,
   lib,
-  pkgs,
+  pkgs-unstable,
   xelib,
   ...
 }:
@@ -19,7 +19,7 @@ in
 
   services.forgejo = {
     enable = true;
-    package = pkgs.forgejo;
+    package = pkgs-unstable.forgejo;
     database.type = "postgres";
     lfs.enable = true;
     # https://forgejo.org/docs/latest/admin/config-cheat-sheet/
