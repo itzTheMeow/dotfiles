@@ -52,6 +52,7 @@ in
         SIGNING_KEY = "${signingKeyPath}.pub";
         SIGNING_NAME = "Forgejo";
         SIGNING_EMAIL = "noreply@${app.domain}";
+        DEFAULT_TRUST_MODEL = "committer";
 
         INITIAL_COMMIT = "always";
         WIKI = "always";
