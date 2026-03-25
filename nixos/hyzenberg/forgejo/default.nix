@@ -62,5 +62,6 @@ in
     AmbientCapabilities = "CAP_NET_BIND_SERVICE";
     CapabilityBoundingSet = lib.mkForce "CAP_NET_BIND_SERVICE";
     PrivateDevices = lib.mkForce false;
+    PrivateUsers = lib.mkForce false;
   };
 }
