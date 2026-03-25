@@ -36,12 +36,14 @@ lib.mkMerge [
     };
 
     systemd.services.nzbget.after = [ "tailscale-online.service" ];
+
+    nginx.proxy.${svc.domain} = {
+      target.port = svc.port;
+      # radar and sonarr need access to nzbget
+      allowedHosts = xelib.mkServiceHosts [
+        "radarr"
+        "sonarr"
+      ];
+    };
   }
-  (xelib.mkNginxProxy svc.domain "http://${ControlIP}:${toString svc.port}" {
-    # radar and sonarr need access to nzbget
-    allowedHosts = xelib.mkServiceHosts [
-      "radarr"
-      "sonarr"
-    ];
-  })
 ]

@@ -35,14 +35,17 @@ let
           "nzbget"
         ];
       }
-      (xelib.mkNginxProxy svc.domain "http://${bindaddress}:${toString svc.port}" {
+      {
         # the servarr programs can talk to eachother
-        allowedHosts = xelib.mkServiceHosts [
-          "prowlarr"
-          "radarr"
-          "sonarr"
-        ];
-      })
+        nginx.proxy.${svc.domain} = {
+          target.port = svc.port;
+          allowedHosts = xelib.mkServiceHosts [
+            "prowlarr"
+            "radarr"
+            "sonarr"
+          ];
+        };
+      }
     ];
 in
 lib.mkMerge [

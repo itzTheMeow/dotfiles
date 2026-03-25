@@ -50,6 +50,7 @@ lib.mkMerge [
         KEYCLOAK_CLIENT_SECRET = "op://Private/o3vngusljucwxvzstyguvucfiu/xrj36alsgxvzq6kmtocoahg7qy/Client Secret";
       };
     };
+
+    nginx.proxy.${svc.domain}.target.port = svc.port;
   }
-  (xelib.mkNginxProxy svc.domain "http://${host}:${toString svc.port}" { })
 ]

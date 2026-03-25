@@ -72,15 +72,18 @@ lib.mkMerge [
       };
     };
   }
-  (xelib.mkNginxProxy svc.domain "http://${bindIP}:${toString svc.port}" {
+  {
     # we have to serve the background image separately
-    extraConfig = cfg: {
-      locations."= /background.jpeg" = lib.mkMerge [
-        {
-          alias = "${./background.jpeg}";
-        }
-        cfg
-      ];
+    nginx.proxy.${svc.domain} = {
+      target.port = svc.port;
+      extraConfig = cfg: {
+        locations."= /background.jpeg" = lib.mkMerge [
+          {
+            alias = "${./background.jpeg}";
+          }
+          cfg
+        ];
+      };
     };
-  })
+  }
 ]
