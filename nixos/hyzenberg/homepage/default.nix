@@ -42,11 +42,17 @@ in
 
     services = [
       {
-        Media = [
+        Downloads = [
           (mkService "Sonarr" "sonarr" "TV Shows" "sonarr.xela")
           (mkService "Radarr" "radarr" "Movies" "radarr.xela")
           (mkService "Prowlarr" "prowlarr" "Indexer Manager" "prowlarr.xela")
           (mkService "NZBGet" "nzbget" "Download Client" "nzbget.xela")
+        ];
+        Other = [
+          (mkService "Beszel" "beszel" "System Monitoring" "beszel.xela")
+          (mkService "Linkwarden" "linkwarden" "Bookmark Manager" "linkwarden.xela")
+          (mkService "Headplane" "headplane" "Headscale Admin" "headplane.xela")
+          (mkService "Pocket ID" "pocket-id" "OIDC Provider" "auth.xela.codes")
         ];
       }
     ];
