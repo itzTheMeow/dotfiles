@@ -55,4 +55,11 @@ in
       };
     };
   };
+
+  # permission to bind to 22
+  systemd.services.forgejo.serviceConfig = {
+    AmbientCapabilities = "CAP_NET_BIND_SERVICE";
+    CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
+    # PrivateDevices = false;
+  };
 }
