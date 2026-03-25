@@ -1,4 +1,5 @@
 {
+  config,
   host,
   lib,
   xelib,
@@ -6,12 +7,17 @@
 }:
 let
   mkServarr =
-    name:
+    name: port:
     let
-      svc = xelib.services.${name};
-      bindaddress = xelib.hosts.${svc.host}.ip;
+      app = config.apps.${name};
     in
     {
+      apps.${name} = {
+        domain = "${name}.xela";
+        inherit port;
+        enableProxy = true;
+      };
+
       services.${name} = {
         enable = true;
         settings = {
@@ -20,8 +26,8 @@ let
             theme = "dark";
           };
           server = {
-            inherit bindaddress;
-            inherit (svc) port;
+            bindaddress = app.ip;
+            inherit (app) port;
             urlbase = "/";
           };
         };
@@ -35,14 +41,11 @@ let
       };
 
       # the servarr programs can talk to eachother
-      nginx.proxy.${svc.domain} = {
-        target.port = svc.port;
-        allowedServiceHosts = [
-          "prowlarr"
-          "radarr"
-          "sonarr"
-        ];
-      };
+      nginx.proxy.${app.domain}.allowedAppHosts = [
+        "prowlarr"
+        "radarr"
+        "sonarr"
+      ];
     };
 in
 lib.mkMerge [
@@ -62,7 +65,7 @@ lib.mkMerge [
       "d /mnt/servarr_backups 0755 ${host.username} users -"
     ];
   }
-  (mkServarr "prowlarr")
-  (mkServarr "sonarr")
-  (mkServarr "radarr")
+  (mkServarr "prowlarr" 49696)
+  (mkServarr "sonarr" 48989)
+  (mkServarr "radarr" 47878)
 ]

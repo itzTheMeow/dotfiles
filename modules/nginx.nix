@@ -54,10 +54,10 @@ in
                 default = [ ];
                 description = "List of hostnames allowed to access the proxy";
               };
-              allowedServiceHosts = mkOption {
+              allowedAppHosts = mkOption {
                 type = types.listOf types.str;
                 default = [ ];
-                description = "List of service names to allow their host access to the proxy. Merged with allowedHosts";
+                description = "List of app names to allow their host access to the proxy. Merged with allowedHosts";
               };
               proxyWebsockets = mkOption {
                 type = types.bool;
@@ -150,7 +150,7 @@ in
         allowedHosts = lib.lists.unique (
           opts.allowedHosts
           # map the list of services to the hosts they run on
-          ++ (map (name: xelib.services.${name}.host) opts.allowedServiceHosts)
+          ++ (map (name: xelib.apps.${name}.host) opts.allowedAppHosts)
           ++ xelib.trustedHosts
         );
         locationExtraConfig = lib.optionalAttrs opts.local {
@@ -191,10 +191,10 @@ in
     security.acme.certs = builtins.mapAttrs (
       domain: opts:
       let
-        stepca = xelib.services.step-ca;
+        stepca = xelib.apps.step-ca;
       in
       lib.mkIf opts.local {
-        server = "https://${xelib.hosts.${stepca.host}.ip}:${toString stepca.port}/acme/acme/directory";
+        server = "https://${stepca.ip}:${stepca.portString}/acme/acme/directory";
       }
     ) cfg.proxy;
   };

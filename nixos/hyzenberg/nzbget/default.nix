@@ -1,12 +1,17 @@
 {
-  xelib,
+  config,
   ...
 }:
 let
-  svc = xelib.services.nzbget;
-  ControlIP = xelib.hosts.${svc.host}.ip;
+  app = config.apps.nzbget;
 in
 {
+  apps.nzbget = {
+    domain = "nzbget.xela";
+    port = 58815;
+    enableProxy = true;
+  };
+
   # shared download directory
   systemd.tmpfiles.rules = [
     "d /home/downloads 0777 nzbget nzbget -"
@@ -18,8 +23,8 @@ in
       MainDir = "/var/lib/nzbget";
       DestDir = "/home/downloads";
 
-      inherit ControlIP;
-      ControlPort = svc.port;
+      ControlIP = app.ip;
+      ControlPort = app.port;
       ControlUsername = "nzbget";
 
       # other settings
@@ -34,13 +39,9 @@ in
   };
 
   systemd.services.nzbget.after = [ "tailscale-online.service" ];
-
-  nginx.proxy.${svc.domain} = {
-    target.port = svc.port;
-    # radar and sonarr need access to nzbget
-    allowedServiceHosts = [
-      "radarr"
-      "sonarr"
-    ];
-  };
+  # radar and sonarr need access to nzbget
+  nginx.proxy.${app.domain}.allowedAppHosts = [
+    "radarr"
+    "sonarr"
+  ];
 }

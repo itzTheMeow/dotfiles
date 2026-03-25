@@ -1,12 +1,14 @@
-{ xelib, ... }:
+{ config, ... }:
 let
-  svc = xelib.services.ollama;
+  app = config.apps.ollama;
 in
 {
+  apps.ollama.port = 11484;
+
   services.ollama = {
     enable = true;
-    host = xelib.hosts.${svc.host}.ip;
-    port = svc.port;
+    host = app.ip;
+    inherit (app) port;
     syncModels = true;
   };
 }

@@ -5,24 +5,28 @@
   ...
 }:
 let
-  svc = xelib.services.headplane;
-  inherit (xelib.services) headscale;
+  app = config.apps.headplane;
 
-  IP = xelib.hosts.${svc.host}.ip;
   secretFile = "/var/lib/headplane/secret.txt";
 in
 {
+  apps.headplane = {
+    domain = "headplane.xela";
+    port = 18889;
+    enableProxy = true;
+  };
+
   services.headplane = {
     enable = true;
     settings = {
       server = {
-        host = IP;
-        inherit (svc) port;
+        host = app.ip;
+        inherit (app) port;
         cookie_secret_path = secretFile;
         cookie_max_age = 604800; # 7 days in seconds
       };
       headscale = {
-        url = "https://${headscale.domain}";
+        url = xelib.apps.headscale.url;
         config_path = "${xelib.toYAMLFile "headscale.yml" config.services.headscale.settings}";
         config_strict = false;
       };
@@ -57,17 +61,14 @@ in
     '';
   };
 
-  nginx.proxy.${svc.domain} = {
-    target.port = svc.port;
-    extraConfig = _: {
-      locations."/" = {
-        # redirect / to /admin since headplane doesn't do that for us
-        extraConfig = ''
-          if ($request_uri = /) {
-            return 302 /admin;
-          }
-        '';
-      };
+  nginx.proxy.${app.domain}.extraConfig = _: {
+    locations."/" = {
+      # redirect / to /admin since headplane doesn't do that for us
+      extraConfig = ''
+        if ($request_uri = /) {
+          return 302 /admin;
+        }
+      '';
     };
   };
 }

@@ -12,10 +12,17 @@ rec {
   globals = import ./globals.nix inputs;
 
   # import hosts and ports
-  inherit (import ./hosts.nix) hosts services trustedHosts;
+  inherit (import ./hosts.nix) hosts trustedHosts;
 
   # location of the dotfiles repo
   location = "/home/${hosts.${hostname}.username}/.dotfiles";
+
+  # aggregate apps from all config hosts
+  apps = lib.foldAttrs lib.recursiveUpdate { } (
+    map (host: self.nixosConfigurations.${host}.config.apps) (
+      builtins.attrNames self.nixosConfigurations
+    )
+  );
 
   mail = {
     domain = "mail.xela.codes";

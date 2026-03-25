@@ -10,8 +10,8 @@
     enable = true;
     package = pkgs-unstable.beszel;
     environment = {
-      HUB_URL = "https://${xelib.services.beszel.domain}";
-      LISTEN = "${host.ip}:${builtins.toString host.ports.beszel-agent}";
+      HUB_URL = xelib.apps.beszel.url;
+      LISTEN = "${host.ip}:${toString host.ports.beszel-agent}";
     };
     environmentFile = config.sops.secrets.beszel_agent.path;
   };

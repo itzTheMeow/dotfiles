@@ -4,28 +4,35 @@
   ...
 }:
 let
-  svc = xelib.services.linkwarden;
-  host = xelib.hosts.${svc.host}.ip;
+  app = config.apps.linkwarden;
 
-  ollama = xelib.services.ollama;
   OLLAMA_MODEL = "phi3:mini-4k";
 in
 {
+  apps.linkwarden = {
+    domain = "linkwarden.xela";
+    port = 19283;
+    enableProxy = true;
+    details = {
+      publicDomain = "linkwarden.xela.codes";
+    };
+  };
+
   services.linkwarden = {
     enable = true;
-    inherit host;
-    inherit (svc) port;
+    host = app.ip;
+    inherit (app) port;
     environment = {
-      NEXTAUTH_URL = "https://${svc.domain}/api/v1/auth";
+      NEXTAUTH_URL = "${app.url}/api/v1/auth";
       # pocket id config
       NEXT_PUBLIC_KEYCLOAK_ENABLED = "true";
       KEYCLOAK_CUSTOM_NAME = "Pocket ID";
-      KEYCLOAK_ISSUER = "https://${xelib.services.pocket-id.domain}";
+      KEYCLOAK_ISSUER = xelib.apps.pocket-id.url;
       # disable login for non-sso
       NEXT_PUBLIC_CREDENTIALS_ENABLED = "false";
       DISABLE_NEW_SSO_USERS = "true";
       # ollama ai tagging
-      NEXT_PUBLIC_OLLAMA_ENDPOINT_URL = "http://${xelib.hosts.${ollama.host}.ip}:${toString ollama.port}";
+      NEXT_PUBLIC_OLLAMA_ENDPOINT_URL = xelib.apps.ollama.url;
       inherit OLLAMA_MODEL;
     };
     environmentFile = config.sops.secrets.linkwarden.path;
@@ -48,6 +55,4 @@ in
       KEYCLOAK_CLIENT_SECRET = "op://Private/o3vngusljucwxvzstyguvucfiu/xrj36alsgxvzq6kmtocoahg7qy/Client Secret";
     };
   };
-
-  nginx.proxy.${svc.domain}.target.port = svc.port;
 }

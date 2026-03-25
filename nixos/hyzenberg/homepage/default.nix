@@ -1,11 +1,10 @@
 {
+  config,
   lib,
-  xelib,
   ...
 }:
 let
-  svc = xelib.services.homepage;
-  bindIP = xelib.hosts.${svc.host}.ip;
+  app = config.apps.homepage;
 
   mkService = name: icon: description: domain: {
     ${name} = {
@@ -17,13 +16,19 @@ let
   };
 in
 {
+  apps.homepage = {
+    domain = "xela.internal";
+    port = 50983;
+    enableProxy = true;
+  };
+
   services.homepage-dashboard = {
     enable = true;
-    listenPort = svc.port;
+    listenPort = app.port;
 
     settings = {
-      title = svc.domain;
-      base = "https://${svc.domain}";
+      title = app.domain;
+      base = app.url;
       background = {
         image = "/background.jpeg";
         #  blur = "xs";
@@ -48,7 +53,6 @@ in
           (mkService "Prowlarr" "prowlarr" "Indexer Manager" "prowlarr.xela")
           (mkService "NZBGet" "nzbget" "Download Client" "nzbget.xela")
         ];
-
       }
       {
         Other = [
@@ -74,22 +78,19 @@ in
     after = [ "tailscale-online.service" ];
     serviceConfig = {
       Environment = [
-        "HOMEPAGE_BIND_ADDR=${bindIP}"
-        "HOMEPAGE_ALLOWED_HOSTS=${svc.domain}"
+        "HOMEPAGE_BIND_ADDR=${app.ip}"
+        "HOMEPAGE_ALLOWED_HOSTS=${app.domain}"
       ];
     };
   };
 
-  nginx.proxy.${svc.domain} = {
-    target.port = svc.port;
-    # we have to serve the background image separately
-    extraConfig = cfg: {
-      locations."= /background.jpeg" = lib.mkMerge [
-        {
-          alias = "${./background.jpeg}";
-        }
-        cfg
-      ];
-    };
+  # we have to serve the background image separately
+  nginx.proxy.${app.domain}.extraConfig = cfg: {
+    locations."= /background.jpeg" = lib.mkMerge [
+      {
+        alias = "${./background.jpeg}";
+      }
+      cfg
+    ];
   };
 }
