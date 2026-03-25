@@ -34,6 +34,7 @@ in
         SSH_LISTEN_HOST = xelib.dns.addr.${hostname};
 
         LANDING_PAGE = "/xela.codes/"; # redirect unauthenticated users to my account
+        TRUSTED_PROXIES = "127.0.0.1, ::1, 100.64.0.0/10";
       };
       session.COOKIE_SECURE = true; # make cookies secure
       repository.DEFAULT_BRANCH = "master"; # change default branch name
