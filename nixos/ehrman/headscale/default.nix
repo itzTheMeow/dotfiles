@@ -98,6 +98,7 @@ lib.mkMerge [
   {
     services.nginx.virtualHosts."whenducksfly.com" = {
       enableACME = true;
+      forceSSL = true;
       locations."/" = {
         return = "404 'NOT FOUND'";
         extraConfig = ''
