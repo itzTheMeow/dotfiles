@@ -80,17 +80,17 @@ in
 
   # signing key
   sops.secrets = {
-    "forgejo-signing-key" = {
+    "forgejo-signing-key-pub" = {
       sopsFile = config.sops.opSecrets.forgejo-signing.fullPath;
       key = "pub";
       owner = "forgejo";
-      path = signingKeyPath;
+      path = "${signingKeyPath}.pub";
     };
-    "forgejo-signing-key-pub" = {
+    "forgejo-signing-key" = {
       sopsFile = config.sops.opSecrets.forgejo-signing.fullPath;
       key = "private";
       owner = "forgejo";
-      path = "${signingKeyPath}.pub";
+      path = signingKeyPath;
     };
   };
   sops.opSecrets.forgejo-signing.keys = {
