@@ -7,6 +7,7 @@
 }:
 let
   app = config.apps.forgejo;
+  signingKeyPath = "/var/lib/forgejo/signing/id_ed25519";
 in
 {
   apps.forgejo = {
@@ -39,6 +40,18 @@ in
       security.INSTALL_LOCK = true; # disable install page
       mirror.DEFAULT_INTERVAL = "1h"; # default mirror interval
 
+      "repository.signing" = {
+        SIGNING_KEY = "${signingKeyPath}.pub";
+        FORMAT = "ssh";
+        SIGNING_NAME = "xela.codes Instance";
+        SIGNING_EMAIL = "noreply@${app.domain}";
+
+        INITIAL_COMMIT = "always";
+        WIKI = "always";
+        CRUD_ACTIONS = "always";
+        MERGES = "approved, commitssigned";
+      };
+
       # configure oidc
       openid.ENABLE_OPENID_SIGNUP = true;
       oauth2_client = {
@@ -65,5 +78,26 @@ in
     PrivateUsers = lib.mkForce false;
   };
 
+  # signing key
+  sops.secrets = {
+    "forgejo-signing-key" = {
+      sopsFile = config.sops.opSecrets.forgejo-signing.fullPath;
+      key = "pub";
+      owner = "forgejo";
+      path = signingKeyPath;
+    };
+    "forgejo-signing-key-pub" = {
+      sopsFile = config.sops.opSecrets.forgejo-signing.fullPath;
+      key = "private";
+      owner = "forgejo";
+      path = "${signingKeyPath}.pub";
+    };
+  };
+  sops.opSecrets.forgejo-signing.keys = {
+    pub = "op://Private/s6lqgzcbzjrvvhhetoycc3dv3q/public key";
+    private = "op://Private/s6lqgzcbzjrvvhhetoycc3dv3q/private key?ssh-format=openssh";
+  };
+
+  # catppuccin
   catppuccin.forgejo.enable = true;
 }
