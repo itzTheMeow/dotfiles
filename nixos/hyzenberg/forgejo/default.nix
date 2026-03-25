@@ -34,7 +34,7 @@ in
       };
       session.COOKIE_SECURE = true; # make cookies secure
       repository.DEFAULT_BRANCH = "master"; # change default branch name
-      ui.meta.DESCRIPTION = "xela.codes personal software forge.";
+      "ui.meta".DESCRIPTION = "xela.codes personal software forge.";
       security.INSTALL_LOCK = true; # disable install page
       mirror.DEFAULT_INTERVAL = "1h"; # default mirror interval
 
