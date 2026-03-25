@@ -48,6 +48,9 @@ in
           (mkService "Prowlarr" "prowlarr" "Indexer Manager" "prowlarr.xela")
           (mkService "NZBGet" "nzbget" "Download Client" "nzbget.xela")
         ];
+
+      }
+      {
         Other = [
           (mkService "Beszel" "beszel" "System Monitoring" "beszel.xela")
           (mkService "Linkwarden" "linkwarden" "Bookmark Manager" "linkwarden.xela")
