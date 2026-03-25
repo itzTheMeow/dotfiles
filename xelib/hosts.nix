@@ -51,7 +51,6 @@ in
       features = [
         "headless"
         "media-center"
-        "nginx"
         "nsd"
         "rustic"
       ];
@@ -69,7 +68,6 @@ in
       accent = "#89dceb"; # Sky
       features = [
         "headless"
-        "nginx"
         "nsd"
         "rustic"
       ];

@@ -4,6 +4,8 @@
   ...
 }:
 {
+  nginx.enable = true;
+
   sops.secrets.user_key = {
     sopsFile = config.sops.opSecrets.user_key.fullPath;
     key = "private_key";

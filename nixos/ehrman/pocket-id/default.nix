@@ -46,6 +46,8 @@ in
       };
 
     }
-    (xelib.mkNginxProxy svc.domain "http://${xelib.hosts.${svc.host}.ip}:${toString svc.port}" { })
+    {
+      nginx.proxy.${svc.domain}.target.port = svc.port;
+    }
   ];
 }

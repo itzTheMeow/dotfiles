@@ -93,7 +93,12 @@ lib.mkMerge [
     };
   }
   (import ./headplane.nix inputs)
-  (xelib.mkNginxProxy svc.domain "http://127.0.0.1:${toString svc.port}" { })
+  {
+    nginx.proxy.${svc.domain}.target = {
+      host = "127.0.0.1";
+      port = svc.port;
+    };
+  }
   # 404 page for base domain
   {
     services.nginx.virtualHosts."whenducksfly.com" = {

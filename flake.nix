@@ -173,6 +173,7 @@
             # misc
             catppuccin.nixosModules.catppuccin
             ./xelib/dnszones.nix
+            ./xelib/nginx.nix
 
             # main config
             (import ./nixos hostname)
