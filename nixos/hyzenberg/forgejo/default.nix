@@ -58,12 +58,14 @@ in
         CRUD_ACTIONS = "always";
         MERGES = "approved, commitssigned";
       };
-      "git.config" = {
-        "gpg.format" = "ssh";
-        "gpg.ssh.program" = "${pkgs.openssh}/bin/ssh-keygen";
-        "user.name" = "Forgejo";
-        "user.email" = "noreply@${app.domain}";
-      };
+      /*
+        "git.config" = {
+          "gpg.format" = "ssh";
+          "gpg.ssh.program" = "${pkgs.openssh}/bin/ssh-keygen";
+          "user.name" = "Forgejo";
+          "user.email" = "noreply@${app.domain}";
+        };
+      */
 
       # configure oidc
       openid.ENABLE_OPENID_SIGNUP = true;
