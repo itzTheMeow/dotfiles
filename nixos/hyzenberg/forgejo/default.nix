@@ -35,13 +35,15 @@ in
         SSH_SERVER_KEY_EXCHANGES = "sntrup761x25519-sha512@openssh.com,curve25519-sha256,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521";
 
         LANDING_PAGE = "/xela.codes/"; # redirect unauthenticated users to my account
-        TRUSTED_PROXIES = "127.0.0.1, ::1, 100.64.0.0/10";
       };
       session.COOKIE_SECURE = true; # make cookies secure
       repository.DEFAULT_BRANCH = "master"; # change default branch name
       repository.USE_COMPAT_SSH_URI = false; # dont use ssh:// url
       "ui.meta".DESCRIPTION = "xela.codes personal software forge.";
-      security.INSTALL_LOCK = true; # disable install page
+      security = {
+        INSTALL_LOCK = true; # disable install page
+        REVERSE_PROXY_TRUSTED_PROXIES = "127.0.0.0/8,::1/128,100.64.0.0/10";
+      };
       mirror.DEFAULT_INTERVAL = "1h"; # default mirror interval
 
       "repository.signing" = {
