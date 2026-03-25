@@ -32,6 +32,7 @@ in
         # use internal ssh server on public IP
         START_SSH_SERVER = true;
         SSH_LISTEN_HOST = xelib.dns.addr.${hostname};
+        SSH_SERVER_KEY_EXCHANGES = "sntrup761x25519-sha512@openssh.com,curve25519-sha256,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521";
 
         LANDING_PAGE = "/xela.codes/"; # redirect unauthenticated users to my account
         TRUSTED_PROXIES = "127.0.0.1, ::1, 100.64.0.0/10";
