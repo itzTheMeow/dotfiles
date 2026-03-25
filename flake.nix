@@ -24,7 +24,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     dns = {
-      url = "github:kirelagin/dns.nix";
+      # https://github.com/nix-community/dns.nix/pull/52
+      url = "github:felixalbrigtsen/dns.nix/f5a60ede524ee641256f878b1f28d4151577a727";
       inputs.flake-utils.follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
