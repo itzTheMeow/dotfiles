@@ -35,7 +35,7 @@ in
         SSH_LISTEN_HOST = xelib.dns.addr.${hostname};
         SSH_SERVER_KEY_EXCHANGES = "mlkem768x25519-sha256,sntrup761x25519-sha512@openssh.com,curve25519-sha256,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521";
 
-        LANDING_PAGE = "/xela.codes/"; # redirect unauthenticated users to my account
+        LANDING_PAGE = "/xela/"; # redirect unauthenticated users to my account
       };
       session.COOKIE_SECURE = true; # make cookies secure
       repository.DEFAULT_BRANCH = "master"; # change default branch name
