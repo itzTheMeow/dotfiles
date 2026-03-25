@@ -61,6 +61,6 @@ in
   systemd.services.forgejo.serviceConfig = {
     AmbientCapabilities = "CAP_NET_BIND_SERVICE";
     CapabilityBoundingSet = lib.mkForce "CAP_NET_BIND_SERVICE";
-    # PrivateDevices = false;
+    PrivateDevices = lib.mkForce false;
   };
 }
