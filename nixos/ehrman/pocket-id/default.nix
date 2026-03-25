@@ -40,12 +40,11 @@ in
         sopsFile = config.sops.opSecrets.pocket-id.fullPath;
         key = "license";
       };
-      sops.opSecrets = {
-        pocket-id.keys = {
-          key = "op://Private/pwdsgmanpl46sqdbxfsa7ylzzq/credential";
-          license = "op://Private/yo5ksl7xuwir3ab3idjpjccaty/ko4vnnqfnsekir7iss47wdawvq/pzru4hfyoodf34v7uys6cee3ra";
-        };
+      sops.opSecrets.pocket-id.keys = {
+        key = "op://Private/pwdsgmanpl46sqdbxfsa7ylzzq/credential";
+        license = "op://Private/yo5ksl7xuwir3ab3idjpjccaty/ko4vnnqfnsekir7iss47wdawvq/pzru4hfyoodf34v7uys6cee3ra";
       };
+
     }
     (xelib.mkNginxProxy svc.domain "http://${xelib.hosts.${svc.host}.ip}:${toString svc.port}" { })
   ];
