@@ -27,7 +27,7 @@ lib.mkMerge [
         NEXT_PUBLIC_CREDENTIALS_ENABLED = false;
         DISABLE_NEW_SSO_USERS = true;
         # ollama ai tagging
-        NEXT_PUBLIC_OLLAMA_ENDPOINT_URL = "http://${xelib.hosts.${ollama.host}.ip}:${ollama.port}";
+        NEXT_PUBLIC_OLLAMA_ENDPOINT_URL = "http://${xelib.hosts.${ollama.host}.ip}:${toString ollama.port}";
         inherit OLLAMA_MODEL;
       };
       environmentFile = config.sops.secrets.linkwarden.path;
