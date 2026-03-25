@@ -78,7 +78,7 @@ in
 
       service = {
         DISABLE_REGISTRATION = true;
-        #ENABLE_INTERNAL_SIGNIN = false;
+        ENABLE_INTERNAL_SIGNIN = false;
         DEFAULT_KEEP_EMAIL_PRIVATE = true;
         DEFAULT_ORG_MEMBER_VISIBLE = true;
         NO_REPLY_ADDRESS = "noreply-${config.apps.forgejo.domain}";
