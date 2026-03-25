@@ -42,9 +42,7 @@ in
       openid.ENABLE_OPENID_SIGNUP = true;
       oauth2_client = {
         REGISTER_EMAIL_CONFIRM = true;
-        OPENID_CONNECT_SCOPES = "email profile";
         ENABLE_AUTO_REGISTRATION = true;
-        USERNAME = "preferred_username";
         UPDATE_AVATAR = true;
       };
 
