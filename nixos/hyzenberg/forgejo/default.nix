@@ -64,4 +64,6 @@ in
     PrivateDevices = lib.mkForce false;
     PrivateUsers = lib.mkForce false;
   };
+
+  catppuccin.forgejo.enable = true;
 }
