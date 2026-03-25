@@ -1,6 +1,6 @@
 {
-  xelib,
   lib,
+  xelib,
   ...
 }:
 let
@@ -16,74 +16,71 @@ let
     };
   };
 in
-lib.mkMerge [
-  {
-    services.homepage-dashboard = {
-      enable = true;
-      listenPort = svc.port;
+{
+  services.homepage-dashboard = {
+    enable = true;
+    listenPort = svc.port;
 
-      settings = {
-        title = svc.domain;
-        base = "https://${svc.domain}";
-        background = {
-          image = "/background.jpeg";
-          #  blur = "xs";
-        };
-        cardBlur = "sm";
-        headerStyle = "boxed";
-        target = "_self";
-        theme = "dark";
-        color = "stone";
-        layout = {
-          Media = {
-            style = "columns";
-          };
+    settings = {
+      title = svc.domain;
+      base = "https://${svc.domain}";
+      background = {
+        image = "/background.jpeg";
+        #  blur = "xs";
+      };
+      cardBlur = "sm";
+      headerStyle = "boxed";
+      target = "_self";
+      theme = "dark";
+      color = "stone";
+      layout = {
+        Media = {
+          style = "columns";
         };
       };
-
-      services = [
-        {
-          Media = [
-            (mkService "Sonarr" "sonarr" "TV Shows" "sonarr.xela")
-            (mkService "Radarr" "radarr" "Movies" "radarr.xela")
-            (mkService "Prowlarr" "prowlarr" "Indexer Manager" "prowlarr.xela")
-            (mkService "NZBGet" "nzbget" "Download Client" "nzbget.xela")
-          ];
-        }
-      ];
-
-      widgets = [
-        {
-          search = {
-            provider = "google";
-            target = "_blank";
-          };
-        }
-      ];
     };
 
-    systemd.services.homepage-dashboard = {
-      after = [ "tailscale-online.service" ];
-      serviceConfig = {
-        Environment = [
-          "HOMEPAGE_BIND_ADDR=${bindIP}"
-          "HOMEPAGE_ALLOWED_HOSTS=${svc.domain}"
+    services = [
+      {
+        Media = [
+          (mkService "Sonarr" "sonarr" "TV Shows" "sonarr.xela")
+          (mkService "Radarr" "radarr" "Movies" "radarr.xela")
+          (mkService "Prowlarr" "prowlarr" "Indexer Manager" "prowlarr.xela")
+          (mkService "NZBGet" "nzbget" "Download Client" "nzbget.xela")
         ];
-      };
+      }
+    ];
+
+    widgets = [
+      {
+        search = {
+          provider = "google";
+          target = "_blank";
+        };
+      }
+    ];
+  };
+
+  systemd.services.homepage-dashboard = {
+    after = [ "tailscale-online.service" ];
+    serviceConfig = {
+      Environment = [
+        "HOMEPAGE_BIND_ADDR=${bindIP}"
+        "HOMEPAGE_ALLOWED_HOSTS=${svc.domain}"
+      ];
     };
-  }
-  {
+  };
+
+  nginx.proxy.${svc.domain} = {
+    target.port = svc.port;
     # we have to serve the background image separately
-    nginx.proxy.${svc.domain} = {
-      target.port = svc.port;
-      extraConfig = cfg: {
-        locations."= /background.jpeg" = lib.mkMerge [
-          {
-            alias = "${./background.jpeg}";
-          }
-          cfg
-        ];
-      };
+    extraConfig = cfg: {
+      locations."= /background.jpeg" = lib.mkMerge [
+        {
+          alias = "${./background.jpeg}";
+        }
+        cfg
+      ];
     };
-  }
-]
+  };
+}

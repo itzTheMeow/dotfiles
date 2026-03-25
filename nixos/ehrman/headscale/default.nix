@@ -1,115 +1,111 @@
 {
-  lib,
   pkgs,
   xelib,
   ...
-}@inputs:
+}:
 let
   svc = xelib.services.headscale;
 in
-lib.mkMerge [
-  {
-    # add the CLI
-    environment.systemPackages = [ pkgs.headscale ];
+{
+  imports = [ ./headplane.nix ];
 
-    services.headscale = {
-      enable = true;
-      package = pkgs.headscale;
-      inherit (svc) port;
+  # add the CLI
+  environment.systemPackages = [ pkgs.headscale ];
 
-      # most of these are just the defaults
-      settings = {
-        server_url = "https://${svc.domain}:443";
-        policy.mode = "database";
+  services.headscale = {
+    enable = true;
+    package = pkgs.headscale;
+    inherit (svc) port;
 
-        dns = {
-          magic_dns = true;
-          base_domain = xelib.services.homepage.domain; # base domain is the home page
-          override_local_dns = false;
-          extra_records = [
-            {
-              name = "nvstly.internal";
-              type = "A";
-              value = "100.64.0.5";
-            }
-            {
-              name = "nginx.nvstly.internal";
-              type = "A";
-              value = "100.64.0.5";
-            }
-            {
-              name = "portainer.nvstly.internal";
-              type = "A";
-              value = "100.64.0.5";
-            }
-            {
-              name = "portainer.xela.internal";
-              type = "A";
-              value = "100.64.0.2";
-            }
-            {
-              name = "kuma.nvstly.internal";
-              type = "A";
-              value = "100.64.0.5";
-            }
-            {
-              name = "postiz.nvstly.internal";
-              type = "A";
-              value = "100.64.0.5";
-            }
-            {
-              name = "redis.nvstly.internal";
-              type = "A";
-              value = "100.64.0.5";
-            }
-            {
-              name = "beszel.nvstly.internal";
-              type = "A";
-              value = "100.64.0.5";
-            }
-          ]
-          ++ (
-            # dynamic records from service list
-            builtins.map
-              (
-                name:
-                let
-                  s = xelib.services.${name};
-                in
-                {
-                  name = s.domain;
-                  type = "A";
-                  value = xelib.hosts.${s.host}.ip;
-                }
+    # most of these are just the defaults
+    settings = {
+      server_url = "https://${svc.domain}:443";
+      policy.mode = "database";
+
+      dns = {
+        magic_dns = true;
+        base_domain = xelib.services.homepage.domain; # base domain is the home page
+        override_local_dns = false;
+        extra_records = [
+          {
+            name = "nvstly.internal";
+            type = "A";
+            value = "100.64.0.5";
+          }
+          {
+            name = "nginx.nvstly.internal";
+            type = "A";
+            value = "100.64.0.5";
+          }
+          {
+            name = "portainer.nvstly.internal";
+            type = "A";
+            value = "100.64.0.5";
+          }
+          {
+            name = "portainer.xela.internal";
+            type = "A";
+            value = "100.64.0.2";
+          }
+          {
+            name = "kuma.nvstly.internal";
+            type = "A";
+            value = "100.64.0.5";
+          }
+          {
+            name = "postiz.nvstly.internal";
+            type = "A";
+            value = "100.64.0.5";
+          }
+          {
+            name = "redis.nvstly.internal";
+            type = "A";
+            value = "100.64.0.5";
+          }
+          {
+            name = "beszel.nvstly.internal";
+            type = "A";
+            value = "100.64.0.5";
+          }
+        ]
+        ++ (
+          # dynamic records from service list
+          builtins.map
+            (
+              name:
+              let
+                s = xelib.services.${name};
+              in
+              {
+                name = s.domain;
+                type = "A";
+                value = xelib.hosts.${s.host}.ip;
+              }
+            )
+            (
+              builtins.filter (name: xelib.isLocalDomain (xelib.services.${name}.domain or "")) (
+                builtins.attrNames xelib.services
               )
-              (
-                builtins.filter (name: xelib.isLocalDomain (xelib.services.${name}.domain or "")) (
-                  builtins.attrNames xelib.services
-                )
-              )
-          );
-        };
+            )
+        );
       };
     };
-  }
-  (import ./headplane.nix inputs)
-  {
-    nginx.proxy.${svc.domain}.target = {
-      host = "127.0.0.1";
-      port = svc.port;
-    };
-  }
+  };
+
+  nginx.proxy.${svc.domain}.target = {
+    host = "127.0.0.1";
+    port = svc.port;
+  };
+
   # 404 page for base domain
-  {
-    services.nginx.virtualHosts."whenducksfly.com" = {
-      enableACME = true;
-      forceSSL = true;
-      locations."/" = {
-        return = "404 'NOT FOUND'";
-        extraConfig = ''
-          default_type text/plain;
-        '';
-      };
+  services.nginx.virtualHosts."whenducksfly.com" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."/" = {
+      return = "404 'NOT FOUND'";
+      extraConfig = ''
+        default_type text/plain;
+      '';
     };
-  }
-]
+  };
+}

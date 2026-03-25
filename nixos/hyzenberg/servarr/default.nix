@@ -11,42 +11,39 @@ let
       svc = xelib.services.${name};
       bindaddress = xelib.hosts.${svc.host}.ip;
     in
-    lib.mkMerge [
-      {
-        services.${name} = {
-          enable = true;
-          settings = {
-            app = {
-              instancename = xelib.toTitleCase name;
-              theme = "dark";
-            };
-            server = {
-              inherit bindaddress;
-              inherit (svc) port;
-              urlbase = "/";
-            };
+    {
+      services.${name} = {
+        enable = true;
+        settings = {
+          app = {
+            instancename = xelib.toTitleCase name;
+            theme = "dark";
+          };
+          server = {
+            inherit bindaddress;
+            inherit (svc) port;
+            urlbase = "/";
           };
         };
-        systemd.services.${name}.after = [ "tailscale-online.service" ];
-      }
-      {
-        systemd.services.${name}.serviceConfig.SupplementaryGroups = [
+      };
+      systemd.services.${name} = {
+        after = [ "tailscale-online.service" ];
+        serviceConfig.SupplementaryGroups = [
           "mediacenter"
           "nzbget"
         ];
-      }
-      {
-        # the servarr programs can talk to eachother
-        nginx.proxy.${svc.domain} = {
-          target.port = svc.port;
-          allowedServiceHosts = [
-            "prowlarr"
-            "radarr"
-            "sonarr"
-          ];
-        };
-      }
-    ];
+      };
+
+      # the servarr programs can talk to eachother
+      nginx.proxy.${svc.domain} = {
+        target.port = svc.port;
+        allowedServiceHosts = [
+          "prowlarr"
+          "radarr"
+          "sonarr"
+        ];
+      };
+    };
 in
 lib.mkMerge [
   {
