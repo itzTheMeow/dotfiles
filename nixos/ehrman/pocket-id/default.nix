@@ -2,24 +2,29 @@
   config,
   inputs,
   pkgs-unstable,
-  xelib,
   ...
 }:
 let
-  svc = xelib.services.pocket-id;
+  app = config.apps.pocket-id;
 in
 {
   # replace the module with the one from unstable
   disabledModules = [ "services/security/pocket-id.nix" ];
   imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/security/pocket-id.nix" ];
 
+  apps.pocket-id = {
+    domain = "auth.xela.codes";
+    port = 11171;
+    enableProxy = true;
+  };
+
   services.pocket-id = {
     enable = true;
     package = pkgs-unstable.pocket-id;
     settings = {
-      HOST = xelib.hosts.${svc.host}.ip;
-      PORT = svc.port;
-      APP_URL = "https://${svc.domain}";
+      HOST = app.ip;
+      PORT = app.port;
+      APP_URL = app.url;
       TRUST_PROXY = true;
     };
     credentials = {
@@ -41,6 +46,4 @@ in
     key = "op://Private/pwdsgmanpl46sqdbxfsa7ylzzq/credential";
     license = "op://Private/yo5ksl7xuwir3ab3idjpjccaty/ko4vnnqfnsekir7iss47wdawvq/pzru4hfyoodf34v7uys6cee3ra";
   };
-
-  nginx.proxy.${svc.domain}.target.port = svc.port;
 }

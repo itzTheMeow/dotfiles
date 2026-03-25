@@ -1,19 +1,21 @@
 {
+  config,
   pkgs,
-  xelib,
   ...
 }:
 let
-  address = xelib.hosts.hyzenberg.ip;
-  inherit (xelib.services.step-ca) port;
+  app = config.apps.step-ca;
 in
 {
+  apps.step-ca.port = 44433;
+
   # we want the cli to work too
   environment.systemPackages = [ pkgs.step-cli ];
 
   services.step-ca = {
     enable = true;
-    inherit address port;
+    address = app.ip;
+    inherit (app) port;
     # password must be put here from 1password
     intermediatePasswordFile = "/var/lib/step-ca/password.txt";
     settings = {
@@ -21,12 +23,12 @@ in
       federatedRoots = null;
       crt = "/var/lib/step-ca/certs/intermediate_ca.crt";
       key = "/var/lib/step-ca/secrets/intermediate_ca_key";
-      address = "${address}:${toString port}";
+      address = "${app.ip}:${app.portString}";
       insecureAddress = "";
       dnsNames = [
         "localhost"
-        "hyzenberg"
-        address
+        app.host
+        app.ip
       ];
       logger = {
         format = "text";
