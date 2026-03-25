@@ -147,7 +147,12 @@ in
     // builtins.mapAttrs (
       domain: opts:
       let
-        allowedHosts = lib.lists.unique (opts.allowedHosts ++ xelib.trustedHosts);
+        allowedHosts = lib.lists.unique (
+          opts.allowedHosts
+          # map the list of services to the hosts they run on
+          ++ (map (name: xelib.services.${name}.host) opts.allowedServiceHosts)
+          ++ xelib.trustedHosts
+        );
         locationExtraConfig = lib.optionalAttrs opts.local {
           extraConfig = ''
             # local domains dont have a body size limit

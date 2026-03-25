@@ -39,7 +39,7 @@ let
         # the servarr programs can talk to eachother
         nginx.proxy.${svc.domain} = {
           target.port = svc.port;
-          allowedHosts = xelib.mkServiceHosts [
+          allowedServiceHosts = [
             "prowlarr"
             "radarr"
             "sonarr"
