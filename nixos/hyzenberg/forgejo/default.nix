@@ -2,6 +2,7 @@
   config,
   hostname,
   lib,
+  pkgs,
   xelib,
   ...
 }:
@@ -41,15 +42,21 @@ in
       mirror.DEFAULT_INTERVAL = "1h"; # default mirror interval
 
       "repository.signing" = {
-        SIGNING_KEY = "${signingKeyPath}.pub";
         FORMAT = "ssh";
-        SIGNING_NAME = "xela.codes Instance";
+        SIGNING_KEY = "${signingKeyPath}.pub";
+        SIGNING_NAME = "Forgejo";
         SIGNING_EMAIL = "noreply@${app.domain}";
 
         INITIAL_COMMIT = "always";
         WIKI = "always";
         CRUD_ACTIONS = "always";
         MERGES = "approved, commitssigned";
+      };
+      "git.config" = {
+        "gpg.format" = "ssh";
+        "gpg.ssh.program" = "${pkgs.openssh}/bin/ssh-keygen";
+        "user.name" = "Forgejo";
+        "user.email" = "noreply@${app.domain}";
       };
 
       # configure oidc
