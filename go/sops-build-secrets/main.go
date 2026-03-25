@@ -275,9 +275,16 @@ func encryptSecrets(sourceLabel string, dotfiles string, config map[string]Secre
 			case "dotenv":
 				store = &sopsENV.Store{}
 			}
+
+			fullPath := path.Join(dotfiles, file.Path)
+			// encrypt the secrets
 			if result, err := store.EmitEncryptedFile(tree); err != nil {
 				panic(err)
-			} else if err := os.WriteFile(path.Join(dotfiles, file.Path), result, 0644); err != nil {
+				// mkdir
+			} else if err := os.MkdirAll(path.Dir(fullPath), 0644); err != nil {
+				panic(err)
+				// write the secrets
+			} else if err := os.WriteFile(fullPath, result, 0644); err != nil {
 				panic(err)
 			}
 			log("written to %s", file.Path)
