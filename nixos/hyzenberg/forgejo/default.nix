@@ -19,6 +19,7 @@ in
 
   services.forgejo = {
     enable = true;
+    package = pkgs.forgejo;
     database.type = "postgres";
     lfs.enable = true;
     # https://forgejo.org/docs/latest/admin/config-cheat-sheet/
@@ -32,7 +33,7 @@ in
         # use internal ssh server on public IP
         START_SSH_SERVER = true;
         SSH_LISTEN_HOST = xelib.dns.addr.${hostname};
-        SSH_SERVER_KEY_EXCHANGES = "sntrup761x25519-sha512@openssh.com,curve25519-sha256,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521";
+        SSH_SERVER_KEY_EXCHANGES = "mlkem768x25519-sha256,sntrup761x25519-sha512@openssh.com,curve25519-sha256,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521";
 
         LANDING_PAGE = "/xela.codes/"; # redirect unauthenticated users to my account
       };
