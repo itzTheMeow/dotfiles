@@ -7,6 +7,13 @@ let
   app = config.apps.linkwarden;
 
   OLLAMA_MODEL = "phi3:mini-4k";
+  # list of paths to be hosted publicly
+  publicPaths = [
+    "/_next"
+    "/api/v1/getFavicon"
+    "/api/v1/public"
+    "/public"
+  ];
 in
 {
   apps.linkwarden = {
@@ -37,6 +44,29 @@ in
     };
     environmentFile = config.sops.secrets.linkwarden.path;
   };
+
+  services.nginx.virtualHosts.${app.details.publicDomain} = {
+    enableACME = true;
+    forceSSL = true;
+    locations =
+      # convert paths to proxies
+      (builtins.listToAttrs (
+        map (path: {
+          name = path;
+          value = {
+            proxyPass = "http://${app.ip}:${app.portString}";
+            proxyWebsockets = true;
+          };
+        }) publicPaths
+      ))
+      // {
+        # redirect everything else to internal domain
+        "/" = {
+          return = "301 https://${app.domain}$request_uri";
+        };
+      };
+  };
+
   systemd.services.linkwarden.after = [ "tailscale-online.service" ];
 
   # load ollama model
