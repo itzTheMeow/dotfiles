@@ -10,6 +10,7 @@ let
   # list of paths to be hosted publicly
   publicPaths = [
     "/_next"
+    "/api/v1/formats"
     "/api/v1/getFavicon"
     "/api/v1/public"
     "/public"
