@@ -42,17 +42,11 @@ in
     sopsFile = config.sops.opSecrets.paperless.fullPath;
     key = "secret";
   };
-  sops.secrets.paperless-secretkey = {
-    sopsFile = config.sops.opSecrets.paperless.fullPath;
-    key = "secretKey";
-  };
   sops.opSecrets.paperless.keys = {
     id = "op://Private/bdrrieifx4gegwpuqcrbjbykq4/OAuth/Client ID";
     secret = "op://Private/bdrrieifx4gegwpuqcrbjbykq4/OAuth/Secret";
-    secretKey = "op://Private/bdrrieifx4gegwpuqcrbjbykq4/App Secret Key";
   };
   sops.templates."paperless.env".content = xelib.toENVString {
-    PAPERLESS_SECRET_KEY = config.sops.placeholder.paperless-secretkey;
     # escape quotes
     PAPERLESS_SOCIALACCOUNT_PROVIDERS = builtins.replaceStrings [ "\"" ] [ "\\\"" ] (
       builtins.toJSON {
