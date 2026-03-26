@@ -64,7 +64,6 @@ in
         "/".return = "301 https://${app.domain}$request_uri";
       };
   };
-
   systemd.services.linkwarden.after = [ "tailscale-online.service" ];
 
   # load ollama model

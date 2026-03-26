@@ -86,12 +86,15 @@ in
     };
   };
 
-  # permission to bind to 22
-  systemd.services.forgejo.serviceConfig = {
-    AmbientCapabilities = "CAP_NET_BIND_SERVICE";
-    CapabilityBoundingSet = lib.mkForce "CAP_NET_BIND_SERVICE";
-    PrivateDevices = lib.mkForce false;
-    PrivateUsers = lib.mkForce false;
+  systemd.services.forgejo = {
+    after = [ "tailscale-online.service" ];
+    # permission to bind to port22
+    serviceConfig = {
+      AmbientCapabilities = "CAP_NET_BIND_SERVICE";
+      CapabilityBoundingSet = lib.mkForce "CAP_NET_BIND_SERVICE";
+      PrivateDevices = lib.mkForce false;
+      PrivateUsers = lib.mkForce false;
+    };
   };
 
   # signing key

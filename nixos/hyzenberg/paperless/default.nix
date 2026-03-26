@@ -33,6 +33,7 @@ in
     };
     environmentFile = config.sops.templates."paperless.env".path;
   };
+  systemd.services.paperless-web.after = [ "tailscale-online.service" ];
 
   sops.secrets.paperless-clientid = {
     sopsFile = config.sops.opSecrets.paperless.fullPath;
