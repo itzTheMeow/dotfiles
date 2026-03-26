@@ -11,8 +11,8 @@ let
     pname = "pvz-fusion-source";
     version = "3.4.2";
     src = fetchurl {
-      url = "https://github.com/Teyliu/PVZF-Translation/releases/download/3.4.2_beta/PvZF.3.4.2.Multi-lang.Public.Beta.hotfix.2.By.Blooms.zip";
-      sha256 = "sha256-AkxZUewOQSvl9rkZztXpSjenil61NTXI1Qs9CRlJTSM=";
+      url = "https://github.com/Teyliu/PVZF-Translation/releases/download/3.4.2_beta/PvZF.3.4.2.Multi-lang.Public.Beta.hotfix.3.By.Blooms.zip";
+      sha256 = "sha256-mZgn1AIAR7zPVsdTKar4aftNp+PZHc6nMQMpX3+8fZU=";
     };
     nativeBuildInputs = [ _7zz ];
     dontUnpack = true;
