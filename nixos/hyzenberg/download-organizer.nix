@@ -9,7 +9,7 @@
       Description = "Download Organizer Service";
       After = [ "network-online.target" ];
     };
-    Service = {
+    serviceConfig = {
       Type = "oneshot";
       Path = [
         pkgs.rclone
