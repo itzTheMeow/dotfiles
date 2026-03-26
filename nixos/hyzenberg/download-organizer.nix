@@ -5,16 +5,17 @@
 }:
 {
   systemd.user.services.download-organizer = {
-    Unit = {
+    unitConfig = {
       Description = "Download Organizer Service";
-      After = [ "network-online.target" ];
     };
+    path = [
+      pkgs.fuse
+      pkgs.rclone
+      xelpkgs.download-organizer
+    ];
     serviceConfig = {
       Type = "oneshot";
-      Path = [
-        pkgs.rclone
-        xelpkgs.download-organizer
-      ];
+
       ExecStart = pkgs.writeShellScript "download-organizer-wrapper" ''
         set -e
 
@@ -33,32 +34,33 @@
         trap cleanup EXIT
 
         echo "Mounting rclone remote..."
-        rclone mount "pcloud:/Downloads" "$MOUNT_DIR" --daemon
-        if [ $? -ne 0 ]; then
-            echo "Failed to mount rclone remote."
-            exit 1
-        fi
+        rclone mount "pcloud:/Downloads" "$MOUNT_DIR" &
+        RCLONE_PID=$!
 
-        # wait for mount to become available
-        sleep 2
+        for i in {1..10}; do
+            if mountpoint -q "$MOUNT_DIR"; then
+                break
+            fi
+            sleep 1
+        done
 
         echo "Running script on mounted folder..."
         download-organizer "$MOUNT_DIR"
+
+        kill $RCLONE_PID
       '';
     };
   };
 
   systemd.user.timers.download-organizer = {
-    Unit = {
+    unitConfig = {
       Description = "Download Organizer Timer";
       Requires = [ "download-organizer.service" ];
     };
-    Timer = {
+    timerConfig = {
       OnCalendar = "*-*-* 04:00:00";
       Persistent = true;
     };
-    Install = {
-      WantedBy = [ "timers.target" ];
-    };
+    wantedBy = [ "timers.target" ];
   };
 }
