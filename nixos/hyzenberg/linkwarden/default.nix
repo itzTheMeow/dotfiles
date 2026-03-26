@@ -61,9 +61,7 @@ in
       ))
       // {
         # redirect everything else to internal domain
-        "/" = {
-          return = "301 https://${app.domain}$request_uri";
-        };
+        "/".return = "301 https://${app.domain}$request_uri";
       };
   };
 
