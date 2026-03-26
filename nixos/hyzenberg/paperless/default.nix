@@ -53,24 +53,27 @@ in
   };
   sops.templates."paperless.env".content = xelib.toENVString {
     PAPERLESS_SECRET_KEY = config.sops.placeholder.paperless-secretkey;
-    PAPERLESS_SOCIALACCOUNT_PROVIDERS = builtins.toJSON {
-      openid_connect = {
-        SCOPE = [
-          "openid"
-          "profile"
-          "email"
-        ];
-        OAUTH_PKCE_ENABLED = true;
-        APPS = [
-          {
-            provider_id = "pocket-id";
-            name = "Pocket ID";
-            client_id = config.sops.placeholder.paperless-clientid;
-            secret = config.sops.placeholder.paperless-clientsecret;
-            settings.server_url = xelib.apps.pocket-id.url;
-          }
-        ];
-      };
-    };
+    # escape quotes
+    PAPERLESS_SOCIALACCOUNT_PROVIDERS = builtins.replaceStrings [ "\"" ] [ "\\\"" ] (
+      builtins.toJSON {
+        openid_connect = {
+          SCOPE = [
+            "openid"
+            "profile"
+            "email"
+          ];
+          OAUTH_PKCE_ENABLED = true;
+          APPS = [
+            {
+              provider_id = "pocket-id";
+              name = "Pocket ID";
+              client_id = config.sops.placeholder.paperless-clientid;
+              secret = config.sops.placeholder.paperless-clientsecret;
+              settings.server_url = xelib.apps.pocket-id.url;
+            }
+          ];
+        };
+      }
+    );
   };
 }
