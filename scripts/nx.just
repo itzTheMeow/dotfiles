@@ -22,8 +22,8 @@ hostname := env('HOSTNAME')
     nix store optimise
 
 # update the flake lockfile
-@update:
-    nix flake update --flake .
+@update input:
+    nix flake update --flake . {{ input }}
 
 # open dotfiles repo in vscode
 @edit:
