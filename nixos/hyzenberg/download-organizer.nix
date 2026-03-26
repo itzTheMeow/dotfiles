@@ -9,7 +9,7 @@
       Description = "Download Organizer Service";
     };
     path = [
-      pkgs.fuse
+      pkgs.fuse3
       pkgs.rclone
       xelpkgs.download-organizer
     ];
@@ -38,12 +38,19 @@
         rclone mount "pcloud:/Downloads" "$MOUNT_DIR" &
         RCLONE_PID=$!
 
+        MOUNTED=false
         for i in {1..10}; do
             if mountpoint -q "$MOUNT_DIR"; then
+                MOUNTED=true
                 break
             fi
             sleep 1
         done
+
+        if [ "$MOUNTED" = false ]; then
+            echo "Error: Rclone failed to mount within 10 seconds."
+            exit 1
+        fi
 
         echo "Running script on mounted folder..."
         download-organizer "$MOUNT_DIR"
