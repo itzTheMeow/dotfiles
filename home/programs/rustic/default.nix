@@ -99,29 +99,36 @@ let
                 // (lib.optionalAttrs hasRclone { as-path = "/"; })
               )
             ];
-            hooks = {
-              run-before = lib.optionals hasRclone [
-                # ensure backup directory exists
-                "mkdir -p ${source}"
-                # unmount if needed
-                "mountpoint -q ${source} && (fusermount -u ${source} || umount -l ${source})"
-                # mount it
-                "rclone mount ${rclone.remote} ${source} ${
-                  lib.cli.toCommandLineShellGNU { } (
-                    {
-                      "daemon" = true;
-                      "read-only" = true;
-                    }
-                    // rclone.args
-                  )
-                }"
-              ];
-              run-finally =
-                (lib.optionals hasRclone [
-                  "fusermount -u ${source} || umount -l ${source}"
-                ])
-                ++ [ "${hookFinallyLogs} ${name}" ];
-            };
+            hooks =
+              let
+                umount = (
+                  pkgs.writeShellScript "rustic-rclone-unmount" ''
+                    if mountpoint -q "${source}"; then
+                      fusermount -u "${source}" || umount -l "${source}" || true
+                    fi
+                    exit 0
+                  ''
+                );
+              in
+              {
+                run-before = lib.optionals hasRclone [
+                  # ensure backup directory exists
+                  "mkdir -p ${source}"
+                  # unmount if needed
+                  umount
+                  # mount it
+                  (pkgs.writeShellScript "run-before-mount" "rclone mount ${rclone.remote} ${source} ${
+                    lib.cli.toCommandLineShellGNU { } (
+                      {
+                        "daemon" = true;
+                        "read-only" = true;
+                      }
+                      // rclone.args
+                    )
+                  }")
+                ];
+                run-finally = (lib.optionals hasRclone [ umount ]) ++ [ "${hookFinallyLogs} ${name}" ];
+              };
           };
         }
         // (lib.optionalAttrs hasRclone { set-xattrs = "no"; })
