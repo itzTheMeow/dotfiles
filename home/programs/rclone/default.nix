@@ -15,11 +15,13 @@ lib.mkIf (hostname != "huell") {
         host = xelib.hosts.ipad.ip;
         user = "mobile";
         key_use_agent = true;
-        key_file = config.sops.secrets."ssh_pub_ipad".path;
         known_hosts_file = "~/.ssh/known_hosts";
         shell_type = "unix";
         md5sum_command = "md5sum";
         sha1sum_command = "sha1sum";
+      }
+      // lib.optionalAttrs (config.sops.secrets ? "ssh_pub_ipad") {
+        key_file = config.sops.secrets."ssh_pub_ipad".path;
       };
       pcloud = {
         config = {
