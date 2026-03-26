@@ -15,6 +15,7 @@
     ];
     serviceConfig = {
       Type = "oneshot";
+      PrivateTmp = "no";
 
       ExecStart = pkgs.writeShellScript "download-organizer-wrapper" ''
         set -e
