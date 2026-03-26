@@ -17,16 +17,16 @@ in
   systemd.user.services.download-organizer = {
     unitConfig = {
       Description = "Download Organizer Service";
-      Requires = [ unit ];
+      BindsTo = [ unit ];
       After = [ unit ];
+      # stop the mount after completion
+      PropagatesStopTo = [ unit ];
     };
     serviceConfig = {
       Type = "oneshot";
       ExecStart = ''
         ${xelpkgs.download-organizer}/bin/download-organizer "${mountPoint}"
       '';
-      # stop the mount after completion
-      StopPropagatedFrom = [ unit ];
     };
   };
 
