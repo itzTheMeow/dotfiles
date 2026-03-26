@@ -1,12 +1,23 @@
 {
   host,
+  hostname,
   pkgs,
   xelib,
   xelpkgs,
   ...
 }@inputs:
 let
+  # hosts that should have less games
+  minimalGamesHosts = [ "flynn" ];
+  # specific games to include for "minimal" installs
+  minimalGames = [ "pvz-fusion" ];
+
   dir = builtins.readDir ./.;
+  gameDirs = builtins.filter (
+    name:
+    dir.${name} == "directory"
+    && (!(builtins.elem hostname minimalGamesHosts) || builtins.elem name minimalGames)
+  ) (builtins.attrNames dir);
 
   winebin = "${pkgs.wineWow64Packages.staging}/bin/wine";
   wineprefix = ".wine";
@@ -81,6 +92,7 @@ in
       fi
     '';
 
+    # manage pegasus-frontend
     programs.pegasus-frontend = {
       enable = true;
       package = xelpkgs.pegasus-frontend;
@@ -122,9 +134,7 @@ in
       collections."PC" = {
         shortname = "nix";
       };
-      games = map (name: import ./${name}/default.nix inputs) (
-        builtins.filter (name: dir.${name} == "directory") (builtins.attrNames dir)
-      );
+      games = map (name: import ./${name}/default.nix inputs) gameDirs;
     };
   };
 }
