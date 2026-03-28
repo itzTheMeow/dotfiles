@@ -142,6 +142,7 @@ in
       name = "Noto Sans";
       size = 10;
     };
+    gtk4.theme = config.gtk.theme;
 
     /*
       gtk3.extraConfig = {
