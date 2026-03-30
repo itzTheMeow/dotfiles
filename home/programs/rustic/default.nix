@@ -129,9 +129,9 @@ let
                 ];
                 run-finally = (lib.optionals hasRclone [ umount ]) ++ [ "${hookFinallyLogs} ${name}" ];
               };
-          };
+          }
+          // (lib.optionalAttrs hasRclone { set-xattrs = "no"; });
         }
-        // (lib.optionalAttrs hasRclone { set-xattrs = "no"; })
         // additionalConfig;
 
       home.shellAliases."rustic-${name}" =
