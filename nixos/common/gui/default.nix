@@ -5,6 +5,10 @@
     # desktop themeing
     xelib.globals.cursors.package
     papirus-icon-theme
+
+    # base gui apps
+    qalculate-qt
+    vlc
   ];
 
   services.xserver = {

@@ -75,7 +75,6 @@
     # system-level apps
     chromium
     libreoffice
-    vlc
   ];
 
   programs._1password.enable = true;
