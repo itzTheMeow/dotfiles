@@ -247,6 +247,22 @@ in
             };
           }
           {
+            name = "com.dschopf.plasma.qalculate";
+            config = {
+              Currency = {
+                updateExchangeRatesAtStartup = true;
+                updateExchangeRatesRegularly = true;
+              };
+              General = {
+                launcherEnabled = true;
+                launcherExecutable = "${pkgs.qalculate-qt}/bin/qalculate-qt";
+                #libVersion = 552;
+                liveEvaluation = true;
+                qalculateIcon = "gnome-calculator-symbolic";
+              };
+            };
+          }
+          {
             digitalClock.timeZone = {
               selected = [
                 "America/Los_Angeles"
@@ -296,11 +312,7 @@ in
     kwin = {
       nightLight = {
         enable = true;
-        mode = "location";
-        location = {
-          latitude = "40.39";
-          longitude = "-76.84";
-        };
+        mode = "automatic";
       };
       titlebarButtons = {
         left = [

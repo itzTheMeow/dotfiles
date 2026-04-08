@@ -1,5 +1,10 @@
 # kde specific settings
-{ pkgs, xelib, ... }:
+{
+  pkgs,
+  xelib,
+  xelpkgs,
+  ...
+}:
 {
   qt = {
     enable = true;
@@ -21,6 +26,9 @@
     kdePackages.krfb
     kdePackages.partitionmanager
     kdePackages.plasma-browser-integration
+
+    # applets
+    xelpkgs.plasma-applet-qalculate
 
     # desktop theme
     (catppuccin-kde.override {
