@@ -41,6 +41,12 @@ hostname := env('HOSTNAME')
 @container name:
     sudo nixos-container root-login {{ name }}
 
+# manually reload kde settings from nix
+@update-kde:
+    # https://github.com/nix-community/plasma-manager/issues/577#issuecomment-3971533980
+    rm /home/$USER/.local/share/plasma-manager/last_run_desktop_script_panels
+    sh /home/$USER/.local/share/plasma-manager/scripts/2_desktop_script_panels.sh
+
 # reload home-manager profile
 @hm:
     home-manager switch --flake .#{{ hostname }}
