@@ -15,7 +15,7 @@
   sops.opSecrets.immich.keys.key = "op://Private/lfuwax7zpv45oqen4zj7yu65tq/API Keys/CLI";
   sops.templates."immich-auth.yaml" = {
     content = xelib.toYAMLString {
-      url = "https://immich.xela.codes/api";
+      url = "https://${xelib.apps.immich.domain}/api";
       key = config.sops.placeholder.immich-cli;
     };
     path = "/home/${host.username}/.config/immich/auth.yml";
