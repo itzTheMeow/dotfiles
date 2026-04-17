@@ -106,6 +106,9 @@ in
   # clear /tmp on boot
   boot.tmp.cleanOnBoot = true;
 
+  # enable zram
+  zramSwap.enable = true;
+
   # networking settings
   networking = {
     hostName = hostname;
