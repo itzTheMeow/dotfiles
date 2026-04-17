@@ -1,5 +1,7 @@
 # System Files
 !.DS_Store
+!.local/share/baloo
+!.local/share/Trash
 !.Trash-*
 !/boot
 !/cdrom
