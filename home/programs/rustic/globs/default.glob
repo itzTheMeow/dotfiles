@@ -30,12 +30,13 @@
 !/root/pcloud
 !pCloudDrive
 
-# Node/NPM
+# Node/NPM/Bun
 !/home/*/.local/share/pnpm
 !/home/*/.npm
 !/root/.local/share/pnpm
 !/root/.npm
 !node_modules
+!/home/*/.bun/install/cache
 
 # Podman Mounts
 !/var/lib/containers/storage/volumes/*_mnt
