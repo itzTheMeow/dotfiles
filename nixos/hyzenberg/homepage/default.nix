@@ -55,13 +55,15 @@ in
         ];
       }
       {
-        Archival = [
+        Storage = [
+          (mkService "Forgejo" "forgejo" "Software Forge" "forge.xela.codes")
+          (mkService "Immich" "immich" "Photo Organizer" "immich.xela")
           (mkService "Linkwarden" "linkwarden" "Bookmark Manager" "linkwarden.xela")
           (mkService "Paperless" "paperless-ngx" "Document Store" "paperless.xela")
         ];
       }
       {
-        Other = [
+        Sysadmin = [
           (mkService "Beszel" "beszel" "System Monitoring" "beszel.xela")
           (mkService "Headplane" "headplane" "Headscale Admin" "headplane.xela")
           (mkService "Pocket ID" "pocket-id" "OIDC Provider" "auth.xela.codes")
