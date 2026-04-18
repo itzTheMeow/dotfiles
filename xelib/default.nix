@@ -24,6 +24,9 @@ rec {
     )
   );
 
+  # main domain used for almost everything
+  domain = "xela.codes";
+
   mail = {
     domain = "mail.xela.codes";
   };
