@@ -1,4 +1,4 @@
-{ config, xelib }:
+{ config, xelib, ... }:
 let
   app = config.apps.ntfy;
 in
