@@ -1,8 +1,8 @@
 # System Files
 !.DS_Store
-!.local/share/baloo
-!.local/share/Trash
 !.Trash-*
+!/**/.local/share/baloo
+!/**/.local/share/Trash
 !/boot
 !/cdrom
 !/dev
@@ -31,12 +31,10 @@
 !pCloudDrive
 
 # Node/NPM/Bun
-!/home/*/.local/share/pnpm
-!/home/*/.npm
-!/root/.local/share/pnpm
-!/root/.npm
+!/**/.bun/install/cache
+!/**/.local/share/pnpm
+!/**/.npm
 !node_modules
-!/home/*/.bun/install/cache
 
 # Podman Mounts
 !/var/lib/containers/storage/volumes/*_mnt
