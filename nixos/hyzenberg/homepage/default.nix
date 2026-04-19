@@ -47,6 +47,11 @@ in
 
     services = [
       {
+        Information = [
+          (mkService "ntfy" "ntfy" "Notifications" "ntfy.xela.codes")
+        ];
+      }
+      {
         Downloads = [
           (mkService "Sonarr" "sonarr" "TV Shows" "sonarr.xela")
           (mkService "Radarr" "radarr" "Movies" "radarr.xela")
