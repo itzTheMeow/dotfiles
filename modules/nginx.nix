@@ -224,10 +224,10 @@ in
       defaultOptions.policy = {
         useDefaultBotRules = false;
         settings = {
-          store = {
-            backend = "bbolt";
-            parameters.path = "/var/lib/anubis/data.bdb";
-          };
+          # store = {
+          #   backend = "bbolt";
+          #   parameters.path = "/var/lib/anubis/data.bdb";
+          # };
         };
         extraBots = [
           {
