@@ -141,8 +141,10 @@ in
       80
       443
     ];
-    # add nginx user to acme group so it can read challenge files
-    users.users.nginx.extraGroups = [ "acme" ];
+    users.users.nginx.extraGroups = [
+      "acme" # for challenge files
+      "anubis" # for anubis sockets
+    ];
 
     services.nginx.virtualHosts = {
       # default catch-all host for random requests
