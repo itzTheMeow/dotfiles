@@ -220,31 +220,37 @@ in
     ) cfg.proxy;
 
     # create anubis instances for domains
-    services.anubis.instances = builtins.mapAttrs (
-      domain: opts:
-      lib.mkIf (opts.anubis != null) (
-        lib.mkMerge [
+    services.anubis = {
+      defaultOptions.policy = {
+        useDefaultBotRules = false;
+        settings = {
+          store = {
+            backend = "bbolt";
+            parameters.path = "/var/lib/anubis/data.bdb";
+          };
+        };
+        extraBots = [
           {
-            enable = true;
-            settings = {
-              # forward passing requests to the original target
-              TARGET = opts.proxyPassTarget;
-            };
-            policy = {
-              useDefaultBotRules = false;
-              extraBots = [
-                {
-                  import = "(data)/common/allow-private-addresses.yaml";
-                }
-                {
-                  import = "(data)/meta/default-config.yaml";
-                }
-              ];
-            };
+            import = "(data)/common/allow-private-addresses.yaml";
           }
-          opts.anubis
-        ]
-      )
-    ) cfg.proxy;
+          {
+            import = "(data)/meta/default-config.yaml";
+          }
+        ];
+      };
+      instances = builtins.mapAttrs (
+        domain: opts:
+        lib.mkIf (opts.anubis != null) (
+          lib.mkMerge [
+            {
+              enable = true;
+              # forward passing requests to the original target
+              settings.TARGET = opts.proxyPassTarget;
+            }
+            opts.anubis
+          ]
+        )
+      ) cfg.proxy;
+    };
   };
 }
