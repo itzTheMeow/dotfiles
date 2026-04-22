@@ -117,18 +117,20 @@ in
     private = "op://Private/s6lqgzcbzjrvvhhetoycc3dv3q/private key?ssh-format=openssh";
   };
 
-  nginx.proxy.${app.domain}.anubis = { };
-  nginx.proxy.${app.domain}.extraConfig = cfg: {
-    # block users that arent logged in from making downloads
-    locations."~* \\.(patch|diff|bundle)$|/archive/" = {
-      proxyPass = config.nginx.proxy.${app.domain}.proxyPassTarget;
+  nginx.proxy.${app.domain} = {
+    anubis = { };
+    extraConfig = cfg: {
+      # block users that arent logged in from making downloads
+      locations."~* \\.(patch|diff|bundle)$|/archive/" = {
+        proxyPass = config.nginx.proxy.${app.domain}.proxyPassTarget;
 
-      extraConfig = (cfg.extraConfig or "") + ''
-        # deny if not logged in
-        if ($http_cookie !~* "i_like_gitea") {
-            return 403 "no.";
-        }
-      '';
+        extraConfig = (cfg.extraConfig or "") + ''
+          # deny if not logged in
+          if ($http_cookie !~* "i_like_gitea") {
+              return 403 "no.";
+          }
+        '';
+      };
     };
   };
 
