@@ -195,7 +195,7 @@ in
             proxyPass =
               # route through anubis first
               if opts.anubis != null then
-                "http://unix:${config.anubis.instances.${domain}.settings.BIND}"
+                "http://unix:${config.services.anubis.instances.${domain}.settings.BIND}"
               else
                 opts.proxyPassTarget;
             inherit (opts) proxyWebsockets;
