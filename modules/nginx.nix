@@ -20,7 +20,7 @@ in
     proxy = mkOption {
       type = types.attrsOf (
         types.submodule (
-          { name, ... }:
+          { name, config, ... }:
           {
             options = {
               target = mkOption {
@@ -69,9 +69,20 @@ in
                 default = _: { };
                 description = "Extra nginx configuration as a function taking locationExtraConfig";
               };
+
+              proxyPassTarget = mkOption {
+                type = types.str;
+                readOnly = true;
+                description = "Target for the NGINX proxy pass. Auto-derived from target.";
+              };
             };
             config = {
               local = lib.mkDefault (builtins.match ".+\\.(xela|internal)$" name != null);
+
+              # derive proxy pass target string
+              proxyPassTarget =
+                "${config.target.protocol}://${config.target.host}"
+                + (lib.optionalString (config.target.port != null) ":${toString config.target.port}");
             };
           }
         )
@@ -176,9 +187,7 @@ in
           useACMEHost = domain;
           locations."/" = {
             # build target url
-            proxyPass =
-              "${opts.target.protocol}://${opts.target.host}"
-              + (lib.optionalString (opts.target.port != null) ":${toString opts.target.port}");
+            proxyPass = opts.proxyPassTarget;
             inherit (opts) proxyWebsockets;
           }
           // locationExtraConfig;
