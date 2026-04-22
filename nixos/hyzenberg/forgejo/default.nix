@@ -117,6 +117,7 @@ in
     private = "op://Private/s6lqgzcbzjrvvhhetoycc3dv3q/private key?ssh-format=openssh";
   };
 
+  nginx.proxy.${app.domain}.anubis = { };
   nginx.proxy.${app.domain}.extraConfig = cfg: {
     # block users that arent logged in from making downloads
     locations."~* \\.(patch|diff|bundle)$|/archive/" = {

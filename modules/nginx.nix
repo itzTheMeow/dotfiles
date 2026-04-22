@@ -75,6 +75,12 @@ in
                 readOnly = true;
                 description = "Target for the NGINX proxy pass. Auto-derived from target.";
               };
+
+              anubis = mkOption {
+                type = types.nullOr types.attrs;
+                default = null;
+                description = "Enable anubis protection for this domain. Provided options will be merged into the anubis instance.";
+              };
             };
             config = {
               local = lib.mkDefault (builtins.match ".+\\.(xela|internal)$" name != null);
@@ -186,8 +192,12 @@ in
           forceSSL = true;
           useACMEHost = domain;
           locations."/" = {
-            # build target url
-            proxyPass = opts.proxyPassTarget;
+            proxyPass =
+              # route through anubis first
+              if opts.anubis != null then
+                "http://unix:/run/anubis-${domain}/anubis.sock"
+              else
+                opts.proxyPassTarget;
             inherit (opts) proxyWebsockets;
           }
           // locationExtraConfig;
@@ -205,6 +215,29 @@ in
       lib.mkIf opts.local {
         server = "https://${stepca.ip}:${stepca.portString}/acme/acme/directory";
       }
+    ) cfg.proxy;
+
+    # create anubis instances for domains
+    services.anubis.instances = builtins.mapAttrs (
+      domain: opts:
+      lib.mkIf (opts.anubis != null) (
+        lib.mkMerge [
+          {
+            enable = true;
+            settings = {
+              # bind instance to domain socket
+              BIND = "/run/anubis-${domain}/anubis.sock";
+              BIND_NETWORK = "unix";
+              # forward passing requests to the original target
+              TARGET = opts.proxyPassTarget;
+            };
+            policy = {
+              useDefaultBotRules = true;
+            };
+          }
+          opts.anubis
+        ]
+      )
     ) cfg.proxy;
   };
 }
