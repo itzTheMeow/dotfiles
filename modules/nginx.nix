@@ -231,13 +231,13 @@ in
               TARGET = opts.proxyPassTarget;
             };
             policy = {
-              useDefaultBotRules = true;
+              useDefaultBotRules = false;
               extraBots = [
-                # allow tailscale IPs to bypass challenges
                 {
-                  name = "tailscale-internal";
-                  action = "ALLOW";
-                  remote_addresses = [ "100.64.0.0/10" ];
+                  import = "(data)/common/allow-private-addresses.yaml";
+                }
+                {
+                  import = "(data)/meta/default-config.yaml";
                 }
               ];
             };
