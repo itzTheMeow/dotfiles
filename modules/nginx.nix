@@ -1,6 +1,7 @@
 {
   config,
   hostname,
+  inputs,
   lib,
   pkgs,
   xelib,
@@ -14,6 +15,10 @@ let
   defaultCertDir = "/var/lib/acme/default-cert";
 in
 {
+  #TODO:nixos-26.05 replace the module with the one from unstable
+  disabledModules = [ "services/networking/anubis.nix" ];
+  imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/networking/anubis.nix" ];
+
   options.nginx = {
     enable = lib.mkEnableOption "nginx with default configuration";
 
