@@ -8,7 +8,7 @@ let
   app = config.apps.pocket-id;
 in
 {
-  # replace the module with the one from unstable
+  #TODO:nixos-26.05 replace the module with the one from unstable
   disabledModules = [ "services/security/pocket-id.nix" ];
   imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/security/pocket-id.nix" ];
 
