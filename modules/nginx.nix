@@ -232,6 +232,14 @@ in
             };
             policy = {
               useDefaultBotRules = true;
+              extraBots = [
+                # allow tailscale IPs to bypass challenges
+                {
+                  name = "tailscale-internal";
+                  action = "ALLOW";
+                  remote_addresses = [ "100.64.0.0/10" ];
+                }
+              ];
             };
           }
           opts.anubis
