@@ -211,7 +211,7 @@ in
 
       # forward everything else to MAS
       "/" = {
-        proxyPass = "http://${app.ip}:${app.portString}";
+        proxyPass = "http://${app.ip}:${toString app.details.masPort}";
         priority = 3;
       };
     };
