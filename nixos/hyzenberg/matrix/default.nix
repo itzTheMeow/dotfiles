@@ -52,16 +52,20 @@ in
   systemd.services.matrix-synapse.after = [ "tailscale-online.service" ];
 
   services.postgresql = {
-    ensureDatabases = [ "matrix-synapse" ];
     ensureUsers = [
       {
         name = "matrix-synapse";
         ensureDBOwnership = true;
       }
     ];
+    # synapse is annoying
+    # https://nixos.org/manual/nixos/stable/index.html#module-services-matrix-synapse
     initialScript = pkgs.writeText "init-synapse-db.sql" ''
-      ALTER DATABASE "matrix-synapse" SET LC_COLLATE TO 'C';
-      ALTER DATABASE "matrix-synapse" SET LC_CTYPE TO 'C';
+      CREATE ROLE "matrix-synapse";
+      CREATE DATABASE "matrix-synapse" WITH OWNER "matrix-synapse"
+        TEMPLATE template0
+        LC_COLLATE = "C"
+        LC_CTYPE = "C";
     '';
   };
 
