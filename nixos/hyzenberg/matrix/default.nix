@@ -45,6 +45,16 @@ in
   };
   systemd.services.matrix-synapse.after = [ "tailscale-online.service" ];
 
+  services.postgresql = {
+    ensureDatabases = [ "matrix-synapse" ];
+    ensureUsers = [
+      {
+        name = "matrix-synapse";
+        ensureDBOwnership = true;
+      }
+    ];
+  };
+
   sops.secrets.matrix-synapse-oidc-client = {
     sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
     key = "client";
