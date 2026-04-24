@@ -73,7 +73,8 @@ in
       obs-studio
       simplescreenrecorder
 
-      # bs
+      # chat
+      element-desktop
       teams-for-linux
 
       ### the rest of these are in nixos programs
