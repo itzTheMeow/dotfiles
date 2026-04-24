@@ -156,6 +156,7 @@ in
           issuer = xelib.apps.pocket-id.url;
           client_id = config.sops.placeholder.matrix-synapse-oidc-client;
           client_secret = config.sops.placeholder.matrix-synapse-oidc-secret;
+          token_endpoint_auth_method = "client_secret_basic";
           scope = "openid profile email";
           claims_imports = {
             localpart.template = "{{ user.preferred_username }}";
