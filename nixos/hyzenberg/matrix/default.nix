@@ -147,6 +147,7 @@ in
   sops.secrets.matrix-synapse-mas-secret = {
     sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
     key = "masSecret";
+    owner = "matrix-synapse";
   };
   sops.secrets.matrix-synapse-mas-key = {
     sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
