@@ -186,7 +186,7 @@ in
         }
       ];
     };
-    owner = "matrix-synapse";
+    owner = "matrix-authentication-service";
   };
 
   services.nginx.virtualHosts.${app.domain} = {
