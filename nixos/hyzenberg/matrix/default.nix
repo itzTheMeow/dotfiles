@@ -195,7 +195,7 @@ in
 
     locations = {
       # forward OIDC and MAS-specific paths to MAS
-      "~ ^/(.well-known/openid-configuration|oidc|login|logout|refresh)" = {
+      "~ ^/(.well-known/openid-configuration|oidc|login|logout|refresh|complete-compat-sso)" = {
         proxyPass = "http://${app.ip}:${toString app.details.masPort}";
         priority = 1;
       };
