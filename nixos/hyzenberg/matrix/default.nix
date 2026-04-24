@@ -137,7 +137,7 @@ in
   };
 
   sops.opSecrets.matrix-synapse.keys = {
-    masRSA = "op://Private/fv7wiweonltxyxrmywhjkq5mgi/private key?ssh-format=openssh";
+    masRSA = "op://Private/6xrchf67gk2l53glqwdmjhkavu/emnvkabz6cxppmfpab5dhzy2o4";
     masSecret = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Secret";
     masKey = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Key";
     client = "op://Private/6xrchf67gk2l53glqwdmjhkavu/username";
