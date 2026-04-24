@@ -17,30 +17,31 @@ in
       max_upload_size = "1G";
       public_baseurl = app.url;
       server_name = xelib.domain;
+
+      listeners = [
+        {
+          port = app.port;
+          bind_addresses = [ app.ip ];
+          type = "http";
+          tls = false;
+          x_forwarded = true;
+          resources = [
+            {
+              names = [ "client" ];
+              compress = true;
+            }
+            {
+              names = [
+                "federation"
+                "openid"
+              ];
+              compress = false;
+            }
+          ];
+        }
+      ];
     };
     extraConfigFiles = [ config.sops.templates."matrix-synapse-oidc.yaml".path ];
-    listeners = [
-      {
-        port = app.port;
-        bind_addresses = [ app.ip ];
-        type = "http";
-        tls = false;
-        x_forwarded = true;
-        resources = [
-          {
-            names = [ "client" ];
-            compress = true;
-          }
-          {
-            names = [
-              "federation"
-              "openid"
-            ];
-            compress = false;
-          }
-        ];
-      }
-    ];
   };
   systemd.services.matrix-synapse.after = [ "tailscale-online.service" ];
 
