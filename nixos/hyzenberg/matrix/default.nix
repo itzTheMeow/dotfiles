@@ -194,25 +194,25 @@ in
     forceSSL = true;
 
     locations = {
-      # forward OIDC and MAS-specific paths to MAS
-      "~ ^/(.well-known/openid-configuration|oidc|login|logout|refresh|complete-compat-sso)" = {
-        proxyPass = "http://${app.ip}:${toString app.details.masPort}";
-        priority = 1;
-      };
-
       # forward specific Matrix 2.0 Auth endpoints to MAS
       "~ ^/_matrix/client/(.*)/(login|logout|refresh)" = {
         proxyPass = "http://${app.ip}:${toString app.details.masPort}";
         priority = 1;
       };
 
-      # forward everything else to Synapse
-      "/" = {
+      # synapse-specific stuff to it
+      "~ ^/(_matrix|_synapse)" = {
         proxyPass = "http://${app.ip}:${app.portString}";
+        priority = 2;
         extraConfig = ''
           client_max_body_size 1G;
         '';
-        priority = 2;
+      };
+
+      # forward everything else to MAS
+      "/" = {
+        proxyPass = "http://${app.ip}:${app.portString}";
+        priority = 3;
       };
     };
   };
