@@ -17,6 +17,7 @@ in
       max_upload_size = "1G";
       public_baseurl = app.url;
       server_name = xelib.domain;
+      password_config.enabled = false;
 
       listeners = [
         {
