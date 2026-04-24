@@ -11,9 +11,12 @@ in
   apps.matrix = {
     domain = "matrix.${xelib.domain}";
     port = 21397;
-    enableProxy = true;
+    details = {
+      masPort = 21399;
+    };
   };
 
+  # synapse
   services.matrix-synapse = {
     enable = true;
     extras = [ "oidc" ];
@@ -23,6 +26,12 @@ in
       public_baseurl = app.url;
       server_name = xelib.domain;
       password_config.enabled = false;
+      matrix_authentication_service = {
+        enabled = true;
+        issuer = app.url;
+        endpoint = "http://${app.ip}:${toString app.details.masPort}";
+        secret_file = config.sops.secrets.matrix-synapse-mas-secret.path;
+      };
 
       listeners = [
         {
@@ -47,10 +56,8 @@ in
         }
       ];
     };
-    extraConfigFiles = [ config.sops.templates."matrix-synapse-oidc.yaml".path ];
   };
   systemd.services.matrix-synapse.after = [ "tailscale-online.service" ];
-
   services.postgresql = {
     ensureUsers = [
       {
@@ -68,6 +75,29 @@ in
     '';
   };
 
+  # mas
+  services.matrix-authentication-service = {
+    enable = true;
+    createDatabase = true;
+
+    settings = {
+      http.public_base = app.url;
+
+      matrix = {
+        homeserver = xelib.domain;
+        endpoint = "http://${app.ip}:${app.portString}";
+      };
+
+      passwords.enabled = false;
+    };
+
+    extraConfigFiles = [ config.sops.templates."matrix-synapse-oidc.yaml".path ];
+  };
+
+  sops.secrets.matrix-synapse-mas-secret = {
+    sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
+    key = "mas";
+  };
   sops.secrets.matrix-synapse-oidc-client = {
     sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
     key = "client";
@@ -77,30 +107,51 @@ in
     key = "secret";
   };
   sops.opSecrets.matrix-synapse.keys = {
+    mas = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Key";
     client = "op://Private/6xrchf67gk2l53glqwdmjhkavu/username";
     secret = "op://Private/6xrchf67gk2l53glqwdmjhkavu/credential";
   };
   sops.templates."matrix-synapse-oidc.yaml" = {
     content = xelib.toYAMLString {
-      # https://element-hq.github.io/synapse/latest/openid.html#pocket-id
-      oidc_providers = [
+      upstream_oauth2.providers = [
         {
-          idp_id = "pocket_id";
-          idp_name = "Pocket ID";
           issuer = xelib.apps.pocket-id.url;
           client_id = config.sops.placeholder.matrix-synapse-oidc-client;
           client_secret = config.sops.placeholder.matrix-synapse-oidc-secret;
-          scopes = [
-            "openid"
-            "profile"
-          ];
-          user_mapping_provider.config = {
-            localpart_template = "{{ user.preferred_username }}";
-            display_name_template = "{{ user.name }}";
+          scope = "openid profile email";
+          claims_imports = {
+            localpart.template = "{{ user.preferred_username }}";
+            displayname.template = "{{ user.name }}";
           };
         }
       ];
     };
     owner = "matrix-synapse";
+  };
+
+  services.nginx.virtualHosts.${app.domain} = {
+    enableACME = true;
+    forceSSL = true;
+
+    locations = {
+      # forward OIDC and MAS-specific paths to MAS
+      "~ ^/(.well-known/openid-configuration|oidc|login|logout|refresh)" = {
+        proxyPass = "http://${app.ip}:${toString app.details.masPort}";
+      };
+
+      # forward specific Matrix 2.0 Auth endpoints to MAS
+      "~ ^/_matrix/client/(.*)/(login|logout|refresh)" = {
+        proxyPass = "http://${app.ip}:${toString app.details.masPort}";
+        priority = 1; # Ensure this is checked before the general Synapse rule
+      };
+
+      # forward everything else to Synapse
+      "~ ^/(/_matrix|/_synapse)" = {
+        proxyPass = "http://${app.ip}:${app.portString}";
+        extraConfig = ''
+          client_max_body_size 1G;
+        '';
+      };
+    };
   };
 }
