@@ -169,7 +169,7 @@ in
     content = xelib.toYAMLString {
       matrix.secret = config.sops.placeholder.matrix-synapse-mas-secret;
 
-      secrets.encryption = config.sops.placeholder.mas-encryption-key;
+      secrets.encryption = config.sops.placeholder.matrix-synapse-mas-key;
 
       upstream_oauth2.providers = [
         {
