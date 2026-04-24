@@ -152,6 +152,7 @@ in
 
       upstream_oauth2.providers = [
         {
+          id = "01KPZDCTG6RFS2E102SATDDAAQ";
           issuer = xelib.apps.pocket-id.url;
           client_id = config.sops.placeholder.matrix-synapse-oidc-client;
           client_secret = config.sops.placeholder.matrix-synapse-oidc-secret;
