@@ -55,7 +55,6 @@ in
     ensureUsers = [
       {
         name = "matrix-synapse";
-        ensureDBOwnership = true;
       }
     ];
     # synapse is annoying
