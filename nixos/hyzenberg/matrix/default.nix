@@ -81,7 +81,42 @@ in
     createDatabase = true;
 
     settings = {
-      http.public_base = app.url;
+      http = {
+        public_base = app.url;
+        listeners = [
+          {
+            name = "web";
+            resources = [
+              { name = "discovery"; }
+              { name = "human"; }
+              { name = "oauth"; }
+              { name = "compat"; }
+              { name = "graphql"; }
+              { name = "assets"; }
+            ];
+            binds = [
+              {
+                host = app.ip;
+                port = app.details.masPort;
+              }
+            ];
+            proxy_protocol = false;
+          }
+          {
+            name = "internal";
+            resources = [
+              { name = "health"; }
+            ];
+            binds = [
+              {
+                host = "127.0.0.1";
+                port = 12352;
+              }
+            ];
+            proxy_protocol = false;
+          }
+        ];
+      };
 
       matrix = {
         homeserver = xelib.domain;
