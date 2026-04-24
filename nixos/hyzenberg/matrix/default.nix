@@ -197,20 +197,22 @@ in
       # forward OIDC and MAS-specific paths to MAS
       "~ ^/(.well-known/openid-configuration|oidc|login|logout|refresh)" = {
         proxyPass = "http://${app.ip}:${toString app.details.masPort}";
+        priority = 1;
       };
 
       # forward specific Matrix 2.0 Auth endpoints to MAS
       "~ ^/_matrix/client/(.*)/(login|logout|refresh)" = {
         proxyPass = "http://${app.ip}:${toString app.details.masPort}";
-        priority = 1; # Ensure this is checked before the general Synapse rule
+        priority = 1;
       };
 
       # forward everything else to Synapse
-      "~ ^/(/_matrix|/_synapse)" = {
+      "/" = {
         proxyPass = "http://${app.ip}:${app.portString}";
         extraConfig = ''
           client_max_body_size 1G;
         '';
+        priority = 2;
       };
     };
   };
