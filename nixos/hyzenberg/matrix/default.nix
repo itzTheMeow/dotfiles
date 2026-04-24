@@ -30,7 +30,7 @@ in
         enabled = true;
         issuer = app.url;
         endpoint = "http://${app.ip}:${toString app.details.masPort}";
-        secret_file = config.sops.secrets.matrix-synapse-mas-secret.path;
+        secret_path = config.sops.secrets.matrix-synapse-mas-secret.path;
       };
 
       listeners = [
@@ -113,6 +113,8 @@ in
   };
   sops.templates."matrix-synapse-oidc.yaml" = {
     content = xelib.toYAMLString {
+      matrix.secret = config.sops.placeholder.matrix-synapse-mas-secret;
+
       upstream_oauth2.providers = [
         {
           issuer = xelib.apps.pocket-id.url;
