@@ -1,4 +1,9 @@
-{ config, xelib, ... }:
+{
+  config,
+  pkgs,
+  xelib,
+  ...
+}:
 let
   app = config.apps.matrix;
 in
@@ -54,6 +59,10 @@ in
         ensureDBOwnership = true;
       }
     ];
+    initialScript = pkgs.writeText "init-synapse-db.sql" ''
+      ALTER DATABASE "matrix-synapse" SET LC_COLLATE TO 'C';
+      ALTER DATABASE "matrix-synapse" SET LC_CTYPE TO 'C';
+    '';
   };
 
   sops.secrets.matrix-synapse-oidc-client = {
