@@ -118,6 +118,13 @@ in
         ];
       };
 
+      secrets.keys = [
+        {
+          kid = "primary-signing-key";
+          key_file = config.sops.secrets.matrix-synapse-mas-rsa.path;
+        }
+      ];
+
       matrix = {
         homeserver = xelib.domain;
         endpoint = "http://${app.ip}:${app.portString}";
@@ -129,9 +136,21 @@ in
     extraConfigFiles = [ config.sops.templates."matrix-synapse-oidc.yaml".path ];
   };
 
+  sops.opSecrets.matrix-synapse.keys = {
+    masRSA = "op://Private/fv7wiweonltxyxrmywhjkq5mgi/private key?ssh-format=openssh";
+    masSecret = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Secret";
+    masKey = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Key";
+    client = "op://Private/6xrchf67gk2l53glqwdmjhkavu/username";
+    secret = "op://Private/6xrchf67gk2l53glqwdmjhkavu/credential";
+  };
+
   sops.secrets.matrix-synapse-mas-secret = {
     sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
-    key = "mas";
+    key = "masSecret";
+  };
+  sops.secrets.matrix-synapse-mas-key = {
+    sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
+    key = "masKey";
   };
   sops.secrets.matrix-synapse-oidc-client = {
     sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
@@ -141,14 +160,16 @@ in
     sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
     key = "secret";
   };
-  sops.opSecrets.matrix-synapse.keys = {
-    mas = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Key";
-    client = "op://Private/6xrchf67gk2l53glqwdmjhkavu/username";
-    secret = "op://Private/6xrchf67gk2l53glqwdmjhkavu/credential";
+  sops.secrets.matrix-synapse-mas-rsa = {
+    sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
+    key = "masRSA";
+    owner = "matrix-authentication-service";
   };
   sops.templates."matrix-synapse-oidc.yaml" = {
     content = xelib.toYAMLString {
       matrix.secret = config.sops.placeholder.matrix-synapse-mas-secret;
+
+      secrets.encryption = config.sops.placeholder.mas-encryption-key;
 
       upstream_oauth2.providers = [
         {
