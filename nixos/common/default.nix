@@ -122,8 +122,9 @@ in
     git
     jq
     killport
-    wget
+    openssl
     wev
+    wget
 
     ## build tools
     check
