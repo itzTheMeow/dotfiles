@@ -18,7 +18,8 @@ in
 
   services.redis.servers.vencloud = {
     enable = true;
-    bind = "127.0.0.1";
+    # dont wanna do this but its the easiest way
+    bind = app.ip;
     port = app.details.redisPort;
     save = [
       [
@@ -42,7 +43,7 @@ in
       environment = {
         HOST = "0.0.0.0";
         PORT = "8080";
-        REDIS_URI = "127.0.0.1:${toString app.details.redisPort}";
+        REDIS_URI = "${app.ip}:${toString app.details.redisPort}";
         ROOT_REDIRECT = "https://github.com/Vencord/Vencloud";
         DISCORD_CLIENT_ID = "1387503793616191669";
         DISCORD_REDIRECT_URI = app.url + "/v1/oauth/callback";
