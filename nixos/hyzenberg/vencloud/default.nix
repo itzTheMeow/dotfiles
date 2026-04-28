@@ -31,6 +31,7 @@ in
         10
       ]
     ];
+    settings.protected-mode = "no";
   };
   networking.firewall.extraCommands = ''
     iptables -A INPUT -i docker0 -p tcp --dport ${toString app.details.redisPort} -j ACCEPT
