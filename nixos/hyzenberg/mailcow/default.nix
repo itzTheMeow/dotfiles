@@ -34,5 +34,11 @@ in
   security.acme.certs.${app.domain}.postRun = ''
     cp fullchain.pem /opt/mailcow-dockerized/data/assets/ssl/cert.pem
     cp key.pem /opt/mailcow-dockerized/data/assets/ssl/key.pem
+
+    # restart required services
+    # https://docs.mailcow.email/post_installation/firststeps-ssl/#how-to-use-your-own-certificate
+    docker restart $(docker ps -qaf name=postfix-mailcow)
+    docker restart $(docker ps -qaf name=nginx-mailcow)
+    docker restart $(docker ps -qaf name=dovecot-mailcow)
   '';
 }
