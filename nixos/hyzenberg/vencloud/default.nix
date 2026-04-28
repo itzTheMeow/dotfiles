@@ -5,6 +5,7 @@
 }:
 let
   app = config.apps.vencloud;
+  dockerIP = "172.17.0.1";
 in
 {
   apps.vencloud = {
@@ -18,8 +19,7 @@ in
 
   services.redis.servers.vencloud = {
     enable = true;
-    # dont wanna do this but its the easiest way
-    bind = app.ip;
+    bind = dockerIP;
     port = app.details.redisPort;
     save = [
       [
@@ -43,7 +43,7 @@ in
       environment = {
         HOST = "0.0.0.0";
         PORT = "8080";
-        REDIS_URI = "${app.ip}:${toString app.details.redisPort}";
+        REDIS_URI = "${dockerIP}:${toString app.details.redisPort}";
         ROOT_REDIRECT = "https://github.com/Vencord/Vencloud";
         DISCORD_CLIENT_ID = "1387503793616191669";
         DISCORD_REDIRECT_URI = app.url + "/v1/oauth/callback";
