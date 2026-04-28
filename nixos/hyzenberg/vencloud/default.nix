@@ -32,6 +32,9 @@ in
       ]
     ];
   };
+  networking.firewall.extraCommands = ''
+    iptables -A INPUT -i docker0 -p tcp --dport ${toString app.details.redisPort} -j ACCEPT
+  '';
 
   # we have to use docker for this until this is stable:
   # https://github.com/NixOS/nixpkgs/pull/374132
@@ -57,6 +60,7 @@ in
       ];
     };
   };
+  systemd.services.docker.after = [ "redis-vencloud.service" ];
 
   sops.secrets.vencloud = {
     format = "dotenv";
@@ -71,6 +75,4 @@ in
       PEPPER_SETTINGS = "op://Private/73o55de5oggdocdq7prt3jlu7u/Pepper Settings";
     };
   };
-
-  systemd.services.docker.after = [ "redis-vencloud.service" ];
 }
