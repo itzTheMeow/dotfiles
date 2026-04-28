@@ -49,6 +49,7 @@ in
       ip = "100.64.0.3";
       accent = "#f38ba8"; # Red
       features = [
+        "docker"
         "headless"
         "media-center"
         "nsd"
