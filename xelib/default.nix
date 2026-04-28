@@ -26,6 +26,7 @@ rec {
 
   # main domain used for almost everything
   domain = "xela.codes";
+  myDiscordID = "532045776122150913";
 
   mail = {
     domain = "mail.xela.codes";
