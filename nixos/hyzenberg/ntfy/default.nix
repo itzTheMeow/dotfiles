@@ -23,7 +23,7 @@ in
       web-push-email-address = "vapid.1@${xelib.domain}";
       web-push-file = "/var/lib/ntfy-sh/webpush.db";
     };
-    environmentFile = config.sops.secrets.beszel_agent.path;
+    environmentFile = config.sops.secrets.ntfy-env.path;
   };
   systemd.services.ntfy-sh.after = [ "tailscale-online.service" ];
 
