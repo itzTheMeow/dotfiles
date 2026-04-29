@@ -22,7 +22,6 @@ extensions_text=(
 	js
 	json
 	less
-	Makefile
 	mas # MARIE Assembly
 	md
 	py
@@ -51,7 +50,7 @@ for ext in "${extensions_text[@]}"; do
 			echo "  Warning: No lexer found for $relative_path, trying generic text..."
 			pygmentize -l text -f html -O full,style=colorful -o "$output_file" "$file" 2>/dev/null || echo "  Skipped: $relative_path"
 		fi
-	done < <(find . -type f -iname "*.$ext" -print0)
+	done < <(find . -type f \( -iname "*.$ext" -o -name "Makefile" \) -print0)
 	shopt -u nocaseglob
 done
 
