@@ -20,17 +20,20 @@ in
   systemd.user.services.download-organizer = {
     unitConfig = {
       Description = "Download Organizer Service";
+      BindsTo = [ unit ];
       After = [ unit ];
+      # stop the mount after completion
+      PropagatesStopTo = [ unit ];
     };
     serviceConfig = {
       Type = "oneshot";
       # start unit before running
-      ExecStartPre = "${pkgs.systemd}/bin/systemctl --user start ${unit}";
+      #ExecStartPre = "${pkgs.systemd}/bin/systemctl --user start ${unit}";
       ExecStart = ''
         ${xelpkgs.download-organizer}/bin/download-organizer "${mountPoint}"
       '';
       # stop the unit when finished
-      ExecStopPost = "${pkgs.systemd}/bin/systemctl --user stop ${unit}";
+      #ExecStopPost = "${pkgs.systemd}/bin/systemctl --user stop ${unit}";
     };
   };
 
