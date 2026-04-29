@@ -20,6 +20,7 @@ extensions_text=(
 	js
 	json
 	less
+	Makefile
 	mas # MARIE Assembly
 	md
 	py
