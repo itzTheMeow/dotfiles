@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, xelib, ... }:
 let
   app = config.apps.mailcow;
 in
@@ -41,4 +41,12 @@ in
     docker restart $(docker ps -qaf name=nginx-mailcow)
     docker restart $(docker ps -qaf name=dovecot-mailcow)
   '';
+
+  # add autoconfig/autodiscover to the ssl/proxy
+  nginx.proxy.${app.domain}.extraConfig = _: {
+    serverAliases = [
+      "autoconfig.${xelib.domain}"
+      "autodiscover.${xelib.domain}"
+    ];
+  };
 }

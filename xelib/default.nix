@@ -29,12 +29,12 @@ rec {
   myDiscordID = "532045776122150913";
 
   mail = {
-    domain = "mail.xela.codes";
+    domain = "mail.${domain}";
   };
 
   dns = rec {
-    _ns1 = "ns1.xela.codes";
-    _ns2 = "ns2.xela.codes";
+    _ns1 = "ns1.${domain}";
+    _ns2 = "ns2.${domain}";
     Master = "ehrman"; # main ns1
 
     # IPs
@@ -106,7 +106,7 @@ rec {
     SOA = {
       nameServer = fqdn _ns1;
       serial = self.lastModified; # auto-updating
-      adminEmail = "dns@xela.codes";
+      adminEmail = "dns@${domain}";
     };
     NS = [
       (fqdn _ns1)
