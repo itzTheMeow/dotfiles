@@ -1,4 +1,9 @@
-{ config, xelib, ... }:
+{
+  config,
+  pkgs,
+  xelib,
+  ...
+}:
 let
   app = config.apps.mailcow;
 in
@@ -37,9 +42,7 @@ in
 
     # restart required services
     # https://docs.mailcow.email/post_installation/firststeps-ssl/#how-to-use-your-own-certificate
-    docker restart $(docker ps -qaf name=postfix-mailcow)
-    docker restart $(docker ps -qaf name=nginx-mailcow)
-    docker restart $(docker ps -qaf name=dovecot-mailcow)
+    ${pkgs.docker}/bin/docker restart $(docker ps -qaf name=postfix-mailcow) $(docker ps -qaf name=nginx-mailcow) $(docker ps -qaf name=dovecot-mailcow)
   '';
 
   # add autoconfig/autodiscover to the ssl/proxy
