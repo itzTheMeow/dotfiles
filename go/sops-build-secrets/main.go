@@ -281,7 +281,7 @@ func encryptSecrets(sourceLabel string, dotfiles string, config map[string]Secre
 			if result, err := store.EmitEncryptedFile(tree); err != nil {
 				panic(err)
 				// mkdir
-			} else if err := os.MkdirAll(path.Dir(fullPath), 0644); err != nil {
+			} else if err := os.MkdirAll(path.Dir(fullPath), 0755); err != nil {
 				panic(err)
 				// write the secrets
 			} else if err := os.WriteFile(fullPath, result, 0644); err != nil {
