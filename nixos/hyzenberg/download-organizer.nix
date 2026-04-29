@@ -1,5 +1,6 @@
 {
   host,
+  pkgs,
   xelpkgs,
   ...
 }:
@@ -17,13 +18,13 @@ in
   systemd.user.services.download-organizer = {
     unitConfig = {
       Description = "Download Organizer Service";
-      BindsTo = [ unit ];
       After = [ unit ];
-      # stop the mount after completion
-      PropagatesStopTo = [ unit ];
+      Requires = [ unit ];
     };
     serviceConfig = {
       Type = "oneshot";
+      # stop the unit when finished
+      ExecStartPost = "${pkgs.systemd}/bin/systemctl --user stop ${unit}";
       ExecStart = ''
         ${xelpkgs.download-organizer}/bin/download-organizer "${mountPoint}"
       '';
