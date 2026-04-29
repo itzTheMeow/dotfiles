@@ -15,8 +15,8 @@ in
       autoMount = false;
       inherit mountPoint;
     };
-    systemd.user.services.${unit}.serviceConfig.SuccessExitStatus = "143";
   };
+  systemd.user.services.${unit}.serviceConfig.SuccessExitStatus = "143";
 
   systemd.user.services.download-organizer = {
     unitConfig = {
