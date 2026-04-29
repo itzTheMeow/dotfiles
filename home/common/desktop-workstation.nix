@@ -28,6 +28,7 @@
       tygo
 
       ## nix
+      mcp-nixos
       nixd
       nixfmt
 
