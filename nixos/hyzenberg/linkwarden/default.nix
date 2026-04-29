@@ -72,17 +72,9 @@ in
   # load ollama model
   services.ollama.loadModels = [ OLLAMA_MODEL ];
 
-  sops.secrets.linkwarden = {
-    format = "dotenv";
-    sopsFile = config.sops.opSecrets.linkwarden.fullPath;
-    key = "";
-  };
-  sops.opSecrets.linkwarden = {
-    format = "dotenv";
-    keys = {
-      NEXTAUTH_SECRET = "op://Private/o3vngusljucwxvzstyguvucfiu/NEXTAUTH";
-      KEYCLOAK_CLIENT_ID = "op://Private/o3vngusljucwxvzstyguvucfiu/xrj36alsgxvzq6kmtocoahg7qy/Client ID";
-      KEYCLOAK_CLIENT_SECRET = "op://Private/o3vngusljucwxvzstyguvucfiu/xrj36alsgxvzq6kmtocoahg7qy/Client Secret";
-    };
+  sops.envFiles.linkwarden = {
+    NEXTAUTH_SECRET = "op://Private/o3vngusljucwxvzstyguvucfiu/NEXTAUTH";
+    KEYCLOAK_CLIENT_ID = "op://Private/o3vngusljucwxvzstyguvucfiu/xrj36alsgxvzq6kmtocoahg7qy/Client ID";
+    KEYCLOAK_CLIENT_SECRET = "op://Private/o3vngusljucwxvzstyguvucfiu/xrj36alsgxvzq6kmtocoahg7qy/Client Secret";
   };
 }

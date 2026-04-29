@@ -64,17 +64,9 @@ in
   };
   systemd.services.docker.after = [ "redis-vencloud.service" ];
 
-  sops.secrets.vencloud = {
-    format = "dotenv";
-    sopsFile = config.sops.opSecrets.vencloud.fullPath;
-    key = "";
-  };
-  sops.opSecrets.vencloud = {
-    format = "dotenv";
-    keys = {
-      DISCORD_CLIENT_SECRET = "op://Private/73o55de5oggdocdq7prt3jlu7u/Discord Client Secret";
-      PEPPER_SECRETS = "op://Private/73o55de5oggdocdq7prt3jlu7u/Pepper Secrets";
-      PEPPER_SETTINGS = "op://Private/73o55de5oggdocdq7prt3jlu7u/Pepper Settings";
-    };
+  sops.envFiles.vencloud = {
+    DISCORD_CLIENT_SECRET = "op://Private/73o55de5oggdocdq7prt3jlu7u/Discord Client Secret";
+    PEPPER_SECRETS = "op://Private/73o55de5oggdocdq7prt3jlu7u/Pepper Secrets";
+    PEPPER_SETTINGS = "op://Private/73o55de5oggdocdq7prt3jlu7u/Pepper Settings";
   };
 }
