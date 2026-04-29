@@ -36,10 +36,7 @@ in
 
   # autoconfig
   nginx.proxy."autoconfig.${domain}" = {
-    target = {
-      host = xelib.mail.domain;
-      protocol = "https";
-    };
+    target.port = xelib.apps.mailcow.port;
     extraConfig = _: {
       serverAliases = [ "autodiscover.${domain}" ];
     };
