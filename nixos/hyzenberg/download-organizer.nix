@@ -19,15 +19,16 @@ in
     unitConfig = {
       Description = "Download Organizer Service";
       After = [ unit ];
-      Requires = [ unit ];
     };
     serviceConfig = {
       Type = "oneshot";
-      # stop the unit when finished
-      ExecStartPost = "${pkgs.systemd}/bin/systemctl --user stop ${unit}";
+      # start unit before running
+      ExecStartPre = "${pkgs.systemd}/bin/systemctl --user start ${unit}";
       ExecStart = ''
         ${xelpkgs.download-organizer}/bin/download-organizer "${mountPoint}"
       '';
+      # stop the unit when finished
+      ExecStopPost = "${pkgs.systemd}/bin/systemctl --user stop ${unit}";
     };
   };
 
