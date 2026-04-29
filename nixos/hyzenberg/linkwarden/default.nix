@@ -5,6 +5,7 @@
 }:
 let
   app = config.apps.linkwarden;
+  splitPublicDomain = xelib.dns.splitDomain app.details.publicDomain;
 
   OLLAMA_MODEL = "phi3:mini-4k";
   # list of paths to be hosted publicly
@@ -24,7 +25,7 @@ in
     port = 19283;
     enableProxy = true;
     details = {
-      publicDomain = "linkwarden.xela.codes";
+      publicDomain = "linkwarden.${xelib.domain}";
     };
   };
 
@@ -47,7 +48,9 @@ in
     };
     environmentFile = config.sops.secrets.linkwarden.path;
   };
+  systemd.services.linkwarden.after = [ "tailscale-online.service" ];
 
+  # public-facing domain for link shares
   services.nginx.virtualHosts.${app.details.publicDomain} = {
     enableACME = true;
     forceSSL = true;
@@ -67,7 +70,8 @@ in
         "/".return = "301 https://${app.domain}$request_uri";
       };
   };
-  systemd.services.linkwarden.after = [ "tailscale-online.service" ];
+  dnszones.list."${splitPublicDomain.domain}".subdomains."${splitPublicDomain.subdomain}" =
+    xelib.dns.pointHost app.host;
 
   # load ollama model
   services.ollama.loadModels = [ OLLAMA_MODEL ];

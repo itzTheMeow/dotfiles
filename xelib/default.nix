@@ -42,13 +42,26 @@ rec {
       ehrman = "152.53.53.232"; # NS1
       hyzenberg = "152.53.171.231"; # NS2
     };
+    addr6 = {
+      ehrman = "2a0a:4cc0:2000:21ab::1";
+      hyzenberg = "2a0a:4cc0:2000:a0bb::1";
+    };
 
     # util functions
     fqdn = d: "${d}.";
+    splitDomain =
+      toSplit: # split a domain into sub/domain
+      let
+        parts = lib.splitString "." toSplit;
+      in
+      {
+        domain = lib.concatStringsSep "." (lib.takeEnd 2 parts);
+        subdomain = lib.concatStringsSep "." (lib.dropEnd 2 parts);
+      };
     pointHost =
       hn: with inputs.dns.lib.combinators; {
         A = [ (a addr.${hn}) ];
-        #TODO: AAAA = [];
+        AAAA = [ (aaaa addr6.${hn}) ];
       };
 
     # shorthand for github pages apex DNS
@@ -70,7 +83,7 @@ rec {
     # utils for mailcow domains
     mailcow =
       {
-        dkimKey,
+        dkimKey ? "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzsxfjyNq5ZCtD+k/A3pFGw7mAqjuEZwMYXC4vKDLq8ZPK7qOSKgIHk7qdAHw3OY+6C23GzlbGgUNEmLbQziPFdLU3QXRFKFQCy3Aw9M+9aMfr2ON9rE1PmbL8ob7iKZp3kqurh1E0uK3PLiFeYIajE5uFZMoVx0ju92f7/GI3xq8dDVnxuJpnR5kUKiehi/lZ32iCFsL9WO4P8x0wrZGsBaTXiFvQMvCDcNvqNSuhLWb18BafOdSLYXFPy4XZgkFpft5rVQf1s/tv0INwPO2/ojm8bQjdinQqb4+x6iFGOHW5dAw7RmnD8QMphOf6sCWTf7s+YZYl9AA6RHI4gXgoQIDAQAB",
         spfAllowed ? [
           "a"
           "mx"

@@ -15,6 +15,7 @@ in
     domain = "forge.xela.codes";
     port = 28313;
     enableProxy = true;
+    enableDNS = true;
   };
 
   services.forgejo = {

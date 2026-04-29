@@ -2,6 +2,7 @@
   config,
   inputs,
   pkgs-unstable,
+  xelib,
   ...
 }:
 let
@@ -13,9 +14,10 @@ in
   imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/security/pocket-id.nix" ];
 
   apps.pocket-id = {
-    domain = "auth.xela.codes";
+    domain = "auth.${xelib.domain}";
     port = 11171;
     enableProxy = true;
+    enableDNS = true;
   };
 
   services.pocket-id = {
