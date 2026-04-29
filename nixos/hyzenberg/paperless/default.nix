@@ -22,6 +22,8 @@ in
 
     database.createLocally = true;
     configureTika = true;
+    consumptionDir = "/home/paperless_consume";
+    consumptionDirIsPublic = true;
 
     settings = {
       PAPERLESS_DISABLE_REGULAR_LOGIN = true;
