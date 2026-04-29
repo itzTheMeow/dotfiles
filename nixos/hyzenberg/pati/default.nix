@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 let
   pati = pkgs.callPackage ./package.nix { };
 in
@@ -10,11 +10,11 @@ in
 
     serviceConfig = {
       ExecStart = "${pati}/bin/pati";
-      DynamicUser = true;
       StateDirectory = "pati";
-      EnvironmentFile = "";
+      EnvironmentFile = config.sops.secrets.pati.path;
 
       # hardening
+      DynamicUser = true;
       ProtectSystem = "strict";
       CapabilityBoundingSet = "";
     };
@@ -26,5 +26,9 @@ in
       testServer = "946959817170378803";
       mainServer = "1379699654836617260";
     };
+  };
+
+  sops.envFiles.pati = {
+    TOKEN = "op://Private/4qjwtji7howkyesw6ppos7hgvu/credential";
   };
 }
