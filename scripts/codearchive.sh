@@ -12,9 +12,11 @@ mkdir -p .archive
 # process code files recursively
 extensions_text=(
 	bat
+	c
 	circ # Logisim Circuit
 	css
 	dbml # Database Markup Language
+	h    # C Header
 	html
 	java
 	js
@@ -26,6 +28,7 @@ extensions_text=(
 	py
 	sh
 	sql # SQLite Statements
+	ts
 	txt
 	yaml
 	yml
