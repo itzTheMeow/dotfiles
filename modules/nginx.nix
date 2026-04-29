@@ -69,6 +69,11 @@ in
                 default = _: { };
                 description = "Extra nginx configuration as a function taking locationExtraConfig";
               };
+              dontConfigureLocation = mkOption {
+                type = types.bool;
+                default = false;
+                description = "If set, skip configuring the default '/' location.";
+              };
 
               proxyPassTarget = mkOption {
                 type = types.str;
@@ -195,16 +200,17 @@ in
           # ACME needs enabled manually if the custom server isnt being used
           enableACME = !opts.local;
           useACMEHost = lib.mkIf opts.local domain;
-          locations."/" = {
-            proxyPass =
-              # route through anubis first
-              if opts.anubis != null then
-                "http://unix:${config.services.anubis.instances.${domain}.settings.BIND}"
-              else
-                opts.proxyPassTarget;
-            inherit (opts) proxyWebsockets;
-          }
-          // locationExtraConfig;
+          locations."/" = # only configure location if requested
+            lib.mkIf (!opts.dontConfigureLocation) {
+              proxyPass =
+                # route through anubis first
+                if opts.anubis != null then
+                  "http://unix:${config.services.anubis.instances.${domain}.settings.BIND}"
+                else
+                  opts.proxyPassTarget;
+              inherit (opts) proxyWebsockets;
+            }
+            // locationExtraConfig;
         }
         (opts.extraConfig locationExtraConfig)
       ]
