@@ -40,27 +40,25 @@ in
 
   # we have to use docker for this until this is stable:
   # https://github.com/NixOS/nixpkgs/pull/374132
-  virtualisation.oci-containers.containers = {
-    vencloud = {
-      image = "ghcr.io/vencord/vencloud";
-      autoStart = true;
-      ports = [ "${app.ip}:${app.portString}:8080" ];
-      environment = {
-        HOST = "0.0.0.0";
-        PORT = "8080";
-        REDIS_URI = "${dockerIP}:${toString app.details.redisPort}";
-        ROOT_REDIRECT = "https://github.com/Vencord/Vencloud";
-        DISCORD_CLIENT_ID = "1387503793616191669";
-        DISCORD_REDIRECT_URI = app.url + "/v1/oauth/callback";
-        ALLOWED_USERS = xelib.myDiscordID;
-        PROMETHEUS = "false";
-        PROXY_HEADER = "X-Forwarded-For";
-        SIZE_LIMIT = "32000000"; # 32MB
-      };
-      environmentFiles = [
-        config.sops.secrets.vencloud.path
-      ];
+  virtualisation.oci-containers.containers.vencloud = {
+    image = "ghcr.io/vencord/vencloud";
+    autoStart = true;
+    ports = [ "${app.ip}:${app.portString}:8080" ];
+    environment = {
+      HOST = "0.0.0.0";
+      PORT = "8080";
+      REDIS_URI = "${dockerIP}:${toString app.details.redisPort}";
+      ROOT_REDIRECT = "https://github.com/Vencord/Vencloud";
+      DISCORD_CLIENT_ID = "1387503793616191669";
+      DISCORD_REDIRECT_URI = app.url + "/v1/oauth/callback";
+      ALLOWED_USERS = xelib.myDiscordID;
+      PROMETHEUS = "false";
+      PROXY_HEADER = "X-Forwarded-For";
+      SIZE_LIMIT = "32000000"; # 32MB
     };
+    environmentFiles = [
+      config.sops.secrets.vencloud.path
+    ];
   };
   systemd.services.docker.after = [ "redis-vencloud.service" ];
 
