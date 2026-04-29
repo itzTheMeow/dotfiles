@@ -192,7 +192,8 @@ in
       lib.mkMerge [
         {
           forceSSL = true;
-          useACMEHost = domain;
+          enableACME = true;
+          useACMEHost = lib.mkIf opts.local domain;
           locations."/" = {
             proxyPass =
               # route through anubis first
