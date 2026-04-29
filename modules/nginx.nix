@@ -192,6 +192,7 @@ in
       lib.mkMerge [
         {
           forceSSL = true;
+          # ACME needs enabled manually if the custom server isnt being used
           enableACME = !opts.local;
           useACMEHost = lib.mkIf opts.local domain;
           locations."/" = {
