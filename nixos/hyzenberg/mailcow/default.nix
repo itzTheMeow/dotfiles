@@ -36,14 +36,26 @@ in
   ];
 
   # copy over new ssl certs when generated
-  security.acme.certs.${app.domain}.postRun = ''
-    cp fullchain.pem /opt/mailcow-dockerized/data/assets/ssl/cert.pem
-    cp key.pem /opt/mailcow-dockerized/data/assets/ssl/key.pem
+  security.acme.certs.${app.domain}.postRun =
+    let
+      docker = "${pkgs.docker}/bin/docker";
+    in
+    ''
+      cp fullchain.pem /opt/mailcow-dockerized/data/assets/ssl/cert.pem
+      cp key.pem /opt/mailcow-dockerized/data/assets/ssl/key.pem
 
-    # restart required services
-    # https://docs.mailcow.email/post_installation/firststeps-ssl/#how-to-use-your-own-certificate
-    ${pkgs.docker}/bin/docker restart $(docker ps -qaf name=postfix-mailcow) $(docker ps -qaf name=nginx-mailcow) $(docker ps -qaf name=dovecot-mailcow)
-  '';
+      # restart required services
+      # https://docs.mailcow.email/post_installation/firststeps-ssl/#how-to-use-your-own-certificate
+      ${docker} restart ${
+        pkgs.lib.concatStringsSep " " (
+          pkgs.lib.map (name: "$(${docker} ps -qaf name=${name})") [
+            "postfix-mailcow"
+            "nginx-mailcow"
+            "dovecot-mailcow"
+          ]
+        )
+      }
+    '';
 
   # add autoconfig/autodiscover to the ssl/proxy
   nginx.proxy.${app.domain}.extraConfig = _: {
