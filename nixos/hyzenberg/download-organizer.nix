@@ -9,13 +9,14 @@ let
   unit = "rclone-mount:.Downloads@pcloud.service";
 in
 {
-  home-manager.users.${host.username}.programs.rclone.remotes.pcloud.mounts."/Downloads" = {
-    enable = true;
-    autoMount = false;
-    inherit mountPoint;
+  home-manager.users.${host.username} = {
+    programs.rclone.remotes.pcloud.mounts."/Downloads" = {
+      enable = true;
+      autoMount = false;
+      inherit mountPoint;
+    };
+    systemd.user.services.${unit}.serviceConfig.SuccessExitStatus = "143";
   };
-  home-manager.users.${host.username}.systemd.user.services.${unit}.serviceConfig.SuccessExitStatus =
-    "143";
 
   systemd.user.services.download-organizer = {
     unitConfig = {
