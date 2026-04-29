@@ -192,7 +192,7 @@ in
       lib.mkMerge [
         {
           forceSSL = true;
-          enableACME = true;
+          enableACME = !opts.local;
           useACMEHost = lib.mkIf opts.local domain;
           locations."/" = {
             proxyPass =
