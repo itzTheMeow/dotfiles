@@ -14,10 +14,10 @@ in
     with xelib.dns;
     {
       ${domain} = lib.mkMerge [
-
         {
           useOrigin = true;
           inherit SOA NS TTL;
+          subdomains.www = pointHost hostname;
         }
         (pointHost hostname)
         (mailcow {
@@ -31,5 +31,17 @@ in
     enableACME = true;
     forceSSL = true;
     locations."/".return = "301 https://${xelib.mail.domain}$request_uri";
+    serverAliases = [ "www.${domain}" ];
+  };
+
+  # autoconfig
+  nginx.proxy."autoconfig.${domain}" = {
+    target = {
+      host = xelib.mail.domain;
+      protocol = "https";
+    };
+    extraConfig = _: {
+      serverAliases = [ "autodiscover.${domain}" ];
+    };
   };
 }
