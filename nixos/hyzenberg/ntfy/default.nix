@@ -23,19 +23,11 @@ in
       web-push-email-address = "vapid.1@${xelib.domain}";
       web-push-file = "/var/lib/ntfy-sh/webpush.db";
     };
-    environmentFile = config.sops.secrets.ntfy-env.path;
+    environmentFile = config.sops.secrets.ntfy-server.path;
   };
   systemd.services.ntfy-sh.after = [ "tailscale-online.service" ];
 
-  sops.secrets.ntfy-env = {
-    format = "dotenv";
-    sopsFile = config.sops.opSecrets.ntfy.fullPath;
-    key = "";
-  };
-  sops.opSecrets.ntfy = {
-    format = "dotenv";
-    keys = {
-      NTFY_WEB_PUSH_PRIVATE_KEY = "op://Private/6hzhuyrsumkvp5cw4fymth4mqa/Web Push Key";
-    };
+  sops.envFiles.ntfy-server = {
+    NTFY_WEB_PUSH_PRIVATE_KEY = "op://Private/6hzhuyrsumkvp5cw4fymth4mqa/Web Push Key";
   };
 }
