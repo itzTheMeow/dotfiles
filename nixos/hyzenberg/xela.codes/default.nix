@@ -28,6 +28,5 @@ in
         hyzen.A = [ (a legacyIP) ];
       };
     };
-
-  #dnszones.dnssecEnabled = [ domain ];
+  dnszones.dnssecEnabled = [ xelib.domain ];
 }
