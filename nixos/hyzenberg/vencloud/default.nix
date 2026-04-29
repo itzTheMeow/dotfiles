@@ -33,6 +33,7 @@ in
     ];
     settings.protected-mode = "no";
   };
+  # open redis in the firewall for docker
   networking.firewall.extraCommands = ''
     iptables -A INPUT -i docker0 -p tcp --dport ${toString app.details.redisPort} -j ACCEPT
   '';
