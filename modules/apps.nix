@@ -34,6 +34,11 @@ in
               default = false;
               description = "Automatically configure nginx proxy for the app";
             };
+            enableDNS = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Automatically configure the dns zone for the domain. Requires domain to be formatted correctly and under our control";
+            };
             # these are auto-derived for utility
             host = lib.mkOption {
               type = lib.types.str;
@@ -83,6 +88,19 @@ in
             host = opts.ip;
             port = opts.port;
           };
+        }
+      ) cfg
+    );
+    # set up dns
+    dnszones.list = lib.mkMerge (
+      lib.mapAttrsToList (
+        _: opts:
+        let
+          # just split out the domain/subdomain
+          split = xelib.dns.splitDomain opts.domain;
+        in
+        lib.mkIf opts.enableDNS {
+          "${split.domain}".subdomains."${split.subdomain}" = xelib.dns.pointHost opts.host;
         }
       ) cfg
     );

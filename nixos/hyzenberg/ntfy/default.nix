@@ -7,6 +7,7 @@ in
     domain = "ntfy.${xelib.domain}";
     port = 12393;
     enableProxy = true;
+    enableDNS = true;
   };
 
   services.ntfy-sh = {

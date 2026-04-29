@@ -8,9 +8,8 @@
   ...
 }:
 let
-  collectedZones = lib.foldl' (acc: host: acc // host.config.dnszones.list) { } (
-    lib.attrValues self.nixosConfigurations
-  );
+  isMaster = xelib.dns.Master == hostname;
+
   # merged list of zones with dnssec enabled
   dnssecZones = lib.flatten (
     map (host: host.config.dnszones.dnssecEnabled) (lib.attrValues self.nixosConfigurations)
@@ -31,7 +30,7 @@ in
     zones = lib.mapAttrs (
       name: zone:
       (
-        if xelib.dns.Master == hostname then
+        if isMaster then
           let
             childNodes = builtins.removeAttrs xelib.dns.addr [ xelib.dns.Master ];
             childNotifiers = map (ip: "${ip} nixos-master") (lib.attrValues childNodes);
@@ -53,12 +52,20 @@ in
             requestXFR = [ master ];
           }
       )
-    ) collectedZones;
+    ) config.dnszones.collectedZones;
   };
 
   # open ports
   networking.firewall.allowedTCPPorts = [ 53 ];
   networking.firewall.allowedUDPPorts = [ 53 ];
+
+  # set up nameservers
+  dnszones.list.${xelib.domain}.subdomains =
+    with xelib.dns;
+    lib.mkIf isMaster {
+      ns1 = pointHost "ehrman";
+      ns2 = pointHost "hyzenberg";
+    };
 
   # tsig key
   sops.secrets.nsd-nixos-master = {

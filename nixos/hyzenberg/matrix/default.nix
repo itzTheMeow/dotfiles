@@ -11,6 +11,7 @@ in
   apps.matrix = {
     domain = "matrix.${xelib.domain}";
     port = 21397;
+    enableDNS = true;
     details = {
       masPort = 21399;
     };
