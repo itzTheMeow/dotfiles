@@ -36,7 +36,6 @@ in
     environmentFiles = [
       config.sops.secrets.freshrss.path
     ];
-    extraOptions = [ "--log-opt=max-size=10m" ];
   };
 
   sops.envFiles.freshrss = {
