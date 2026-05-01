@@ -159,7 +159,7 @@
           );
         in
         nixpkgs.lib.nixosSystem {
-          inherit system;
+          inherit system pkgs;
 
           modules = [
             # sops
