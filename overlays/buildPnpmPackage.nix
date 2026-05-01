@@ -1,12 +1,12 @@
 # inspired from: https://github.com/LukeCarrier/dotfiles/blob/e1170d516f703a331f539e9b3d9d810c0705a74b/lib/node.nix
+final: pkgs:
 let
   buildPnpmPackage =
-    { pkgs, stdenv, ... }:
-    _: pkg:
+    pkg:
     let
       chosenPNPM = pkg.pnpm or pkgs.pnpm_10;
     in
-    stdenv.mkDerivation (
+    pkgs.stdenv.mkDerivation (
       {
         inherit (pkg)
           pname
@@ -48,6 +48,6 @@ let
       // (pkg.extraAttrs or { })
     );
 in
-final: prev: {
-  buildPnpmPackage = prev.callPackage buildPnpmPackage { };
+{
+  inherit buildPnpmPackage;
 }
