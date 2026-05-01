@@ -5,7 +5,7 @@ let
 in
 {
   virtualisation.oci-containers.containers.multi-scrobbler = {
-    image = "docker.io/foxxmd/multi-scrobbler:0.13.1";
+    image = "docker.io/foxxmd/multi-scrobbler:0.10.8";
     autoStart = true;
     ports = [ "${addr}:9078" ];
     volumes = [ "${dataDir}:/config" ];
