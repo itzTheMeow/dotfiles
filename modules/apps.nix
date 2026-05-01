@@ -37,7 +37,7 @@ in
             enableDNS = lib.mkOption {
               type = lib.types.bool;
               default = false;
-              description = "Automatically configure the dns zone for the domain. Requires domain to be formatted correctly and under our control";
+              description = "Automatically configure the dns zone for the domain. Requires domain to be formatted correctly and under our control. Subdomains only";
             };
             # these are auto-derived for utility
             host = lib.mkOption {
