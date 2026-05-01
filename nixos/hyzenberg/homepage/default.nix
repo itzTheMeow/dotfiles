@@ -6,14 +6,6 @@
 }:
 let
   app = config.apps.homepage;
-
-  mkService = name: icon: description: href: {
-    ${name} = {
-      icon = "${icon}.png";
-      inherit description href;
-      ping = href;
-    };
-  };
 in
 {
   apps.homepage = {
