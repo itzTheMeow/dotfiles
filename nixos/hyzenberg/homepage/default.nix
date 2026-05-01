@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  xelib,
   ...
 }:
 let
@@ -48,29 +49,30 @@ in
     services = [
       {
         Information = [
-          (mkService "ntfy" "ntfy" "Notifications" "ntfy.xela.codes")
+          (mkService "FreshRSS" "freshrss" "RSS Reader" xelib.apps.freshrss.url)
+          (mkService "ntfy" "ntfy" "Notifications" xelib.apps.ntfy.url)
         ];
       }
       {
         Downloads = [
-          (mkService "Sonarr" "sonarr" "TV Shows" "sonarr.xela")
-          (mkService "Radarr" "radarr" "Movies" "radarr.xela")
-          (mkService "Prowlarr" "prowlarr" "Indexer Manager" "prowlarr.xela")
-          (mkService "NZBGet" "nzbget" "Download Client" "nzbget.xela")
+          (mkService "Sonarr" "sonarr" "TV Shows" xelib.apps.sonarr.url)
+          (mkService "Radarr" "radarr" "Movies" xelib.apps.radarr.url)
+          (mkService "Prowlarr" "prowlarr" "Indexer Manager" xelib.apps.prowlarr.url)
+          (mkService "NZBGet" "nzbget" "Download Client" xelib.apps.nzbget.url)
         ];
       }
       {
         Storage = [
-          (mkService "Forgejo" "forgejo" "Software Forge" "forge.xela.codes")
-          (mkService "Immich" "immich" "Photo Organizer" "immich.xela")
-          (mkService "Linkwarden" "linkwarden" "Bookmark Manager" "linkwarden.xela")
+          (mkService "Forgejo" "forgejo" "Software Forge" xelib.apps.forgejo.url)
+          (mkService "Immich" "immich" "Photo Organizer" xelib.apps.immich.url)
+          (mkService "Linkwarden" "linkwarden" "Bookmark Manager" xelib.apps.linkwarden.url)
           (mkService "Paperless" "paperless-ngx" "Document Store" "paperless.xela")
         ];
       }
       {
         Sysadmin = [
-          (mkService "Beszel" "beszel" "System Monitoring" "beszel.xela")
-          (mkService "Headplane" "headplane" "Headscale Admin" "headplane.xela")
+          (mkService "Beszel" "beszel" "System Monitoring" xelib.apps.beszel.url)
+          (mkService "Headplane" "headplane" "Headscale Admin" xelib.apps.headplane.url)
           (mkService "Pocket ID" "pocket-id" "OIDC Provider" "auth.xela.codes")
         ];
       }
