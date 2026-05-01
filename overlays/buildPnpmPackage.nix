@@ -1,6 +1,5 @@
 # inspired from: https://github.com/LukeCarrier/dotfiles/blob/e1170d516f703a331f539e9b3d9d810c0705a74b/lib/node.nix
-final: pkgs:
-let
+final: pkgs: {
   buildPnpmPackage =
     pkg:
     let
@@ -47,7 +46,4 @@ let
       }
       // (pkg.extraAttrs or { })
     );
-in
-{
-  inherit buildPnpmPackage;
 }
