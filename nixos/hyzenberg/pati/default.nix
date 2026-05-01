@@ -6,6 +6,7 @@ in
   systemd.services.pati = {
     description = "Pati Node.js Service";
     after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
 
     serviceConfig = {
