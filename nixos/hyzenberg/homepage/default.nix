@@ -7,12 +7,11 @@
 let
   app = config.apps.homepage;
 
-  mkService = name: icon: description: domain: {
+  mkService = name: icon: description: href: {
     ${name} = {
       icon = "${icon}.png";
-      href = "https://${domain}";
-      inherit description;
-      ping = domain;
+      inherit description href;
+      ping = href;
     };
   };
 in
@@ -66,14 +65,14 @@ in
           (mkService "Forgejo" "forgejo" "Software Forge" xelib.apps.forgejo.url)
           (mkService "Immich" "immich" "Photo Organizer" xelib.apps.immich.url)
           (mkService "Linkwarden" "linkwarden" "Bookmark Manager" xelib.apps.linkwarden.url)
-          (mkService "Paperless" "paperless-ngx" "Document Store" "paperless.xela")
+          (mkService "Paperless" "paperless-ngx" "Document Store" xelib.apps.paperless.url)
         ];
       }
       {
         Sysadmin = [
           (mkService "Beszel" "beszel" "System Monitoring" xelib.apps.beszel.url)
           (mkService "Headplane" "headplane" "Headscale Admin" xelib.apps.headplane.url)
-          (mkService "Pocket ID" "pocket-id" "OIDC Provider" "auth.xela.codes")
+          (mkService "Pocket ID" "pocket-id" "OIDC Provider" xelib.apps.pocket-id.url)
         ];
       }
     ];
