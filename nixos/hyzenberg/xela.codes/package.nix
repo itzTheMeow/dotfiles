@@ -1,9 +1,10 @@
 {
+  buildPnpmPackage,
   fetchFromGitea,
   makeWrapper,
   pkgs,
 }:
-pkgs.buildPnpmPackage {
+buildPnpmPackage {
   pname = "xela-website";
   version = "0.0.0";
 
