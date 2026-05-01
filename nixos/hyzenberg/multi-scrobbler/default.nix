@@ -13,6 +13,7 @@ in
       TZ = config.time.timeZone;
       BASE_URL = "http://${addr}";
       TAUTULLI_USER = "brayden.indigo";
+      LASTFM_REDIRECT_URI = "https://xela.codes/lastfm/callback";
     };
     environmentFiles = [
       config.sops.secrets.multi-scrobbler.path
