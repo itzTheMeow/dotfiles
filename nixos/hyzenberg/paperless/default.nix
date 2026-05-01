@@ -13,7 +13,7 @@ in
     port = 13003;
     enableProxy = true;
 
-    description = "Document Organizer";
+    description = "Document Store";
     icon = "paperless-ngx";
   };
 
