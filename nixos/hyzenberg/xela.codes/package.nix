@@ -19,10 +19,7 @@ buildPnpmPackage {
   pnpmDepsHash = "sha256-NycW2NS5MJ8geLUUHaKwlXM/WEjwRxOPRsCVF7+vJ7o=";
   pnpmBuildScript = "build";
 
-  nativeBuildInputs = [
-    makeWrapper
-    pkgs.pnpm
-  ];
+  nativeBuildInputs = [ makeWrapper ];
 
   extraAttrs = {
     postInstall = ''
