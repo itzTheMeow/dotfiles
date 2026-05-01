@@ -157,7 +157,7 @@
           );
         in
         nixpkgs.lib.nixosSystem {
-          inherit system pkgs;
+          inherit system;
 
           modules = [
             # custom overlays
