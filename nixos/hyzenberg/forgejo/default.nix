@@ -122,7 +122,7 @@ in
     anubis = { };
     extraConfig = cfg: {
       # block users that arent logged in from making downloads
-      locations."~* \\.(patch|diff|bundle)$|/archive/" = {
+      locations."~* \\.(patch|diff|bundle)$" = {
         proxyPass = config.nginx.proxy.${app.domain}.proxyPassTarget;
 
         extraConfig = (cfg.extraConfig or "") + ''
