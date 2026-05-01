@@ -125,15 +125,15 @@
         let
           # pete has to use unstable for bigscreen
           nixpkgs = if hostname == "pete" then nixpkgs-unstable else inputs.nixpkgs;
+          nixpkgs_args = {
+            inherit system;
+            config.allowUnfree = true;
+            # import all overlays from the directory
+            overlays = map (file: import ./overlays/${file}) (builtins.attrNames (builtins.readDir ./overlays));
+          };
 
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-          pkgs-unstable = import nixpkgs-unstable {
-            inherit system;
-            config.allowUnfree = true;
-          };
+          pkgs = import nixpkgs nixpkgs_args;
+          pkgs-unstable = import nixpkgs-unstable nixpkgs_args;
           xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
 
           extras = {
