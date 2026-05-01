@@ -45,37 +45,54 @@ in
       };
     };
 
-    services = [
-      {
-        Information = [
-          (mkService "FreshRSS" "freshrss" "RSS Reader" xelib.apps.freshrss.url)
-          (mkService "ntfy" "ntfy" "Notifications" xelib.apps.ntfy.url)
-        ];
-      }
-      {
-        Downloads = [
-          (mkService "Sonarr" "sonarr" "TV Shows" xelib.apps.sonarr.url)
-          (mkService "Radarr" "radarr" "Movies" xelib.apps.radarr.url)
-          (mkService "Prowlarr" "prowlarr" "Indexer Manager" xelib.apps.prowlarr.url)
-          (mkService "NZBGet" "nzbget" "Download Client" xelib.apps.nzbget.url)
-        ];
-      }
-      {
-        Storage = [
-          (mkService "Forgejo" "forgejo" "Software Forge" xelib.apps.forgejo.url)
-          (mkService "Immich" "immich" "Photo Organizer" xelib.apps.immich.url)
-          (mkService "Linkwarden" "linkwarden" "Bookmark Manager" xelib.apps.linkwarden.url)
-          (mkService "Paperless" "paperless-ngx" "Document Store" xelib.apps.paperless.url)
-        ];
-      }
-      {
-        Sysadmin = [
-          (mkService "Beszel" "beszel" "System Monitoring" xelib.apps.beszel.url)
-          (mkService "Headplane" "headplane" "Headscale Admin" xelib.apps.headplane.url)
-          (mkService "Pocket ID" "pocket-id" "OIDC Provider" xelib.apps.pocket-id.url)
-        ];
-      }
-    ];
+    services =
+      let
+        # quickly create a service based off an app name
+        srv =
+          appName:
+          let
+            a = xelib.apps.${appName};
+          in
+          {
+            ${a.name} = {
+              icon = "${a.icon}.png";
+              inherit (a) description;
+              href = a.url;
+              ping = a.url;
+            };
+          };
+      in
+      [
+        {
+          Information = [
+            (srv "freshrss")
+            (mkService "ntfy" "ntfy" "Notifications" xelib.apps.ntfy.url)
+          ];
+        }
+        {
+          Downloads = [
+            (mkService "Sonarr" "sonarr" "TV Shows" xelib.apps.sonarr.url)
+            (mkService "Radarr" "radarr" "Movies" xelib.apps.radarr.url)
+            (mkService "Prowlarr" "prowlarr" "Indexer Manager" xelib.apps.prowlarr.url)
+            (mkService "NZBGet" "nzbget" "Download Client" xelib.apps.nzbget.url)
+          ];
+        }
+        {
+          Storage = [
+            (mkService "Forgejo" "forgejo" "Software Forge" xelib.apps.forgejo.url)
+            (mkService "Immich" "immich" "Photo Organizer" xelib.apps.immich.url)
+            (mkService "Linkwarden" "linkwarden" "Bookmark Manager" xelib.apps.linkwarden.url)
+            (mkService "Paperless" "paperless-ngx" "Document Store" xelib.apps.paperless.url)
+          ];
+        }
+        {
+          Sysadmin = [
+            (mkService "Beszel" "beszel" "System Monitoring" xelib.apps.beszel.url)
+            (mkService "Headplane" "headplane" "Headscale Admin" xelib.apps.headplane.url)
+            (mkService "Pocket ID" "pocket-id" "OIDC Provider" xelib.apps.pocket-id.url)
+          ];
+        }
+      ];
 
     widgets = [
       {
