@@ -27,7 +27,7 @@ buildPnpmPackage {
   extraAttrs = {
     postInstall = ''
       mkdir -p $out/bin
-      makeWrapper ${pkgs.node}/bin/node $out/bin/xela-website \
+      makeWrapper ${pkgs.nodejs}/bin/node $out/bin/xela-website \
         --chdir "$out" \
         --add-flags "."
     '';
