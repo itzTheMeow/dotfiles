@@ -128,8 +128,6 @@
           nixpkgs_args = {
             inherit system;
             config.allowUnfree = true;
-            # import all overlays from the directory
-            overlays = map (file: import ./overlays/${file}) (builtins.attrNames (builtins.readDir ./overlays));
           };
 
           pkgs = import nixpkgs nixpkgs_args;
@@ -162,6 +160,13 @@
           inherit system pkgs;
 
           modules = [
+            # custom overlays
+            {
+              nixpkgs.overlays = map (file: import ./overlays/${file}) (
+                builtins.attrNames (builtins.readDir ./overlays)
+              );
+            }
+
             # sops
             sops-nix.nixosModules.sops
             (import ./xelib/opsecrets.nix).nixosModule
