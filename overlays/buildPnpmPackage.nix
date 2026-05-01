@@ -33,9 +33,13 @@ final: prev: {
 
         dontNpmPrune = true;
 
-        postBuild = ''
-          pnpm run ${pkg.pnpmBuildScript or "build"}
-        '';
+        postBuild =
+          if pkg ? "pnpmBuildScript" then
+            ''
+              pnpm run ${pkg.pnpmBuildScript}
+            ''
+          else
+            "";
 
         installPhase = ''
           runHook preInstall
