@@ -12,6 +12,9 @@ in
     domain = "paperless.xela";
     port = 13003;
     enableProxy = true;
+
+    description = "Document Organizer";
+    icon = "paperless-ngx";
   };
 
   services.paperless = {

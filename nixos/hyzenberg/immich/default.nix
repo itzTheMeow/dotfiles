@@ -14,6 +14,8 @@ in
     details = {
       publicDomain = "immich.xela.codes";
     };
+
+    description = "Photo Organizer";
   };
 
   services.immich = {

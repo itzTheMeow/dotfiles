@@ -8,6 +8,9 @@ in
     port = 12393;
     enableProxy = true;
     enableDNS = true;
+
+    name = "ntfy";
+    description = "Notifications";
   };
 
   services.ntfy-sh = {

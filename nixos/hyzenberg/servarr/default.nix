@@ -7,7 +7,7 @@
 }:
 let
   mkServarr =
-    name: port:
+    name: port: description:
     let
       app = config.apps.${name};
     in
@@ -16,6 +16,8 @@ let
         domain = "${name}.xela";
         inherit port;
         enableProxy = true;
+
+        inherit description;
       };
 
       services.${name} = {
@@ -65,7 +67,7 @@ lib.mkMerge [
       "d /mnt/servarr_backups 0755 ${host.username} users -"
     ];
   }
-  (mkServarr "prowlarr" 49696)
-  (mkServarr "sonarr" 48989)
-  (mkServarr "radarr" 47878)
+  (mkServarr "prowlarr" 49696 "Indexer Manager")
+  (mkServarr "sonarr" 48989 "TV Shows")
+  (mkServarr "radarr" 47878 "Movies")
 ]
