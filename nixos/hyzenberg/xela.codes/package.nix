@@ -27,9 +27,9 @@ buildPnpmPackage {
   extraAttrs = {
     postInstall = ''
       mkdir -p $out/bin
-      makeWrapper ${pkgs.pnpm}/bin/pnpm $out/bin/xela-website \
+      makeWrapper ${pkgs.node}/bin/node $out/bin/xela-website \
         --chdir "$out" \
-        --add-flags "start"
+        --add-flags "."
     '';
   };
 }
