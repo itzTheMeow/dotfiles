@@ -1,11 +1,11 @@
 # inspired from: https://github.com/LukeCarrier/dotfiles/blob/e1170d516f703a331f539e9b3d9d810c0705a74b/lib/node.nix
-final: pkgs: {
+final: prev: {
   buildPnpmPackage =
     pkg:
     let
-      chosenPNPM = pkg.pnpm or pkgs.pnpm_10;
+      chosenPNPM = pkg.pnpm or final.pnpm_10;
     in
-    pkgs.stdenv.mkDerivation (
+    final.stdenv.mkDerivation (
       {
         inherit (pkg)
           pname
@@ -14,7 +14,7 @@ final: pkgs: {
           ;
 
         nativeBuildInputs =
-          (with pkgs; [
+          (with final; [
             nodejs
             npmHooks.npmInstallHook
             chosenPNPM
@@ -23,7 +23,7 @@ final: pkgs: {
           ])
           ++ (pkg.nativeBuildInputs or [ ]);
 
-        pnpmDeps = pkgs.fetchPnpmDeps {
+        pnpmDeps = final.fetchPnpmDeps {
           inherit (pkg) pname version src;
           pnpm = chosenPNPM;
           # https://nixos.org/manual/nixpkgs/stable/#javascript-pnpm-fetcherVersion
