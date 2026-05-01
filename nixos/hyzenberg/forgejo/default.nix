@@ -16,6 +16,8 @@ in
     port = 28313;
     enableProxy = true;
     enableDNS = true;
+
+    description = "Software Forge";
   };
 
   services.forgejo = {

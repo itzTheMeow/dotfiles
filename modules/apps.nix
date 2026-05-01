@@ -33,8 +33,8 @@ in
             # options for homepage
             name = lib.mkOption {
               type = lib.types.str;
-              default = name;
-              description = "Friendly name for the app displayed on the homepage";
+              default = xelib.toTitleCase name;
+              description = "Friendly name for the app displayed on the homepage. Defaults to title case of attr name";
             };
             description = lib.mkOption {
               type = lib.types.str;

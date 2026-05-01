@@ -14,6 +14,8 @@ in
     domain = "headplane.xela";
     port = 18889;
     enableProxy = true;
+
+    description = "Headscale Admin";
   };
 
   services.headplane = {

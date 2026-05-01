@@ -13,6 +13,8 @@ in
     domain = "beszel.xela";
     port = 48976;
     enableProxy = true;
+
+    description = "System Monitoring";
   };
 
   services.beszel.hub = {

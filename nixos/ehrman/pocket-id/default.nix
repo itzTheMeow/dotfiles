@@ -18,6 +18,9 @@ in
     port = 11171;
     enableProxy = true;
     enableDNS = true;
+
+    name = "Pocket ID";
+    description = "OIDC Provider";
   };
 
   services.pocket-id = {

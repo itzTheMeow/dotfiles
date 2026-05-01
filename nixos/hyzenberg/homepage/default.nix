@@ -66,30 +66,30 @@ in
         {
           Information = [
             (srv "freshrss")
-            (mkService "ntfy" "ntfy" "Notifications" xelib.apps.ntfy.url)
+            (srv "ntfy")
           ];
         }
         {
           Downloads = [
-            (mkService "Sonarr" "sonarr" "TV Shows" xelib.apps.sonarr.url)
-            (mkService "Radarr" "radarr" "Movies" xelib.apps.radarr.url)
-            (mkService "Prowlarr" "prowlarr" "Indexer Manager" xelib.apps.prowlarr.url)
-            (mkService "NZBGet" "nzbget" "Download Client" xelib.apps.nzbget.url)
+            (srv "sonarr")
+            (srv "radarr")
+            (srv "prowlarr")
+            (srv "nzbget")
           ];
         }
         {
           Storage = [
-            (mkService "Forgejo" "forgejo" "Software Forge" xelib.apps.forgejo.url)
-            (mkService "Immich" "immich" "Photo Organizer" xelib.apps.immich.url)
-            (mkService "Linkwarden" "linkwarden" "Bookmark Manager" xelib.apps.linkwarden.url)
-            (mkService "Paperless" "paperless-ngx" "Document Store" xelib.apps.paperless.url)
+            (srv "forgejo")
+            (srv "immich")
+            (srv "linkwarden")
+            (srv "paperless")
           ];
         }
         {
           Sysadmin = [
-            (mkService "Beszel" "beszel" "System Monitoring" xelib.apps.beszel.url)
-            (mkService "Headplane" "headplane" "Headscale Admin" xelib.apps.headplane.url)
-            (mkService "Pocket ID" "pocket-id" "OIDC Provider" xelib.apps.pocket-id.url)
+            (srv "beszel")
+            (srv "headplane")
+            (srv "pocket-id")
           ];
         }
       ];

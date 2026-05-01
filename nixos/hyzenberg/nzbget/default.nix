@@ -10,6 +10,9 @@ in
     domain = "nzbget.xela";
     port = 58815;
     enableProxy = true;
+
+    name = "NZBGet";
+    description = "Download Client";
   };
 
   # shared download directory

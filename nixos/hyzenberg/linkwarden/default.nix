@@ -27,6 +27,8 @@ in
     details = {
       publicDomain = "linkwarden.${xelib.domain}";
     };
+
+    description = "Bookmark Manager";
   };
 
   services.linkwarden = {
