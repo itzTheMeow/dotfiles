@@ -12,6 +12,9 @@ in
     domain = "freshrss.xela";
     port = 39803;
     enableProxy = true;
+
+    name = "FreshRSS";
+    description = "RSS Reader";
   };
 
   # we have to use docker here because the nixos module doesnt support OIDC

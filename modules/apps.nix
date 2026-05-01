@@ -12,7 +12,7 @@ in
   options.apps = lib.mkOption {
     type = lib.types.attrsOf (
       lib.types.submodule (
-        { config, ... }:
+        { config, name, ... }:
         {
           options = {
             port = lib.mkOption {
@@ -27,8 +27,26 @@ in
             details = lib.mkOption {
               type = lib.types.attrs;
               default = { };
-              description = "Any extra details that might be needed";
+              description = "Any extra details that might be needed. Used for extra ports and such";
             };
+
+            # options for homepage
+            name = lib.mkOption {
+              type = lib.types.str;
+              default = name;
+              description = "Friendly name for the app displayed on the homepage";
+            };
+            description = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = "A short description of the service for the homepage";
+            };
+            icon = lib.mkOption {
+              type = lib.types.str;
+              default = name;
+              description = "Name of the homepage icon to use. Defaults to app attr name";
+            };
+
             enableProxy = lib.mkOption {
               type = lib.types.bool;
               default = false;
