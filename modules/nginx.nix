@@ -99,7 +99,32 @@ in
         )
       );
       default = { };
-      description = "Nginx proxy configuration for domains";
+      description = "NGINX proxy configuration for domains";
+    };
+    redirects = mkOption {
+      type = types.attrsOf (
+        types.submodule (_: {
+          options = {
+            dest = mkOption {
+              type = types.str;
+              description = "Full URL to redirect to.";
+            };
+            code = mkOption {
+              type = types.int;
+              default = 301;
+              description = "HTTP status code to use for the redirect.";
+            };
+            extraConfig = mkOption {
+              type = types.attrs;
+              default = { };
+              description = "Extra nginx configuration merged into the virtualHost.";
+            };
+          };
+          config = { };
+        })
+      );
+      default = { };
+      description = "Redirects for specific domains";
     };
   };
 
@@ -214,7 +239,19 @@ in
         }
         (opts.extraConfig locationExtraConfig)
       ]
-    ) cfg.proxy;
+    ) cfg.proxy
+    # create redirect hosts
+    // builtins.mapAttrs (
+      domain: opts:
+      lib.mkMerge [
+        {
+          enableACME = true;
+          forceSSL = true;
+          locations."/".return = "${toString opts.code} ${opts.dest}";
+        }
+        opts.extraConfig
+      ]
+    ) cfg.redirects;
 
     # create local cert for each local domain
     security.acme.certs = builtins.mapAttrs (
