@@ -72,6 +72,7 @@ in
         }
         {
           Downloads = [
+            (srv "ytmusic")
             (srv "sonarr")
             (srv "radarr")
             (srv "prowlarr")
