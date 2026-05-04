@@ -62,7 +62,7 @@ let
                 --accept-routes=false \
                 --advertise-exit-node \
                 --hostname="mullvad-${cfg.name}" \
-                --login-server=https://pond.whenducksfly.com \
+                --login-server=${xelib.apps.headscale.url} \
                 --authkey="$1"
 
               echo "Tailscale exit node configured successfully!"
