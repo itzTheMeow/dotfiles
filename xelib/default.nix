@@ -132,12 +132,12 @@ rec {
     {
       name = "ashburn";
       address = "10.250.0.10";
-      socksPort = 61234;
+      port = 61234;
     }
     {
       name = "atlanta";
       address = "10.250.0.11";
-      socksPort = 58654;
+      port = 58654;
     }
   ];
 
