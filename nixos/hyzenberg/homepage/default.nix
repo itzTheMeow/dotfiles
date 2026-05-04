@@ -62,6 +62,11 @@ in
           ];
         }
         {
+          Media = [
+            (srv "plex")
+          ];
+        }
+        {
           Downloads = [
             (srv "sonarr")
             (srv "radarr")
