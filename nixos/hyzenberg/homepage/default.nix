@@ -64,6 +64,10 @@ in
         {
           Media = [
             (srv "plex")
+            (srv "forgejo")
+            (srv "immich")
+            (srv "linkwarden")
+            (srv "paperless")
           ];
         }
         {
@@ -75,16 +79,9 @@ in
           ];
         }
         {
-          Storage = [
-            (srv "forgejo")
-            (srv "immich")
-            (srv "linkwarden")
-            (srv "paperless")
-          ];
-        }
-        {
           Sysadmin = [
             (srv "beszel")
+            (srv "tautulli")
             (srv "headplane")
             (srv "pocket-id")
           ];
