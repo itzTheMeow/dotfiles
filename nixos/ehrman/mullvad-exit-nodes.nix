@@ -61,7 +61,7 @@ let
                 --accept-dns=false \
                 --accept-routes=false \
                 --advertise-exit-node \
-                --hostname="mullvad-${name}" \
+                --hostname="mullvad-${cfg.name}" \
                 --login-server=https://pond.whenducksfly.com \
                 --authkey="$1"
 
