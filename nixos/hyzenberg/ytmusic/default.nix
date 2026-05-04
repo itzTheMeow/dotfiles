@@ -27,6 +27,7 @@ in
     serviceConfig = {
       ExecStart = "${ytmusic}/bin/ytmusic";
       StateDirectory = "ytmusic";
+      SupplementaryGroups = [ "mediacenter" ];
 
       # hardening
       DynamicUser = true;
