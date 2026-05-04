@@ -23,7 +23,10 @@ in
 
   # fsr plex doesnt let you change the bind address/port...
   services.plex.enable = true;
-  systemd.services.plex.after = [ "tailscale-online.service" ];
+  systemd.services.plex = {
+    after = [ "tailscale-online.service" ];
+    serviceConfig.SupplementaryGroups = [ "mediacenter" ];
+  };
 
   # set up public domain too
   nginx.proxy.${app.details.publicDomain}.target = {
