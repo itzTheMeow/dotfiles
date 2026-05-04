@@ -25,7 +25,18 @@ in
   services.plex.enable = true;
   systemd.services.plex = {
     after = [ "tailscale-online.service" ];
-    serviceConfig.SupplementaryGroups = [ "mediacenter" ];
+    serviceConfig = {
+      SupplementaryGroups = [ "mediacenter" ];
+
+      # allow access to home
+      ProtectHome = "read-only";
+      # bind paths that should be accessible
+      BindReadOnlyPaths = [
+        "/home/meow"
+        "/mnt/tv"
+        "/mnt/movies"
+      ];
+    };
   };
 
   # set up public domain too
