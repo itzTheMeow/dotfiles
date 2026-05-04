@@ -1,0 +1,56 @@
+{
+  buildGoModule,
+  buildPnpmPackage,
+  fetchFromGitea,
+}:
+let
+  src = fetchFromGitea {
+    domain = "forge.xela.codes";
+    owner = "xela-archive";
+    repo = "YTMusic";
+    rev = "dd4f63bfdae03575c84abfdbfe01e611e51f76f8";
+    hash = "sha256-pMIEMYV621lfX7lFw5H0W3Ya+EA5X/aScEgg/cfTwck=";
+  };
+
+  client = buildPnpmPackage {
+    pname = "ytmusic";
+    version = "0.0.0";
+    inherit src;
+
+    pnpmDepsHash = "sha256-CR2ccqqiQq7d++9yiZnv026nzaVV/RGxP+E5lEeaPtY=";
+    pnpmBuildScript = "start";
+
+    # we only want the dist folder
+    extraAttrs.postInstall = ''
+      find "$out" -mindepth 1 -maxdepth 1 ! -name dist -exec rm -rf {} +
+      mv dist/* .
+      rmdir dist
+    '';
+  };
+in
+buildGoModule {
+  name = "ytmusic";
+  version = "0.0.0";
+  inherit src;
+  vendorHash = "sha256-RCSmCLjvXv7Lgjo8FyaoqRj2QcxO71IEAb0zV9L2t9Q=";
+  sourceRoot = "source/server";
+
+  # force ts to disable workspaces
+  GOWORK = "off";
+  overrideModAttrs = (
+    _: {
+      GOWORK = "off";
+    }
+  );
+
+  # we have to copy client dist to be embedded in the final binary
+  preBuild = ''
+    echo "Injecting frontend assets..."
+    cp -r ${client} ./dist
+    #chmod -R +w ./dist
+  '';
+
+  postInstall = ''
+    mv $out/bin/YTMusic $out/bin/ytmusic
+  '';
+}
