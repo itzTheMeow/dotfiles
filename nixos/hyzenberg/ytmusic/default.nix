@@ -15,7 +15,7 @@ in
   };
 
   systemd.services.ytmusic = {
-    description = "xela.codes website service";
+    description = "YTMusic service";
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
