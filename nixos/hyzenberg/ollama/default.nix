@@ -11,4 +11,5 @@ in
     inherit (app) port;
     syncModels = true;
   };
+  systemd.services.ollama.after = [ "tailscale-online.service" ];
 }
