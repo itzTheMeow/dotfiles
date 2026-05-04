@@ -29,6 +29,9 @@ in
         "*".A = [ (a legacyIP) ];
         www = pointHost hostname;
 
+        # legacy:svolte
+        svolte = pointHost hostname;
+
         # legacy apt server
         apt.CNAME = [ (cname (fqdn "itzthemeow.github.io")) ];
 
@@ -65,7 +68,7 @@ in
   # redirect `www.` to root
   nginx.redirects."www.${xelib.domain}".dest = app.url + "$request_uri";
 
-  # redirect `svolte` to the archive
+  # legacy:svolte
   nginx.redirects."svolte.${xelib.domain}".dest =
     xelib.apps.forgejo.url + "/xela-archive/revolt-svolte#svolte";
 }
