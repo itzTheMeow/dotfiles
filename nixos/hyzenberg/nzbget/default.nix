@@ -40,8 +40,8 @@ in
       DirectUnpack = "yes";
     };
   };
-
   systemd.services.nzbget.after = [ "tailscale-online.service" ];
+
   # radar and sonarr need access to nzbget
   nginx.proxy.${app.domain}.allowedAppHosts = [
     "radarr"
