@@ -128,6 +128,19 @@ rec {
     TTL = 60 * 60; # 1hr
   };
 
+  exitNodes = [
+    {
+      name = "ashburn";
+      address = "10.250.0.10";
+      socksPort = 61234;
+    }
+    {
+      name = "atlanta";
+      address = "10.250.0.11";
+      socksPort = 58654;
+    }
+  ];
+
   # optionally import a module if it exists
   optionalImport = path: if builtins.pathExists path then [ path ] else [ ];
   # convert string to title case
