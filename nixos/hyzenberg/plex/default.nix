@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   xelib,
   ...
 }:
@@ -29,7 +30,7 @@ in
       SupplementaryGroups = [ "mediacenter" ];
 
       # allow access to home
-      ProtectHome = "read-only";
+      ProtectHome = lib.mkForce "read-only";
       # bind paths that should be accessible
       BindReadOnlyPaths = [
         "/home/meow"
