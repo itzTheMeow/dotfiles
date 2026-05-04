@@ -225,7 +225,7 @@
           runtimeInputs = with pkgs; [
             nixfmt
             go
-            nodePackages.prettier
+            prettier
           ];
           text = ''
             echo "Formatting Nix..."
