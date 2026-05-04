@@ -107,7 +107,7 @@ in
     // xelib.mkRemoteView "NVSTly SSD" "fish://th@pi.nvst.ng:22/home/th/mnt/ssd"
     // xelib.mkRemoteView "odroid" "fish://odroid@odroid.nvst.ng:2222/"
     // xelib.mkRemoteView "Rustic Mount" "webdav://localhost:18898/"
-    // xelib.mkRemoteView "WebDAV" "webdavs://files.xela.codes:443/webdav";
+    // xelib.mkRemoteView "WebDAV" "webdavs://webdav.xela:443/";
   };
 
   # GTK theme configuration
