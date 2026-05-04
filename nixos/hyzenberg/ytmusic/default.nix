@@ -35,8 +35,8 @@ in
       CapabilityBoundingSet = "";
 
       # bind music path
-      ProtectHome = "read-only";
-      BindReadOnlyPaths = [ "/home/meow" ];
+      ProtectHome = "tmpfs";
+      BindPaths = [ "/home/meow" ];
     };
 
     environment = {
