@@ -23,8 +23,8 @@ let
     # we only want the dist folder
     extraAttrs.postInstall = ''
       find "$out" -mindepth 1 -maxdepth 1 ! -name dist -exec rm -rf {} +
-      mv dist/* .
-      rmdir dist
+      mv $out/dist/* $out/
+      rmdir $out/dist
     '';
   };
 in
@@ -47,7 +47,6 @@ buildGoModule {
   preBuild = ''
     echo "Injecting frontend assets..."
     cp -r ${client} ./dist
-    #chmod -R +w ./dist
   '';
 
   postInstall = ''
