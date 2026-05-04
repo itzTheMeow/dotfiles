@@ -1,4 +1,9 @@
-{ lib, xelib, ... }:
+{
+  host,
+  lib,
+  xelib,
+  ...
+}:
 let
   socks5Port = 1080;
 
@@ -361,5 +366,26 @@ in
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = 1;
     "net.ipv6.conf.all.forwarding" = 1;
+  };
+
+  # use nginx streams to proxy from tailscale to the individual containers
+  services.nginx = {
+    enable = true;
+    streamConfig = builtins.concatStringsSep "\n" (
+      map (cfg: ''
+        server {
+            # listen on the tailscale IP & public port
+            listen ${host.ip}:${toString cfg.port}; 
+            
+            # forward to the internal container
+            proxy_pass ${cfg.address}:${toString socks5Port};
+            
+            # optimize for higher bandwidth
+            proxy_buffer_size 16k;
+            proxy_timeout 1h;
+            proxy_connect_timeout 5s;
+        }
+      '') xelib.exitNodes
+    );
   };
 }
