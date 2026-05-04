@@ -8,6 +8,8 @@ let
   pub = xelib.dns.splitDomain app.details.publicDomain;
 in
 {
+  imports = [ ./tautulli.nix ];
+
   apps.plex = {
     domain = "plex.xela";
     port = 32400;
