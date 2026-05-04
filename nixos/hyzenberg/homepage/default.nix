@@ -27,7 +27,7 @@ in
       };
       cardBlur = "sm";
       headerStyle = "boxed";
-      target = "_self";
+      target = "_top";
       theme = "dark";
       color = "stone";
       layout = {
