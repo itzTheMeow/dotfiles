@@ -25,11 +25,9 @@ in
     };
   dnszones.dnssecEnabled = [ domain ];
 
-  services.nginx.virtualHosts.${domain} = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/".return = "301 https://${xelib.mail.domain}$request_uri";
-    serverAliases = [ "www.${domain}" ];
+  nginx.redirects.${domain} = {
+    dest = "https://${xelib.mail.domain}$request_uri";
+    extraConfig.serverAliases = [ "www.${domain}" ];
   };
 
   # autoconfig
