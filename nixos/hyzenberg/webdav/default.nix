@@ -15,7 +15,7 @@ in
     protocol = "webdav";
     options = {
       addr = "${app.ip}:${app.portString}";
-      htpasswd = config.sops.secrets.webdav-htpasswd;
+      htpasswd = config.sops.secrets.webdav-htpasswd.path;
     };
   };
 
