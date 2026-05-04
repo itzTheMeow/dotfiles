@@ -369,23 +369,25 @@ in
   };
 
   # use nginx streams to proxy from tailscale to the individual containers
-  services.nginx = {
-    enable = true;
-    streamConfig = builtins.concatStringsSep "\n" (
-      map (cfg: ''
-        server {
-            # listen on the tailscale IP & public port
-            listen ${host.ip}:${toString cfg.port}; 
-            
-            # forward to the internal container
-            proxy_pass ${cfg.address}:${toString socks5Port};
-            
-            # optimize for higher bandwidth
-            proxy_buffer_size 16k;
-            proxy_timeout 1h;
-            proxy_connect_timeout 5s;
-        }
-      '') xelib.exitNodes
-    );
-  };
+  /*
+    services.nginx = {
+      enable = true;
+      streamConfig = builtins.concatStringsSep "\n" (
+        map (cfg: ''
+          server {
+              # listen on the tailscale IP & public port
+              listen ${host.ip}:${toString cfg.port};
+
+              # forward to the internal container
+              proxy_pass ${cfg.address}:${toString socks5Port};
+
+              # optimize for higher bandwidth
+              proxy_buffer_size 16k;
+              proxy_timeout 1h;
+              proxy_connect_timeout 5s;
+          }
+        '') xelib.exitNodes
+      );
+    };
+  */
 }
