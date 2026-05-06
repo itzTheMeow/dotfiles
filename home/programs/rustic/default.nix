@@ -8,52 +8,9 @@
   ...
 }:
 let
-  pCloudPath = # pCloud Drive path changes per system
-    if pkgs.stdenv.isDarwin then "/Users/meow/pCloud Drive" else "rclone:pcloud:";
-
   # creates a hook shell script and points to its executable
   mkHook =
     name: "${pkgs.writeShellScriptBin name (builtins.readFile ./hooks/${name}.sh)}/bin/${name}";
-  mkConfigOld =
-    name: password: source:
-    {
-      before ? [ ], # additional run-before hooks to add
-      finally ? [ ], # additional run-finally hooks to add
-      as ? null, # add `as-path` to this value
-      noxattrs ? false, # disable xattrs on the backup
-      ...
-    }:
-    {
-      "rustic/${name}_old.toml".source = xelib.toTOMLFile "${name}.toml" {
-        global = {
-          use-profiles = [ "default" ];
-        };
-        repository = {
-          repository = "${pCloudPath}/Misc/Backups/${name}";
-          password-command = "op read ${password}";
-        };
-        backup = {
-          host = name;
-          glob-files = [
-            ./globs/default.glob
-            ./globs/${name}.glob
-          ];
-          snapshots = [
-            (
-              {
-                sources = [ source ];
-              }
-              // (if as != null then { as-path = as; } else { })
-            )
-          ];
-          hooks = {
-            run-before = before;
-            run-finally = finally ++ [ "${hookFinallyLogs} ${name}" ];
-          };
-        }
-        // (if noxattrs then { set-xattrs = "no"; } else { });
-      };
-    };
 
   mkConfig =
     name: password: source:
@@ -254,8 +211,7 @@ lib.mkMerge [
           };
         };
       };
-    }
-    // mkConfigOld "hyzenberg" "op://Private/fxxd4a76am6kr6okubzdohp3nm/password" "/" { };
+    };
 
     # alias to run backblaze with env file
     home.shellAliases = {
