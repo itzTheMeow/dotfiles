@@ -132,12 +132,12 @@ rec {
     {
       name = "ashburn";
       address = "10.250.0.10";
-      port = 61234;
+      port = 61230;
     }
     {
       name = "atlanta";
       address = "10.250.0.11";
-      port = 58654;
+      port = 61231;
     }
   ];
 
