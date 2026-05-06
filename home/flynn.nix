@@ -100,8 +100,8 @@ in
       "/home/${host.username}/.config/${gtk2rcPath}".force = pkgs.lib.mkForce true;
     }
     # remote views
-    // xelib.mkRemoteView "Hyzenberg" "fish://root@hyzen.xela.codes:22/root"
-    // xelib.mkRemoteView "Hyzenberg New" "fish://${xelib.hosts.hyzenberg.username}@${xelib.hosts.hyzenberg.ip}:${builtins.toString xelib.hosts.hyzenberg.ports.ssh}/home/walt"
+    // mkHostRemoteView "pete"
+    // mkHostRemoteView "hyzenberg"
     // mkHostRemoteView "ehrman"
     // xelib.mkRemoteView "Jade" "fish://root@jade.nvst.ly:22/"
     // xelib.mkRemoteView "NVSTly SSD" "fish://th@pi.nvst.ng:22/home/th/mnt/ssd"
