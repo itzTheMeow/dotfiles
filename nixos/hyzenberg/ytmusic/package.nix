@@ -9,7 +9,7 @@ let
     owner = "xela-archive";
     repo = "YTMusic";
     rev = "fdc35b4dc984e4a417148b26e1c3b3b525024154";
-    hash = "sha256-pMIEMYV621lfX7lFw5H0W3Ya+EA5X/aScEdg/cfTwck=";
+    hash = "sha256-XyWS6yVMdimu3+6jNSe0yVAhENRnltIqN23M5hu9WeM=";
   };
 
   client = buildPnpmPackage {
