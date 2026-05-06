@@ -1,12 +1,11 @@
 {
   dns,
   hostname,
-  lib,
   xelib,
   ...
 }:
 let
-  domain = "milfmail.net";
+  domain = "itsmeow.cat";
 in
 {
   dnszones.list.${domain} =
@@ -16,7 +15,11 @@ in
       {
         useOrigin = true;
         inherit SOA NS TTL;
-        subdomains.www = pointHost hostname;
+        subdomains = {
+          www = pointHost hostname;
+
+          github.CNAME = [ (cname (fqdn "itzthemeow.github.io")) ];
+        };
       }
       (pointHost hostname)
       (mailcow { })
@@ -24,7 +27,7 @@ in
   dnszones.dnssecEnabled = [ domain ];
 
   nginx.redirects.${domain} = {
-    dest = "https://${xelib.mail.domain}$request_uri";
+    dest = "https://${xelib.domain}$request_uri";
     extraConfig.serverAliases = [ "www.${domain}" ];
   };
 

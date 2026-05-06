@@ -42,7 +42,7 @@ in
       };
     }
     # main website
-    // (pointHost "hyzenberg");
+    // (pointHost hostname);
   dnszones.dnssecEnabled = [ xelib.domain ];
 
   systemd.services.xela-website = {
