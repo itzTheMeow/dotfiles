@@ -1,0 +1,17 @@
+pcloud-sftp-authorizedkeys: ENC[AES256_GCM,data:YefNWWWk2jtaFWRtFykZKKIsf9jsOvuh/JZbDk+CQECtAQrSxASlAbg/xIdlHDleRqzTqqelfApryHbk6OnBBKXK/Cp8NsnHj6sCF2gc/tU=,iv:nlITt/iQUX2XPaOMasZd/JxHgfJdRvVoZVTv+aOJRdQ=,tag:ZTm5kUOVIkizvfLg0lWKTw==,type:str]
+rclone-pcloud_token: ENC[AES256_GCM,data:ErB6fI3Qjqe2z0XF87mw0bIZuKRaGVPm+qed6cjXEDRKdxriXcl5o2ZjjL5amFBznNbznHBua/kawpvC5lO35DHr0nliDXzzZRSy+bCRd/67se8QSqUt5GBlCn63/EqN0qWXsCjEWxfjsRcGan7sN7RFG8EMbYb2oUta+IcW,iv:O2x7IJU2nVSfUnRzbB9SgccVC5BD+v29sSc4DRhIZHQ=,tag:fLSI04VQdP0RHHReVC7hlg==,type:str]
+sops:
+  age:
+    - recipient: age1ys7j0me46jdes87e5hargcghn49974e7gs40u4mcph9ygt8slcgsxhf2gt
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBsN0J4b2hOb0Q1TzNHTVFt
+        ZjhCZ3JsOHFENXdBTDNoKy83ZnV6TUwwcmdNCnhzLzdwZndWRWgzTTRibjlUQWEv
+        VVZDTGZqZCtzWFBQUVBTb016dEpxd3cKLS0tIEdCbTViSUlEcFN5QlFkSTFHN3c0
+        d3FFYUhDbTlFU2dsZ0IwU2JQSXJwV2sKdpLucsXAkxnfzXNHk2kZxoeGOfdj+Hwc
+        caoqFOM+QOYPQfpktk6k/8ekNpuStn9S29CDSZhSm7/KzRyfGQq5GA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-05-06T05:03:13Z"
+  mac: ENC[AES256_GCM,data:AuzfDxngG21PHI9h/VkWq1NmkfsF3VnQ+GdK4A/S7rdMlGEHd/lSmHgBfSR046o28HQG8hTfiTSprf7hQ8Azj54v6lzShSumGS3Y6f9nApjPrrbOOZtBrdYyDEbK3YJT5CDWdtxze+C4azICd/MqtDCEXV0qHicGJB5R9vPnr2c=,iv:oaGWk1itS2inE6Zkzl3YULbJusj/L5O2MFsfJh+Lkb8=,tag:lov3oqao0cRcyXFqfDua/w==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1

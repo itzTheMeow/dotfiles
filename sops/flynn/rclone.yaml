@@ -1,0 +1,16 @@
+rclone-pcloud_token: ENC[AES256_GCM,data:Z3/q5Ks7cfoEssHQj1JKHQoh7VKV/NpUQ6Hg9E5Q4GI7aCGwX8KJZgB4irj/Uxuj+vOz5j0SjuYg7Kl7uaaoFYl+GoGhUaFvgJUMvx56PwKKQTL1gYGn8u9RfmsBSJrKaiRcpMIzNp2XqW0cZ40opX8yJ4YrSHm3Hs7VRLEn,iv:ArwuduWtOKvUTl4aV3Pjh4ErPZH7Jk5C3I7qg9wWslc=,tag:686V3YIeQ7yQLZUePyvoZg==,type:str]
+sops:
+  age:
+    - recipient: age1rdacpjg5z560vw9tws5dqmjpy6g36nvfxlueefxkkqrudnat0ezslwc233
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAwK1pvMFNCTHNDalNjdzJZ
+        MWFnOUMyaklWd3RFUVBuY1c1b1NML3FoZEh3CnZNMk5PUEQwRGQvd3ZXZHR6ckYz
+        Z3JzS2pTYzhrc3pHR3duWCtWdXJNM2sKLS0tIDZKdityVnVaUU04eFhLMzRKZ3gz
+        U0pwV0lic3kwdFpMcUVRdDcrWVFWY28KhbjoSw9IQWU1DQMbV3e13GFlx7LcDn2V
+        PgHZiud1FVRTPx4syy1+Yx6gpAf28ljqJ5fXDXNFUds7HiqXc/+YQA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-05-06T05:03:13Z"
+  mac: ENC[AES256_GCM,data:E3oCRB0pa+sDCZQJTxQPnIoHs8uhJIrlZ2WZXPz1kqZPQ20H6JtWv+w/BNNIYeTFwubJxGwUTQ21re/sx0s0WzaRgRq78qUjyh/WcTKZ7SsRP9ZBsACyvVA7xZePq2s/lFKIFglZjq/MdG7R5az8jhR2GB0ST6WVpsL8evB+Iss=,iv:dXlWA7mcZTCQbJN0Et0sCWgRbb3niqVMemEykEQTcBw=,tag:hMiiAm2vdnOScnKpPoI0Gg==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1
