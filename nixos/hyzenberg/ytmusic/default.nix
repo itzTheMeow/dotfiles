@@ -45,15 +45,13 @@ in
     environment = {
       PORT = app.portString;
       BASE_DIR = "/var/lib/ytmusic";
-
-      # the go-ffmpeg binary needs these
-      PATH = "${
-        pkgs.lib.makeBinPath [
-          pkgs.busybox
-          pkgs.coreutils
-          pkgs.ffmpeg
-        ]
-      }:$PATH";
     };
+
+    # go-ffmpeg needs these
+    path = with pkgs; [
+      busybox
+      coreutils
+      ffmpeg
+    ];
   };
 }
