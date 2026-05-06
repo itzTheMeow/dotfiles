@@ -13,6 +13,7 @@ in
         "gaming"
         "gui"
         "kde"
+        "rclone"
         "rustic"
         "workstation"
       ];
@@ -33,6 +34,7 @@ in
         "gaming"
         "gui"
         "kde"
+        "rclone"
         "rustic"
       ];
       ports = {
@@ -53,6 +55,7 @@ in
         "headless"
         "media-center"
         "nsd"
+        "rclone"
         "rustic"
       ];
       ports = {
@@ -70,6 +73,7 @@ in
       features = [
         "headless"
         "nsd"
+        "rclone"
         "rustic"
       ];
       ports = {

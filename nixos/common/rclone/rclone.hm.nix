@@ -1,12 +1,11 @@
 {
   config,
-  hostname,
+  hm,
   lib,
   xelib,
   ...
 }:
-# huell shouldnt have rclone mounts
-lib.mkIf (hostname != "huell") {
+{
   programs.rclone = {
     enable = true;
     remotes = {
@@ -20,23 +19,16 @@ lib.mkIf (hostname != "huell") {
         md5sum_command = "md5sum";
         sha1sum_command = "sha1sum";
       }
-      // lib.optionalAttrs (config.sops.secrets ? "ssh_pub_ipad") {
-        key_file = config.sops.secrets."ssh_pub_ipad".path;
+      // lib.optionalAttrs (hm.config.sops.secrets ? "ssh_pub_ipad") {
+        key_file = hm.config.sops.secrets."ssh_pub_ipad".path;
       };
       pcloud = {
         config = {
           type = "pcloud";
           hostname = "api.pcloud.com";
         };
-        secrets.token = config.sops.secrets.rclone_pcloud_token.path;
+        secrets.token = config.sops.secrets.rclone-pcloud_token.path;
       };
     };
   };
-
-  sops.secrets.rclone_pcloud_token = {
-    sopsFile = config.sops.opSecrets.rclone.fullPath;
-    key = "pcloud_token";
-  };
-  sops.opSecrets.rclone.keys.pcloud_token =
-    "op://Private/k3ixcrzwsqpl6wjnffg2co3bda/vzpq5ej7dhbolpakiabeell73e";
 }

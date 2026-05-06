@@ -11,6 +11,7 @@ let
     };
   };
 in
+#todo: when moving to nixos, change rclone secret path
 xelib.mkSSHConfig config [
   (mkHostSSHItem "pete" null)
   (mkHostSSHItem "hyzenberg" null)
