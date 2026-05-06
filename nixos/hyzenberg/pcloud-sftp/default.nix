@@ -1,5 +1,7 @@
 { config, ... }:
 {
+  home-manager.importUser = [ ./rclone.hm.nix ];
+
   sops.secrets.pcloud-sftp-authorizedkeys = {
     sopsFile = config.sops.opSecrets.rclone.fullPath;
     key = "pcloud-sftp-authorizedkeys";
