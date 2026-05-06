@@ -16,7 +16,7 @@ in
 
     name = "YTMusic";
     description = "Music Downloader";
-    icon = "https://forge.xela.codes/xela-archive/YTMusic/raw/commit/dd4f63bfdae03575c84abfdbfe01e611e51f76f8/logo.png";
+    icon = "https://forge.xela.codes/xela-archive/YTMusic/raw/commit/dd4f63bfdae03575c84abfdbfe01e611e51f76f8/logo";
   };
 
   systemd.services.ytmusic = {
