@@ -9,8 +9,6 @@
 let
   app = config.apps.xela-website;
   webPackage = pkgs.callPackage ./package.nix { };
-
-  legacyIP = "5.161.177.144";
 in
 {
   apps.xela-website = {
@@ -26,7 +24,6 @@ in
       useOrigin = true;
       inherit SOA NS TTL;
       subdomains = {
-        "*".A = [ (a legacyIP) ];
         www = pointHost hostname;
 
         # legacy:svolte
@@ -38,7 +35,6 @@ in
         # legacy dns routing records
         ehrman = pointHost "ehrman";
         hyzenberg = pointHost "hyzenberg";
-        hyzen.A = [ (a legacyIP) ];
       };
     }
     # main website
@@ -67,6 +63,9 @@ in
 
   # redirect `www.` to root
   nginx.redirects."www.${xelib.domain}".dest = app.url + "$request_uri";
+
+  # redirect legacy hyzen.xela.codes domains to root
+  nginx.redirects."hyzen.${xelib.domain}".dest = app.url + "$request_uri";
 
   # legacy:svolte
   nginx.redirects."svolte.${xelib.domain}".dest =
