@@ -8,7 +8,6 @@ in
     protocol = "sftp";
     options = {
       addr = "${host.ip}:${toString sftpPort}";
-      user = "pcloud";
       authorized-keys = config.sops.secrets.pcloud-sftp-authorizedkeys.path;
     };
   };
