@@ -28,7 +28,7 @@ in
       BASE_URL = app.url;
       SERVER_DNS = app.domain;
       CRON_MIN = "2,32";
-      TRUSTED_PROXY = "127.0.0.1 5.161.177.144 172.16.0.1/12 192.168.0.1/16";
+      TRUSTED_PROXY = "127.0.0.1 172.16.0.1/12 192.168.0.1/16";
 
       OIDC_ENABLED = "1";
       OIDC_PROVIDER_METADATA_URL = "${xelib.apps.pocket-id.url}/.well-known/openid-configuration";
