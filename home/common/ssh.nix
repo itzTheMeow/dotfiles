@@ -12,15 +12,6 @@ let
   };
 in
 xelib.mkSSHConfig config [
-  {
-    name = "Old Hyzenberg";
-    host = "hyzen.xela.codes";
-    args = "root@hyzen.xela.codes";
-    publicKey = "op://Private/Hyzenberg SSH Key/public key";
-    extraOptions = {
-      forwardAgent = true;
-    };
-  }
   (mkHostSSHItem "pete" null)
   (mkHostSSHItem "hyzenberg" null)
   (mkHostSSHItem "ehrman" null)
