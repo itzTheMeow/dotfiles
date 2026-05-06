@@ -1,6 +1,7 @@
 {
   dns,
   hostname,
+  lib,
   xelib,
   ...
 }:
