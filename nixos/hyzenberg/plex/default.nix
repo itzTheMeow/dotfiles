@@ -15,6 +15,7 @@ in
     domain = "plex.xela";
     port = 32400;
     enableProxy = true;
+    allowedHosts = [ "brayden" ];
     details = {
       publicDomain = "plex.${xelib.domain}";
     };
