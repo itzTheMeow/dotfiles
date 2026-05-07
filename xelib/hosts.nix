@@ -109,6 +109,9 @@ in
       publicKey = "op://Private/tc37c36m3m7h6atgatorajfq4i/public key";
     };
 
+    # other users
+    brayden.ip = "100.64.0.22";
+
     # mac, needs organized
     macintosh = {
       accent = "#b4befe"; # Lavender
