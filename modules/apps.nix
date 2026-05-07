@@ -113,7 +113,7 @@ in
               host = opts.ip;
               port = opts.port;
             };
-            inherit (cfg) allowedHosts;
+            inherit (opts) allowedHosts;
           };
         }
       ) cfg
