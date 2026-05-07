@@ -57,6 +57,12 @@ in
               default = false;
               description = "Automatically configure the dns zone for the domain. Requires domain to be formatted correctly and under our control. Subdomains only";
             };
+            allowedHosts = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = "List of hostnames allowed to access the proxy if enabled. Forwarded to nginx module";
+            };
+
             # these are auto-derived for utility
             host = lib.mkOption {
               type = lib.types.str;
@@ -105,6 +111,7 @@ in
           "${opts.domain}".target = {
             host = opts.ip;
             port = opts.port;
+            inherit (cfg) allowedHosts;
           };
         }
       ) cfg
