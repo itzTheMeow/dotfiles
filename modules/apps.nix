@@ -108,9 +108,11 @@ in
       lib.mapAttrsToList (
         _: opts:
         lib.mkIf opts.enableProxy {
-          "${opts.domain}".target = {
-            host = opts.ip;
-            port = opts.port;
+          "${opts.domain}" = {
+            target = {
+              host = opts.ip;
+              port = opts.port;
+            };
             inherit (cfg) allowedHosts;
           };
         }
