@@ -25,6 +25,7 @@ in
       inherit SOA NS TTL;
       subdomains = {
         www = pointHost hostname;
+        github.CNAME = [ (cname (fqdn "itzthemeow.github.io")) ];
 
         # legacy:svolte
         svolte = pointHost hostname;
