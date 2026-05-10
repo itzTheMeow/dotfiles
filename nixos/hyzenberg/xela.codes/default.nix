@@ -27,7 +27,8 @@ in
         www = pointHost hostname;
         github.CNAME = [ (cname (fqdn "itzthemeow.github.io")) ];
 
-        # legacy:svolte
+        # legacy domains
+        hyzen = pointHost hostname;
         svolte = pointHost hostname;
 
         # legacy apt server
