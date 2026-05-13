@@ -15,7 +15,7 @@
     packages = with pkgs; [
       # development
       ## javascript
-      bun
+      pkgs-unstable.bun
       deno
       nodejs_24
       pnpm_10
