@@ -29,6 +29,11 @@
       inputs.flake-utils.follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    extra-container = {
+      url = "github:erikarvstedt/extra-container";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     headplane = {
       url = "github:tale/headplane";
       inputs.flake-utils.follows = "flake-utils";
@@ -177,6 +182,7 @@
 
             # misc
             catppuccin.nixosModules.catppuccin
+            inputs.extra-container.nixosModules.default
 
             # main config
             (import ./nixos hostname)

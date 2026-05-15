@@ -28,7 +28,6 @@
       tygo
 
       ## nix
-      devenv
       mcp-nixos
       nixd
       nixfmt
