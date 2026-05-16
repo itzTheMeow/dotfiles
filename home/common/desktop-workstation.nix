@@ -45,7 +45,7 @@
       python3Packages.tkinter
 
       ## godot
-      godotPackages_4_4.godot
+      godot
 
       ## protobuf
       protobuf
