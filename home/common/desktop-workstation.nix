@@ -44,6 +44,9 @@
       python3Packages.numpy
       python3Packages.tkinter
 
+      ## godot
+      godotPackages_4_4.godot
+
       ## protobuf
       protobuf
       protoc-gen-go
