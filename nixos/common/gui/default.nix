@@ -31,8 +31,16 @@
   };
 
   # enable bluetooth
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+
+  # hardware accel
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
 
   # keymapper
   services.keyd = {
