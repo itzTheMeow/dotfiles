@@ -45,7 +45,7 @@
       python3Packages.tkinter
 
       ## godot
-      godot
+      pkgs-unstable.godot
 
       ## protobuf
       protobuf
