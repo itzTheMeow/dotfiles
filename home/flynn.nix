@@ -46,7 +46,6 @@ in
       pcloud
       remmina
       qdiskinfo
-      pkgs-unstable.super-productivity
 
       # games
       prismlauncher
