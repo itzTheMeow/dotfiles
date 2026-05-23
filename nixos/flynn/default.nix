@@ -52,6 +52,9 @@
     mode = "0755";
   };
 
+  # enable docker
+  virtualisation.docker.enable = true;
+
   programs.chromium = {
     enable = true;
     extensions = [
