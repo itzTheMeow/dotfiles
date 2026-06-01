@@ -14,6 +14,7 @@ in
     details = {
       publicDomain = "immich.xela.codes";
     };
+    allowedHosts = [ "brayden" ];
 
     description = "Photo Organizer";
   };
