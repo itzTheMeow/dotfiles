@@ -1,4 +1,9 @@
-{ config, host, ... }:
+{
+  config,
+  host,
+  pkgs,
+  ...
+}:
 let
   app = config.apps.webdav;
 in
@@ -18,6 +23,12 @@ in
       htpasswd = config.sops.secrets.webdav-htpasswd.path;
     };
   };
+  systemd.user.services."rclone-serve:.Misc.AppData.webdav@pcloud.service".Service.ExecStartPre =
+    pkgs.writeShellScript "wait-for-tailscale-ip" ''
+      until ip route get ${host.ip} >/dev/null 2>&1; do
+        sleep 2
+      done
+    '';
 
   sops.secrets.webdav-htpasswd = {
     sopsFile = config.sops.opSecrets.webdav.fullPath;
