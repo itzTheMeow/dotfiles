@@ -46,7 +46,6 @@ in
       # custom scripts
       (writeShellScriptBin "0x0" ''curl -A "xela.codes/1.0.0" -F "file=@$1" https://0x0.st'')
       (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
-      (writeShellScriptBin "cdtemp" "cd $(mktemp -d)")
       (writeShellScriptBin "nxr" "nix run .#$1")
       # custom packages
       xelpkgs.download-organizer
@@ -65,6 +64,7 @@ in
       python = "python3";
       pip = "python3 -m pip";
       qmv = "qmv -ospaces"; # use spaces for qmv
+      cdtemp = "cd $(mktemp -d) && pwd";
 
       # short custom commands
       git-clear = ''
