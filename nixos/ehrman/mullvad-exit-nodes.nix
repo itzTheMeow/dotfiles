@@ -105,6 +105,7 @@ let
             after = [
               "network-online.target"
               "tailscaled.service"
+              "mullvad-exit-nat.service"
             ];
             wants = [ "network-online.target" ];
             wantedBy = [ "multi-user.target" ];
