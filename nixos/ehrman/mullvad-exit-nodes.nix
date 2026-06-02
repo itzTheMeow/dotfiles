@@ -100,9 +100,9 @@ let
           systemd.services.tailscaled.serviceConfig.Environment = [
             "TS_DEBUG_FIREWALL_MODE=nftables"
           ];
-          systemd.services.tailscaled.after = [
-            "mullvad-wireguard.service"
-          ];
+          #systemd.services.tailscaled.after = [
+          #  "mullvad-wireguard.service"
+          #];
 
           # optimize UDP forwarding performance for Tailscale exit nodes
           # > Warning: UDP GRO forwarding is suboptimally configured on eth0, UDP forwarding throughput capability will increase with a configuration change.
