@@ -23,7 +23,7 @@ in
       htpasswd = config.sops.secrets.webdav-htpasswd.path;
     };
   };
-  systemd.user.services."rclone-serve:.Misc.AppData.webdav@pcloud.service".Service.ExecStartPre =
+  home-manager.users.${host.username}.systemd.user.services."rclone-serve:.Misc.AppData.webdav@pcloud.service".serviceConfig.ExecStartPre =
     pkgs.writeShellScript "wait-for-tailscale-ip" ''
       until ip route get ${host.ip} >/dev/null 2>&1; do
         sleep 2

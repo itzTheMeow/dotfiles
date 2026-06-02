@@ -16,7 +16,7 @@ in
       authorized-keys = config.sops.secrets.pcloud-sftp-authorizedkeys.path;
     };
   };
-  systemd.user.services."rclone-serve:.@pcloud.service".Service.ExecStartPre =
+  systemd.user.services."rclone-serve:.@pcloud.service".serviceConfig.ExecStartPre =
     pkgs.writeShellScript "wait-for-tailscale-ip" ''
       until ip route get ${host.ip} >/dev/null 2>&1; do
         sleep 2
