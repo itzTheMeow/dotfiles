@@ -67,6 +67,7 @@ let
             # debug
             dig
             iputils
+            kitty
             net-tools
             tcpdump
             # quick test script to curl mullvad
