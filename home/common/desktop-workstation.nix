@@ -52,6 +52,10 @@
       protoc-gen-go
       protoc-gen-go-grpc
 
+      ## flutter
+      dart
+      flutter
+
       ## just
       just-lsp
 
