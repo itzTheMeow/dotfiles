@@ -193,7 +193,6 @@ let
               # flush old rules
               nft flush chain ip nat POSTROUTING 2>/dev/null || true
               nft flush chain ip filter FORWARD 2>/dev/null || true
-              nft flush chain ip mangle FORWARD 2>/dev/null || true
 
               # nat forwarding via nftables
               nft -f - <<EOF
@@ -213,13 +212,6 @@ let
                       iifname "$WG_IFACE" oifname "tailscale0" ct state established,related counter accept
                     }
                   }
-
-                  table ip mangle {
-                    chain FORWARD {
-                      type filter hook forward priority mangle;
-                      tcp flags syn tcp option maxseg size set rt mtu counter
-                    }
-                  }
               EOF
 
               echo "NAT rules applied successfully"
@@ -229,7 +221,6 @@ let
               echo "Cleaning up NAT rules"
               nft flush chain ip nat POSTROUTING 2>/dev/null || true
               nft flush chain ip filter FORWARD 2>/dev/null || true
-              nft flush chain ip mangle FORWARD 2>/dev/null || true
             '';
           };
 
