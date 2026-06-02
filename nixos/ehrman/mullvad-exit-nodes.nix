@@ -41,10 +41,7 @@ let
             useHostResolvConf = lib.mkForce false;
 
             # forward DNS queries to Mullvad's DNS
-            nameservers = [
-              "10.64.0.1"
-              # "1.1.1.1"
-            ];
+            nameservers = [ "10.64.0.1" ];
             nftables.enable = true;
           };
           services.resolved = {
@@ -65,15 +62,17 @@ let
           environment.systemPackages = with pkgs; [
             # actually needed
             microsocks
-            #openresolv
             tailscale
             wireguard-tools
             # debug
             dig
-            iptables
             iputils
             net-tools
             tcpdump
+            # quick test script to curl mullvad
+            (pkgs.writeShellScriptBin "ctest" ''
+              curl https://am.i.mullvad.net/json
+            '')
 
             # init script
             (pkgs.writeShellScriptBin "tailscale-init" ''
