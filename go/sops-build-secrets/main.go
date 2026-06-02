@@ -167,14 +167,15 @@ builtins.mapAttrs (name: conf: {
 	// we can fetch all the secrets in a single call
 	log("fetching secrets...")
 	fetchedSecrets, err := client.Secrets().ResolveAll(context.Background(), allSecretURIs)
-	if err != nil {
-		panic(err)
-	}
+
 	// make sure none of them failed
 	for uri, res := range fetchedSecrets.IndividualResponses {
 		if res.Error != nil {
 			panic(fmt.Errorf("failed to fetch secret '%s': %s", uri, string(res.Error.Type)))
 		}
+	}
+	if err != nil {
+		panic(err)
 	}
 
 	for hostname, config := range configs {
