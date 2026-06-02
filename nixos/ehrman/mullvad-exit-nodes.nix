@@ -28,6 +28,13 @@ let
         {
           system.stateVersion = "25.11";
 
+          boot.kernel.sysctl = {
+            "net.ipv4.conf.all.rp_filter" = 2;
+            "net.ipv4.conf.default.rp_filter" = 2;
+            "net.ipv4.ip_forward" = 1;
+            "net.ipv6.conf.all.forwarding" = 1;
+          };
+
           networking = {
             firewall.enable = false;
             useHostResolvConf = lib.mkForce false;
