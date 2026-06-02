@@ -44,22 +44,13 @@ let
             nameservers = [ "10.64.0.1" ];
             nftables.enable = true;
           };
-          /*
-            services.resolved = {
-              enable = true;
-              settings = {
-                Resolve = {
-                  DNS = [ "10.64.0.1" ];
-                  FallbackDNS = [
-                    "1.1.1.1"
-                    "2606:4700:4700::1111"
-                  ];
-                  DNSStubListener = "yes";
-                  Domains = [ "~." ]; # make Mullvad DNS the default for everything
-                };
-              };
+          services.resolved = {
+            enable = true;
+            settings.Resolve = {
+              DNS = [ "10.64.0.1" ];
+              FallbackDNS = [ "1.1.1.1" ];
             };
-          */
+          };
 
           environment.systemPackages = with pkgs; [
             # actually needed
