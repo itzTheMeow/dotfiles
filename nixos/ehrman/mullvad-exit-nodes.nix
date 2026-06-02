@@ -192,7 +192,7 @@ let
 
           # Setup NAT for Tailscale exit node traffic through Mullvad
           systemd.services.mullvad-exit-nat = {
-            description = "NAT for Tailscale exit node traffic → Mullvad";
+            description = "NAT for Tailscale Exit Node => Mullvad";
             after = [
               "mullvad-wireguard.service"
               "tailscaled.service"
@@ -210,21 +210,27 @@ let
               RestartSec = "3s";
             };
 
+            path = with pkgs; [
+              nftables
+              wireguard-tools
+            ];
+
             script = ''
-                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-                  if [ -z "$WG_IFACE" ]; then
-                    echo "No WireGuard interface found"
-                    exit 1
-                  fi
+              WG_IFACE=$(wg show interfaces | head -n1)
+              if [ -z "$WG_IFACE" ]; then
+                echo "No WireGuard interface found"
+                exit 1
+              fi
 
-                  echo "Setting up NAT: tailscale0 → $WG_IFACE"
+              echo "Setting up NAT: tailscale0 => $WG_IFACE"
 
-                  # Flush old rules first
-                  ${pkgs.nftables}/bin/nft flush chain ip nat POSTROUTING 2>/dev/null || true
-                  ${pkgs.nftables}/bin/nft flush chain ip filter FORWARD 2>/dev/null || true
+              # flush old rules
+              nft flush chain ip nat POSTROUTING 2>/dev/null || true
+              nft flush chain ip filter FORWARD 2>/dev/null || true
+              nft flush chain ip mangle FORWARD 2>/dev/null || true
 
-                  # NAT (MASQUERADE) + Forwarding using nftables
-                  ${pkgs.nftables}/bin/nft -f - <<EOF
+              # nat forwarding via nftables
+              nft -f - <<EOF
                   table ip nat {
                     chain POSTROUTING {
                       type nat hook postrouting priority srcnat;
@@ -241,15 +247,23 @@ let
                       iifname "$WG_IFACE" oifname "tailscale0" ct state established,related counter accept
                     }
                   }
+
+                  table ip mangle {
+                    chain FORWARD {
+                      type filter hook forward priority mangle;
+                      tcp flags syn tcp option maxseg size set rt mtu counter
+                    }
+                  }
               EOF
 
-                  echo "NAT rules applied successfully"
+              echo "NAT rules applied successfully"
             '';
 
             preStop = ''
               echo "Cleaning up NAT rules"
-              ${pkgs.nftables}/bin/nft flush chain ip nat POSTROUTING 2>/dev/null || true
-              ${pkgs.nftables}/bin/nft flush chain ip filter FORWARD 2>/dev/null || true
+              nft flush chain ip nat POSTROUTING 2>/dev/null || true
+              nft flush chain ip filter FORWARD 2>/dev/null || true
+              nft flush chain ip mangle FORWARD 2>/dev/null || true
             '';
           };
           /*
