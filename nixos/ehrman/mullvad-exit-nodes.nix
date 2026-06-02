@@ -48,8 +48,12 @@ let
             enable = true;
             settings.Resolve = {
               DNS = [ "10.64.0.1" ];
-              FallbackDNS = [ "1.1.1.1" ];
+              FallbackDNS = [
+                "1.1.1.1"
+                "2606:4700:4700::1111"
+              ];
               DNSStubListener = "yes";
+              Domains = [ "~." ]; # make Mullvad DNS the default for everything
             };
           };
 
