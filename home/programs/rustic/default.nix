@@ -2,7 +2,6 @@
   config,
   hostname,
   lib,
-  pkgs-unstable,
   pkgs,
   xelib,
   ...
@@ -120,7 +119,7 @@ let
 in
 lib.mkMerge [
   {
-    home.packages = [ pkgs-unstable.rustic ];
+    home.packages = [ pkgs.rustic ];
 
     xdg.configFile = {
       # default config for all hosts

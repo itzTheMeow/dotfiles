@@ -1,14 +1,14 @@
 {
   config,
   host,
-  pkgs-unstable,
+  pkgs,
   xelib,
   ...
 }:
 {
   services.beszel.agent = {
     enable = true;
-    package = pkgs-unstable.beszel;
+    package = pkgs.beszel;
     environment = {
       HUB_URL = xelib.apps.beszel.url;
       LISTEN = "${host.ip}:${toString host.ports.beszel-agent}";

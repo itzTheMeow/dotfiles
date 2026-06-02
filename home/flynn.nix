@@ -1,7 +1,6 @@
 {
   config,
   host,
-  pkgs-unstable,
   pkgs,
   xelib,
   xelpkgs,
@@ -68,7 +67,7 @@ in
       footage
       gimp
       inkscape
-      pkgs-unstable.mayo
+      mayo
       pinta
       obs-studio
       simplescreenrecorder
@@ -117,7 +116,7 @@ in
 
     theme = {
       name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
-      package = pkgs-unstable.magnetic-catppuccin-gtk.override {
+      package = pkgs.magnetic-catppuccin-gtk.override {
         accent = [ xelib.globals.catppuccin.accent ];
         shade = if xelib.globals.catppuccin.flavor == "latte" then "light" else "dark";
         size = "standard";
@@ -190,7 +189,7 @@ in
   xdg.autostart = {
     enable = true;
     entries = [
-      "${pkgs-unstable._1password-gui}/share/applications/1password.desktop"
+      "${pkgs._1password-gui}/share/applications/1password.desktop"
       "${pkgs.pcloud}/share/applications/pcloud.desktop"
     ];
   };

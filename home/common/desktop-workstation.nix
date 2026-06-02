@@ -121,7 +121,7 @@
           if pkgs.stdenv.isDarwin then
             "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
           else
-            "${lib.getExe' pkgs-unstable._1password-gui "op-ssh-sign"}";
+            "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}";
         signByDefault = true;
       };
       # borrowed from https://github.com/bobvanderlinden/nixos-config/blob/0c09c5c162413816d3278c406d85c05f0010527c/home/default.nix#L938
