@@ -30,12 +30,11 @@ let
 
           networking = {
             firewall.enable = false;
-            useHostResolvConf = lib.mkForce false;
 
             # forward DNS queries to Mullvad's DNS
-            resolvconf.enable = true;
             nameservers = [ "10.64.0.1" ];
           };
+          services.resolved.enable = true;
 
           environment.systemPackages = with pkgs; [
             # actually needed
