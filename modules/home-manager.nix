@@ -1,6 +1,7 @@
 {
   config,
   host,
+  hostname,
   lib,
   pkgs,
   xelib,
