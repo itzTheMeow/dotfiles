@@ -2,7 +2,6 @@
   host,
   hostname,
   pkgs,
-  pkgs-unstable,
   xelib,
   ...
 }:
@@ -25,7 +24,7 @@
       inherit (xelib.globals) environment;
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = "${pkgs.zsh}/bin/zsh -c 'export ${builtins.concatStringsSep " " env} && ${pkgs-unstable.rustic}/bin/rustic -P ${hostname} backup'";
+        ExecStart = "${pkgs.zsh}/bin/zsh -c 'export ${builtins.concatStringsSep " " env} && ${pkgs.rustic}/bin/rustic -P ${hostname} backup'";
       };
     };
   systemd.timers.rustic-backup = {

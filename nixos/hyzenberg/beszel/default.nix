@@ -1,7 +1,7 @@
 {
   config,
   lib,
-  pkgs-unstable,
+  pkgs,
   xelib,
   ...
 }:
@@ -19,7 +19,7 @@ in
 
   services.beszel.hub = {
     enable = true;
-    package = pkgs-unstable.beszel;
+    package = pkgs.beszel;
     host = app.ip;
     inherit (app) port;
     environment = {

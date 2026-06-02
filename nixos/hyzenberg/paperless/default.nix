@@ -1,6 +1,6 @@
 {
   config,
-  pkgs-unstable,
+  pkgs,
   xelib,
   ...
 }:
@@ -19,7 +19,7 @@ in
 
   services.paperless = {
     enable = true;
-    package = pkgs-unstable.paperless-ngx;
+    package = pkgs.paperless-ngx;
     address = app.ip;
     inherit (app) port domain;
 

@@ -1,6 +1,6 @@
 {
   config,
-  pkgs-unstable,
+  pkgs,
   xelib,
   ...
 }:
@@ -20,7 +20,7 @@ in
 
   services.pocket-id = {
     enable = true;
-    package = pkgs-unstable.pocket-id;
+    package = pkgs.pocket-id;
     settings = {
       HOST = app.ip;
       PORT = app.port;
