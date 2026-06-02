@@ -225,93 +225,84 @@ let
           };
 
           # Health check and auto-recovery for Mullvad WireGuard
-          /*
-            systemd.services.mullvad-health-check = {
-              description = "Mullvad WireGuard Health Check";
-              after = [
-                "tailscaled.service"
-                "mullvad-wireguard.service"
-                "mullvad-exit-nat.service"
-              ];
-              requires = [
-                "tailscaled.service"
-                "mullvad-wireguard.service"
-                "mullvad-exit-nat.service"
-              ];
-              wantedBy = [ "multi-user.target" ];
+          systemd.services.mullvad-health-check = {
+            description = "Mullvad WireGuard Health Check";
+            after = [
+              "tailscaled.service"
+              "mullvad-wireguard.service"
+              "mullvad-exit-nat.service"
+            ];
+            requires = [
+              "tailscaled.service"
+              "mullvad-wireguard.service"
+              "mullvad-exit-nat.service"
+            ];
+            wantedBy = [ "multi-user.target" ];
 
-              serviceConfig = {
-                Type = "simple";
-                Restart = "always";
-                RestartSec = "30s";
-              };
+            serviceConfig = {
+              Type = "simple";
+              Restart = "always";
+              RestartSec = "30s";
+            };
 
-              script = ''
-                echo "Starting Mullvad health check service..."
+            script = ''
+              echo "Starting Mullvad health check service..."
 
-                restart_stack() {
-                  systemctl restart mullvad-wireguard.service
+              restart_stack() {
+                systemctl restart mullvad-wireguard.service
+                sleep 5
+                systemctl restart mullvad-exit-nat.service
+              }
+
+              while true; do
+                # Wait between checks
+                sleep 60
+
+                # Ensure tailscale interface exists before considering health as good
+                if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
+                  echo "ERROR: tailscale0 interface missing. Restarting tailscaled and NAT..."
+                  systemctl restart tailscaled.service
                   sleep 5
                   systemctl restart mullvad-exit-nat.service
-                }
+                  continue
+                fi
 
-                while true; do
-                  # Wait between checks
-                  sleep 60
+                # Check if WireGuard interface is up
+                WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces 2>/dev/null | head -n1)
 
-                  # Ensure tailscale interface exists before considering health as good
-                  if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
-                    echo "ERROR: tailscale0 interface missing. Restarting tailscaled and NAT..."
-                    systemctl restart tailscaled.service
-                    sleep 5
-                    systemctl restart mullvad-exit-nat.service
-                    continue
+                if [ -z "$WG_IFACE" ]; then
+                  echo "ERROR: No WireGuard interface found. Restarting mullvad-wireguard service..."
+                  restart_stack
+                  continue
+                fi
+
+                # Check if interface has received data recently (handshake is active)
+                HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
+                CURRENT_TIME=$(date +%s)
+
+                if [ -n "$HANDSHAKE" ]; then
+                  TIME_SINCE_HANDSHAKE=$((CURRENT_TIME - HANDSHAKE))
+
+                  # If no handshake in the last 3 minutes, connection is likely dead
+                  if [ "$TIME_SINCE_HANDSHAKE" -gt 180 ]; then
+                    echo "WARNING: No handshake in $TIME_SINCE_HANDSHAKE seconds. Connection may be dead."
                   fi
+                fi
 
-                  # Check if WireGuard interface is up
-                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces 2>/dev/null | head -n1)
+                # Perform connectivity test - try to ping Mullvad's DNS
+                if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 10.64.0.1 &>/dev/null; then
+                  echo "ERROR: Ping to Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
 
-                  if [ -z "$WG_IFACE" ]; then
-                    echo "ERROR: No WireGuard interface found. Restarting mullvad-wireguard service..."
-                    restart_stack
-                    continue
-                  fi
+                  # Restart mullvad-wireguard which will pick a new random config
+                  restart_stack
 
-                  # Ensure required NAT rule exists for current interface
-                  if ! ${pkgs.iptables}/bin/iptables -t nat -C POSTROUTING -o "$WG_IFACE" -j MASQUERADE >/dev/null 2>&1; then
-                    echo "ERROR: NAT rule missing for $WG_IFACE. Restarting mullvad-exit-nat service..."
-                    systemctl restart mullvad-exit-nat.service
-                    continue
-                  fi
-
-                  # Check if interface has received data recently (handshake is active)
-                  HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
-                  CURRENT_TIME=$(date +%s)
-
-                  if [ -n "$HANDSHAKE" ]; then
-                    TIME_SINCE_HANDSHAKE=$((CURRENT_TIME - HANDSHAKE))
-
-                    # If no handshake in the last 3 minutes, connection is likely dead
-                    if [ "$TIME_SINCE_HANDSHAKE" -gt 180 ]; then
-                      echo "WARNING: No handshake in $TIME_SINCE_HANDSHAKE seconds. Connection may be dead."
-                    fi
-                  fi
-
-                  # Perform connectivity test - try to ping Mullvad's DNS
-                  if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 10.64.0.1 &>/dev/null; then
-                    echo "ERROR: Ping to Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
-
-                    # Restart mullvad-wireguard which will pick a new random config
-                    restart_stack
-
-                    echo "Switched to new Mullvad server config"
-                  else
-                    echo "Health check passed - connection is healthy"
-                  fi
-                done
-              '';
-            };
-          */
+                  echo "Switched to new Mullvad server config"
+                else
+                  echo "Health check passed - connection is healthy"
+                fi
+              done
+            '';
+          };
 
           # optimize UDP forwarding performance for Tailscale exit nodes
           # > Warning: UDP GRO forwarding is suboptimally configured on eth0, UDP forwarding throughput capability will increase with a configuration change.
