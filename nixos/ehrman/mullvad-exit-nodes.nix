@@ -140,7 +140,7 @@ let
             description = "Mullvad WireGuard VPN";
             after = [
               "network-online.target"
-              "tailscaled.service "
+              "tailscaled.service"
             ];
             wants = [ "network-online.target" ];
             wantedBy = [ "multi-user.target" ];
