@@ -2,6 +2,8 @@
   config,
   host,
   lib,
+  pkgs,
+  xelib,
   ...
 }@inputs:
 let
