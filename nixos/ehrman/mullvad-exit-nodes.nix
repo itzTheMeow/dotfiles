@@ -30,6 +30,7 @@ let
 
           networking = {
             firewall.enable = false;
+            useHostResolvConf = lib.mkForce false;
 
             # forward DNS queries to Mullvad's DNS
             nameservers = [ "10.64.0.1" ];
