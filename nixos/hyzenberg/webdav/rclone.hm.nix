@@ -1,6 +1,5 @@
 {
   config,
-  host,
   pkgs,
   ...
 }:
@@ -19,7 +18,7 @@ in
   };
   systemd.user.services."rclone-serve:.Misc.AppData.webdav@pcloud".serviceConfig.ExecStartPre =
     pkgs.writeShellScript "wait-for-tailscale-ip" ''
-      until ip route get ${host.ip} >/dev/null 2>&1; do
+      until [ "$(${config.services.tailscale.package}/bin/tailscale status --json | ${pkgs.jq}/bin/jq -r .BackendState 2>/dev/null)" = "Running" ]; do
         sleep 2
       done
     '';
