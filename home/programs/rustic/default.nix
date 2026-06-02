@@ -108,12 +108,14 @@ let
   hookFinallyUnmount = mkHook "finally-unmount";
 
   backblazeENV = xelib.toENVFile "backblaze.env" {
-    RS_B2_APPLICATION_KEY_ID = "op://Private/Backblaze/Application Keys/xela-codes-nas-id";
-    RS_B2_APPLICATION_KEY = "op://Private/Backblaze/Application Keys/xela-codes-nas-applicationKey";
+    RS_B2_PWD = "op://Private/uysjliggwgwtjvqltlc222cagu/password";
+    RS_B2_APPLICATION_KEY_ID = "op://Private/sjv2yzz6fspta7y7ikrc42l2jq/Application Keys/xela-codes-nas-id";
+    RS_B2_APPLICATION_KEY = "op://Private/sjv2yzz6fspta7y7ikrc42l2jq/Application Keys/xela-codes-nas-applicationKey";
   };
   glacierENV = xelib.toENVFile "glacier.env" {
-    RS_S3_ACCESS_KEY_ID = "op://Private/Amazon AWS/Application Keys/rustic";
-    RS_S3_SECRET_ACCESS_KEY = "op://Private/Amazon AWS/Application Keys/rustic-key";
+    RS_S3_PWD = "op://Private/qwz2w5hvt4jezzxhz4yastqyoe/password";
+    RS_S3_ACCESS_KEY_ID = "op://Private/wp6url7tpsrnfpldzwd5fputfa/Application Keys/rustic";
+    RS_S3_SECRET_ACCESS_KEY = "op://Private/wp6url7tpsrnfpldzwd5fputfa/Application Keys/rustic-key";
   };
 in
 lib.mkMerge [
@@ -137,9 +139,12 @@ lib.mkMerge [
             "default"
             (builtins.replaceStrings [ ".toml" ] [ "" ]
               "${xelib.toTOMLFile "backblaze_secrets.toml" {
-                repository.options = {
-                  application_key_id = "$RS_B2_APPLICATION_KEY_ID";
-                  application_key = "$RS_B2_APPLICATION_KEY";
+                repository = {
+                  password = "$RS_B2_PWD";
+                  options = {
+                    application_key_id = "$RS_B2_APPLICATION_KEY_ID";
+                    application_key = "$RS_B2_APPLICATION_KEY";
+                  };
                 };
               }}"
             )
@@ -147,7 +152,6 @@ lib.mkMerge [
         };
         repository = {
           repository = "opendal:b2";
-          password-command = "op read op://Private/uysjliggwgwtjvqltlc222cagu/password";
           options = {
             bucket = "xela-codes-nas";
             bucket_id = "7040eaf12da21a4599af0417";
@@ -185,9 +189,12 @@ lib.mkMerge [
             "default"
             (builtins.replaceStrings [ ".toml" ] [ "" ]
               "${xelib.toTOMLFile "glacier_secrets.toml" {
-                repository.options = {
-                  access_key_id = "$RS_S3_ACCESS_KEY_ID";
-                  secret_access_key = "$RS_S3_SECRET_ACCESS_KEY";
+                repository = {
+                  password = "$RS_S3_PWD";
+                  options = {
+                    access_key_id = "$RS_S3_ACCESS_KEY_ID";
+                    secret_access_key = "$RS_S3_SECRET_ACCESS_KEY";
+                  };
                 };
               }}"
             )
@@ -196,7 +203,6 @@ lib.mkMerge [
         repository = {
           repository = "opendal:s3";
           repo-hot = "opendal:s3";
-          password-command = "op read op://Private/qwz2w5hvt4jezzxhz4yastqyoe/password";
           options = {
             region = "us-east-2";
             root = "/";
