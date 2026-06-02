@@ -35,12 +35,15 @@ let
             # forward DNS queries to Mullvad's DNS
             nameservers = [ "10.64.0.1" ];
           };
-          services.resolved.enable = true;
+          services.resolved = {
+            enable = true;
+            domains = [ "~." ];
+          };
 
           environment.systemPackages = with pkgs; [
             # actually needed
             microsocks
-            openresolv
+            #openresolv
             tailscale
             wireguard-tools
             # debug
