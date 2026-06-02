@@ -16,6 +16,7 @@ hostname := env('HOSTNAME')
 # clean up the nix store
 @clean:
     nix-collect-garbage -d
+    sudo nix-collect-garbage -d
 
 # optimise the nix store
 @optimize:
