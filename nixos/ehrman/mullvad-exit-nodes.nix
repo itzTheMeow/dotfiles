@@ -41,10 +41,7 @@ let
             useHostResolvConf = lib.mkForce false;
 
             # forward DNS queries to Mullvad's DNS
-            nameservers = [
-              "10.64.0.1"
-              "1.1.1.1"
-            ];
+            nameservers = [ "127.0.0.53" ];
             nftables.enable = true;
           };
           services.resolved = {
@@ -141,7 +138,10 @@ let
           # put Mullvad configs in /var/lib/mullvad-configs/*.conf (configDir)
           systemd.services.mullvad-wireguard = {
             description = "Mullvad WireGuard VPN";
-            after = [ "network-online.target" ];
+            after = [
+              "network-online.target"
+              "tailscaled.service "
+            ];
             wants = [ "network-online.target" ];
             wantedBy = [ "multi-user.target" ];
 
