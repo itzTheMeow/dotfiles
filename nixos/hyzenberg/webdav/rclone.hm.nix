@@ -16,7 +16,7 @@ in
       htpasswd = config.sops.secrets.webdav-htpasswd.path;
     };
   };
-  systemd.user.services."rclone-serve:.Misc.AppData.webdav@pcloud".serviceConfig.ExecStartPre =
+  systemd.user.services."rclone-serve:.Misc.AppData.webdav@pcloud".Service.ExecStartPre =
     pkgs.writeShellScript "wait-for-tailscale-ip" ''
       until [ "$(${config.services.tailscale.package}/bin/tailscale status --json | ${pkgs.jq}/bin/jq -r .BackendState 2>/dev/null)" = "Running" ]; do
         sleep 2
