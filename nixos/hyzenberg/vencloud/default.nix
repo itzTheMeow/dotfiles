@@ -19,7 +19,7 @@ in
 
   services.redis.servers.vencloud = {
     enable = true;
-    bind = dockerIP;
+    bind = "0.0.0.0";
     port = app.details.redisPort;
     save = [
       [
