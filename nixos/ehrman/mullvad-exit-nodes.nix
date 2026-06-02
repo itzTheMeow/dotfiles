@@ -44,20 +44,22 @@ let
             nameservers = [ "10.64.0.1" ];
             nftables.enable = true;
           };
-          services.resolved = {
-            enable = true;
-            settings = {
-              Resolve = {
-                DNS = [ "10.64.0.1" ];
-                FallbackDNS = [
-                  "1.1.1.1"
-                  "2606:4700:4700::1111"
-                ];
-                DNSStubListener = "yes";
-                Domains = [ "~." ]; # make Mullvad DNS the default for everything
+          /*
+            services.resolved = {
+              enable = true;
+              settings = {
+                Resolve = {
+                  DNS = [ "10.64.0.1" ];
+                  FallbackDNS = [
+                    "1.1.1.1"
+                    "2606:4700:4700::1111"
+                  ];
+                  DNSStubListener = "yes";
+                  Domains = [ "~." ]; # make Mullvad DNS the default for everything
+                };
               };
             };
-          };
+          */
 
           environment.systemPackages = with pkgs; [
             # actually needed
@@ -267,94 +269,6 @@ let
               nft flush chain ip mangle FORWARD 2>/dev/null || true
             '';
           };
-          /*
-            systemd.services.mullvad-exit-nat = {
-              description = "NAT rules for Tailscale => Mullvad";
-              after = [
-                "network-online.target"
-                "tailscaled.service"
-                "mullvad-wireguard.service"
-              ];
-              wants = [ "network-online.target" ];
-              requires = [
-                "mullvad-wireguard.service"
-                "tailscaled.service"
-              ];
-              partOf = [ "mullvad-wireguard.service" ];
-              wantedBy = [ "multi-user.target" ];
-
-              serviceConfig = {
-                Type = "oneshot";
-                RemainAfterExit = true;
-              };
-
-              script = ''
-                # wait for tailscale interface
-                for i in {1..30}; do
-                  if ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
-                    break
-                  fi
-                  sleep 1
-                done
-
-                if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
-                  echo "tailscale0 interface did not appear in time"
-                  exit 1
-                fi
-
-                # wait for the WireGuard interface name
-                for i in {1..30}; do
-                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-                  [ -n "$WG_IFACE" ] && break
-                  sleep 1
-                done
-
-                if [ -z "$WG_IFACE" ]; then
-                  echo "No WireGuard interface found"
-                  exit 1
-                fi
-
-                echo "Setting up NAT for Tailscale => $WG_IFACE"
-
-                # clear old rules
-                #${pkgs.iptables}/bin/iptables -F FORWARD
-
-                # IPv4 NAT and forwarding rules
-                ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
-                ${pkgs.iptables}/bin/iptables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
-                ${pkgs.iptables}/bin/iptables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-
-                # IPv6 NAT and forwarding rules
-                ${pkgs.iptables}/bin/ip6tables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
-                ${pkgs.iptables}/bin/ip6tables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
-                ${pkgs.iptables}/bin/ip6tables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-
-                # MSS Clamping
-                ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-
-                echo "NAT rules (IPv4 and IPv6) configured successfully"
-              '';
-
-              preStop = ''
-                # Get the WireGuard interface name
-                WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-
-                if [ -n "$WG_IFACE" ]; then
-                  echo "Removing NAT rules for $WG_IFACE"
-
-                  # IPv4 cleanup
-                  ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
-                  ${pkgs.iptables}/bin/iptables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
-                  ${pkgs.iptables}/bin/iptables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
-
-                  # IPv6 cleanup
-                  ${pkgs.iptables}/bin/ip6tables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
-                  ${pkgs.iptables}/bin/ip6tables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
-                  ${pkgs.iptables}/bin/ip6tables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
-                fi
-              '';
-            };
-          */
 
           # Health check and auto-recovery for Mullvad WireGuard
           /*
