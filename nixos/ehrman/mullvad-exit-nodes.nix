@@ -41,7 +41,10 @@ let
             useHostResolvConf = lib.mkForce false;
 
             # forward DNS queries to Mullvad's DNS
-            nameservers = [ "127.0.0.53" ];
+            nameservers = [
+              "10.64.0.1"
+              # "1.1.1.1"
+            ];
             nftables.enable = true;
           };
           services.resolved = {
@@ -97,9 +100,9 @@ let
           systemd.services.tailscaled.serviceConfig.Environment = [
             "TS_DEBUG_FIREWALL_MODE=nftables"
           ];
-          #systemd.services.tailscaled.after = [
-          #  "mullvad-wireguard.service"
-          #];
+          systemd.services.tailscaled.after = [
+            "mullvad-wireguard.service"
+          ];
 
           # optimize UDP forwarding performance for Tailscale exit nodes
           # > Warning: UDP GRO forwarding is suboptimally configured on eth0, UDP forwarding throughput capability will increase with a configuration change.
@@ -138,10 +141,7 @@ let
           # put Mullvad configs in /var/lib/mullvad-configs/*.conf (configDir)
           systemd.services.mullvad-wireguard = {
             description = "Mullvad WireGuard VPN";
-            after = [
-              "network-online.target"
-              "tailscaled.service"
-            ];
+            after = [ "network-online.target" ];
             wants = [ "network-online.target" ];
             wantedBy = [ "multi-user.target" ];
 
