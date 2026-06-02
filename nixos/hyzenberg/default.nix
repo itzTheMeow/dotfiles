@@ -1,14 +1,9 @@
 {
   config,
   host,
-  inputs,
   ...
 }:
 {
-  #TODO:nixos-26.05 replace the module with the one from unstable (temp)
-  disabledModules = [ "services/networking/anubis.nix" ];
-  imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/networking/anubis.nix" ];
-
   nginx.enable = true;
 
   sops.secrets.user_key = {

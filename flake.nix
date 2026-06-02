@@ -34,11 +34,6 @@
       inputs.flake-utils.follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    headplane = {
-      url = "github:tale/headplane";
-      inputs.flake-utils.follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -60,7 +55,6 @@
       catppuccin,
       dns,
       flake-utils,
-      headplane,
       home-manager,
       nixpkgs-unstable,
       nixpkgs,
@@ -173,10 +167,6 @@
             # sops
             sops-nix.nixosModules.sops
             (import ./xelib/opsecrets.nix).nixosModule
-
-            # headplane
-            headplane.nixosModules.headplane
-            { nixpkgs.overlays = [ headplane.overlays.default ]; }
 
             # misc
             catppuccin.nixosModules.catppuccin
