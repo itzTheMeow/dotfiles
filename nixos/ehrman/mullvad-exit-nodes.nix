@@ -49,6 +49,7 @@ let
             settings.Resolve = {
               DNS = [ "10.64.0.1" ];
               FallbackDNS = [ "1.1.1.1" ];
+              DNSStubListener = "yes";
             };
           };
 
