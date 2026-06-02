@@ -244,6 +244,10 @@
         };
       in
       {
+        packages = {
+          pati = pkgs.callPackage ./nixos/hyzenberg/pati/package.nix { };
+        };
+
         apps.format = {
           type = "app";
           program = "${formatScript}/bin/format";

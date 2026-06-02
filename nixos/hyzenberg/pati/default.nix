@@ -30,6 +30,6 @@ in
   };
 
   sops.envFiles.pati = {
-    TOKEN = "op://Private/4qjwtji7howkyesw6ppos7hgvu/credential";
+    TOKEN = "op://2whv374zwx3mc54pgiv5t3k4ui/eqa7quqxqdb6kknkz6iwn6niv4/credential";
   };
 }
