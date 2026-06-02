@@ -31,12 +31,6 @@ let
           networking.firewall.enable = false;
           networking.useHostResolvConf = lib.mkForce false;
 
-          services.resolved.enable = true;
-          services.resolved.extraConfig = ''
-            DNS=10.64.0.1
-            DNSStubListener=yes
-          '';
-
           # forward DNS queries to Mullvad's DNS
           networking.nameservers = [ "10.64.0.1" ];
 
