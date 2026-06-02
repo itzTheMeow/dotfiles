@@ -41,7 +41,10 @@ let
             useHostResolvConf = lib.mkForce false;
 
             # forward DNS queries to Mullvad's DNS
-            nameservers = [ "10.64.0.1" ];
+            nameservers = [
+              "10.64.0.1"
+              "1.1.1.1"
+            ];
             nftables.enable = true;
           };
           services.resolved = {
@@ -49,6 +52,10 @@ let
             settings = {
               Resolve = {
                 DNS = [ "10.64.0.1" ];
+                FallbackDNS = [
+                  "1.1.1.1"
+                  "2606:4700:4700::1111"
+                ];
                 DNSStubListener = "yes";
                 Domains = [ "~." ]; # make Mullvad DNS the default for everything
               };
