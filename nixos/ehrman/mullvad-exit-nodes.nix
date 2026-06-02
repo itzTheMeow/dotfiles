@@ -192,6 +192,67 @@ let
           };
 
           # Setup NAT for Tailscale exit node traffic through Mullvad
+          systemd.services.mullvad-exit-nat = {
+            description = "NAT for Tailscale exit node traffic → Mullvad";
+            after = [
+              "mullvad-wireguard.service"
+              "tailscaled.service"
+            ];
+            requires = [
+              "mullvad-wireguard.service"
+              "tailscaled.service"
+            ];
+            wantedBy = [ "multi-user.target" ];
+
+            serviceConfig = {
+              Type = "oneshot";
+              RemainAfterExit = true;
+              Restart = "on-failure";
+              RestartSec = "3s";
+            };
+
+            script = ''
+                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                  if [ -z "$WG_IFACE" ]; then
+                    echo "No WireGuard interface found"
+                    exit 1
+                  fi
+
+                  echo "Setting up NAT: tailscale0 → $WG_IFACE"
+
+                  # Flush old rules first
+                  ${pkgs.nftables}/bin/nft flush chain ip nat POSTROUTING 2>/dev/null || true
+                  ${pkgs.nftables}/bin/nft flush chain ip filter FORWARD 2>/dev/null || true
+
+                  # NAT (MASQUERADE) + Forwarding using nftables
+                  ${pkgs.nftables}/bin/nft -f - <<EOF
+                  table ip nat {
+                    chain POSTROUTING {
+                      type nat hook postrouting priority srcnat;
+                      oifname "$WG_IFACE" counter masquerade
+                    }
+                  }
+
+                  table ip filter {
+                    chain FORWARD {
+                      type filter hook forward priority filter;
+                      policy accept;
+
+                      iifname "tailscale0" oifname "$WG_IFACE" counter accept
+                      iifname "$WG_IFACE" oifname "tailscale0" ct state established,related counter accept
+                    }
+                  }
+              EOF
+
+                  echo "NAT rules applied successfully"
+            '';
+
+            preStop = ''
+              echo "Cleaning up NAT rules"
+              ${pkgs.nftables}/bin/nft flush chain ip nat POSTROUTING 2>/dev/null || true
+              ${pkgs.nftables}/bin/nft flush chain ip filter FORWARD 2>/dev/null || true
+            '';
+          };
           /*
             systemd.services.mullvad-exit-nat = {
               description = "NAT rules for Tailscale => Mullvad";
