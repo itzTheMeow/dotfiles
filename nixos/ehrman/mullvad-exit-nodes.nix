@@ -29,8 +29,8 @@ let
           system.stateVersion = "25.11";
 
           boot.kernel.sysctl = {
-            "net.ipv4.conf.all.rp_filter" = 2;
-            "net.ipv4.conf.default.rp_filter" = 2;
+            "net.ipv4.conf.all.rp_filter" = 0;
+            "net.ipv4.conf.default.rp_filter" = 0;
             "net.ipv4.ip_forward" = 1;
             "net.ipv6.conf.all.forwarding" = 1;
             "net.ipv4.conf.all.src_valid_mark" = 1;
@@ -42,10 +42,17 @@ let
 
             # forward DNS queries to Mullvad's DNS
             nameservers = [ "10.64.0.1" ];
+            nftables.enable = true;
           };
           services.resolved = {
             enable = true;
-            settings.Resolve.Domains = [ "~." ];
+            settings = {
+              Resolve = {
+                DNS = [ "10.64.0.1" ];
+                DNSStubListener = "yes";
+                Domains = [ "~." ]; # make Mullvad DNS the default for everything
+              };
+            };
           };
 
           environment.systemPackages = with pkgs; [
@@ -83,6 +90,12 @@ let
 
           services.tailscale.enable = true;
           services.tailscale.useRoutingFeatures = "both";
+          systemd.services.tailscaled.serviceConfig.Environment = [
+            "TS_DEBUG_FIREWALL_MODE=nftables"
+          ];
+          systemd.services.tailscaled.after = [
+            "mullvad-wireguard.service"
+          ];
 
           # optimize UDP forwarding performance for Tailscale exit nodes
           # > Warning: UDP GRO forwarding is suboptimally configured on eth0, UDP forwarding throughput capability will increase with a configuration change.
@@ -91,7 +104,7 @@ let
             description = "Optimize UDP GRO forwarding for Tailscale";
             after = [
               "network-online.target"
-              "tailscale.service"
+              "tailscaled.service"
             ];
             wants = [ "network-online.target" ];
             wantedBy = [ "multi-user.target" ];
@@ -172,180 +185,183 @@ let
           };
 
           # Setup NAT for Tailscale exit node traffic through Mullvad
-          systemd.services.mullvad-exit-nat = {
-            description = "NAT rules for Tailscale => Mullvad";
-            after = [
-              "network-online.target"
-              "tailscaled.service"
-              "mullvad-wireguard.service"
-            ];
-            wants = [ "network-online.target" ];
-            requires = [
-              "mullvad-wireguard.service"
-              "tailscaled.service"
-            ];
-            partOf = [ "mullvad-wireguard.service" ];
-            wantedBy = [ "multi-user.target" ];
+          /*
+            systemd.services.mullvad-exit-nat = {
+              description = "NAT rules for Tailscale => Mullvad";
+              after = [
+                "network-online.target"
+                "tailscaled.service"
+                "mullvad-wireguard.service"
+              ];
+              wants = [ "network-online.target" ];
+              requires = [
+                "mullvad-wireguard.service"
+                "tailscaled.service"
+              ];
+              partOf = [ "mullvad-wireguard.service" ];
+              wantedBy = [ "multi-user.target" ];
 
-            serviceConfig = {
-              Type = "oneshot";
-              RemainAfterExit = true;
-            };
+              serviceConfig = {
+                Type = "oneshot";
+                RemainAfterExit = true;
+              };
 
-            script = ''
-              # wait for tailscale interface
-              for i in {1..30}; do
-                if ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
-                  break
+              script = ''
+                # wait for tailscale interface
+                for i in {1..30}; do
+                  if ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
+                    break
+                  fi
+                  sleep 1
+                done
+
+                if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
+                  echo "tailscale0 interface did not appear in time"
+                  exit 1
                 fi
-                sleep 1
-              done
 
-              if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
-                echo "tailscale0 interface did not appear in time"
-                exit 1
-              fi
+                # wait for the WireGuard interface name
+                for i in {1..30}; do
+                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
+                  [ -n "$WG_IFACE" ] && break
+                  sleep 1
+                done
 
-              # wait for the WireGuard interface name
-              for i in {1..30}; do
+                if [ -z "$WG_IFACE" ]; then
+                  echo "No WireGuard interface found"
+                  exit 1
+                fi
+
+                echo "Setting up NAT for Tailscale => $WG_IFACE"
+
+                # clear old rules
+                #${pkgs.iptables}/bin/iptables -F FORWARD
+
+                # IPv4 NAT and forwarding rules
+                ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
+                ${pkgs.iptables}/bin/iptables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
+                ${pkgs.iptables}/bin/iptables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+                # IPv6 NAT and forwarding rules
+                ${pkgs.iptables}/bin/ip6tables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
+                ${pkgs.iptables}/bin/ip6tables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
+                ${pkgs.iptables}/bin/ip6tables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+                # MSS Clamping
+                ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
+                echo "NAT rules (IPv4 and IPv6) configured successfully"
+              '';
+
+              preStop = ''
+                # Get the WireGuard interface name
                 WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-                [ -n "$WG_IFACE" ] && break
-                sleep 1
-              done
 
-              if [ -z "$WG_IFACE" ]; then
-                echo "No WireGuard interface found"
-                exit 1
-              fi
+                if [ -n "$WG_IFACE" ]; then
+                  echo "Removing NAT rules for $WG_IFACE"
 
-              echo "Setting up NAT for Tailscale => $WG_IFACE"
+                  # IPv4 cleanup
+                  ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
+                  ${pkgs.iptables}/bin/iptables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
+                  ${pkgs.iptables}/bin/iptables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
 
-              # clear old rules
-              #${pkgs.iptables}/bin/iptables -F FORWARD
-
-              # IPv4 NAT and forwarding rules
-              ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
-              ${pkgs.iptables}/bin/iptables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
-              ${pkgs.iptables}/bin/iptables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-
-              # IPv6 NAT and forwarding rules
-              ${pkgs.iptables}/bin/ip6tables -t nat -A POSTROUTING -o "$WG_IFACE" -j MASQUERADE
-              ${pkgs.iptables}/bin/ip6tables -A FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT
-              ${pkgs.iptables}/bin/ip6tables -A FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-
-              # MSS Clamping
-              ${pkgs.iptables}/bin/iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-
-
-              echo "NAT rules (IPv4 and IPv6) configured successfully"
-            '';
-
-            preStop = ''
-              # Get the WireGuard interface name
-              WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces | head -n1)
-
-              if [ -n "$WG_IFACE" ]; then
-                echo "Removing NAT rules for $WG_IFACE"
-
-                # IPv4 cleanup
-                ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
-                ${pkgs.iptables}/bin/iptables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
-                ${pkgs.iptables}/bin/iptables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
-
-                # IPv6 cleanup
-                ${pkgs.iptables}/bin/ip6tables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
-                ${pkgs.iptables}/bin/ip6tables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
-                ${pkgs.iptables}/bin/ip6tables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
-              fi
-            '';
-          };
+                  # IPv6 cleanup
+                  ${pkgs.iptables}/bin/ip6tables -t nat -D POSTROUTING -o "$WG_IFACE" -j MASQUERADE 2>/dev/null || true
+                  ${pkgs.iptables}/bin/ip6tables -D FORWARD -i tailscale0 -o "$WG_IFACE" -j ACCEPT 2>/dev/null || true
+                  ${pkgs.iptables}/bin/ip6tables -D FORWARD -i "$WG_IFACE" -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
+                fi
+              '';
+            };
+          */
 
           # Health check and auto-recovery for Mullvad WireGuard
-          systemd.services.mullvad-health-check = {
-            description = "Mullvad WireGuard Health Check";
-            after = [
-              "tailscaled.service"
-              "mullvad-wireguard.service"
-              "mullvad-exit-nat.service"
-            ];
-            requires = [
-              "tailscaled.service"
-              "mullvad-wireguard.service"
-              "mullvad-exit-nat.service"
-            ];
-            wantedBy = [ "multi-user.target" ];
+          /*
+            systemd.services.mullvad-health-check = {
+              description = "Mullvad WireGuard Health Check";
+              after = [
+                "tailscaled.service"
+                "mullvad-wireguard.service"
+                "mullvad-exit-nat.service"
+              ];
+              requires = [
+                "tailscaled.service"
+                "mullvad-wireguard.service"
+                "mullvad-exit-nat.service"
+              ];
+              wantedBy = [ "multi-user.target" ];
 
-            serviceConfig = {
-              Type = "simple";
-              Restart = "always";
-              RestartSec = "30s";
-            };
+              serviceConfig = {
+                Type = "simple";
+                Restart = "always";
+                RestartSec = "30s";
+              };
 
-            script = ''
-              echo "Starting Mullvad health check service..."
+              script = ''
+                echo "Starting Mullvad health check service..."
 
-              restart_stack() {
-                systemctl restart mullvad-wireguard.service
-                sleep 5
-                systemctl restart mullvad-exit-nat.service
-              }
-
-              while true; do
-                # Wait between checks
-                sleep 60
-
-                # Ensure tailscale interface exists before considering health as good
-                if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
-                  echo "ERROR: tailscale0 interface missing. Restarting tailscaled and NAT..."
-                  systemctl restart tailscaled.service
+                restart_stack() {
+                  systemctl restart mullvad-wireguard.service
                   sleep 5
                   systemctl restart mullvad-exit-nat.service
-                  continue
-                fi
-                
-                # Check if WireGuard interface is up
-                WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces 2>/dev/null | head -n1)
-                
-                if [ -z "$WG_IFACE" ]; then
-                  echo "ERROR: No WireGuard interface found. Restarting mullvad-wireguard service..."
-                  restart_stack
-                  continue
-                fi
+                }
 
-                # Ensure required NAT rule exists for current interface
-                if ! ${pkgs.iptables}/bin/iptables -t nat -C POSTROUTING -o "$WG_IFACE" -j MASQUERADE >/dev/null 2>&1; then
-                  echo "ERROR: NAT rule missing for $WG_IFACE. Restarting mullvad-exit-nat service..."
-                  systemctl restart mullvad-exit-nat.service
-                  continue
-                fi
-                
-                # Check if interface has received data recently (handshake is active)
-                HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
-                CURRENT_TIME=$(date +%s)
-                
-                if [ -n "$HANDSHAKE" ]; then
-                  TIME_SINCE_HANDSHAKE=$((CURRENT_TIME - HANDSHAKE))
-                  
-                  # If no handshake in the last 3 minutes, connection is likely dead
-                  if [ "$TIME_SINCE_HANDSHAKE" -gt 180 ]; then
-                    echo "WARNING: No handshake in $TIME_SINCE_HANDSHAKE seconds. Connection may be dead."
+                while true; do
+                  # Wait between checks
+                  sleep 60
+
+                  # Ensure tailscale interface exists before considering health as good
+                  if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
+                    echo "ERROR: tailscale0 interface missing. Restarting tailscaled and NAT..."
+                    systemctl restart tailscaled.service
+                    sleep 5
+                    systemctl restart mullvad-exit-nat.service
+                    continue
                   fi
-                fi
-                
-                # Perform connectivity test - try to ping Mullvad's DNS
-                if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 10.64.0.1 &>/dev/null; then
-                  echo "ERROR: Ping to Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
-                  
-                  # Restart mullvad-wireguard which will pick a new random config
-                  restart_stack
-                  
-                  echo "Switched to new Mullvad server config"
-                else
-                  echo "Health check passed - connection is healthy"
-                fi
-              done
-            '';
-          };
+
+                  # Check if WireGuard interface is up
+                  WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces 2>/dev/null | head -n1)
+
+                  if [ -z "$WG_IFACE" ]; then
+                    echo "ERROR: No WireGuard interface found. Restarting mullvad-wireguard service..."
+                    restart_stack
+                    continue
+                  fi
+
+                  # Ensure required NAT rule exists for current interface
+                  if ! ${pkgs.iptables}/bin/iptables -t nat -C POSTROUTING -o "$WG_IFACE" -j MASQUERADE >/dev/null 2>&1; then
+                    echo "ERROR: NAT rule missing for $WG_IFACE. Restarting mullvad-exit-nat service..."
+                    systemctl restart mullvad-exit-nat.service
+                    continue
+                  fi
+
+                  # Check if interface has received data recently (handshake is active)
+                  HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
+                  CURRENT_TIME=$(date +%s)
+
+                  if [ -n "$HANDSHAKE" ]; then
+                    TIME_SINCE_HANDSHAKE=$((CURRENT_TIME - HANDSHAKE))
+
+                    # If no handshake in the last 3 minutes, connection is likely dead
+                    if [ "$TIME_SINCE_HANDSHAKE" -gt 180 ]; then
+                      echo "WARNING: No handshake in $TIME_SINCE_HANDSHAKE seconds. Connection may be dead."
+                    fi
+                  fi
+
+                  # Perform connectivity test - try to ping Mullvad's DNS
+                  if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 10.64.0.1 &>/dev/null; then
+                    echo "ERROR: Ping to Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
+
+                    # Restart mullvad-wireguard which will pick a new random config
+                    restart_stack
+
+                    echo "Switched to new Mullvad server config"
+                  else
+                    echo "Health check passed - connection is healthy"
+                  fi
+                done
+              '';
+            };
+          */
 
           # socks5 proxy
           systemd.services.socks5-proxy = {
