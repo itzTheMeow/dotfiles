@@ -134,7 +134,10 @@ in
       # effectively disable
       { keyFile = "/dev/null"; };
 
+  # catppuccin settings
   catppuccin = {
+    enable = true;
+    autoEnable = false;
     inherit (xelib.globals.catppuccin) accent flavor;
   };
 }

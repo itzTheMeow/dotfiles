@@ -193,4 +193,11 @@ in
     PasswordAuthentication = false;
     KbdInteractiveAuthentication = false;
   };
+
+  # catppuccin settings
+  catppuccin = {
+    enable = true;
+    autoEnable = false;
+    inherit (xelib.globals.catppuccin) accent flavor;
+  };
 }
