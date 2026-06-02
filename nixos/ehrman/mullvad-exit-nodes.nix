@@ -28,11 +28,14 @@ let
         {
           system.stateVersion = "25.11";
 
-          networking.firewall.enable = false;
-          networking.useHostResolvConf = lib.mkForce false;
+          networking = {
+            firewall.enable = false;
+            useHostResolvConf = lib.mkForce false;
 
-          # forward DNS queries to Mullvad's DNS
-          networking.nameservers = [ "10.64.0.1" ];
+            # forward DNS queries to Mullvad's DNS
+            resolvconf.enable = true;
+            nameservers = [ "10.64.0.1" ];
+          };
 
           environment.systemPackages = with pkgs; [
             # actually needed
