@@ -53,7 +53,6 @@
       protoc-gen-go-grpc
 
       ## flutter
-      dart
       flutter
 
       ## just
