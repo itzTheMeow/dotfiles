@@ -11,8 +11,8 @@ buildNpmPackage {
   src = fetchFromGitHub {
     owner = "brayden-indigo";
     repo = "Pati";
-    rev = "00051ea19d9cd9b7f259cfbb57e4fefabf3fa85c";
-    hash = "sha256-izsIwVfktQni73yokjOxSj31UeW/m01eyWL9C0G427o=";
+    rev = "a654e0395e3b46dc45fdb481697921c99a1cb908";
+    hash = "sha256-zOMs278htIn9b1NL73CqU1c1qVxQ+CB8HvfgsR/ME2U=";
   };
   npmDepsHash = "sha256-p14wlfLRh65ASGfY/COtwGoh7zjxNSgtn8XI1wKD2aQ=";
 
