@@ -143,6 +143,12 @@ rec {
       index = 1;
       # 51641 53481 61231
     }
+    {
+      name = "chicago";
+      city = "Chicago IL";
+      index = 2;
+      # 51642 53482 61232
+    }
   ];
 
   # optionally import a module if it exists
