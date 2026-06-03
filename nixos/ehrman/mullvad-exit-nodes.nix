@@ -20,6 +20,8 @@ let
     cfg:
     let
       gluetunContainer = "mullvad-exit-gluetun-${cfg.name}";
+      tailscaleContainer = "mullvad-exit-tailscale-${cfg.name}";
+      socks5Container = "mullvad-exit-socks5-${cfg.name}";
       tailscalePort = basePorts.tailscale + cfg.index;
       stunPort = basePorts.stun + cfg.index;
       extraOptions = [
@@ -42,8 +44,12 @@ let
             SERVER_CITIES = cfg.city;
             DNS_ADDRESS = "10.64.0.1";
             WIREGUARD_MTU = MTU;
+            WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL = "25s";
             FIREWALL_OUTBOUND_SUBNETS = "192.168.1.0/24,100.64.0.0/10,172.17.0.0/16";
             FIREWALL_INPUT_PORTS = "41641,3478,1080";
+            HEALTH_VPN_DURATION_INITIAL = "30s";
+            HEALTH_VPN_DURATION_ADDITION = "10s";
+            HEALTH_SUCCESS_WAIT_DURATION = "5s";
           };
           environmentFiles = [ config.sops.secrets."mullvad-exit-node-${cfg.name}".path ];
           ports = [
@@ -52,7 +58,8 @@ let
             "${host.ip}:${toString (basePorts.socks5 + cfg.index)}:1080"
           ];
         };
-        "mullvad-exit-tailscale-${cfg.name}" = {
+
+        ${tailscaleContainer} = {
           image = "tailscale/tailscale:v1.98.4";
           autoStart = true;
           inherit extraOptions;
@@ -72,7 +79,8 @@ let
           environmentFiles = [ "${envDir}/${cfg.name}.env" ];
           volumes = [ "${configDir}/${cfg.name}:/var/lib/tailscale" ];
         };
-        "mullvad-exit-socks5-${cfg.name}" = {
+
+        ${socks5Container} = {
           image = "serjs/go-socks5-proxy:v0.0.4";
           autoStart = true;
           dependsOn = [ gluetunContainer ];
@@ -83,16 +91,72 @@ let
 
       systemd.services =
         let
-          waitScript = pkgs.writeShellScript "wait-for-gluetun-${cfg.name}" ''
-            until [ "$(${pkgs.docker}/bin/docker inspect --format='{{.State.Health.Status}}' ${gluetunContainer})" = "healthy" ]; do
-              echo "Waiting for ${gluetunContainer} network tunnel to report healthy..."
+          waitForHealthy = pkgs.writeShellScript "wait-for-gluetun-${cfg.name}" ''
+            echo "Waiting for ${gluetunContainer} to be healthy..."
+            until [ "$(${pkgs.docker}/bin/docker inspect --format='{{.State.Health.Status}}' ${gluetunContainer} 2>/dev/null)" = "healthy" ]; do
               sleep 2
+            done
+            echo "${gluetunContainer} is healthy"
+          '';
+
+          # watches gluetun health and restarts only tailscale+socks5 when it
+          # recovers — does NOT restart gluetun itself, avoiding cascade failures
+          watcherScript = pkgs.writeShellScript "gluetun-watcher-${cfg.name}" ''
+            echo "Starting gluetun health watcher for ${cfg.name}..."
+            WAS_HEALTHY=true
+
+            while true; do
+              sleep 15
+
+              STATUS=$(${pkgs.docker}/bin/docker inspect \
+                --format='{{.State.Health.Status}}' \
+                ${gluetunContainer} 2>/dev/null)
+
+              if [ "$STATUS" != "healthy" ]; do
+                if [ "$WAS_HEALTHY" = "true" ]; then
+                  echo "WARNING: ${gluetunContainer} went unhealthy, stopping dependents..."
+                  # stop tailscale and socks5 cleanly so they don't linger
+                  # in a broken state while gluetun recovers
+                  ${pkgs.docker}/bin/docker stop ${tailscaleContainer} 2>/dev/null || true
+                  ${pkgs.docker}/bin/docker stop ${socks5Container} 2>/dev/null || true
+                fi
+                WAS_HEALTHY=false
+                continue
+              fi
+
+              if [ "$WAS_HEALTHY" = "false" ]; then
+                echo "${gluetunContainer} recovered, restarting dependents..."
+                sleep 3
+                ${pkgs.docker}/bin/docker start ${tailscaleContainer} 2>/dev/null || true
+                ${pkgs.docker}/bin/docker start ${socks5Container} 2>/dev/null || true
+                WAS_HEALTHY=true
+                echo "Dependents restarted"
+              fi
             done
           '';
         in
         {
-          "docker-mullvad-exit-tailscale-${cfg.name}".serviceConfig.ExecStartPre = waitScript;
-          "docker-mullvad-exit-socks5-${cfg.name}".serviceConfig.ExecStartPre = waitScript;
+          "docker-${tailscaleContainer}".serviceConfig.ExecStartPre = waitForHealthy;
+          "docker-${socks5Container}".serviceConfig.ExecStartPre = waitForHealthy;
+
+          "mullvad-exit-watcher-${cfg.name}" = {
+            description = "Gluetun health watcher for ${cfg.name}";
+            after = [
+              "docker-${gluetunContainer}.service"
+              "docker-${tailscaleContainer}.service"
+            ];
+            requires = [
+              "docker-${gluetunContainer}.service"
+              "docker-${tailscaleContainer}.service"
+            ];
+            wantedBy = [ "multi-user.target" ];
+            serviceConfig = {
+              Type = "simple";
+              Restart = "always";
+              RestartSec = "15s";
+              ExecStart = watcherScript;
+            };
+          };
         };
 
       # open ports in firewall for tailscale/stun
