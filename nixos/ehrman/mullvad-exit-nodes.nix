@@ -139,22 +139,15 @@ let
           '';
         in
         {
-          "docker-network-${networkName}" = {
-            description = "Create Docker network ${networkName}";
-            before = [
-              "docker-${gluetunContainer}.service"
-              "docker-${tailscaleContainer}.service"
-              "docker-${socks5Container}.service"
-            ];
+          "docker-${gluetunContainer}" = {
             after = [ "docker.service" ];
             requires = [ "docker.service" ];
-            wantedBy = [ "multi-user.target" ];
+            startLimitIntervalSec = 0;
             serviceConfig = {
-              Type = "oneshot";
-              RemainAfterExit = true;
-              ExecStartPre = pkgs.writeShellScript "teardown-network-${networkName}" ''
+              RestartSec = "5s";
+              ExecStartPre = pkgs.writeShellScript "setup-network-${networkName}" ''
+                # Tear down stale network if it exists
                 if ${pkgs.docker}/bin/docker network inspect ${networkName} >/dev/null 2>&1; then
-                  echo "Tearing down existing network ${networkName}..."
                   for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
                       --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
                     ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
@@ -162,29 +155,14 @@ let
                   ${pkgs.docker}/bin/docker network rm ${networkName} 2>/dev/null || true
                   sleep 1
                 fi
-              '';
-              ExecStart = pkgs.writeShellScript "create-network-${networkName}" ''
+
                 echo "Creating Docker network ${networkName} (${subnet})"
                 ${pkgs.docker}/bin/docker network create \
                   --driver bridge \
                   --subnet ${subnet} \
                   ${networkName}
               '';
-              ExecStop = pkgs.writeShellScript "remove-network-${networkName}" ''
-                for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
-                    --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
-                  ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
-                done
-                ${pkgs.docker}/bin/docker network rm ${networkName} 2>/dev/null || true
-              '';
             };
-          };
-
-          "docker-${gluetunContainer}" = {
-            after = [ "docker-network-${networkName}.service" ];
-            requires = [ "docker-network-${networkName}.service" ];
-            startLimitIntervalSec = 0;
-            serviceConfig.RestartSec = "5s";
           };
 
           "docker-${tailscaleContainer}" = {
