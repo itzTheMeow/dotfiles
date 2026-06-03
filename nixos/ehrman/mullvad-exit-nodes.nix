@@ -6,8 +6,8 @@
 }:
 let
   basePorts = {
-    tailscale = 41640;
-    stun = 3480;
+    tailscale = 51640;
+    stun = 53480;
     socks5 = 61230;
   };
   envDir = "/run/mullvad-exit";
@@ -74,6 +74,7 @@ let
           autoStart = true;
           dependsOn = [ gluetunContainer ];
           extraOptions = [ "--network=container:${gluetunContainer}" ];
+          environment.REQUIRE_AUTH = "false";
         };
       }
     ];
