@@ -1,367 +1,99 @@
 {
-  lib,
+  config,
+  host,
   xelib,
   ...
 }:
 let
-  socks5Port = 1080;
-
-  configDir = "/var/lib/mullvad-configs";
-  mkMullvadExitNode = cfg: {
-    name = "mullvad-${cfg.name}";
-    value = {
-      autoStart = true;
-      privateNetwork = true;
-      hostAddress = "10.250.0.1";
-      localAddress = cfg.address;
-
-      # Allow TUN device for VPN
-      allowedDevices = [
-        {
-          node = "/dev/net/tun";
-          modifier = "rwm";
-        }
-      ];
-
-      config =
-        { pkgs, ... }:
-        {
-          system.stateVersion = "25.11";
-
-          boot.kernel.sysctl = {
-            "net.ipv4.conf.all.rp_filter" = 0;
-            "net.ipv4.conf.default.rp_filter" = 0;
-            "net.ipv4.ip_forward" = 1;
-            "net.ipv6.conf.all.forwarding" = 1;
-            "net.ipv4.conf.all.src_valid_mark" = 1;
-          };
-
-          networking = {
-            firewall.enable = false;
-            useHostResolvConf = lib.mkForce false;
-
-            # forward DNS queries to Mullvad's DNS
-            nameservers = [ "10.64.0.1" ];
-            nftables.enable = true;
-          };
-          services.resolved = {
-            enable = true;
-            settings.Resolve = {
-              DNS = [ "10.64.0.1" ];
-              FallbackDNS = [
-                "1.1.1.1"
-                "2606:4700:4700::1111"
-              ];
-              DNSStubListener = "yes";
-              Domains = [ "~." ]; # make Mullvad DNS the default for everything
-            };
-          };
-
-          environment.systemPackages = with pkgs; [
-            # actually needed
-            microsocks
-            tailscale
-            wireguard-tools
-            # debug
-            dig
-            iputils
-            kitty
-            net-tools
-            tcpdump
-            # quick test script to curl mullvad
-            (pkgs.writeShellScriptBin "ctest" ''
-              curl https://am.i.mullvad.net/json
-            '')
-
-            # init script
-            (pkgs.writeShellScriptBin "tailscale-init" ''
-              if [ -z "$1" ]; then
-                echo "Usage: tailscale-init <authkey>"
-                exit 1
-              fi
-
-              echo "Initializing Tailscale exit node..."
-              ${pkgs.tailscale}/bin/tailscale up \
-                --accept-dns=false \
-                --accept-routes=false \
-                --advertise-exit-node \
-                --hostname="mullvad-${cfg.name}" \
-                --login-server=${xelib.apps.headscale.url} \
-                --authkey="$1"
-
-              echo "Tailscale exit node configured successfully!"
-            '')
-          ];
-
-          services.tailscale.enable = true;
-          services.tailscale.useRoutingFeatures = "both";
-          systemd.services.tailscaled.serviceConfig.Environment = [
-            "TS_DEBUG_FIREWALL_MODE=nftables"
-          ];
-          systemd.services.tailscaled.after = [
-            "mullvad-wireguard.service"
-          ];
-
-          # set up Mullvad WireGuard connection
-          # put Mullvad configs in /var/lib/mullvad-configs/*.conf (configDir)
-          systemd.services.mullvad-wireguard = {
-            description = "Mullvad WireGuard VPN";
-            after = [ "network-online.target" ];
-            wants = [ "network-online.target" ];
-            wantedBy = [ "multi-user.target" ];
-
-            serviceConfig = {
-              Type = "oneshot";
-              RemainAfterExit = true;
-            };
-
-            script = ''
-              CONFIG_DIR="${configDir}"
-
-              if [ ! -d "$CONFIG_DIR" ]; then
-                echo "Config directory $CONFIG_DIR does not exist. Please create it and add Mullvad configs."
-                echo "Download configs from: https://mullvad.net/en/account/wireguard-config"
-                exit 1
-              fi
-
-              # Count available configs
-              CONFIG_COUNT=$(ls -1 "$CONFIG_DIR"/*.conf 2>/dev/null | wc -l)
-              if [ "$CONFIG_COUNT" -eq 0 ]; then
-                echo "No .conf files found in $CONFIG_DIR"
-                exit 1
-              fi
-
-              # Pick a random config
-              RANDOM_CONFIG=$(ls -1 "$CONFIG_DIR"/*.conf | shuf -n 1)
-              echo "Selected config: $(basename "$RANDOM_CONFIG")"
-
-              # Start WireGuard with the selected config
-              ${pkgs.wireguard-tools}/bin/wg-quick up "$RANDOM_CONFIG"
-            '';
-
-            preStop = ''
-              CONFIG_DIR="${configDir}"
-
-              # Stop all active WireGuard interfaces using their config files
-              for iface in $(${pkgs.wireguard-tools}/bin/wg show interfaces 2>/dev/null); do
-                CONFIG="$CONFIG_DIR/$iface.conf"
-                if [ -f "$CONFIG" ]; then
-                  echo "Stopping WireGuard interface $iface using config: $(basename "$CONFIG")"
-                  ${pkgs.wireguard-tools}/bin/wg-quick down "$CONFIG" 2>/dev/null || true
-                else
-                  echo "Config not found for interface $iface, removing interface directly"
-                  ${pkgs.iproute2}/bin/ip link delete dev "$iface" 2>/dev/null || true
-                fi
-              done
-            '';
-          };
-
-          # Setup NAT for Tailscale exit node traffic through Mullvad
-          systemd.services.mullvad-exit-nat = {
-            description = "NAT for Tailscale Exit Node => Mullvad";
-            after = [
-              "mullvad-wireguard.service"
-              "tailscaled.service"
-            ];
-            requires = [
-              "mullvad-wireguard.service"
-              "tailscaled.service"
-            ];
-            wantedBy = [ "multi-user.target" ];
-
-            serviceConfig = {
-              Type = "oneshot";
-              RemainAfterExit = true;
-              Restart = "on-failure";
-              RestartSec = "3s";
-            };
-
-            path = with pkgs; [
-              nftables
-              wireguard-tools
-            ];
-
-            script = ''
-              WG_IFACE=$(wg show interfaces | head -n1)
-              if [ -z "$WG_IFACE" ]; then
-                echo "No WireGuard interface found"
-                exit 1
-              fi
-
-              echo "Setting up NAT: tailscale0 => $WG_IFACE"
-
-              # flush old rules
-              nft flush chain ip nat POSTROUTING 2>/dev/null || true
-              nft flush chain ip filter FORWARD 2>/dev/null || true
-
-              # nat forwarding via nftables
-              nft -f - <<EOF
-                  table ip nat {
-                    chain POSTROUTING {
-                      type nat hook postrouting priority srcnat;
-                      oifname "$WG_IFACE" counter masquerade
-                    }
-                  }
-
-                  table ip filter {
-                    chain FORWARD {
-                      type filter hook forward priority filter;
-                      policy accept;
-
-                      iifname "tailscale0" oifname "$WG_IFACE" counter accept
-                      iifname "$WG_IFACE" oifname "tailscale0" ct state established,related counter accept
-                    }
-                  }
-              EOF
-
-              echo "NAT rules applied successfully"
-            '';
-
-            preStop = ''
-              echo "Cleaning up NAT rules"
-              nft flush chain ip nat POSTROUTING 2>/dev/null || true
-              nft flush chain ip filter FORWARD 2>/dev/null || true
-            '';
-          };
-
-          # Health check and auto-recovery for Mullvad WireGuard
-          systemd.services.mullvad-health-check = {
-            description = "Mullvad WireGuard Health Check";
-            after = [
-              "tailscaled.service"
-              "mullvad-wireguard.service"
-              "mullvad-exit-nat.service"
-            ];
-            requires = [
-              "tailscaled.service"
-              "mullvad-wireguard.service"
-              "mullvad-exit-nat.service"
-            ];
-            wantedBy = [ "multi-user.target" ];
-
-            serviceConfig = {
-              Type = "simple";
-              Restart = "always";
-              RestartSec = "30s";
-            };
-
-            script = ''
-              echo "Starting Mullvad health check service..."
-
-              restart_stack() {
-                systemctl restart mullvad-wireguard.service
-                sleep 5
-                systemctl restart tailscaled
-                sleep 5
-                systemctl restart mullvad-exit-nat.service
-              }
-
-              while true; do
-                # Wait between checks
-                sleep 30
-
-                # Ensure tailscale interface exists before considering health as good
-                if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
-                  echo "ERROR: tailscale0 interface missing. Restarting tailscaled and NAT..."
-                  systemctl restart tailscaled.service
-                  sleep 5
-                  systemctl restart mullvad-exit-nat.service
-                  continue
-                fi
-
-                # Check if WireGuard interface is up
-                WG_IFACE=$(${pkgs.wireguard-tools}/bin/wg show interfaces 2>/dev/null | head -n1)
-
-                if [ -z "$WG_IFACE" ]; then
-                  echo "ERROR: No WireGuard interface found. Restarting mullvad-wireguard service..."
-                  restart_stack
-                  continue
-                fi
-
-                # Check if interface has received data recently (handshake is active)
-                HANDSHAKE=$(${pkgs.wireguard-tools}/bin/wg show "$WG_IFACE" latest-handshakes 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
-                CURRENT_TIME=$(date +%s)
-
-                if [ -n "$HANDSHAKE" ]; then
-                  TIME_SINCE_HANDSHAKE=$((CURRENT_TIME - HANDSHAKE))
-
-                  # If no handshake in the last 3 minutes, connection is likely dead
-                  if [ "$TIME_SINCE_HANDSHAKE" -gt 180 ]; then
-                    echo "WARNING: No handshake in $TIME_SINCE_HANDSHAKE seconds. Connection may be dead."
-                  fi
-                fi
-
-                # Perform connectivity test - try to ping Mullvad's DNS
-                if ! ${pkgs.iputils}/bin/ping -c 1 -W 5 10.64.0.1 &>/dev/null; then
-                  echo "ERROR: Ping to Mullvad DNS (10.64.0.1) failed. Connection is down, restarting..."
-
-                  # Restart mullvad-wireguard which will pick a new random config
-                  restart_stack
-
-                  echo "Switched to new Mullvad server config"
-                else
-                  echo "Health check passed - connection is healthy"
-                fi
-              done
-            '';
-          };
-
-          # optimize UDP forwarding performance for Tailscale exit nodes
-          # > Warning: UDP GRO forwarding is suboptimally configured on eth0, UDP forwarding throughput capability will increase with a configuration change.
-          # > See https://tailscale.com/s/ethtool-config-udp-gro
-          # this should run after everything else
-          systemd.services.tailscale-udp-gro = {
-            description = "Optimize UDP GRO forwarding for Tailscale";
-            after = [
-              "network-online.target"
-              "tailscaled.service"
-              "mullvad-exit-nat.service"
-            ];
-            wants = [ "network-online.target" ];
-            wantedBy = [ "multi-user.target" ];
-
-            serviceConfig = {
-              Type = "oneshot";
-              RemainAfterExit = true;
-            };
-
-            script = ''
-              # Get the main network interface (the one with default route to internet)
-              NETDEV=$(${pkgs.iproute2}/bin/ip -o route get 8.8.8.8 | ${pkgs.gawk}/bin/awk '{print $5}')
-
-              if [ -z "$NETDEV" ]; then
-                echo "Could not determine network interface"
-                exit 1
-              fi
-
-              echo "Optimizing UDP GRO forwarding on interface: $NETDEV"
-              ${pkgs.ethtool}/bin/ethtool -K "$NETDEV" rx-udp-gro-forwarding on rx-gro-list off
-
-              echo "UDP GRO forwarding optimization applied successfully"
-            '';
-          };
-
-          # socks5 proxy
-          systemd.services.socks5-proxy = {
-            description = "SOCKS5 Proxy";
-            after = [ "mullvad-wireguard.service" ];
-            wantedBy = [ "multi-user.target" ];
-            serviceConfig.ExecStart = "${pkgs.microsocks}/bin/microsocks -p ${toString socks5Port}";
-          };
-        };
-    };
+  basePorts = {
+    tailscale = 41640;
+    stun = 3480;
+    socks5 = 61230;
   };
+  envDir = "/run/mullvad-exit";
+  configDir = "/var/lib/mullvad-exit";
+  MTU = "1420";
+
+  mkMullvadExitNode =
+    cfg:
+    let
+      gluetunContainer = "mullvad-exit-gluetun-${cfg.name}";
+    in
+    [
+      {
+        name = gluetunContainer;
+        value = {
+          image = "qmcgaw/gluetun:v3.40.2";
+          autoStart = true;
+          extraOptions = [
+            "--cap-add=NET_ADMIN"
+            "--device=/dev/net/tun:/dev/net/tun"
+          ];
+          environment = {
+            VPN_SERVICE_PROVIDER = "mullvad";
+            VPN_TYPE = "wireguard";
+            WIREGUARD_PRIVATE_KEY = cfg.privateKeySecret;
+            WIREGUARD_ADDRESSES = cfg.wireguardAddress;
+            SERVER_CITIES = cfg.serverCity;
+            DNS_ADDRESS = "10.64.0.1";
+            WIREGUARD_MTU = MTU;
+            FIREWALL_OUTBOUND_SUBNETS = "192.168.1.0/24,100.64.0.0/10";
+          };
+          environmentFiles = [
+            config.sops.secrets.mullvad-exit-nodes.path
+          ];
+          ports = [
+            "${toString (basePorts.tailscale + cfg.index)}:41641/udp"
+            "${toString (basePorts.stun + cfg.index)}:3478/udp"
+            "${host.ip}:${toString (basePorts.socks5 + cfg.index)}:1080"
+          ];
+        };
+      }
+      {
+        name = "mullvad-exit-tailscale-${cfg.name}";
+        value = {
+          image = "tailscale/tailscale:v1.98.4";
+          autoStart = true;
+          dependsOn = [ gluetunContainer ];
+          extraOptions = [
+            "--network=container:${gluetunContainer}"
+            "--privileged"
+          ];
+          environment = {
+            TS_EXTRA_ARGS = "--login-server=${xelib.apps.headscale.url} --advertise-exit-node --accept-dns=false";
+            TS_STATE_DIR = "/var/lib/tailscale";
+            TS_HOSTNAME = cfg.tailscaleHostName;
+            TS_DEBUG_MTU = MTU;
+          };
+          environmentFiles = [ "${envDir}/${cfg.name}.env" ];
+          volumes = [ "${configDir}/${cfg.name}:/var/lib/tailscale" ];
+        };
+      }
+      {
+        name = "mullvad-exit-socks5-${cfg.name}";
+        value = {
+          image = "serjs/go-socks5-proxy:v0.0.4";
+          autoStart = true;
+          dependsOn = [ gluetunContainer ];
+          extraOptions = [ "--network=container:${gluetunContainer}" ];
+          environment.PROXY_PORT = 1080;
+        };
+      }
+    ];
 in
 {
   # create the actual containers for each exit node
-  containers = builtins.listToAttrs (map mkMullvadExitNode xelib.exitNodes);
+  virtualisation.oci-containers.containers = builtins.listToAttrs (
+    builtins.concatLists (map mkMullvadExitNode xelib.exitNodes)
+  );
 
-  # enable NAT for container network
-  networking.nat = {
-    enable = true;
-    internalInterfaces = [ "ve-+" ];
-    externalInterface = "ens3";
-  };
+  # open ports in firewall for tailscale/stun
+  networking.firewall.allowedUDPPorts = builtins.concatLists (
+    builtins.map (node: [
+      (basePorts.tailscale + node.index)
+      (basePorts.stun + node.index)
+    ]) xelib.exitNodes
+  );
 
   # enable IP forwarding
   boot.kernel.sysctl = {
@@ -369,24 +101,16 @@ in
     "net.ipv6.conf.all.forwarding" = 1;
   };
 
-  # use nginx streams to proxy from tailscale to the individual containers
-  services.nginx = {
-    enable = true;
-    streamConfig = builtins.concatStringsSep "\n" (
-      map (cfg: ''
-        server {
-            # listen on the tailscale IP & public port
-            listen 0.0.0.0:${toString cfg.port};
+  # create .env files for tailscale auth keys
+  systemd.tmpfiles.rules = [
+    "d ${envDir} 0700 root root - -"
+  ]
+  ++ (builtins.map (
+    node: "f+ ${envDir}/${node.name}.env 0600 root root - - TS_AUTHKEY="
+  ) xelib.exitNodes);
 
-            # forward to the internal container
-            proxy_pass ${cfg.address}:${toString socks5Port};
-
-            # optimize for higher bandwidth
-            proxy_buffer_size 16k;
-            proxy_timeout 1h;
-            proxy_connect_timeout 5s;
-        }
-      '') xelib.exitNodes
-    );
+  sops.envFiles.mullvad-exit-nodes = {
+    WIREGUARD_ADDRESSES = "op://Private/marehbn7mhvixiywnnggztiosm/nxqiv6oggpwqdm7asdn4s4pzcu/Address";
+    WIREGUARD_PRIVATE_KEY = "op://Private/marehbn7mhvixiywnnggztiosm/nxqiv6oggpwqdm7asdn4s4pzcu/Private Key";
   };
 }

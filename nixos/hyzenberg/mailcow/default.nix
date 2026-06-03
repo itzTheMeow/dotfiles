@@ -23,13 +23,6 @@ in
     enableProxy = true;
   };
 
-  # enable ipv6 support for docker
-  virtualisation.docker.daemon.settings = {
-    ipv6 = true;
-    ip6tables = true;
-    fixed-cidr-v6 = "${lib.removeSuffix "1" xelib.dns.addr6.${hostname}}/64";
-  };
-
   # open required ports
   # https://docs.mailcow.email/getstarted/prerequisite-system/#incoming-ports
   networking.firewall.allowedTCPPorts = [
