@@ -112,7 +112,7 @@ let
                 --format='{{.State.Health.Status}}' \
                 ${gluetunContainer} 2>/dev/null)
 
-              if [ "$STATUS" != "healthy" ]; do
+              if [ "$STATUS" != "healthy" ]; then
                 if [ "$WAS_HEALTHY" = "true" ]; then
                   echo "WARNING: ${gluetunContainer} went unhealthy, stopping dependents..."
                   # stop tailscale and socks5 cleanly so they don't linger
