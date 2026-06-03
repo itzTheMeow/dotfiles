@@ -35,3 +35,24 @@ jobs:
         run: |
           nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel\
             --option accept-flake-config true
+
+      - name: Calculate and Log System Size
+        run: |
+          SYS_PATH=$(nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel --no-link --print-out-paths)
+
+          # -s gets the individual path size, -S gets the full recursive closure size
+          LOCAL_SIZE=$(nix path-info -sh "$SYS_PATH" | awk '{print $2}')
+          CLOSURE_SIZE=$(nix path-info -Sh "$SYS_PATH" | awk '{print $2}')
+
+          echo "=================================================="
+          echo "Host: ${{ matrix.hostname }}"
+          echo "System Top-Level Path Size: $LOCAL_SIZE"
+          echo "Total Runtime Closure Size: $CLOSURE_SIZE"
+          echo "=================================================="
+
+          echo "### Size Metrics for \`${{ matrix.hostname }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Top-Level Symlink Tree** | $LOCAL_SIZE |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total Runtime Closure (Disk Space Needed)** | \`$CLOSURE_SIZE\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
