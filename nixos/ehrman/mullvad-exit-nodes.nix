@@ -88,17 +88,19 @@ let
       };
     };
 in
-lib.mkMerge [
-  {
-    # enable IP forwarding
-    boot.kernel.sysctl = {
-      "net.ipv4.ip_forward" = 1;
-      "net.ipv6.conf.all.forwarding" = 1;
-    };
+lib.mkMerge (
+  [
+    {
+      # enable IP forwarding
+      boot.kernel.sysctl = {
+        "net.ipv4.ip_forward" = 1;
+        "net.ipv6.conf.all.forwarding" = 1;
+      };
 
-    # create .env dir
-    systemd.tmpfiles.rules = [ "d ${envDir} 0700 root root - -" ];
-  }
+      # create .env dir
+      systemd.tmpfiles.rules = [ "d ${envDir} 0700 root root - -" ];
+    }
+  ]
   # map config for each exit node
-  (map mkMullvadExitNode xelib.exitNodes)
-]
+  ++ (map mkMullvadExitNode xelib.exitNodes)
+)
