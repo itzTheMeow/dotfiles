@@ -32,9 +32,7 @@ let
           environment = {
             VPN_SERVICE_PROVIDER = "mullvad";
             VPN_TYPE = "wireguard";
-            WIREGUARD_PRIVATE_KEY = cfg.privateKeySecret;
-            WIREGUARD_ADDRESSES = cfg.wireguardAddress;
-            SERVER_CITIES = cfg.serverCity;
+            SERVER_CITIES = cfg.city;
             DNS_ADDRESS = "10.64.0.1";
             WIREGUARD_MTU = MTU;
             FIREWALL_OUTBOUND_SUBNETS = "192.168.1.0/24,100.64.0.0/10";
