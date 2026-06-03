@@ -30,6 +30,7 @@ let
           extraOptions = [
             "--cap-add=NET_ADMIN"
             "--device=/dev/net/tun:/dev/net/tun"
+            "--sysctl=net.ipv6.conf.all.disable_ipv6=0"
           ];
           environment = {
             VPN_SERVICE_PROVIDER = "mullvad";
