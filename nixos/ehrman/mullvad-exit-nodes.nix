@@ -2,6 +2,7 @@
   config,
   host,
   lib,
+  pkgs,
   xelib,
   ...
 }:
@@ -80,6 +81,26 @@ let
           environment.REQUIRE_AUTH = "false";
         };
       };
+
+      systemd.services =
+        let
+          waitScript = pkgs.writeShellScript "wait-for-gluetun-${cfg.name}" ''
+            until [ "$(${pkgs.docker}/bin/docker inspect --format='{{.State.Health.Status}}' ${gluetunContainer})" = "healthy" ]; do
+              echo "Waiting for ${gluetunContainer} network tunnel to report healthy..."
+              sleep 2
+            done
+          '';
+        in
+        {
+          "docker-mullvad-exit-tailscale-${cfg.name}" = {
+            overrideStrategy = "asDropin";
+            serviceConfig.ExecStartPre = waitScript;
+          };
+          "docker-mullvad-exit-socks5-${cfg.name}" = {
+            overrideStrategy = "asDropin";
+            serviceConfig.ExecStartPre = waitScript;
+          };
+        };
 
       # open ports in firewall for tailscale/stun
       networking.firewall.allowedUDPPorts = [
