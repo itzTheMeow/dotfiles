@@ -37,7 +37,7 @@ let
             SERVER_CITIES = cfg.city;
             DNS_ADDRESS = "10.64.0.1";
             WIREGUARD_MTU = MTU;
-            FIREWALL_OUTBOUND_SUBNETS = "192.168.1.0/24,100.64.0.0/10";
+            FIREWALL_OUTBOUND_SUBNETS = "192.168.1.0/24,100.64.0.0/10,172.17.0.0/16";
           };
           environmentFiles = [ config.sops.secrets."mullvad-exit-node-${cfg.name}".path ];
           ports = [
