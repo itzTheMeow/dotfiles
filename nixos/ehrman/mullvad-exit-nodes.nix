@@ -151,24 +151,25 @@ let
             wantedBy = [ "multi-user.target" ];
             serviceConfig = {
               Type = "oneshot";
-              RemainAfterExit = true;
+              RemainAfterExit = false;
               ExecStart = pkgs.writeShellScript "create-network-${networkName}" ''
-                # Remove stale endpoints from any previous run
-                for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
-                    --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
-                  echo "Disconnecting stale container: $container"
-                  ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
-                done
-
-                if ! ${pkgs.docker}/bin/docker network inspect ${networkName} >/dev/null 2>&1; then
-                  echo "Creating Docker network ${networkName} (${subnet})"
-                  ${pkgs.docker}/bin/docker network create \
-                    --driver bridge \
-                    --subnet ${subnet} \
-                    ${networkName}
-                else
-                  echo "Docker network ${networkName} already exists, cleaned up stale endpoints"
+                # Remove the network entirely if it exists (handles stale bridge state)
+                if ${pkgs.docker}/bin/docker network inspect ${networkName} >/dev/null 2>&1; then
+                  echo "Removing existing network ${networkName} to clear stale bridge state..."
+                  # Force disconnect any lingering containers first
+                  for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
+                      --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
+                    ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
+                  done
+                  ${pkgs.docker}/bin/docker network rm ${networkName} 2>/dev/null || true
+                  sleep 1
                 fi
+
+                echo "Creating Docker network ${networkName} (${subnet})"
+                ${pkgs.docker}/bin/docker network create \
+                  --driver bridge \
+                  --subnet ${subnet} \
+                  ${networkName}
               '';
               ExecStop = pkgs.writeShellScript "remove-network-${networkName}" ''
                 # Disconnect all containers first, then remove
@@ -184,6 +185,10 @@ let
           "docker-${gluetunContainer}" = {
             after = [ "docker-network-${networkName}.service" ];
             requires = [ "docker-network-${networkName}.service" ];
+            startLimitIntervalSec = 0;
+            serviceConfig = {
+              RestartSec = "10s";
+            };
           };
 
           "docker-${tailscaleContainer}" = {
