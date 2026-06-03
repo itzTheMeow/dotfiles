@@ -25,7 +25,7 @@ let
       extraOptions = [
         "--sysctl=net.ipv4.ip_forward=1"
         "--sysctl=net.ipv6.conf.all.forwarding=1"
-        "--sysctl=net.ipv6.conf.all.disable_ipv6=0"
+        "--sysctl=net.ipv6.conf.all.disable_ipv6=1"
       ];
     in
     {
