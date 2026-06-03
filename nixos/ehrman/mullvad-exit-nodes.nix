@@ -153,6 +153,13 @@ let
               Type = "oneshot";
               RemainAfterExit = true;
               ExecStart = pkgs.writeShellScript "create-network-${networkName}" ''
+                # Remove stale endpoints from any previous run
+                for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
+                    --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
+                  echo "Disconnecting stale container: $container"
+                  ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
+                done
+
                 if ! ${pkgs.docker}/bin/docker network inspect ${networkName} >/dev/null 2>&1; then
                   echo "Creating Docker network ${networkName} (${subnet})"
                   ${pkgs.docker}/bin/docker network create \
@@ -160,10 +167,15 @@ let
                     --subnet ${subnet} \
                     ${networkName}
                 else
-                  echo "Docker network ${networkName} already exists"
+                  echo "Docker network ${networkName} already exists, cleaned up stale endpoints"
                 fi
               '';
               ExecStop = pkgs.writeShellScript "remove-network-${networkName}" ''
+                # Disconnect all containers first, then remove
+                for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
+                    --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
+                  ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
+                done
                 ${pkgs.docker}/bin/docker network rm ${networkName} 2>/dev/null || true
               '';
             };
