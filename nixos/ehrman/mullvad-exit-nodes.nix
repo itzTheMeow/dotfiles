@@ -74,7 +74,6 @@ let
           autoStart = true;
           dependsOn = [ gluetunContainer ];
           extraOptions = [ "--network=container:${gluetunContainer}" ];
-          environment.PROXY_PORT = 1080;
         };
       }
     ];
