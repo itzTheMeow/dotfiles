@@ -20,16 +20,8 @@ let
     cfg:
     let
       gluetunContainer = "mullvad-exit-gluetun-${cfg.name}";
-      tailscaleContainer = "mullvad-exit-tailscale-${cfg.name}";
-      socks5Container = "mullvad-exit-socks5-${cfg.name}";
-      networkName = "mullvad-exit-net-${cfg.name}";
       tailscalePort = basePorts.tailscale + cfg.index;
       stunPort = basePorts.stun + cfg.index;
-      # each exit node gets its own /29 on 172.20.x.0
-      gluetunIP = "172.20.${toString cfg.index}.1";
-      tailscaleIP = "172.20.${toString cfg.index}.2";
-      socks5IP = "172.20.${toString cfg.index}.3";
-      subnet = "172.20.${toString cfg.index}.0/29";
       extraOptions = [
         "--sysctl=net.ipv4.ip_forward=1"
         "--sysctl=net.ipv6.conf.all.forwarding=1"
@@ -41,23 +33,17 @@ let
         ${gluetunContainer} = {
           image = "qmcgaw/gluetun:v3.40.2";
           autoStart = true;
+          inherit extraOptions;
           capabilities.NET_ADMIN = true;
           devices = [ "/dev/net/tun:/dev/net/tun" ];
-          networks = [ networkName ];
-          extraOptions = extraOptions ++ [ "--ip=${gluetunIP}" ];
           environment = {
             VPN_SERVICE_PROVIDER = "mullvad";
             VPN_TYPE = "wireguard";
             SERVER_CITIES = cfg.city;
             DNS_ADDRESS = "10.64.0.1";
             WIREGUARD_MTU = MTU;
-            WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL = "25s";
             FIREWALL_OUTBOUND_SUBNETS = "192.168.1.0/24,100.64.0.0/10,172.17.0.0/16";
             FIREWALL_INPUT_PORTS = "41641,3478,1080";
-            # detect dead tunnels faster
-            HEALTH_VPN_DURATION_INITIAL = "30s";
-            HEALTH_VPN_DURATION_ADDITION = "10s";
-            HEALTH_SUCCESS_WAIT_DURATION = "5s";
           };
           environmentFiles = [ config.sops.secrets."mullvad-exit-node-${cfg.name}".path ];
           ports = [
@@ -66,18 +52,17 @@ let
             "${host.ip}:${toString (basePorts.socks5 + cfg.index)}:1080"
           ];
         };
-
-        ${tailscaleContainer} = {
+        "mullvad-exit-tailscale-${cfg.name}" = {
           image = "tailscale/tailscale:v1.98.4";
           autoStart = true;
+          inherit extraOptions;
           dependsOn = [ gluetunContainer ];
           capabilities = {
             NET_ADMIN = true;
             NET_RAW = true;
           };
           privileged = true;
-          networks = [ networkName ];
-          extraOptions = extraOptions ++ [ "--ip=${tailscaleIP}" ];
+          networks = [ "container:${gluetunContainer}" ];
           environment = {
             TS_EXTRA_ARGS = "--login-server=${xelib.apps.headscale.url} --advertise-exit-node --accept-dns=false";
             TS_STATE_DIR = "/var/lib/tailscale";
@@ -87,139 +72,39 @@ let
           environmentFiles = [ "${envDir}/${cfg.name}.env" ];
           volumes = [ "${configDir}/${cfg.name}:/var/lib/tailscale" ];
         };
-
-        ${socks5Container} = {
+        "mullvad-exit-socks5-${cfg.name}" = {
           image = "serjs/go-socks5-proxy:v0.0.4";
           autoStart = true;
           dependsOn = [ gluetunContainer ];
-          networks = [ networkName ];
-          extraOptions = extraOptions ++ [ "--ip=${socks5IP}" ];
+          networks = [ "container:${gluetunContainer}" ];
           environment.REQUIRE_AUTH = "false";
         };
       };
 
       systemd.services =
         let
-          waitForHealthy = pkgs.writeShellScript "wait-for-gluetun-${cfg.name}" ''
-            echo "Waiting for ${gluetunContainer} to be healthy..."
-            until [ "$(${pkgs.docker}/bin/docker inspect --format='{{.State.Health.Status}}' ${gluetunContainer} 2>/dev/null)" = "healthy" ]; do
+          waitScript = pkgs.writeShellScript "wait-for-gluetun-${cfg.name}" ''
+            until [ "$(${pkgs.docker}/bin/docker inspect --format='{{.State.Health.Status}}' ${gluetunContainer})" = "healthy" ]; do
+              echo "Waiting for ${gluetunContainer} network tunnel to report healthy..."
               sleep 2
-            done
-            echo "${gluetunContainer} is healthy"
-          '';
-
-          # watcher: if gluetun goes unhealthy, re-apply the route once it recovers
-          # does NOT restart tailscale — just fixes the routing
-          watcherScript = pkgs.writeShellScript "gluetun-watcher-${cfg.name}" ''
-            echo "Starting gluetun health watcher for ${cfg.name}..."
-            WAS_HEALTHY=true
-
-            while true; do
-              sleep 10
-
-              STATUS=$(${pkgs.docker}/bin/docker inspect \
-                --format='{{.State.Health.Status}}' \
-                ${gluetunContainer} 2>/dev/null)
-
-              if [ "$STATUS" != "healthy" ]; then
-                echo "WARNING: ${gluetunContainer} is $STATUS"
-                WAS_HEALTHY=false
-                continue
-              fi
-
-              if [ "$WAS_HEALTHY" = "false" ]; then
-                echo "${gluetunContainer} recovered — re-applying route in ${tailscaleContainer}"
-                sleep 3
-                ${pkgs.docker}/bin/docker exec ${tailscaleContainer} \
-                  ip route replace default via ${gluetunIP} dev eth0 || true
-                WAS_HEALTHY=true
-                echo "Route restored"
-              fi
             done
           '';
         in
         {
-          "docker-${gluetunContainer}" = {
-            after = [ "docker.service" ];
-            requires = [ "docker.service" ];
-            startLimitIntervalSec = 0;
-            serviceConfig = {
-              RestartSec = "5s";
-              ExecStartPre = pkgs.writeShellScript "setup-network-${networkName}" ''
-                # Remove stale Docker network
-                if ${pkgs.docker}/bin/docker network inspect ${networkName} >/dev/null 2>&1; then
-                  for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
-                      --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
-                    ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
-                  done
-                  ${pkgs.docker}/bin/docker network rm ${networkName} 2>/dev/null || true
-                fi
-
-                # Remove ANY bridge interface that claims our subnet (by IP, not by name)
-                for iface in $(${pkgs.iproute2}/bin/ip -o addr show | \
-                    ${pkgs.gawk}/bin/awk '/172\.20\.${toString cfg.index}\./{print $2}'); do
-                  echo "Removing bridge $iface claiming ${subnet}..."
-                  ${pkgs.iproute2}/bin/ip link set "$iface" down 2>/dev/null || true
-                  ${pkgs.iproute2}/bin/ip link delete "$iface" 2>/dev/null || true
-                done
-
-                # Also flush iptables rules for this subnet
-                while ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING \
-                    -s ${subnet} -j MASQUERADE 2>/dev/null; do true; done
-
-                sleep 1
-
-                echo "Creating Docker network ${networkName} (${subnet})"
-                ${pkgs.docker}/bin/docker network create \
-                  --driver bridge \
-                  --subnet ${subnet} \
-                  ${networkName}
-              '';
-            };
-          };
-
-          "docker-${tailscaleContainer}" = {
-            serviceConfig = {
-              ExecStartPre = waitForHealthy;
-              ExecStartPost = pkgs.writeShellScript "set-route-${cfg.name}" ''
-                sleep 3
-                echo "Setting default route through gluetun (${gluetunIP}) in ${tailscaleContainer}..."
-                ${pkgs.docker}/bin/docker exec ${tailscaleContainer} \
-                  ip route replace default via ${gluetunIP} dev eth0
-                echo "Route set"
-              '';
-            };
-          };
-
-          "docker-${socks5Container}".serviceConfig.ExecStartPre = waitForHealthy;
-
-          "mullvad-exit-watcher-${cfg.name}" = {
-            description = "Gluetun health watcher for ${cfg.name}";
-            after = [
-              "docker-${gluetunContainer}.service"
-              "docker-${tailscaleContainer}.service"
-            ];
-            requires = [
-              "docker-${gluetunContainer}.service"
-              "docker-${tailscaleContainer}.service"
-            ];
-            wantedBy = [ "multi-user.target" ];
-            serviceConfig = {
-              Type = "simple";
-              Restart = "always";
-              RestartSec = "10s";
-              ExecStart = watcherScript;
-            };
-          };
+          "docker-mullvad-exit-tailscale-${cfg.name}".serviceConfig.ExecStartPre = waitScript;
+          "docker-mullvad-exit-socks5-${cfg.name}".serviceConfig.ExecStartPre = waitScript;
         };
 
+      # open ports in firewall for tailscale/stun
       networking.firewall.allowedUDPPorts = [
         tailscalePort
         stunPort
       ];
 
+      # create .env file for tailscale auth key
       systemd.tmpfiles.rules = [ "f+ ${envDir}/${cfg.name}.env 0600 root root - TS_AUTHKEY=" ];
 
+      # wireguard key/addr
       sops.envFiles."mullvad-exit-node-${cfg.name}" = {
         WIREGUARD_ADDRESSES = "op://Private/marehbn7mhvixiywnnggztiosm/${cfg.name}/Address";
         WIREGUARD_PRIVATE_KEY = "op://Private/marehbn7mhvixiywnnggztiosm/${cfg.name}/Private Key";
@@ -229,13 +114,16 @@ in
 lib.mkMerge (
   [
     {
+      # enable IP forwarding
       boot.kernel.sysctl = {
         "net.ipv4.ip_forward" = 1;
         "net.ipv6.conf.all.forwarding" = 1;
       };
 
+      # create .env dir
       systemd.tmpfiles.rules = [ "d ${envDir} 0700 root root - -" ];
     }
   ]
+  # map config for each exit node
   ++ (map mkMullvadExitNode xelib.exitNodes)
 )
