@@ -1,17 +1,17 @@
 pcloud-sftp-authorizedkeys: ENC[AES256_GCM,data:MZedvwFk9oidtpU1zmXFhdmGGZk8JQWsk5rRjZzvjH/+XvaIGTqlHFwHHXzcQ9CVp0vaOa+c4jpXgAGWIjlIVtvArKfli3uY1ivyTnOC+nY=,iv:VIZWsjMPM+pKDR9hEVxBcuDC9Y0uP3ryeHFMi6nNqc8=,tag:V5wxIoV0hlKpAJO/oUjL1w==,type:str]
 rclone-pcloud_token: ENC[AES256_GCM,data:UdfFLAiaAnA2xdZHFKaqYmP1GwOhlLWlpTdAtTInt90GNBEQgIZFw+pl+KqBKZc1njEnS3Wo7acqxgFQvAa48elyd5ccXWgfMKZ2X1qop1A+PI/mO614RWhoZ0isczGI/oJ0LDG28YorVdO991Kcy4N6YkXddfB3GZubeOsU,iv:onFBwCQ5+n/+5IeUJKn0lCYpIUVDWwFzV3yw5KSFUDo=,tag:QJayBCOwsiwpsSCUnS8fAg==,type:str]
 sops:
-    age:
-        - recipient: age1ys7j0me46jdes87e5hargcghn49974e7gs40u4mcph9ygt8slcgsxhf2gt
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBjbmw1b1J1TTA2ZVJrNndX
-            OFdNS1hMcFRwTE5DbkNPTDMrMFcwZGc2VXg0Ck1zSVJaZEJGY1gvR2luRTFhbVNZ
-            STRDSW1jZGpEOVJENllDMDZzUTRpN1kKLS0tIDF6WE1PYi9EUTkrNy9aWHphTEQx
-            WjFiUERYUWk5a0E3YTdFTTRtOUhDclUKyprGfO0hllYqVvOqbpH1Caw2wMDid5+Y
-            +DwLiwvSncIqeNcs1OG7p2fCOxNNMMi+TEivxvtR8631N0MFD7D/rA==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-06-03T02:17:55Z"
-    mac: ENC[AES256_GCM,data:zjcYrAdh24ruS9bSr0S9Z2LzwsbP52XFy/LLXXHlhocyAYcIfErfzVo2YENI4C4Q/N/iKn5jZEtnaopU4m/YV+3XbPCHoHFQXV+oBFHP+ys6mfDmpnwwMd5H1Y662/GrxQsPXKxfQ/yEOU1Fk3J8+TjHfRXF8haSEJ9lv28TDfs=,iv:dGtTqZ8sgOp/LltwYgryxhKQsZfMhVDLOjuj01ta2fA=,tag:BFea/qlLDfDoeKZ9Nz4AYQ==,type:str]
-    unencrypted_suffix: _unencrypted
-    version: 3.12.1
+  age:
+    - recipient: age1ys7j0me46jdes87e5hargcghn49974e7gs40u4mcph9ygt8slcgsxhf2gt
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBjbmw1b1J1TTA2ZVJrNndX
+        OFdNS1hMcFRwTE5DbkNPTDMrMFcwZGc2VXg0Ck1zSVJaZEJGY1gvR2luRTFhbVNZ
+        STRDSW1jZGpEOVJENllDMDZzUTRpN1kKLS0tIDF6WE1PYi9EUTkrNy9aWHphTEQx
+        WjFiUERYUWk5a0E3YTdFTTRtOUhDclUKyprGfO0hllYqVvOqbpH1Caw2wMDid5+Y
+        +DwLiwvSncIqeNcs1OG7p2fCOxNNMMi+TEivxvtR8631N0MFD7D/rA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-06-03T02:17:55Z"
+  mac: ENC[AES256_GCM,data:zjcYrAdh24ruS9bSr0S9Z2LzwsbP52XFy/LLXXHlhocyAYcIfErfzVo2YENI4C4Q/N/iKn5jZEtnaopU4m/YV+3XbPCHoHFQXV+oBFHP+ys6mfDmpnwwMd5H1Y662/GrxQsPXKxfQ/yEOU1Fk3J8+TjHfRXF8haSEJ9lv28TDfs=,iv:dGtTqZ8sgOp/LltwYgryxhKQsZfMhVDLOjuj01ta2fA=,tag:BFea/qlLDfDoeKZ9Nz4AYQ==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1
