@@ -1,6 +1,7 @@
 {
   config,
   host,
+  lib,
   xelib,
   ...
 }:
@@ -18,11 +19,12 @@ let
     cfg:
     let
       gluetunContainer = "mullvad-exit-gluetun-${cfg.name}";
+      tailscalePort = basePorts.tailscale + cfg.index;
+      stunPort = basePorts.stun + cfg.index;
     in
-    [
-      {
-        name = gluetunContainer;
-        value = {
+    {
+      virtualisation.oci-containers.containers = {
+        ${gluetunContainer} = {
           image = "qmcgaw/gluetun:v3.40.2";
           autoStart = true;
           extraOptions = [
@@ -37,19 +39,14 @@ let
             WIREGUARD_MTU = MTU;
             FIREWALL_OUTBOUND_SUBNETS = "192.168.1.0/24,100.64.0.0/10";
           };
-          environmentFiles = [
-            config.sops.secrets.mullvad-exit-nodes.path
-          ];
+          environmentFiles = [ config.sops.secrets."mullvad-exit-node-${cfg.name}".path ];
           ports = [
-            "${toString (basePorts.tailscale + cfg.index)}:41641/udp"
-            "${toString (basePorts.stun + cfg.index)}:3478/udp"
+            "${toString tailscalePort}:41641/udp"
+            "${toString stunPort}:3478/udp"
             "${host.ip}:${toString (basePorts.socks5 + cfg.index)}:1080"
           ];
         };
-      }
-      {
-        name = "mullvad-exit-tailscale-${cfg.name}";
-        value = {
+        "mullvad-exit-tailscale-${cfg.name}" = {
           image = "tailscale/tailscale:v1.98.4";
           autoStart = true;
           dependsOn = [ gluetunContainer ];
@@ -66,49 +63,42 @@ let
           environmentFiles = [ "${envDir}/${cfg.name}.env" ];
           volumes = [ "${configDir}/${cfg.name}:/var/lib/tailscale" ];
         };
-      }
-      {
-        name = "mullvad-exit-socks5-${cfg.name}";
-        value = {
+        "mullvad-exit-socks5-${cfg.name}" = {
           image = "serjs/go-socks5-proxy:v0.0.4";
           autoStart = true;
           dependsOn = [ gluetunContainer ];
           extraOptions = [ "--network=container:${gluetunContainer}" ];
           environment.REQUIRE_AUTH = "false";
         };
-      }
-    ];
+      };
+
+      # open ports in firewall for tailscale/stun
+      networking.firewall.allowedUDPPorts = [
+        tailscalePort
+        stunPort
+      ];
+
+      # create .env file for tailscale auth key
+      systemd.tmpfiles.rules = [ "f+ ${envDir}/${cfg.name}.env 0600 root root - TS_AUTHKEY=" ];
+
+      # wireguard key/addr
+      sops.envFiles."mullvad-exit-node-${cfg.name}" = {
+        WIREGUARD_ADDRESSES = "op://Private/marehbn7mhvixiywnnggztiosm/${cfg.name}/Address";
+        WIREGUARD_PRIVATE_KEY = "op://Private/marehbn7mhvixiywnnggztiosm/${cfg.name}/Private Key";
+      };
+    };
 in
-{
-  # create the actual containers for each exit node
-  virtualisation.oci-containers.containers = builtins.listToAttrs (
-    builtins.concatLists (map mkMullvadExitNode xelib.exitNodes)
-  );
+lib.mkMerge [
+  {
+    # enable IP forwarding
+    boot.kernel.sysctl = {
+      "net.ipv4.ip_forward" = 1;
+      "net.ipv6.conf.all.forwarding" = 1;
+    };
 
-  # open ports in firewall for tailscale/stun
-  networking.firewall.allowedUDPPorts = builtins.concatLists (
-    builtins.map (node: [
-      (basePorts.tailscale + node.index)
-      (basePorts.stun + node.index)
-    ]) xelib.exitNodes
-  );
-
-  # enable IP forwarding
-  boot.kernel.sysctl = {
-    "net.ipv4.ip_forward" = 1;
-    "net.ipv6.conf.all.forwarding" = 1;
-  };
-
-  # create .env files for tailscale auth keys
-  systemd.tmpfiles.rules = [
-    "d ${envDir} 0700 root root - -"
-  ]
-  ++ (builtins.map (
-    node: "f+ ${envDir}/${node.name}.env 0600 root root - TS_AUTHKEY="
-  ) xelib.exitNodes);
-
-  sops.envFiles.mullvad-exit-nodes = {
-    WIREGUARD_ADDRESSES = "op://Private/marehbn7mhvixiywnnggztiosm/nxqiv6oggpwqdm7asdn4s4pzcu/Address";
-    WIREGUARD_PRIVATE_KEY = "op://Private/marehbn7mhvixiywnnggztiosm/nxqiv6oggpwqdm7asdn4s4pzcu/Private Key";
-  };
-}
+    # create .env dir
+    systemd.tmpfiles.rules = [ "d ${envDir} 0700 root root - -" ];
+  }
+  # map config for each exit node
+  (map mkMullvadExitNode xelib.exitNodes)
+]
