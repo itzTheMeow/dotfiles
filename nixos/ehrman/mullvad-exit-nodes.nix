@@ -21,17 +21,20 @@ let
       gluetunContainer = "mullvad-exit-gluetun-${cfg.name}";
       tailscalePort = basePorts.tailscale + cfg.index;
       stunPort = basePorts.stun + cfg.index;
+      extraOptions = [
+        "--cap-add=NET_ADMIN"
+        "--device=/dev/net/tun:/dev/net/tun"
+        "--sysctl=net.ipv4.ip_forward=1"
+        "--sysctl=net.ipv6.conf.all.forwarding=1"
+        "--sysctl=net.ipv6.conf.all.disable_ipv6=0"
+      ];
     in
     {
       virtualisation.oci-containers.containers = {
         ${gluetunContainer} = {
           image = "qmcgaw/gluetun:v3.40.2";
           autoStart = true;
-          extraOptions = [
-            "--cap-add=NET_ADMIN"
-            "--device=/dev/net/tun:/dev/net/tun"
-            "--sysctl=net.ipv6.conf.all.disable_ipv6=0"
-          ];
+          inherit extraOptions;
           environment = {
             VPN_SERVICE_PROVIDER = "mullvad";
             VPN_TYPE = "wireguard";
@@ -39,6 +42,7 @@ let
             DNS_ADDRESS = "10.64.0.1";
             WIREGUARD_MTU = MTU;
             FIREWALL_OUTBOUND_SUBNETS = "192.168.1.0/24,100.64.0.0/10,172.17.0.0/16";
+            FIREWALL_INPUT_PORTS = "41641,3478,1080";
           };
           environmentFiles = [ config.sops.secrets."mullvad-exit-node-${cfg.name}".path ];
           ports = [
@@ -52,12 +56,11 @@ let
           autoStart = true;
           dependsOn = [ gluetunContainer ];
           extraOptions = [
-            "--cap-add=NET_ADMIN"
             "--cap-add=NET_RAW"
-            "--device=/dev/net/tun:/dev/net/tun"
             "--network=container:${gluetunContainer}"
             "--privileged"
-          ];
+          ]
+          ++ extraOptions;
           environment = {
             TS_EXTRA_ARGS = "--login-server=${xelib.apps.headscale.url} --advertise-exit-node --accept-dns=false";
             TS_STATE_DIR = "/var/lib/tailscale";
