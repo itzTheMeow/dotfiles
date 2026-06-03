@@ -251,12 +251,14 @@ let
               restart_stack() {
                 systemctl restart mullvad-wireguard.service
                 sleep 5
+                systemctl restart tailscaled
+                sleep 5
                 systemctl restart mullvad-exit-nat.service
               }
 
               while true; do
                 # Wait between checks
-                sleep 60
+                sleep 30
 
                 # Ensure tailscale interface exists before considering health as good
                 if ! ${pkgs.iproute2}/bin/ip link show tailscale0 >/dev/null 2>&1; then
