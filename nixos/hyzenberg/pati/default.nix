@@ -22,10 +22,6 @@ in
 
     environment = {
       DATA_ROOT = "/var/lib/pati";
-      # assorted env vars for prod
-      clientId = "1399236707349561414";
-      testServer = "946959817170378803";
-      mainServer = "1379699654836617260";
     };
   };
 
