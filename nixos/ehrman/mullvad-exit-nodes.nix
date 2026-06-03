@@ -22,8 +22,6 @@ let
       tailscalePort = basePorts.tailscale + cfg.index;
       stunPort = basePorts.stun + cfg.index;
       extraOptions = [
-        "--cap-add=NET_ADMIN"
-        "--device=/dev/net/tun:/dev/net/tun"
         "--sysctl=net.ipv4.ip_forward=1"
         "--sysctl=net.ipv6.conf.all.forwarding=1"
         "--sysctl=net.ipv6.conf.all.disable_ipv6=0"
@@ -35,6 +33,8 @@ let
           image = "qmcgaw/gluetun:v3.40.2";
           autoStart = true;
           inherit extraOptions;
+          capabilities.NET_ADMIN = true;
+          devices = [ "/dev/net/tun:/dev/net/tun" ];
           environment = {
             VPN_SERVICE_PROVIDER = "mullvad";
             VPN_TYPE = "wireguard";
@@ -54,13 +54,15 @@ let
         "mullvad-exit-tailscale-${cfg.name}" = {
           image = "tailscale/tailscale:v1.98.4";
           autoStart = true;
+          inherit extraOptions;
           dependsOn = [ gluetunContainer ];
-          extraOptions = [
-            "--cap-add=NET_RAW"
-            "--network=container:${gluetunContainer}"
-            "--privileged"
-          ]
-          ++ extraOptions;
+          capabilities = {
+            NET_ADMIN = true;
+            NET_RAW = true;
+          };
+          devices = [ "/dev/net/tun:/dev/net/tun" ];
+          privileged = true;
+          network = [ "container:${gluetunContainer}" ];
           environment = {
             TS_EXTRA_ARGS = "--login-server=${xelib.apps.headscale.url} --advertise-exit-node --accept-dns=false";
             TS_STATE_DIR = "/var/lib/tailscale";
@@ -74,7 +76,7 @@ let
           image = "serjs/go-socks5-proxy:v0.0.4";
           autoStart = true;
           dependsOn = [ gluetunContainer ];
-          extraOptions = [ "--network=container:${gluetunContainer}" ];
+          network = [ "container:${gluetunContainer}" ];
           environment.REQUIRE_AUTH = "false";
         };
       };
