@@ -146,15 +146,28 @@ let
             serviceConfig = {
               RestartSec = "5s";
               ExecStartPre = pkgs.writeShellScript "setup-network-${networkName}" ''
-                # Tear down stale network if it exists
+                # Remove stale Docker network
                 if ${pkgs.docker}/bin/docker network inspect ${networkName} >/dev/null 2>&1; then
                   for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
                       --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
                     ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
                   done
                   ${pkgs.docker}/bin/docker network rm ${networkName} 2>/dev/null || true
-                  sleep 1
                 fi
+
+                # Remove ANY bridge interface that claims our subnet (by IP, not by name)
+                for iface in $(${pkgs.iproute2}/bin/ip -o addr show | \
+                    ${pkgs.gawk}/bin/awk '/172\.20\.${toString cfg.index}\./{print $2}'); do
+                  echo "Removing bridge $iface claiming ${subnet}..."
+                  ${pkgs.iproute2}/bin/ip link set "$iface" down 2>/dev/null || true
+                  ${pkgs.iproute2}/bin/ip link delete "$iface" 2>/dev/null || true
+                done
+
+                # Also flush iptables rules for this subnet
+                while ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING \
+                    -s ${subnet} -j MASQUERADE 2>/dev/null; do true; done
+
+                sleep 1
 
                 echo "Creating Docker network ${networkName} (${subnet})"
                 ${pkgs.docker}/bin/docker network create \
