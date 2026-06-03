@@ -60,7 +60,7 @@ let
           environment = {
             TS_EXTRA_ARGS = "--login-server=${xelib.apps.headscale.url} --advertise-exit-node --accept-dns=false";
             TS_STATE_DIR = "/var/lib/tailscale";
-            TS_HOSTNAME = cfg.tailscaleHostName;
+            TS_HOSTNAME = "mullvad-${cfg.name}";
             TS_DEBUG_MTU = MTU;
           };
           environmentFiles = [ "${envDir}/${cfg.name}.env" ];
