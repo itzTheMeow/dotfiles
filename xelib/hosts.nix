@@ -71,6 +71,7 @@ in
       ip = "100.64.0.10";
       accent = "#89dceb"; # Sky
       features = [
+        "docker"
         "headless"
         "nsd"
         "rclone"

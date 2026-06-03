@@ -129,15 +129,19 @@ rec {
   };
 
   exitNodes = [
+    # comments after `index` are there so global find can find taken ports
+    # format: tailscale stun socks5
     {
       name = "ashburn";
-      address = "10.250.0.10";
-      port = 61230;
+      city = "Ashburn VA";
+      index = 0;
+      # 41640 3480 61230
     }
     {
       name = "atlanta";
-      address = "10.250.0.11";
-      port = 61231;
+      city = "Atlanta GA";
+      index = 1;
+      # 41641 3481 61231
     }
   ];
 
