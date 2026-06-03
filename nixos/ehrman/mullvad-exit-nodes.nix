@@ -92,14 +92,8 @@ let
           '';
         in
         {
-          "docker-mullvad-exit-tailscale-${cfg.name}" = {
-            overrideStrategy = "asDropin";
-            serviceConfig.ExecStartPre = waitScript;
-          };
-          "docker-mullvad-exit-socks5-${cfg.name}" = {
-            overrideStrategy = "asDropin";
-            serviceConfig.ExecStartPre = waitScript;
-          };
+          "docker-mullvad-exit-tailscale-${cfg.name}".serviceConfig.ExecStartPre = waitScript;
+          "docker-mullvad-exit-socks5-${cfg.name}".serviceConfig.ExecStartPre = waitScript;
         };
 
       # open ports in firewall for tailscale/stun
