@@ -62,7 +62,7 @@ let
           };
           devices = [ "/dev/net/tun:/dev/net/tun" ];
           privileged = true;
-          network = [ "container:${gluetunContainer}" ];
+          networks = [ "container:${gluetunContainer}" ];
           environment = {
             TS_EXTRA_ARGS = "--login-server=${xelib.apps.headscale.url} --advertise-exit-node --accept-dns=false";
             TS_STATE_DIR = "/var/lib/tailscale";
@@ -76,7 +76,7 @@ let
           image = "serjs/go-socks5-proxy:v0.0.4";
           autoStart = true;
           dependsOn = [ gluetunContainer ];
-          network = [ "container:${gluetunContainer}" ];
+          networks = [ "container:${gluetunContainer}" ];
           environment.REQUIRE_AUTH = "false";
         };
       };
