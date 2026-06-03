@@ -61,7 +61,6 @@ let
             NET_ADMIN = true;
             NET_RAW = true;
           };
-          devices = [ "/dev/net/tun:/dev/net/tun" ];
           privileged = true;
           networks = [ "container:${gluetunContainer}" ];
           environment = {
