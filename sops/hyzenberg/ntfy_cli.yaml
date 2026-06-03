@@ -1,16 +1,16 @@
 default-token: ENC[AES256_GCM,data:FSSmZjLHIbdEfer7+gcW737htaDdOy1f4M6jBKWTPYk=,iv:UfeyTYJj+ecxnL7T6kHo/kweX0x+dVgBWnqvmXTbXjI=,tag:m79XmlRYDARZX/dvJ1cUVg==,type:str]
 sops:
-    age:
-        - recipient: age1ys7j0me46jdes87e5hargcghn49974e7gs40u4mcph9ygt8slcgsxhf2gt
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBSNlRKREVrYWJiSm1yckZi
-            VmhKS0ZhVlltd0ZtWTN1aFZVdFZOazVlbzN3CmRSQ0xtUFlmdWFNV0tGU0NCVTdD
-            ODdWZ3dHWE8wbk1pNUlVcTR0UEZQb0EKLS0tIFJ5bzR2NXo0NVdXRE5JTWdLV3JW
-            NEoycDM4cTFWOWdTSU9zT3FIMkFWSHcKFZ9WRueJZKuMFjUDbomJ4l8x3WzuZUE7
-            ikFnNY85MVG7EpUfEkl8heQ6a4T5JoJ2dEH8wG2COutP9cqTgNywxg==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-06-03T02:17:55Z"
-    mac: ENC[AES256_GCM,data:bmzFKhcH8etOsLxo6uvQtN75icsSMw4glE7jbukeIIczdWDmV8IwwGRokoAAWQWx9oUchFySflKu06d+oSI/1nabg+r0PjyuqmXlVJ240ASjNbLyc5cJ3ZQPy3ObQWU4KteettqNwtBedTovKbqUIyzcU+PHeCzBLqSKvh5hGRc=,iv:gzdwc1O1airVfDROn2GWKetC/MVXUbEIJGROcsxsEmc=,tag:GnH37mnaNIrwGUXIMtYxeQ==,type:str]
-    unencrypted_suffix: _unencrypted
-    version: 3.12.1
+  age:
+    - recipient: age1ys7j0me46jdes87e5hargcghn49974e7gs40u4mcph9ygt8slcgsxhf2gt
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBSNlRKREVrYWJiSm1yckZi
+        VmhKS0ZhVlltd0ZtWTN1aFZVdFZOazVlbzN3CmRSQ0xtUFlmdWFNV0tGU0NCVTdD
+        ODdWZ3dHWE8wbk1pNUlVcTR0UEZQb0EKLS0tIFJ5bzR2NXo0NVdXRE5JTWdLV3JW
+        NEoycDM4cTFWOWdTSU9zT3FIMkFWSHcKFZ9WRueJZKuMFjUDbomJ4l8x3WzuZUE7
+        ikFnNY85MVG7EpUfEkl8heQ6a4T5JoJ2dEH8wG2COutP9cqTgNywxg==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-06-03T02:17:55Z"
+  mac: ENC[AES256_GCM,data:bmzFKhcH8etOsLxo6uvQtN75icsSMw4glE7jbukeIIczdWDmV8IwwGRokoAAWQWx9oUchFySflKu06d+oSI/1nabg+r0PjyuqmXlVJ240ASjNbLyc5cJ3ZQPy3ObQWU4KteettqNwtBedTovKbqUIyzcU+PHeCzBLqSKvh5hGRc=,iv:gzdwc1O1airVfDROn2GWKetC/MVXUbEIJGROcsxsEmc=,tag:GnH37mnaNIrwGUXIMtYxeQ==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1
