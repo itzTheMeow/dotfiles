@@ -151,12 +151,10 @@ let
             wantedBy = [ "multi-user.target" ];
             serviceConfig = {
               Type = "oneshot";
-              RemainAfterExit = false;
-              ExecStart = pkgs.writeShellScript "create-network-${networkName}" ''
-                # Remove the network entirely if it exists (handles stale bridge state)
+              RemainAfterExit = true;
+              ExecStartPre = pkgs.writeShellScript "teardown-network-${networkName}" ''
                 if ${pkgs.docker}/bin/docker network inspect ${networkName} >/dev/null 2>&1; then
-                  echo "Removing existing network ${networkName} to clear stale bridge state..."
-                  # Force disconnect any lingering containers first
+                  echo "Tearing down existing network ${networkName}..."
                   for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
                       --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
                     ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
@@ -164,7 +162,8 @@ let
                   ${pkgs.docker}/bin/docker network rm ${networkName} 2>/dev/null || true
                   sleep 1
                 fi
-
+              '';
+              ExecStart = pkgs.writeShellScript "create-network-${networkName}" ''
                 echo "Creating Docker network ${networkName} (${subnet})"
                 ${pkgs.docker}/bin/docker network create \
                   --driver bridge \
@@ -172,7 +171,6 @@ let
                   ${networkName}
               '';
               ExecStop = pkgs.writeShellScript "remove-network-${networkName}" ''
-                # Disconnect all containers first, then remove
                 for container in $(${pkgs.docker}/bin/docker network inspect ${networkName} \
                     --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
                   ${pkgs.docker}/bin/docker network disconnect -f ${networkName} "$container" 2>/dev/null || true
@@ -186,9 +184,7 @@ let
             after = [ "docker-network-${networkName}.service" ];
             requires = [ "docker-network-${networkName}.service" ];
             startLimitIntervalSec = 0;
-            serviceConfig = {
-              RestartSec = "10s";
-            };
+            serviceConfig.RestartSec = "5s";
           };
 
           "docker-${tailscaleContainer}" = {
