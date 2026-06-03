@@ -135,13 +135,13 @@ rec {
       name = "ashburn";
       city = "Ashburn VA";
       index = 0;
-      # 41640 3480 61230
+      # 51640 53480 61230
     }
     {
       name = "atlanta";
       city = "Atlanta GA";
       index = 1;
-      # 41641 3481 61231
+      # 51641 53481 61231
     }
   ];
 
