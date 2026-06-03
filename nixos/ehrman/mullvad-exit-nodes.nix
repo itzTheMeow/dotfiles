@@ -103,7 +103,7 @@ in
     "d ${envDir} 0700 root root - -"
   ]
   ++ (builtins.map (
-    node: "f+ ${envDir}/${node.name}.env 0600 root root - - TS_AUTHKEY="
+    node: "f+ ${envDir}/${node.name}.env 0600 root root - TS_AUTHKEY="
   ) xelib.exitNodes);
 
   sops.envFiles.mullvad-exit-nodes = {
