@@ -61,6 +61,7 @@ in
       (xelib.injectCursorsFHS plex-desktop)
       plexamp
       rssguard
+      zrythm
 
       # editing
       blender
