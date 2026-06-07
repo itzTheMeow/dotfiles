@@ -18,6 +18,11 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    impermanence = {
+      url = "github:nix-community/impermanence";
+      inputs.nixpkgs.follows = "";
+      inputs.home-manager.follows = "";
+    };
 
     catppuccin = {
       url = "github:catppuccin/nix";
@@ -56,6 +61,7 @@
       dns,
       flake-utils,
       home-manager,
+      impermanence,
       nixpkgs-unstable,
       nixpkgs,
       plasma-manager,
