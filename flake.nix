@@ -61,7 +61,6 @@
       dns,
       flake-utils,
       home-manager,
-      impermanence,
       nixpkgs-unstable,
       nixpkgs,
       plasma-manager,
@@ -176,6 +175,7 @@
 
             # misc
             catppuccin.nixosModules.catppuccin
+            inputs.impermanence.nixosModules.impermanence
             inputs.extra-container.nixosModules.default
 
             # main config

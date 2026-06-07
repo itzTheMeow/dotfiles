@@ -4,6 +4,14 @@
   modulesPath,
   ...
 }:
+let
+  luksDevice = "cryptroot";
+  mkSubvol = name: compression: [
+    "subvol=${name}"
+    compression
+    "noatime" # dont need access time
+  ];
+in
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
@@ -17,13 +25,13 @@
   ];
   boot.kernelModules = [ "kvm-intel" ];
 
-  fileSystems."/" = {
-    device = "/dev/mapper/luks-4bb005d6-36e7-4dcb-a42c-1e2237953f99";
-    fsType = "ext4";
+  # decrypted luks partiton
+  boot.initrd.luks.devices.${luksDevice} = {
+    device = "/dev/disk/by-uuid/4bb005d6-36e7-4dcb-a42c-1e2237953f99";
+    allowDiscards = true;
   };
-  boot.initrd.luks.devices."luks-4bb005d6-36e7-4dcb-a42c-1e2237953f99".device =
-    "/dev/disk/by-uuid/4bb005d6-36e7-4dcb-a42c-1e2237953f99";
 
+  # boot partition
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/ADAA-A009";
     fsType = "vfat";
@@ -31,6 +39,35 @@
       "fmask=0077"
       "dmask=0077"
     ];
+  };
+
+  fileSystems."/" = {
+    device = "/dev/mapper/${luksDevice}";
+    fsType = "btrfs";
+    options = mkSubvol "root" "compress=zstd:1";
+  };
+  fileSystems."/nix" = {
+    device = "/dev/mapper/${luksDevice}";
+    fsType = "btrfs";
+    options = mkSubvol "nix" "compress-force=zstd:5";
+  };
+  fileSystems."/z/persist" = {
+    device = "/dev/mapper/${luksDevice}";
+    fsType = "btrfs";
+    options = mkSubvol "persist" "compress=zstd:3";
+    neededForBoot = true;
+  };
+  fileSystems."/z/home" = {
+    device = "/dev/mapper/${luksDevice}";
+    fsType = "btrfs";
+    options = mkSubvol "home" "compress=zstd:3";
+    neededForBoot = true;
+  };
+  fileSystems."/z/cache" = {
+    device = "/dev/mapper/${luksDevice}";
+    fsType = "btrfs";
+    options = mkSubvol "cache" "compress-force=zstd:5";
+    neededForBoot = true;
   };
 
   swapDevices = [
