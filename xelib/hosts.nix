@@ -7,7 +7,7 @@ in
     flynn = {
       username = "xela";
       fullname = "Alex";
-      ip = "100.64.0.19";
+      ip = "100.64.0.25";
       accent = "#cba6f7"; # Mauve
       features = [
         "gaming"
