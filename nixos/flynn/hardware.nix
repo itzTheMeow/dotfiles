@@ -27,7 +27,7 @@ in
 
   # decrypted luks partiton
   boot.initrd.luks.devices.${luksDevice} = {
-    device = "/dev/disk/by-uuid/4bb005d6-36e7-4dcb-a42c-1e2237953f99";
+    device = "/dev/disk/by-uuid/bc39c959-30e1-4cbc-8664-def6a02336a6";
     allowDiscards = true;
   };
 
@@ -44,12 +44,14 @@ in
   fileSystems."/" = {
     device = "/dev/mapper/${luksDevice}";
     fsType = "btrfs";
-    options = mkSubvol "root" "compress=zstd:1";
+    options = mkSubvol "/" "compress=zstd:1";
+    neededForBoot = true;
   };
   fileSystems."/nix" = {
     device = "/dev/mapper/${luksDevice}";
     fsType = "btrfs";
     options = mkSubvol "nix" "compress-force=zstd:5";
+    neededForBoot = true;
   };
   fileSystems."/z/persist" = {
     device = "/dev/mapper/${luksDevice}";
@@ -71,15 +73,15 @@ in
   };
 
   swapDevices = [
-    {
-      device = "/dev/disk/by-partuuid/d275409b-bb85-4bd3-b92d-3bb0274573a0";
-      randomEncryption = {
-        enable = true;
-        # best based on performance
-        cipher = "aes-xts-plain64";
-        keySize = 512;
-      };
-    }
+    # {
+    #   device = "/dev/disk/by-partuuid/d275409b-bb85-4bd3-b92d-3bb0274573a0";
+    #   randomEncryption = {
+    #     enable = true;
+    #     # best based on performance
+    #     cipher = "aes-xts-plain64";
+    #     keySize = 512;
+    #   };
+    # }
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
