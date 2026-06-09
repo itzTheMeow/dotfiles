@@ -201,7 +201,20 @@ in
     KbdInteractiveAuthentication = false;
   };
 
+  # sops doesnt need rsa keys
   sops.gnupg.sshKeyPaths = [ ];
+
+  # trust nixos and cachix caches
+  nix.settings = {
+    substituters = [
+      "https://cache.nixos.org/"
+      "https://xelacodes.cachix.org"
+    ];
+    trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "xelacodes.cachix.org-1:mlXOAvMV//6WvlZAv0xu8fBflpDZTOo9n4mU9W7XxyU="
+    ];
+  };
 
   # catppuccin settings
   catppuccin = {
