@@ -41,8 +41,6 @@ in
       ]
       ++ (subdir ".cache" [
         "chromium"
-        "go-build"
-        "goimports"
         "mozilla"
         "nix"
         "rustic"
@@ -50,6 +48,11 @@ in
         "vscode-cpptools"
       ]);
     };
+  };
+  environment.variables = {
+    # go
+    GOBUILDCACHE = "/z/cache/go/build";
+    GOPATH = "/z/cache/go/path";
   };
 
   /*
