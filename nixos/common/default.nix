@@ -4,6 +4,7 @@
   inputs,
   pkgs,
   pkgs-unstable,
+  self,
   xelib,
   ...
 }:
@@ -51,6 +52,11 @@ in
 
   # allow unfree packages
   nixpkgs.config.allowUnfree = true;
+
+  # link current nix config to /run/current-system/src
+  system.systemBuilderCommands = ''
+    ln -s ${self.outPath} $out/src
+  '';
 
   # VM settings
   virtualisation.vmVariant.virtualisation = {
