@@ -51,7 +51,7 @@ in
   };
   environment.variables = {
     # go
-    GOBUILDCACHE = "/z/cache/go/build";
+    GOCACHE = "/z/cache/go/build";
     GOPATH = "/z/cache/go/path";
   };
 
