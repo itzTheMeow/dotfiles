@@ -1,39 +1,62 @@
-{ host, ... }:
+{ host, xelib, ... }:
 let
+  zCache = "/z/cache";
   subdir = baseDir: subDirs: map (subDir: "${baseDir}/${subDir}") subDirs;
 in
 {
   environment.persistence."/z/persist" = {
     hideMounts = true;
-    #directories = [
-    #  "/etc/NetworkManager/system-connections"
-    #  "/var/lib/bluetooth"
-    #  "/var/lib/nixos"
-    #  "/var/lib/systemd/coredump"
-    #  "/var/log"
-    #];
-    #files = [
-    #  "/etc/machine-id"
-    #  "/etc/ssh_host_ed25519_key.pub"
-    #  "/etc/ssh_host_ed25519_key"
-    #  "/etc/ssh_host_rsa_key.pub"
-    #  "/etc/ssh_host_rsa_key"
-    #];
+    directories = [
+      "/etc/NetworkManager/system-connections"
+      "/var/lib/bluetooth"
+      "/var/lib/nixos"
+      "/var/lib/systemd/coredump"
+      "/var/log"
+    ];
+    files = [
+      "/etc/ssh/ssh_host_ed25519_key.pub"
+      "/etc/ssh/ssh_host_ed25519_key"
+      "/etc/ssh/ssh_host_rsa_key.pub"
+      "/etc/ssh/ssh_host_rsa_key"
+      "/etc/machine-id"
+    ];
   };
 
   #TODO: temporary
   environment.persistence."/z/home" = {
     hideMounts = true;
-    directories = [ "xela" ];
-    # users.${host.username} = {
-    #   directories = [
-    #     "."
-    #   ];
-    # };
+    users.${host.username} = {
+      directories = [
+        xelib.locationDir
+        ".config"
+        ".local"
+        ".mozilla"
+        ".pcloud"
+        ".pki" # chromium certs
+        ".thunderbird"
+        ".vscode-shared"
+        ".vscode"
+        ".wakatime"
+        ".wine"
+        "ActivityWatchSync"
+        "Desktop"
+        "Documents"
+        "Downloads"
+        "JoplinBackup"
+        "Music"
+        "Pictures"
+        "Videos"
+      ];
+      files = [
+        ".ssh/known_hosts"
+        ".zsh_history"
+        ".wakatime.cfg"
+      ];
+    };
   };
 
   # cache is for caches/stores/trash
-  environment.persistence."/z/cache" = {
+  environment.persistence.${zCache} = {
     hideMounts = true;
     allowTrash = true;
     users.${host.username} = {
@@ -50,16 +73,22 @@ in
       ]);
     };
   };
-  # custom store paths for tools
-  systemd.tmpfiles.rules = [
-    # go
-    "d /z/cache/go 0755 xela users -"
-  ];
+  # set custom store paths for tools
   environment.variables = {
+    # bun
+    BUN_INSTALL = "${zCache}/bun"; # this isnt documented but its in the bun source code
+    # dart
+    PUB_CACHE = "${zCache}/dart";
     # go
-    GOCACHE = "/z/cache/go/build";
-    GOPATH = "/z/cache/go/path";
+    GOCACHE = "${zCache}/go/build";
+    GOPATH = "${zCache}/go/path";
   };
+  # make sure referenced directories exist
+  systemd.tmpfiles.rules = map (dir: "d ${zCache}/${dir} 0755 ${host.username} users -") [
+    "bun"
+    "dart"
+    "go"
+  ];
 
   /*
     # wipe root partition
@@ -67,10 +96,12 @@ in
       mkdir -p /mnt
       mount -o subvol=/ /dev/mapper/cryptroot /mnt
 
+      # delete old root
       if [ -e /mnt/root ]; then
-          btrfs subvolume delete /mnt/root
+        btrfs subvolume delete -R /mnt/root
       fi
 
+      # create a new root
       btrfs subvolume create /mnt/root
       umount /mnt
     '';
