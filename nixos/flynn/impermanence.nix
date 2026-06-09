@@ -53,9 +53,6 @@ in
   };
 
   /*
-    # btrfs tools available in the initrd stage
-    boot.initrd.supportedFilesystems = [ "btrfs" ];
-
     # wipe root partition
     boot.initrd.postDeviceCommands = lib.mkAfter ''
       mkdir -p /mnt

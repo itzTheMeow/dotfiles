@@ -24,6 +24,7 @@ in
     "sd_mod"
   ];
   boot.kernelModules = [ "kvm-intel" ];
+  boot.initrd.supportedFilesystems = [ "btrfs" ];
 
   # decrypted luks partiton
   boot.initrd.luks.devices.${luksDevice} = {
