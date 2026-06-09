@@ -11,6 +11,7 @@ in
       "/var/lib/bluetooth"
       "/var/lib/nixos"
       "/var/lib/systemd/coredump"
+      "/var/lib/tailscale"
       "/var/log"
     ];
     files = [
@@ -21,10 +22,14 @@ in
       "/etc/machine-id"
     ];
   };
+  # sops needs direct access to the key
+  sops.age.sshKeyPaths = [
+    "/z/persist/etc/ssh/ssh_host_ed25519_key"
+  ];
 
-  #TODO: temporary
   environment.persistence."/z/home" = {
     hideMounts = true;
+    allowTrash = true;
     users.${host.username} = {
       directories = [
         xelib.locationDir
