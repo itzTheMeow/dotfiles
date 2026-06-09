@@ -45,7 +45,7 @@ in
   fileSystems."/" = {
     device = "/dev/mapper/${luksDevice}";
     fsType = "btrfs";
-    options = mkSubvol "/" "compress=zstd:1";
+    options = mkSubvol "root" "compress=zstd:1";
     neededForBoot = true;
   };
   fileSystems."/nix" = {

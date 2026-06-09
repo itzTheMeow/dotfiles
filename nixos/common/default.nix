@@ -150,6 +150,7 @@ in
 
     ## system
     dnsutils
+    e2fsprogs
     pciutils
     usbutils
 
