@@ -7,7 +7,7 @@ in
   imports = [
     ./common
   ]
-  ++ builtins.map (name: hostDir + "/${name}") (
+  ++ map (name: hostDir + "/${name}") (
     builtins.filter (
       name:
       entries.${name} == "directory"
