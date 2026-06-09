@@ -1,4 +1,7 @@
 { host, ... }:
+let
+  subdir = baseDir: subDirs: map (subDir: "${baseDir}/${subDir}") subDirs;
+in
 {
   environment.persistence."/z/persist" = {
     hideMounts = true;
@@ -29,15 +32,25 @@
     # };
   };
 
-  #environment.persistence."/z/cache" = {
-  #  hideMounts = true;
-  #  allowTrash = true;
-  #  users.${host.username} = {
-  #    directories = [
-  #      ".local/share/Trash"
-  #    ];
-  #  };
-  #};
+  environment.persistence."/z/cache" = {
+    hideMounts = true;
+    allowTrash = true;
+    users.${host.username} = {
+      directories = [
+        ".local/share/Trash"
+      ]
+      ++ (subdir ".cache" [
+        "chromium"
+        "go-build"
+        "goimports"
+        "mozilla"
+        "nix"
+        "rustic"
+        "typescript"
+        "vscode-cpptools"
+      ]);
+    };
+  };
 
   /*
     # btrfs tools available in the initrd stage
