@@ -82,7 +82,7 @@ in
       # sops-build-secrets wrapper to add formatting
       (writeShellScriptBin "sops-build-secrets" ''
         ${xelpkgs.sops-build-secrets}/bin/sops-build-secrets
-        ${prettier}/bin/prettier --write --log-level silent /home/${host.username}/.dotfiles
+        ${prettier}/bin/prettier --write --log-level silent ${xelib.location}
       '')
 
       # codearchive requires these to be available

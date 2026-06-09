@@ -15,7 +15,8 @@ rec {
   inherit (import ./hosts.nix) hosts trustedHosts;
 
   # location of the dotfiles repo
-  location = "/home/${hosts.${hostname}.username}/.dotfiles";
+  locationDir = ".dotfiles";
+  location = "/home/${hosts.${hostname}.username}/${locationDir}";
 
   # aggregate apps from all config hosts
   apps = lib.foldAttrs lib.recursiveUpdate { } (
