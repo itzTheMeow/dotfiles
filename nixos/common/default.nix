@@ -201,6 +201,8 @@ in
     KbdInteractiveAuthentication = false;
   };
 
+  sops.gnupg.sshKeyPaths = [ ];
+
   # catppuccin settings
   catppuccin = {
     enable = true;
