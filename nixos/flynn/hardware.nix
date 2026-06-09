@@ -2,6 +2,7 @@
   config,
   lib,
   modulesPath,
+  utils,
   ...
 }:
 let
@@ -74,19 +75,38 @@ in
   };
 
   # wipe root partition on boot
-  boot.initrd.postDeviceCommands = lib.mkAfter ''
-    mkdir -p /mnt
-    mount -o subvol=/ /dev/mapper/${luksDevice} /mnt
+  # from https://github.com/nix-community/impermanence/pull/321
+  boot.initrd.systemd.services.wipe-file-systems = {
+    unitConfig.DefaultDependencies = false;
+    serviceConfig.Type = "oneshot";
+    wantedBy = [ "initrd.target" ];
+    before = [ "sysroot.mount" ];
 
-    # delete old root
-    if [ -e /mnt/root ]; then
-      btrfs subvolume delete -R /mnt/root
-    fi
+    # wait for the disk to appear
+    requires = [ "${utils.escapeSystemdPath "/dev/mapper/${luksDevice}"}.device" ];
+    after = [
+      "${utils.escapeSystemdPath "/dev/mapper/${luksDevice}"}.device"
+      "local-fs-pre.target"
+    ];
 
-    # create a new root
-    btrfs subvolume create /mnt/root
-    umount /mnt
-  '';
+    script = ''
+      mkdir /btrfs_tmp
+      mount /dev/root_vg/root /btrfs_tmp
+      if [[ -e /btrfs_tmp/root ]]; then
+          mkdir -p /btrfs_tmp/old_roots
+          timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%-d_%H:%M:%S")
+          mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
+      fi
+
+      # delete roots older than 7d
+      for i in $(find /btrfs_tmp/old_roots/ -maxdepth 1 -mtime +7); do
+          btrfs subvolume delete -R "$i"
+      done
+
+      btrfs subvolume create /btrfs_tmp/root
+      umount /btrfs_tmp
+    '';
+  };
 
   swapDevices = [
     # {
