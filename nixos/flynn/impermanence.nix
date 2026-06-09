@@ -96,21 +96,6 @@ in
   ];
 
   /*
-    # wipe root partition
-    boot.initrd.postDeviceCommands = lib.mkAfter ''
-      mkdir -p /mnt
-      mount -o subvol=/ /dev/mapper/cryptroot /mnt
-
-      # delete old root
-      if [ -e /mnt/root ]; then
-        btrfs subvolume delete -R /mnt/root
-      fi
-
-      # create a new root
-      btrfs subvolume create /mnt/root
-      umount /mnt
-    '';
-
     # hide /z
     system.activationScripts.hidePersistentMounts = ''
       echo -e "z" > /.hidden
