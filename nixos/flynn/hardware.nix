@@ -73,6 +73,21 @@ in
     neededForBoot = true;
   };
 
+  # wipe root partition on boot
+  boot.initrd.postDeviceCommands = lib.mkAfter ''
+    mkdir -p /mnt
+    mount -o subvol=/ /dev/mapper/${luksDevice} /mnt
+
+    # delete old root
+    if [ -e /mnt/root ]; then
+      btrfs subvolume delete -R /mnt/root
+    fi
+
+    # create a new root
+    btrfs subvolume create /mnt/root
+    umount /mnt
+  '';
+
   swapDevices = [
     # {
     #   device = "/dev/disk/by-partuuid/d275409b-bb85-4bd3-b92d-3bb0274573a0";
