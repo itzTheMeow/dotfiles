@@ -32,6 +32,7 @@ in
     # };
   };
 
+  # cache is for caches/stores/trash
   environment.persistence."/z/cache" = {
     hideMounts = true;
     allowTrash = true;
@@ -49,6 +50,11 @@ in
       ]);
     };
   };
+  # custom store paths for tools
+  systemd.tmpfiles.rules = [
+    # go
+    "d /z/cache/go 0755 xela users -"
+  ];
   environment.variables = {
     # go
     GOCACHE = "/z/cache/go/build";
