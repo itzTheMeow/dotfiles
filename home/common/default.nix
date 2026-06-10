@@ -5,16 +5,6 @@
   xelpkgs,
   ...
 }:
-let
-  initExtra = ''
-    clear
-    [ -f "$HOME/.profile_extra" ] && source $HOME/.profile_extra
-    [ -f "$HOME/.shellfishrc" ] && source "$HOME/.shellfishrc"
-
-    [ "$TERM_PROGRAM" != "vscode" ] && ${pkgs.fastfetch}/bin/fastfetch
-  '';
-  shellHistorySize = 100000;
-in
 {
   imports = [
     # import local config
@@ -77,42 +67,6 @@ in
 
   programs = {
     home-manager.enable = true;
-
-    bash = {
-      enable = true;
-      bashrcExtra = ''
-        shopt -s histappend
-        shopt -s checkwinsize
-        ${initExtra}
-      '';
-      historyControl = [ "ignoreboth" ];
-      historyFileSize = shellHistorySize;
-      historySize = shellHistorySize;
-    };
-    zsh = {
-      enable = true;
-      initContent = ''
-        bindkey  "^[[H"   beginning-of-line
-        bindkey  "^[[F"   end-of-line
-        bindkey  "^[[3~"  delete-char
-
-        ${pkgs.nix-your-shell}/bin/nix-your-shell zsh | source /dev/stdin
-
-        ${initExtra}
-      '';
-      autosuggestion.enable = true;
-      syntaxHighlighting.enable = true;
-      history = {
-        size = shellHistorySize;
-        save = shellHistorySize;
-        share = true;
-        append = true;
-      };
-      setOptions = [ "INC_APPEND_HISTORY" ];
-    };
-    dircolors = {
-      enable = true;
-    };
 
     git = {
       enable = true;

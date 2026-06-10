@@ -18,6 +18,7 @@ let
       "ssh"
       "tailscale"
       "trust-cert"
+      "zsh"
     ];
 in
 {
@@ -101,7 +102,6 @@ in
   users.users.${host.username} = {
     isNormalUser = true;
     description = if (host ? fullname) then host.fullname else xelib.toTitleCase host.username;
-    shell = pkgs.zsh;
     linger = true; # start user sessions on machine boot
     extraGroups = [
       "networkmanager"
@@ -191,9 +191,6 @@ in
 
   # allow other flag for fuse mounts
   programs.fuse.userAllowOther = true;
-
-  # enable zsh
-  programs.zsh.enable = true;
 
   # default ssh settings
   services.openssh.settings = {
