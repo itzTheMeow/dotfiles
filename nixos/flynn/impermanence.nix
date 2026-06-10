@@ -101,6 +101,8 @@
     # go
     GOCACHE = "${config.persist.ed.cache.path}/go/build";
     GOPATH = "${config.persist.ed.cache.path}/go/path";
+    # pnpm
+    PNPM_HOME = "${config.persist.ed.cache.path}/pnpm";
   };
 
   # make sure referenced directories exist
@@ -110,5 +112,6 @@
         "bun"
         "dart"
         "go"
+        "pnpm"
       ];
 }
