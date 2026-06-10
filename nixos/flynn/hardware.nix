@@ -2,16 +2,10 @@
   config,
   lib,
   modulesPath,
-  utils,
   ...
 }:
 let
   luksDevice = "cryptroot";
-  mkSubvol = name: compression: [
-    "subvol=${name}"
-    compression
-    "noatime" # dont need access time
-  ];
 in
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
@@ -25,13 +19,13 @@ in
     "sd_mod"
   ];
   boot.kernelModules = [ "kvm-intel" ];
-  boot.initrd.supportedFilesystems = [ "btrfs" ];
 
   # decrypted luks partiton
   boot.initrd.luks.devices.${luksDevice} = {
     device = "/dev/disk/by-uuid/bc39c959-30e1-4cbc-8664-def6a02336a6";
     allowDiscards = true;
   };
+  persist.settings.device = "/dev/mapper/cryptroot";
 
   # boot partition
   fileSystems."/boot" = {
@@ -41,71 +35,6 @@ in
       "fmask=0077"
       "dmask=0077"
     ];
-  };
-
-  fileSystems."/" = {
-    device = "/dev/mapper/${luksDevice}";
-    fsType = "btrfs";
-    options = mkSubvol "root" "compress=zstd:1";
-    neededForBoot = true;
-  };
-  fileSystems."/nix" = {
-    device = "/dev/mapper/${luksDevice}";
-    fsType = "btrfs";
-    options = mkSubvol "nix" "compress-force=zstd:5";
-    neededForBoot = true;
-  };
-  fileSystems."/z/persist" = {
-    device = "/dev/mapper/${luksDevice}";
-    fsType = "btrfs";
-    options = mkSubvol "persist" "compress=zstd:3";
-    neededForBoot = true;
-  };
-  fileSystems."/z/home" = {
-    device = "/dev/mapper/${luksDevice}";
-    fsType = "btrfs";
-    options = mkSubvol "home" "compress=zstd:3";
-    neededForBoot = true;
-  };
-  fileSystems."/z/cache" = {
-    device = "/dev/mapper/${luksDevice}";
-    fsType = "btrfs";
-    options = mkSubvol "cache" "compress-force=zstd:5";
-    neededForBoot = true;
-  };
-
-  # wipe root partition on boot
-  # from https://github.com/nix-community/impermanence/pull/321
-  boot.initrd.systemd.services.wipe-file-systems = {
-    unitConfig.DefaultDependencies = false;
-    serviceConfig.Type = "oneshot";
-    wantedBy = [ "initrd.target" ];
-    before = [ "sysroot.mount" ];
-
-    # wait for the disk to appear
-    requires = [ "${utils.escapeSystemdPath "/dev/mapper/${luksDevice}"}.device" ];
-    after = [
-      "${utils.escapeSystemdPath "/dev/mapper/${luksDevice}"}.device"
-      "local-fs-pre.target"
-    ];
-
-    script = ''
-      mkdir /btrfs_tmp
-      mount /dev/mapper/${luksDevice} /btrfs_tmp
-      if [[ -e /btrfs_tmp/root ]]; then
-          mkdir -p /btrfs_tmp/old_roots
-          timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%-d_%H:%M:%S")
-          mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
-      fi
-
-      # delete roots older than 7d
-      for i in $(find /btrfs_tmp/old_roots/ -maxdepth 1 -mtime +7); do
-          btrfs subvolume delete -R "$i"
-      done
-
-      btrfs subvolume create /btrfs_tmp/root
-      umount /btrfs_tmp
-    '';
   };
 
   swapDevices = [
