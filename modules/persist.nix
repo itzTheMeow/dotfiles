@@ -175,7 +175,6 @@ in
         mkdir /btrfs_tmp
         mount ${cfg.settings.device} /btrfs_tmp
 
-        mkdir -p /btrfs_tmp/old_roots
         if [[ -e /btrfs_tmp/root ]]; then
           mkdir -p /btrfs_tmp/old_roots
           timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%-d_%H:%M:%S")
