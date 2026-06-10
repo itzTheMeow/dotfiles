@@ -71,14 +71,16 @@
     cache = {
       userDirectories = [
         ".local/share/Trash"
-      ]
-      ++ map (subDir: ".cache/${subDir}") [
-        "chromium"
-        "mozilla"
-        "nix"
-        "rustic"
-        "typescript"
-        "vscode-cpptools"
+        {
+          ".cache" = [
+            "chromium"
+            "mozilla"
+            "nix"
+            "rustic"
+            "typescript"
+            "vscode-cpptools"
+          ];
+        }
       ];
       compression = 5;
       compressForce = true;
