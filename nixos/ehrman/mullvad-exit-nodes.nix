@@ -138,7 +138,8 @@ let
         {
           "docker-${tailscaleContainer}".serviceConfig = {
             ExecStartPre = waitForHealthy;
-            Restart = "unless-stopped";
+            Restart = "always";
+            RestartSec = "5s";
           };
           "docker-${socks5Container}".serviceConfig.ExecStartPre = waitForHealthy;
 
