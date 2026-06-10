@@ -17,6 +17,61 @@ let
 
   cfg = config.persist;
 
+  pathTreeType =
+    let
+      self = lib.types.nullOr (
+        lib.types.oneOf [
+          lib.types.str
+          (lib.types.listOf (
+            lib.types.oneOf [
+              lib.types.str
+              self
+            ]
+          ))
+          (lib.types.attrsOf self)
+        ]
+      );
+    in
+    self;
+
+  # clean path joiner
+  joinPath =
+    prefix: suffix:
+    if prefix == "" then
+      # root key should be an absolute path
+      if lib.hasPrefix "/" suffix then suffix else "/${suffix}"
+    else
+    # make sure theres no double-slash path
+    if lib.hasSuffix "/" prefix || lib.hasPrefix "/" suffix then
+      "${prefix}${suffix}"
+    else
+      "${prefix}/${suffix}";
+
+  flattenPathTree =
+    prefix: value:
+    # if value is null, return nothing
+    if isNull value then
+      [ ]
+    # attrsets get flattened into paths at the current prefix
+    else if builtins.isAttrs value then
+      lib.concatLists (
+        lib.mapAttrsToList (name: child: flattenPathTree (joinPath prefix name) child) value
+      )
+    # lists get expanded into paths
+    else if builtins.isList value then
+      # if a list is empty, then just use the prefix as the file
+      if value == [ ] then
+        # if at the root level, return nothing
+        (if prefix == "" then [ ] else [ prefix ])
+      else
+        # expand the list at the current prefix
+        lib.concatLists (map (item: flattenPathTree prefix item) value)
+    else
+      # strings get joined to the current prefix
+      [ (joinPath prefix (toString value)) ];
+
+  flattenPaths = value: flattenPathTree "" value;
+
   mkBtrfsMount = subvolume: compression: compressForce: {
     device = cfg.settings.device;
     fsType = "btrfs";
@@ -33,11 +88,11 @@ let
   mkPersistence = entry: {
     hideMounts = true;
     allowTrash = true;
-    directories = entry.directories;
-    files = entry.files;
+    directories = flattenPaths entry.directories;
+    files = flattenPaths entry.files;
     users.${host.username} = {
-      directories = entry.userDirectories;
-      files = entry.userFiles;
+      directories = flattenPaths entry.userDirectories;
+      files = flattenPaths entry.userFiles;
     };
   };
 in
@@ -103,26 +158,26 @@ in
               };
 
               directories = mkOption {
-                type = types.listOf types.str;
-                default = [ ];
+                type = pathTreeType;
+                default = null;
                 description = "Directories to persist.";
               };
 
               files = mkOption {
-                type = types.listOf types.str;
-                default = [ ];
+                type = pathTreeType;
+                default = null;
                 description = "Files to persist.";
               };
 
               userDirectories = mkOption {
-                type = types.listOf types.str;
-                default = [ ];
+                type = pathTreeType;
+                default = null;
                 description = "User directories to persist.";
               };
 
               userFiles = mkOption {
-                type = types.listOf types.str;
-                default = [ ];
+                type = pathTreeType;
+                default = null;
                 description = "User files to persist.";
               };
 

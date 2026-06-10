@@ -143,6 +143,7 @@ in
     ## nix-related
     cachix
     home-manager
+    nix-diff
     nixpkgs-review
 
     ## editors

@@ -34,8 +34,8 @@ hostname := env('HOSTNAME')
 @pull:
     git pull
 
-# diff the last 2 commits of a configuration
-@diff configuration:
+# diff the last 2 commits of the configuration
+@diff configuration=hostname:
     nix-diff \
         $(nix eval --raw 'git+file://'$(pwd)'?rev='$(git rev-parse HEAD~1)'#nixosConfigurations.{{ configuration }}.config.system.build.toplevel.drvPath') \
         $(nix eval --raw 'git+file://'$(pwd)'?rev='$(git rev-parse HEAD)'#nixosConfigurations.{{ configuration }}.config.system.build.toplevel.drvPath')
