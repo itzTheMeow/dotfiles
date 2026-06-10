@@ -137,6 +137,7 @@ let
         in
         {
           "docker-${tailscaleContainer}".serviceConfig.ExecStartPre = waitForHealthy;
+          "docker-${tailscaleContainer}".serviceConfig.Restart = "unless-stopped";
           "docker-${socks5Container}".serviceConfig.ExecStartPre = waitForHealthy;
 
           "mullvad-exit-watcher-${cfg.name}" = {
