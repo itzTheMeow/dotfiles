@@ -14,18 +14,28 @@
     persist = {
       directories = [
         "/etc/NetworkManager/system-connections"
-        "/var/lib/bluetooth"
-        "/var/lib/nixos"
-        "/var/lib/systemd/coredump"
-        "/var/lib/tailscale"
-        "/var/log"
+        {
+          var = {
+            lib = [
+              "bluetooth"
+              "nixos"
+              "systemd/coredump"
+              "tailscale"
+            ];
+            log = [ ];
+          };
+        }
       ];
-      files = [
-        "/etc/ssh/ssh_host_ed25519_key.pub"
-        "/etc/ssh/ssh_host_ed25519_key"
-        "/etc/ssh/ssh_host_rsa_key.pub"
-        "/etc/ssh/ssh_host_rsa_key"
-        "/etc/machine-id"
+      files.etc = [
+        {
+          ssh = [
+            "ssh_host_ed25519_key.pub"
+            "ssh_host_ed25519_key"
+            "ssh_host_rsa_key.pub"
+            "ssh_host_rsa_key"
+          ];
+        }
+        "machine-id"
       ];
     };
 
