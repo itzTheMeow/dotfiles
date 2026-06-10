@@ -38,15 +38,15 @@ in
   };
 
   swapDevices = [
-    # {
-    #   device = "/dev/disk/by-partuuid/d275409b-bb85-4bd3-b92d-3bb0274573a0";
-    #   randomEncryption = {
-    #     enable = true;
-    #     # best based on performance
-    #     cipher = "aes-xts-plain64";
-    #     keySize = 512;
-    #   };
-    # }
+    {
+      device = "/dev/disk/by-partuuid/c8192f07-ba95-4d2f-926a-89b98a20e373";
+      randomEncryption = {
+        enable = true;
+        # best based on performance
+        cipher = "aes-xts-plain64";
+        keySize = 512;
+      };
+    }
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
