@@ -34,6 +34,12 @@ hostname := env('HOSTNAME')
 @pull:
     git pull
 
+# diff the last 2 commits of a configuration
+@diff configuration:
+    nix-diff \
+        $(nix eval --raw 'git+file://'$(pwd)'?rev='$(git rev-parse HEAD~1)'#nixosConfigurations.{{ configuration }}.config.system.build.toplevel.drvPath') \
+        $(nix eval --raw 'git+file://'$(pwd)'?rev='$(git rev-parse HEAD)'#nixosConfigurations.{{ configuration }}.config.system.build.toplevel.drvPath')
+
 # sha256 hash a URL for nix
 @hash url:
     nix hash convert --hash-algo sha256 "$(nix-prefetch-url {{ url }})"
