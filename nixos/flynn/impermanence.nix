@@ -63,7 +63,6 @@
       userFiles = [
         "Desktop/.directory" # only keep the fact that it exists. nothing on desktop is kept
         ".ssh/known_hosts"
-        ".zsh_history"
         ".wakatime.cfg"
       ];
     };
