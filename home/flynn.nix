@@ -35,7 +35,7 @@ in
       jdk21
 
       # desktop apps
-      (pkgs.joplin-desktop.overrideAttrs (old: {
+      (joplin-desktop.overrideAttrs (old: {
         # joplin needs to run with compatibility settings for wayland
         postFixup = (old.postFixup or "") + ''
           substituteInPlace $out/share/applications/joplin.desktop \
@@ -45,7 +45,6 @@ in
       pcloud
       remmina
       qdiskinfo
-      timefinder-electron
 
       # games
       prismlauncher
