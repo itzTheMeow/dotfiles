@@ -19,6 +19,7 @@ lib.mkMerge (
 
       # forward requests to local machine
       services.nginx.virtualHosts.${app.domain} = {
+        enableACME = true;
         forceSSL = true;
         locations."/" = {
           proxyPass = "http://${xelib.hosts.${host}.ip}:${app.portString}";
