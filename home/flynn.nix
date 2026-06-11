@@ -45,6 +45,7 @@ in
       pcloud
       remmina
       qdiskinfo
+      timefinder-electron
 
       # games
       prismlauncher
@@ -185,6 +186,8 @@ in
       "x-scheme-handler/unknown" = "firefox-devedition.desktop";
     };
   };
+  # overwrite the file if changed
+  xdg.configFile."mimeapps.list".force = true;
 
   # 1Password autostart
   xdg.autostart = {

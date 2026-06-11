@@ -44,6 +44,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+
+    # my stuff
+    timefinder-electron = {
+      url = "git+https://forge.xela.codes/xela/timefinder-electron.git";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -164,9 +171,10 @@
           modules = [
             # custom overlays
             {
-              nixpkgs.overlays = map (file: import ./overlays/${file}) (
-                builtins.attrNames (builtins.readDir ./overlays)
-              );
+              nixpkgs.overlays = [
+                inputs.timefinder-electron.overlays.default
+              ]
+              ++ (map (file: import ./overlays/${file}) (builtins.attrNames (builtins.readDir ./overlays)));
             }
 
             # sops
