@@ -12,7 +12,7 @@ lib.mkMerge (
     in
     {
       apps."timefinder-electron-relay-${host}" = {
-        domain = "tfrl-flynn.xela.codes";
+        domain = "tfrl-${host}.xela.codes";
         port = 29387;
         enableDNS = true;
       };
