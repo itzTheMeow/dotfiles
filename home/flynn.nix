@@ -50,7 +50,7 @@ in
       prismlauncher
 
       # development
-      figma
+      figma-linux
       gh
       mongodb-compass
       okteta
