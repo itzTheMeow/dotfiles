@@ -34,11 +34,6 @@
       inputs.flake-utils.follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    extra-container = {
-      url = "github:erikarvstedt/extra-container";
-      inputs.flake-utils.follows = "flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -184,7 +179,6 @@
             # misc
             catppuccin.nixosModules.catppuccin
             inputs.impermanence.nixosModules.impermanence
-            inputs.extra-container.nixosModules.default
 
             # main config
             (import ./nixos hostname)
