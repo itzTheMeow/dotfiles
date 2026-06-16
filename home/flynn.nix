@@ -201,6 +201,7 @@ in
   # KDE Plasma settings
   programs.plasma = {
     enable = true;
+    overrideConfig = true;
     workspace = {
       cursor = {
         theme = xelib.globals.cursors.name;
