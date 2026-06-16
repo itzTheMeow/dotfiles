@@ -93,6 +93,7 @@
         ".config/pegasus-frontend/stats.db"
         ".config/qalculate/qalculate-qt.cfg"
         ".config/qdiskinfo/qdiskinfo.conf" # TODO: make declarative
+        ".config/kactivitymanagerd-statsrc" # favorites list order
       ];
     };
 
