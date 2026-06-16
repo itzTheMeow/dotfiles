@@ -9,6 +9,10 @@ hostname := env('HOSTNAME')
     journalctl -u "home-manager-{{ env('USER') }}" --since "$START_TIME" --no-pager -o cat | \
         sed -n '/^Starting Home Manager activation$/,/Deactivated successfully.$/p'
 
+# rebuild the current system as a new boot menu entry
+@boot:
+    sudo nixos-rebuild boot --flake .#{{ hostname }}
+
 # show this help menu
 @help:
     {{ just_executable() }} --justfile {{ justfile() }} --list
