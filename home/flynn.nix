@@ -343,12 +343,9 @@ in
     # Power management settings
     powerdevil = {
       AC = {
-        autoSuspend = {
-          action = "nothing"; # Never suspend on AC power
-        };
-        turnOffDisplay = {
-          idleTimeout = "never"; # Keep display on while on AC
-        };
+        autoSuspend.action = "nothing"; # Never suspend on AC power
+        turnOffDisplay.idleTimeout = "never"; # Keep display on while on AC
+        whenLaptopLidClosed = "doNothing";
       };
       battery = {
         autoSuspend = {
