@@ -229,17 +229,18 @@ in
       script = ''
         mkdir /btrfs_tmp
         mount ${cfg.settings.device} /btrfs_tmp
-
-        if [[ -e /btrfs_tmp/root ]]; then
-          mkdir -p /btrfs_tmp/old_roots
-          timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%-d_%H:%M:%S")
-          mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
-        fi
+        mkdir -p /btrfs_tmp/old_roots
 
         # delete roots older than keepDays
+        # do this before moving
         for i in $(find /btrfs_tmp/old_roots/ -mindepth 1 -maxdepth 1 -mtime +${toString cfg.settings.wipeOnBoot.keepDays}); do
           btrfs subvolume delete -R "$i"
         done
+
+        if [[ -e /btrfs_tmp/root ]]; then
+          timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%-d_%H:%M:%S")
+          mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
+        fi
 
         btrfs subvolume create /btrfs_tmp/root
         umount /btrfs_tmp
