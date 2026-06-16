@@ -42,7 +42,30 @@
     home = {
       userDirectories = [
         xelib.locationDir
-        ".config"
+        ".config/1Password"
+        ".config/app.yaak.desktop"
+        ".config/blender"
+        ".config/chromium"
+        ".config/Code"
+        ".config/Element"
+        ".config/figma-linux"
+        ".config/gh" # TODO: make declarative
+        ".config/GIMP"
+        ".config/godot"
+        ".config/inkscape"
+        ".config/Joplin" # electron
+        ".config/joplin-desktop" # user data
+        ".config/libreoffice"
+        ".config/MongoDB Compass"
+        ".config/obs-studio"
+        ".config/pcloud"
+        ".config/Pinta"
+        ".config/Plexamp"
+        ".config/RSS Guard 4"
+        ".config/session"
+        ".config/teams-for-linux"
+        ".config/timefinder-electron"
+        ".config/vesktop"
         ".local"
         ".mozilla"
         ".pcloud"
@@ -64,6 +87,12 @@
         "Desktop/.directory" # only keep the fact that it exists. nothing on desktop is kept
         ".ssh/known_hosts"
         ".wakatime.cfg"
+        ".config/Fougue Ltd/Mayo.conf"
+        ".config/discordchatexporter/Settings.dat"
+        ".config/op/config"
+        ".config/pegasus-frontend/stats.db"
+        ".config/qalculate/qalculate-qt.cfg"
+        ".config/qdiskinfo/qdiskinfo.conf" # TODO: make declarative
       ];
     };
 

@@ -337,6 +337,8 @@ in
     configFile.kwinrc.TabBox.LayoutName = "sidebar";
     # make baloo ignore pcloud mount
     configFile."baloofilerc"."General"."exclude folders" = "/home/${host.username}/pCloudDrive";
+    # allow unattended access for krfb
+    configFile."krfbrc"."Security"."allowUnattendedAccess" = "true";
 
     # Power management settings
     powerdevil = {
