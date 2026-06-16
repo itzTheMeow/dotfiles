@@ -340,6 +340,8 @@ in
     configFile."baloofilerc"."General"."exclude folders" = "/home/${host.username}/pCloudDrive";
     # allow unattended access for krfb
     configFile."krfbrc"."Security"."allowUnattendedAccess" = "true";
+    # turn on do not disturb (set year to 3000)
+    configFile.plasmanotifyrc.DoNotDisturb.Until = "3000,1,1,1,1,1";
 
     # Power management settings
     powerdevil = {
