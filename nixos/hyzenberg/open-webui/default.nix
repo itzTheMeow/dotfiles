@@ -29,7 +29,7 @@ in
       ENABLE_PERSISTENT_CONFIG = "False"; # only use declarative config
       WEBUI_URL = app.url;
       OLLAMA_BASE_URL = xelib.apps.ollama.url;
-      ENABLE_OPENAI_API = "False";
+      ENABLE_DIRECT_CONNECTIONS = "True";
       DEFAULT_MODELS = MAIN_MODEL;
       inherit TASK_MODEL;
 
