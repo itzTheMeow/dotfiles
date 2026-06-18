@@ -10,6 +10,10 @@ in
     host = app.ip;
     inherit (app) port;
     syncModels = true;
+    environmentVariables = {
+      # leave 1 core free for the server
+      OLLAMA_NUM_THREADS = "11";
+    };
   };
   systemd.services.ollama.after = [ "tailscale-online.service" ];
 }
