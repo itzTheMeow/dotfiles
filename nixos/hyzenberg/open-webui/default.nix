@@ -51,6 +51,7 @@ in
       #WEB_SEARCH_ENGINE = "searxng";
       #SEARXNG_QUERY_URL = "http://127.0.0.1:8888/search?q=<query>&format=json";
     };
+    environmentFile = config.sops.secrets.open-webui.path;
   };
   systemd.services.open-webui.after = [ "tailscale-online.service" ];
 
