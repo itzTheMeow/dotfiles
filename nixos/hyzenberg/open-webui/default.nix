@@ -45,13 +45,19 @@ in
       DEFAULT_USER_ROLE = "user"; # approve new users automatically
 
       BYPASS_MODEL_ACCESS_CONTROL = "True"; # all users get all models
-      THREAD_POOL_SIZE = "2000"; # concurrency for production servers
       MCP_INITIALIZE_TIMEOUT = "45"; # allow MCP servers to take longer
+      THREAD_POOL_SIZE = "2000"; # concurrency for production servers
 
       # analytics/stuff- undocumented but in the env example..
       ANONYMIZED_TELEMETRY = "False";
       DO_NOT_TRACK = "True";
       SCARF_NO_ANALYTICS = "True";
+
+      # de-clutter
+      ENABLE_CALENDAR = "False";
+      ENABLE_COMMUNITY_SHARING = "False";
+      ENABLE_NOTES = "False";
+      ENABLE_TAGS_GENERATION = "False";
 
       #ENABLE_WEB_SEARCH = "True";
       #WEB_SEARCH_ENGINE = "searxng";
