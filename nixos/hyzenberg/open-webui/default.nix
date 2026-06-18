@@ -33,6 +33,7 @@ in
       ENABLE_DIRECT_CONNECTIONS = "True"; # then enable direct connections for users
       DEFAULT_MODELS = MAIN_MODEL;
       inherit TASK_MODEL;
+      TASK_MODEL_EXTERNAL = TASK_MODEL;
 
       # oauth
       ENABLE_PASSWORD_AUTH = "False";
@@ -58,7 +59,9 @@ in
       ENABLE_CALENDAR = "False";
       ENABLE_COMMUNITY_SHARING = "False";
       ENABLE_NOTES = "False";
+      # speeds stuff up since we don't really need these
       ENABLE_TAGS_GENERATION = "False";
+      ENABLE_FOLLOW_UP_GENERATION = "False";
 
       #ENABLE_WEB_SEARCH = "True";
       #WEB_SEARCH_ENGINE = "searxng";
