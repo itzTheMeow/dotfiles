@@ -57,6 +57,7 @@ in
       [
         {
           Information = [
+            (srv "open-webui")
             (srv "freshrss")
             (srv "ntfy")
           ];
