@@ -29,7 +29,8 @@ in
       ENABLE_PERSISTENT_CONFIG = "False"; # only use declarative config
       WEBUI_URL = app.url;
       OLLAMA_BASE_URL = xelib.apps.ollama.url;
-      ENABLE_DIRECT_CONNECTIONS = "True";
+      ENABLE_OPENAI_API = "False"; # disable default openai toggle-on
+      ENABLE_DIRECT_CONNECTIONS = "True"; # then enable direct connections for users
       DEFAULT_MODELS = MAIN_MODEL;
       inherit TASK_MODEL;
 
