@@ -2,7 +2,8 @@
 let
   app = config.apps.open-webui;
 
-  OLLAMA_MODEL = "qwen3:14b-q8_0";
+  MAIN_MODEL = "qwen3:14b-q8_0";
+  TASK_MODEL = "qwen3:0.6b";
 in
 {
   apps.open-webui = {
@@ -15,7 +16,10 @@ in
   };
 
   # load the model
-  services.ollama.loadModels = [ OLLAMA_MODEL ];
+  services.ollama.loadModels = [
+    MAIN_MODEL
+    TASK_MODEL
+  ];
 
   services.open-webui = {
     enable = true;
@@ -26,6 +30,8 @@ in
       WEBUI_URL = app.url;
       OLLAMA_BASE_URL = xelib.apps.ollama.url;
       ENABLE_OPENAI_API = "False";
+      DEFAULT_MODELS = [ MAIN_MODEL ];
+      inherit TASK_MODEL;
 
       # oauth
       ENABLE_PASSWORD_AUTH = "False";
