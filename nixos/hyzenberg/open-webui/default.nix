@@ -2,7 +2,8 @@
 let
   app = config.apps.open-webui;
 
-  MAIN_MODEL = "qwen3.6:35b-a3b-mtp-q4_K_M";
+  #TODO: add mtp
+  MAIN_MODEL = "qwen3.6:35b-a3b-q4_K_M";
   OTHER_MODELS = [
     "qwen3.5:9b-q8_0"
     "qwen3:14b-q8_0"
