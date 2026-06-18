@@ -30,7 +30,7 @@ in
       WEBUI_URL = app.url;
       OLLAMA_BASE_URL = xelib.apps.ollama.url;
       ENABLE_OPENAI_API = "False";
-      DEFAULT_MODELS = [ MAIN_MODEL ];
+      DEFAULT_MODELS = MAIN_MODEL;
       inherit TASK_MODEL;
 
       # oauth
