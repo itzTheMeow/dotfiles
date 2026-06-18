@@ -3,7 +3,10 @@ let
   app = config.apps.open-webui;
 
   MAIN_MODEL = "qwen3.6:35b-a3b-mtp-q4_K_M";
-  OTHER_MODELS = ["qwen3.5:9b-q8_0" "qwen3:14b-q8_0"];
+  OTHER_MODELS = [
+    "qwen3.5:9b-q8_0"
+    "qwen3:14b-q8_0"
+  ];
   TASK_MODEL = "qwen3:0.6b";
 in
 {
@@ -20,7 +23,8 @@ in
   services.ollama.loadModels = [
     MAIN_MODEL
     TASK_MODEL
-  ] ++ OTHER_MODELS;
+  ]
+  ++ OTHER_MODELS;
 
   services.open-webui = {
     enable = true;
