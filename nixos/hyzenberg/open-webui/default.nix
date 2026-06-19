@@ -35,7 +35,6 @@ in
       ENABLE_PERSISTENT_CONFIG = "False"; # only use declarative config
       WEBUI_URL = app.url;
       OLLAMA_BASE_URL = xelib.apps.ollama.url;
-      ENABLE_OPENAI_API = "False"; # disable default openai toggle-on
       ENABLE_DIRECT_CONNECTIONS = "True"; # then enable direct connections for users
       DEFAULT_MODELS = MAIN_MODEL;
       inherit TASK_MODEL;
@@ -82,5 +81,8 @@ in
 
     OAUTH_CLIENT_ID = "op://Private/daxqfmcl234pjr7bunfn66ubhy/OAuth Client ID";
     OAUTH_CLIENT_SECRET = "op://Private/daxqfmcl234pjr7bunfn66ubhy/OAuth Client Secret";
+
+    OPENAI_API_BASE_URLS = "op://Private/daxqfmcl234pjr7bunfn66ubhy/OpenAI URLs";
+    OPENAI_API_KEYS = "op://Private/daxqfmcl234pjr7bunfn66ubhy/OpenAI Keys";
   };
 }
