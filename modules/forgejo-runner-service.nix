@@ -141,11 +141,7 @@ in
                     `config.virtualisation.podman.enable'.
                   '';
                 }
-              ]
-              ++ (foldlAttrs (
-                assertions: _: connection:
-                assertions ++ connection.assertions
-              ) [ ] config.settings.server.connections);
+              ];
             };
 
             options = {
