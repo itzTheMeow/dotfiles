@@ -16,11 +16,7 @@ lib.mkMerge (
       }
       // runner.options;
 
-      sops.secrets."forgejo-runner-${runner.name}" = {
-        sopsFile = config.sops.opSecrets.forgejo-runners.fullPath;
-        key = runner.name;
-      };
-      sops.opSecrets.forgejo-runners.keys.${runner.name} =
+      sops.envFiles."forgejo-runner-${runner.name}".TOKEN =
         "op://Private/yjdttmakvgkuiia5xhda2pl3ve/Actions Runners/${runner.name}";
     })
     [
