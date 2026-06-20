@@ -19,6 +19,10 @@ let
         bash
         coreutils
         cacert
+        # enable flakes inside the container
+        (pkgs.writeTextDir "etc/nix/nix.conf" ''
+          experimental-features = nix-command flakes
+        '')
       ];
       pathsToLink = [
         "/bin"
