@@ -292,13 +292,6 @@ in
   };
 
   config = mkIf (cfg.instances != { }) {
-    warnings = (
-      foldlAttrs (
-        warnings: _: instance:
-        warnings ++ instance.warnings
-      ) [ ] cfg.instances
-    );
-
     systemd.services = lib.mapAttrs' (
       name: instance:
       nameValuePair "forgejo-runner-${utils.escapeSystemdPath name}" {
