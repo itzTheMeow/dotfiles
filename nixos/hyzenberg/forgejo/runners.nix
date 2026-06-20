@@ -34,6 +34,7 @@ lib.mkMerge (
         id = "84e66c7d-7f52-4c56-a460-6ecafb6c40d2";
         labels = [
           "nix:docker://nixos/nix"
+          "node:docker://node:20"
         ];
       }
     ]
