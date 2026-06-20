@@ -1,4 +1,5 @@
 # https://github.com/NixOS/nixpkgs/pull/387274
+# https://github.com/NixOS/nixpkgs/pull/527621 (new)
 {
   config,
   lib,

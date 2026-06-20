@@ -1,40 +1,40 @@
 {
   config,
   lib,
-  pkgs,
   xelib,
   ...
 }:
 lib.mkMerge (
-  (
-    # map runners to instances
-    map
-      (runner: {
-        services.gitea-actions-runner.instances.${runner.name} = {
-          enable = true;
-          name = runner.name;
-          url = xelib.apps.forgejo.url;
-          tokenFile = config.sops.secrets."forgejo-runner-${runner.name}".path;
-        }
-        // runner.options;
+  # map runners to instances
+  map
+    (runner: {
+      services.forgejo-runner.instances.${runner.id} = {
+        enable = true;
+        settings = {
+          runner.labels = runner.labels;
+          server.connections.default = {
+            url = xelib.apps.forgejo.url;
+            uuid = runner.id;
 
-        sops.envFiles."forgejo-runner-${runner.name}".TOKEN =
-          "op://Private/yjdttmakvgkuiia5xhda2pl3ve/Actions Runners/${runner.name}";
-      })
-      [
-        {
-          name = "xela-runner";
-          options = {
-            labels = [
-              "nix:docker://nixos/nix"
-            ];
           };
-        }
-      ]
-  )
-  ++ [
-    {
-      services.gitea-actions-runner.package = pkgs.forgejo-runner;
-    }
-  ]
+        };
+        secrets.server.connections.default.token_url =
+          config.sops.secrets."forgejo-runner-${runner.id}".path;
+      };
+
+      sops.secrets."forgejo-runner-${runner.id}" = {
+        sopsFile = config.sops.opSecrets.forgejo-runners.fullPath;
+        key = runner.id;
+      };
+      sops.opSecrets.forgejo-runners.keys.${runner.id} =
+        "op://Private/yjdttmakvgkuiia5xhda2pl3ve/Actions Runners/${runner.id}";
+    })
+    [
+      {
+        id = "84e66c7d-7f52-4c56-a460-6ecafb6c40d2";
+        labels = [
+          "nix:docker://nixos/nix"
+        ];
+      }
+    ]
 )
