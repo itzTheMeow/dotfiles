@@ -14,8 +14,6 @@ let
     mkIf
     mkOption
     mkPackageOption
-    mkRemovedOptionModule
-    mkRenamedOptionModule
     nameValuePair
     optionalAttrs
     optionals
@@ -70,64 +68,10 @@ in
           {
             options,
             config,
-            name,
             ...
           }:
 
           {
-            imports = [
-              # compat for users coming from nixos/gitea-actions-runner
-              (mkRenamedOptionModule [ "url" ] [ "settings" "server" "connections" "default" "url" ])
-              (mkRenamedOptionModule [ "labels" ] [ "settings" "runner" "labels" ])
-              (mkRemovedOptionModule [ "name" ] ''
-                The option `${options.name}' has been removed, because it has no longer
-                any effect, as runners no longer self-report their name to Forgejo.
-              '')
-              (mkRemovedOptionModule [ "token" ] ''
-                The option `${options.token}' has been renamed to
-                `${options.settings}.server.connections.default.token'
-                but additional attention is required.
-
-                Assuming you are migrating from `services.gitea-actions-runner', you will need to:
-
-                 1. Find the old `.runner' file of your previously registered runner. You will need
-                    to extract two values from it. Given the instance name of "${name}", it should
-                    be able to find it at `/var/lib/gitea-runner/${name}/.runner'.
-
-                 2. Read the contents of it, for example using `cat /var/lib/gitea-runner/native/.runner'.
-
-                 3. Take note of the "uuid" and set the option `${options.settings}.server.connections.default.uuid'
-                    to that value. For example "c9e50be9-a7c3-4aee-ba35-624c4ff8c519".
-
-                 4. Take note of the "token" and set the option `${options.settings}.server.connections.default.token'
-                    to that value. For example "6634bb58be0db23cc013a2e72dd1828ae0257cf".
-
-                 5. Remove option `${options.token}'.
-              '')
-              (mkRemovedOptionModule [ "tokenFile" ] ''
-                The option `${options.tokenFile}' has been renamed to
-                `${options.secrets}.server.connections.default.token_url'
-                but additional attention is required.
-
-                Assuming you are migrating from `services.gitea-actions-runner', you will need to:
-
-                 1. Find the old `.runner' file of your previously registered runner. You will need
-                    to extract two values from it. Given the instance name of "${name}", it should
-                    be able to find it at `/var/lib/gitea-runner/${name}/.runner'.
-
-                 2. Read the contents of it, for example using `cat /var/lib/gitea-runner/native/.runner'.
-
-                 3. Take note of the "uuid" and set the option `${options.settings}.server.connections.default.uuid'
-                    to that value. For example "c9e50be9-a7c3-4aee-ba35-624c4ff8c519".
-
-                 4. Take note of the "token" and replace the contents of your existing token file with it.
-                    You no longer need to prefix the token with `TOKEN='. Put just the token in that file
-                    and nothing else.
-
-                 5. Rename `${options.tokenFile}' to `${options.secrets}.server.connections.default.token_url'.
-              '')
-            ];
-
             config = {
               assertions = [
                 {
