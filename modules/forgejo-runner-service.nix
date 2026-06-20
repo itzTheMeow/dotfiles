@@ -164,33 +164,6 @@ in
                             {
                               freeformType = settingsFormat.type;
 
-                              imports = [
-                                ../../misc/assertions.nix
-                              ];
-
-                              config = {
-                                assertions = [
-                                  {
-                                    assertion =
-                                      (config.token == null && config ? token_url && config.token_url != null)
-                                      || (config.token != null && config ? token_url && config.token_url == null)
-                                      || (config.token != null && !config ? token_url);
-                                    message = ''
-                                      The option `${options.settings}' needs to have exactly one of
-                                      `server.connections.${name}.token_url': ${
-                                        if config ? token_url then lib.toJSON config.token_url else "<not set>"
-                                      } or
-                                      `server.connections.${name}.token': ${lib.toJSON config.token}
-                                      that is *not* null.
-
-                                      Hint:
-                                      `${options.secrets}.server.connections.${name}.token_url' will set
-                                      `${options.settings}.settings.server.connections.${name}.token_url' for you.
-                                    '';
-                                  }
-                                ];
-                              };
-
                               options = {
                                 url = mkOption {
                                   type = types.str;
