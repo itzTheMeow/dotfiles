@@ -3,20 +3,17 @@ on: [push]
 
 jobs:
   format:
-    runs-on: ubuntu-latest
+    runs-on: nix
     permissions:
       contents: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@v30
+        uses: actions/checkout@v7
 
       - name: Run Formatter
         run: nix run .#format --accept-flake-config
 
       - name: Commit Changes
-        uses: stefanzweifel/git-auto-commit-action@v7
+        uses: https://github.com/stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: format code"
