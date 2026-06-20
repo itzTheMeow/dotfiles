@@ -3,15 +3,12 @@ on: [push]
 
 jobs:
   format:
-    runs-on: node
+    runs-on: nix
     permissions:
       contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
-
-      - name: Install Nix
-        uses: https://github.com/cachix/install-nix-action@v30
 
       - name: Run Formatter
         run: nix run .#format --accept-flake-config
