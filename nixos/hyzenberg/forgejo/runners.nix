@@ -11,7 +11,6 @@ lib.mkMerge (
     (runner: {
       services.gitea-actions-runner.instances.${runner.name} = {
         enable = true;
-        package = pkgs.forgejo-runner;
         name = runner.name;
         url = xelib.apps.forgejo.url;
         tokenFile = config.sops.secrets."forgejo-runner-${runner.name}".path;
@@ -32,3 +31,8 @@ lib.mkMerge (
       }
     ]
 )
+++ [
+  {
+    services.gitea-actions-runner.package = pkgs.forgejo-runner;
+  }
+]
