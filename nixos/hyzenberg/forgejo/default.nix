@@ -11,6 +11,8 @@ let
   signingKeyPath = "/var/lib/forgejo/signing/id_ed25519";
 in
 {
+  imports = [ ./runners.nix ];
+
   apps.forgejo = {
     domain = "forge.xela.codes";
     port = 28313;
