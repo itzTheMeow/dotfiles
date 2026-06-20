@@ -36,6 +36,12 @@ let
         "/share"
       ];
     };
+
+    config = {
+      Env = [
+        "NIX_SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+      ];
+    };
   };
 in
 lib.mkMerge (
