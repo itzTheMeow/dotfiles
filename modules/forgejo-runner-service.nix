@@ -308,13 +308,6 @@ in
   };
 
   config = mkIf (cfg.instances != { }) {
-    assertions = (
-      foldlAttrs (
-        assertions: _: instance:
-        assertions ++ instance.assertions
-      ) [ ] cfg.instances
-    );
-
     warnings = (
       foldlAttrs (
         warnings: _: instance:
