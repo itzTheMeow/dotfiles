@@ -225,6 +225,7 @@
         formatScript = pkgs.writeShellApplication {
           name = "format";
           runtimeInputs = with pkgs; [
+            findutils
             nixfmt
             go
             prettier
