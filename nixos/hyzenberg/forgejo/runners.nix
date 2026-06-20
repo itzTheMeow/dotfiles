@@ -12,7 +12,7 @@ lib.mkMerge (
         enable = true;
         name = runner.name;
         url = xelib.apps.forgejo.url;
-        tokenFile = config.sops.secrets."forgejo-runner-${runner.name}";
+        tokenFile = config.sops.secrets."forgejo-runner-${runner.name}".path;
       }
       // runner.options;
 
