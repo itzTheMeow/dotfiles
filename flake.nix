@@ -1,5 +1,6 @@
 {
-  description = "Home Manager config";
+  description = 
+  "My nixos config";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
