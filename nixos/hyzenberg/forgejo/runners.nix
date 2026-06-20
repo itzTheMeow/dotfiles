@@ -1,41 +1,80 @@
 {
   config,
   lib,
+  pkgs,
   xelib,
   ...
 }:
+let
+  runner-image = pkgs.dockerTools.buildImage {
+    name = "nix-forgejo-runner";
+    tag = "latest";
+    contents = with pkgs; [
+      nix
+      nodejs
+      git
+      bash
+      coreutils
+      cacert
+    ];
+    config = {
+      Env = [
+        "NIX_SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+      ];
+    };
+  };
+in
 lib.mkMerge (
-  # map runners to instances
-  map
-    (runner: {
-      services.forgejo-runner.instances.${runner.id} = {
-        enable = true;
-        settings = {
-          runner.labels = runner.labels;
-          server.connections.default = {
-            url = xelib.apps.forgejo.url;
-            uuid = runner.id;
+  (
+    # map runners to instances
+    map
+      (runner: {
+        services.forgejo-runner.instances.${runner.id} = {
+          enable = true;
+          settings = {
+            runner.labels = runner.labels;
+            server.connections.default = {
+              url = xelib.apps.forgejo.url;
+              uuid = runner.id;
 
+            };
           };
+          secrets.server.connections.default.token_url =
+            config.sops.secrets."forgejo-runner-${runner.id}".path;
         };
-        secrets.server.connections.default.token_url =
-          config.sops.secrets."forgejo-runner-${runner.id}".path;
-      };
 
-      sops.secrets."forgejo-runner-${runner.id}" = {
-        sopsFile = config.sops.opSecrets.forgejo-runners.fullPath;
-        key = runner.id;
+        systemd.services."forgejo-runner-${runner.id}".after = [ "forgejo-load-runner-images.service" ];
+
+        sops.secrets."forgejo-runner-${runner.id}" = {
+          sopsFile = config.sops.opSecrets.forgejo-runners.fullPath;
+          key = runner.id;
+        };
+        sops.opSecrets.forgejo-runners.keys.${runner.id} =
+          "op://Private/yjdttmakvgkuiia5xhda2pl3ve/Actions Runners/${runner.id}";
+      })
+      [
+        {
+          id = "84e66c7d-7f52-4c56-a460-6ecafb6c40d2";
+          labels = [
+            "nix:docker://nix-forgejo-runner"
+          ];
+        }
+      ]
+  )
+  ++ [
+    {
+      systemd.services.forgejo-load-runner-images = {
+        description = "Load forgejo-runner Docker images";
+        after = [ "docker.service" ];
+        wants = [ "docker.service" ];
+        wantedBy = [ "multi-user.target" ];
+
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = "${pkgs.docker}/bin/docker load -i ${runner-image}";
+        };
       };
-      sops.opSecrets.forgejo-runners.keys.${runner.id} =
-        "op://Private/yjdttmakvgkuiia5xhda2pl3ve/Actions Runners/${runner.id}";
-    })
-    [
-      {
-        id = "84e66c7d-7f52-4c56-a460-6ecafb6c40d2";
-        labels = [
-          "nix:docker://nixos/nix"
-          "node:docker://node:20"
-        ];
-      }
-    ]
+    }
+  ]
 )
