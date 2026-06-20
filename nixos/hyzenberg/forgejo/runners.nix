@@ -9,14 +9,24 @@ let
   runner-image = pkgs.dockerTools.buildImage {
     name = "nix-forgejo-runner";
     tag = "latest";
-    contents = with pkgs; [
-      nix
-      nodejs
-      git
-      bash
-      coreutils
-      cacert
-    ];
+
+    copyToRoot = pkgs.buildEnv {
+      name = "forgejo-runner-env";
+      paths = with pkgs; [
+        nix
+        nodejs
+        git
+        bash
+        coreutils
+        cacert
+      ];
+      pathsToLink = [
+        "/bin"
+        "/etc"
+        "/share"
+      ];
+    };
+
     config = {
       Env = [
         "NIX_SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
