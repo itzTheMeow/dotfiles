@@ -19,21 +19,21 @@ let
         bash
         coreutils
         cacert
-        # enable flakes inside the container
+        # copied from here: https://github.com/cachix/install-nix-action/blob/23cf0fec1d55e0b1f2631aedd2a610c21ef8b077/install-nix.sh
         (pkgs.writeTextDir "etc/nix/nix.conf" ''
+          show-trace = true
+          max-jobs = auto
+          ssl-cert-file = ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+          trusted-users = root
           experimental-features = nix-command flakes
+          always-allow-substitutes = true
+          build-users-group =
         '')
       ];
       pathsToLink = [
         "/bin"
         "/etc"
         "/share"
-      ];
-    };
-
-    config = {
-      Env = [
-        "NIX_SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
       ];
     };
   };
