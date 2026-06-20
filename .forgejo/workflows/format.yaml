@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Run Formatter
-        run: nix run .#format --accept-flake-config
+        run: nix run .#format --accept-flake-config --extra-experimental-features flakes
 
       - name: Commit Changes
         uses: https://github.com/stefanzweifel/git-auto-commit-action@v7
