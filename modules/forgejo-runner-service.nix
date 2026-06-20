@@ -72,22 +72,6 @@ in
           }:
 
           {
-            config = {
-              assertions = [
-                {
-                  assertion = config.isDockerRunner -> hasContainerRuntime;
-                  message = ''
-                    The option `${options.settings}' has at least one label of
-                    type `:docker:' configured, but no compatible container runtime enabled.
-
-                    You need to enable either
-                    `config.virtualisation.docker.enable' or
-                    `config.virtualisation.podman.enable'.
-                  '';
-                }
-              ];
-            };
-
             options = {
               enable = mkEnableOption "this Forgejo Runner instance";
 
