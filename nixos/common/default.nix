@@ -1,4 +1,5 @@
 {
+  config,
   host,
   hostname,
   inputs,
@@ -95,19 +96,33 @@ in
     };
   };
 
-  # disable root login password
-  users.users.root.hashedPassword = null;
+  users = {
+    # enable declarative users / passwords
+    mutableUsers = false;
+    users = {
+      # disable root login
+      root.hashedPassword = null;
 
-  # configure default user
-  users.users.${host.username} = {
-    isNormalUser = true;
-    description = if (host ? fullname) then host.fullname else xelib.toTitleCase host.username;
-    linger = true; # start user sessions on machine boot
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-    ];
+      # configure default user
+      ${host.username} = {
+        isNormalUser = true;
+        description = if (host ? fullname) then host.fullname else xelib.toTitleCase host.username;
+        linger = true; # start user sessions on machine boot
+        extraGroups = [
+          "networkmanager"
+          "wheel"
+        ];
+        hashedPasswordFile = config.sops.secrets.password.path;
+      };
+    };
   };
+  # default user password via sops
+  sops.secrets.password = {
+    sopsFile = config.sops.opSecrets.password.fullPath;
+    key = "password";
+    neededForUsers = true;
+  };
+  sops.opSecrets.password.keys.password = "op://Private/${hostname} User Password/credential";
 
   # clear /tmp on boot
   boot.tmp.cleanOnBoot = true;

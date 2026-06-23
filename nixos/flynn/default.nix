@@ -26,16 +26,6 @@
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
-  # declarative users / passwords
-  users.users.${host.username}.hashedPasswordFile = config.sops.secrets.password.path;
-  users.mutableUsers = false;
-  sops.secrets.password = {
-    sopsFile = config.sops.opSecrets.password.fullPath;
-    key = "password";
-    neededForUsers = true;
-  };
-  sops.opSecrets.password.keys.password = "op://Private/zpej5kectfxk6sg6sssuxphvvu/credential";
-
   environment.sessionVariables = xelib.globals.environment // {
     # this is for node-canvas...
     LD_LIBRARY_PATH = with pkgs; [
