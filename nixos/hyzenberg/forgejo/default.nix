@@ -77,7 +77,6 @@ in
       # configure oidc
       openid.ENABLE_OPENID_SIGNUP = true;
       oauth2_client = {
-        REGISTER_EMAIL_CONFIRM = true;
         ENABLE_AUTO_REGISTRATION = true;
         UPDATE_AVATAR = true;
       };
