@@ -17,7 +17,7 @@ in
     enableProxy = true;
 
     name = "Open WebUI";
-    description = "AI web chat";
+    description = "AI Interface";
   };
 
   # load the model
