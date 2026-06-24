@@ -67,6 +67,7 @@ in
             (srv "plex")
             (srv "forgejo")
             (srv "immich")
+            (srv "mealie")
             (srv "linkwarden")
             (srv "paperless")
           ];
