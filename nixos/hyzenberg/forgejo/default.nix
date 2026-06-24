@@ -45,12 +45,13 @@ in
       session.COOKIE_SECURE = true; # make cookies secure
       repository.DEFAULT_BRANCH = "master"; # change default branch name
       repository.USE_COMPAT_SSH_URI = false; # dont use ssh:// url
+      repository.MAX_CREATION_LIMIT = 20; # max repos is 20
       "ui.meta".DESCRIPTION = "xela.codes personal software forge.";
       security = {
         INSTALL_LOCK = true; # disable install page
         REVERSE_PROXY_TRUSTED_PROXIES = "127.0.0.0/8,::1/128,100.64.0.0/10";
       };
-      mirror.DEFAULT_INTERVAL = "1h"; # default mirror interval
+      mirror.DEFAULT_INTERVAL = "1h"; # default mirror sync interval
 
       "repository.signing" = {
         FORMAT = "ssh";
@@ -82,11 +83,19 @@ in
       };
 
       service = {
-        DISABLE_REGISTRATION = true;
+        NO_REPLY_ADDRESS = "noreply-${config.apps.forgejo.domain}";
+
+        # disable internal signin and force oauth
+        ALLOW_ONLY_EXTERNAL_REGISTRATION = true;
         ENABLE_INTERNAL_SIGNIN = false;
+
+        # hardening for new accounts
+        ENABLE_CAPTCHA = true;
+        DEFAULT_ALLOW_CREATE_ORGANIZATION = false;
+
+        # sane defaults, keep email private and make org membership public
         DEFAULT_KEEP_EMAIL_PRIVATE = true;
         DEFAULT_ORG_MEMBER_VISIBLE = true;
-        NO_REPLY_ADDRESS = "noreply-${config.apps.forgejo.domain}";
       };
     };
   };
