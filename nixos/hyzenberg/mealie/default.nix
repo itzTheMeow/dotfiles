@@ -8,7 +8,7 @@ in
     port = 12398;
     enableProxy = true;
 
-    description = "Recipe book";
+    description = "Recipe Book";
   };
 
   services.mealie = {
