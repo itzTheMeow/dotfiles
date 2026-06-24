@@ -86,7 +86,7 @@ in
         NO_REPLY_ADDRESS = "noreply-${config.apps.forgejo.domain}";
 
         # disable internal signin and force oauth
-        DISABLE_REGISTRATION = false;
+        SHOW_REGISTRATION_BUTTON = true;
         ALLOW_ONLY_EXTERNAL_REGISTRATION = true;
         ENABLE_INTERNAL_SIGNIN = false;
 
