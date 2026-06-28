@@ -76,7 +76,12 @@
   environment.systemPackages = with pkgs; [
     # system-level apps
     chromium
-    libreoffice
+
+    # all libreoffice
+    libreoffice-qt
+    hunspell
+    hunspellDicts.en_US-large
+    hyphenDicts.en_US
   ];
 
   programs._1password.enable = true;
