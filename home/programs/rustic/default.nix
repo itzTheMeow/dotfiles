@@ -225,7 +225,7 @@ lib.mkMerge [
     };
   }
 
-  (mkConfig "flynn" "op://Private/lfnh7z2hy74wewuw2tqdrxfhsq/password" "/" { })
+  (mkConfig "flynn" "op://Private/lfnh7z2hy74wewuw2tqdrxfhsq/password" "/z" { })
   (mkConfig "hyzenberg" "op://Private/o3c3kzrri5dlyphag2smig3vpa/password" "/" { })
   (mkConfig "ehrman" "op://Private/4bs7irl4o4rkmzv7dp25zufsxu/password" "/" { })
 
