@@ -100,8 +100,12 @@ in
     # enable declarative users / passwords
     mutableUsers = false;
     users = {
-      # disable root login
-      root.hashedPassword = null;
+      root = {
+        # disable root login
+        hashedPassword = null;
+        # enable user sessions since we cant log in
+        linger = true;
+      };
 
       # configure default user
       ${host.username} = {
