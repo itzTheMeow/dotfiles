@@ -1,4 +1,4 @@
-{ xelpkgs, ... }:
+{ pkgs-unstable, ... }:
 {
   catppuccin = {
     flavor = "mocha";
@@ -7,7 +7,7 @@
   cursors = {
     name = "Colloid-cursors";
     size = 24;
-    package = xelpkgs.colloid-cursors;
+    package = pkgs-unstable.colloid-cursors;
   };
   environment = {
     GSK_RENDERER = "cairo"; # force software rendering for GTK4 (fixes graphical issues)
