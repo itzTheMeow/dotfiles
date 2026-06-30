@@ -170,6 +170,9 @@
           inherit system;
 
           modules = [
+            # custom nixpkgs instance with overlays/config
+            { nixpkgs.pkgs = pkgs; }
+
             # sops
             sops-nix.nixosModules.sops
             (import ./xelib/opsecrets.nix).nixosModule
