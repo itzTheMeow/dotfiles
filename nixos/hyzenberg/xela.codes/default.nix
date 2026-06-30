@@ -31,9 +31,6 @@ in
         hyzen = pointHost hostname;
         svolte = pointHost hostname;
 
-        # legacy apt server
-        apt.CNAME = [ (cname (fqdn "itzthemeow.github.io")) ];
-
         # legacy dns routing records
         ehrman = pointHost "ehrman";
         hyzenberg = pointHost "hyzenberg";
