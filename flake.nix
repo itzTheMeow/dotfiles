@@ -201,6 +201,16 @@
             inherit xelib;
           };
         };
+
+      # hosts with x86_64-linux
+      x86Hosts = [
+        "flynn"
+        "pete"
+        "hyzenberg"
+        "ehrman"
+        "huell"
+      ];
+      allHosts = x86Hosts;
     in
     {
       homeConfigurations = {
@@ -208,14 +218,9 @@
         macintosh = mkHomeConfiguration "x86_64-darwin" "macintosh";
       };
 
-      nixosConfigurations = {
-        flynn = mkNixosConfiguration "x86_64-linux" "flynn";
-        pete = mkNixosConfiguration "x86_64-linux" "pete";
-
-        hyzenberg = mkNixosConfiguration "x86_64-linux" "hyzenberg";
-        ehrman = mkNixosConfiguration "x86_64-linux" "ehrman";
-        huell = mkNixosConfiguration "x86_64-linux" "huell";
-      };
+      nixosConfigurations = nixpkgs.lib.genAttrs x86Hosts (
+        name: mkNixosConfiguration "x86_64-linux" name
+      );
     }
     // flake-utils.lib.eachDefaultSystem (
       system:
