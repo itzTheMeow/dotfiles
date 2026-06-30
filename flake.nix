@@ -71,6 +71,17 @@
       ...
     }@inputs:
     let
+      nixpkgs_args = system: {
+        inherit system;
+        config.allowUnfree = true;
+        overlays = [
+          # overlays from inputs
+          inputs.timefinder-electron.overlays.default
+        ]
+        # custom overlays
+        ++ (map (file: import ./overlays/${file}) (builtins.attrNames (builtins.readDir ./overlays)));
+      };
+
       home-manager-modules = [
         catppuccin.homeModules.catppuccin
         plasma-manager.homeModules.plasma-manager
@@ -129,13 +140,8 @@
       mkNixosConfiguration =
         system: hostname:
         let
-          nixpkgs_args = {
-            inherit system;
-            config.allowUnfree = true;
-          };
-
-          pkgs = import nixpkgs nixpkgs_args;
-          pkgs-unstable = import nixpkgs-unstable nixpkgs_args;
+          pkgs = import nixpkgs (nixpkgs_args system);
+          pkgs-unstable = import nixpkgs-unstable (nixpkgs_args system);
           xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
 
           extras = {
@@ -164,14 +170,6 @@
           inherit system;
 
           modules = [
-            # custom overlays
-            {
-              nixpkgs.overlays = [
-                inputs.timefinder-electron.overlays.default
-              ]
-              ++ (map (file: import ./overlays/${file}) (builtins.attrNames (builtins.readDir ./overlays)));
-            }
-
             # sops
             sops-nix.nixosModules.sops
             (import ./xelib/opsecrets.nix).nixosModule
@@ -225,7 +223,8 @@
     // flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs (nixpkgs_args system);
+        lib = pkgs.lib;
 
         formatScript = pkgs.writeShellApplication {
           name = "format";
@@ -244,12 +243,20 @@
             prettier --write .
           '';
         };
+
+        hostPackages =
+          hostDir:
+          lib.pipe (builtins.readDir hostDir) [
+            (lib.filterAttrs (
+              name: type: type == "directory" && builtins.pathExists (hostDir + "/${name}/package.nix")
+            ))
+            (lib.mapAttrs (name: _: pkgs.callPackage (hostDir + "/${name}/package.nix") { }))
+          ];
+
+        allPackages = lib.mergeAttrsList (map (host: hostPackages (./nixos + "/${host}")) allHosts);
       in
       {
-        packages = {
-          pati = pkgs.callPackage ./nixos/hyzenberg/pati/package.nix { };
-          ios-apt = pkgs.callPackage ./nixos/hyzenberg/ios-apt/package.nix { };
-        };
+        packages = allPackages;
 
         apps.format = {
           type = "app";
