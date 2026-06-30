@@ -1,5 +1,9 @@
-# configuration.nix
-{ pkgs, xelib, ... }:
+{
+  hostname,
+  pkgs,
+  xelib,
+  ...
+}:
 let
   ios-apt = pkgs.callPackage ./package.nix { };
   subdomain = "apt";
