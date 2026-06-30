@@ -243,6 +243,7 @@
       {
         packages = {
           pati = pkgs.callPackage ./nixos/hyzenberg/pati/package.nix { };
+          ios-apt = pkgs.callPackage ./nixos/hyzenberg/ios-apt/package.nix { };
         };
 
         apps.format = {
