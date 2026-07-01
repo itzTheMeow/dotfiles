@@ -37,10 +37,13 @@ let
       systemd.services.${name} = {
         after = [ "tailscale-online.service" ];
       };
-      users.users.${name}.extraGroups = lib.mkIf (name != "prowlarr") [
-        "mediacenter"
-        "nzbget"
-      ];
+      # prowlarr doesnt create a user
+      users.users.${name} = lib.mkIf (name != "prowlarr") {
+        extraGroups = [
+          "mediacenter"
+          "nzbget"
+        ];
+      };
 
       # the servarr programs can talk to eachother
       nginx.proxy.${app.domain}.allowedAppHosts = [
