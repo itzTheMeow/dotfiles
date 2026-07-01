@@ -37,7 +37,7 @@ let
       systemd.services.${name} = {
         after = [ "tailscale-online.service" ];
       };
-      users.users.${name}.extraGroups = [
+      users.users.${name}.extraGroups = lib.mkIf (name != "prowlarr") [
         "mediacenter"
         "nzbget"
       ];
