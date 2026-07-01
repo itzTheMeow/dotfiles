@@ -36,11 +36,11 @@ let
       };
       systemd.services.${name} = {
         after = [ "tailscale-online.service" ];
-        serviceConfig.SupplementaryGroups = [
-          "mediacenter"
-          "nzbget"
-        ];
       };
+      users.users.${name}.extraGroups = [
+        "mediacenter"
+        "nzbget"
+      ];
 
       # the servarr programs can talk to eachother
       nginx.proxy.${app.domain}.allowedAppHosts = [
