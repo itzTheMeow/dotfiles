@@ -17,14 +17,14 @@ in
 
   # shared download directory
   systemd.tmpfiles.rules = [
-    "d /home/downloads 0777 nzbget nzbget -"
+    "d /var/cache/downloads 0755 nzbget nzbget -"
   ];
 
   services.nzbget = {
     enable = true;
     settings = {
       MainDir = "/var/lib/nzbget";
-      DestDir = "/home/downloads";
+      DestDir = "/var/cache/downloads";
 
       ControlIP = app.ip;
       ControlPort = app.port;
