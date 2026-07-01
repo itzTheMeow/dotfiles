@@ -9,28 +9,8 @@
   xelib,
   ...
 }:
-let
-  features =
-    xelib.hosts.${hostname}.features
-    # default enabled features
-    ++ [
-      "beszel-agent"
-      "ntfy"
-      "ssh"
-      "tailscale"
-      "trust-cert"
-      "zsh"
-    ];
-in
 {
   system.stateVersion = "25.11";
-
-  imports = [
-    # import local config
-    ../../local/nixos.nix
-  ]
-  # import all enabled features
-  ++ map (feature: ./${feature}) features;
 
   # base nix settings
   nix.settings = {
