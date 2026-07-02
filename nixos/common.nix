@@ -10,7 +10,7 @@
   ...
 }:
 let
-  commonFiles = builtins.readDir ./common;
+  commonFiles = builtins.readDir ./_common;
 in
 {
   system.stateVersion = "25.11";
