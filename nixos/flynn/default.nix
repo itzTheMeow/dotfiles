@@ -7,7 +7,7 @@
   ...
 }:
 {
-  # Bootloader.
+  # bootloader
   boot.loader = {
     grub = {
       enable = true;
@@ -37,46 +37,14 @@
     SSH_AUTH_SOCK = "/home/${host.username}/.1password/agent.sock";
   };
 
-  # browsing
-  programs.firefox = {
-    enable = true;
-    package = pkgs.firefox-devedition;
-  };
-
-  # enable 1Password browser integration
-  environment.etc."1password/custom_allowed_browsers" = {
-    text = ''
-      firefox-devedition
-    '';
-    mode = "0755";
-  };
-
   # enable docker
   virtualisation.docker.enable = true;
-
-  programs.chromium = {
-    enable = true;
-    extensions = [
-      "aeblfdkhhhdcdjpifhhbdiojplfjncoa" # 1Password
-      "cndibmoanboadcifjkjbdpjgfedanolh" # BetterCanvas
-      "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
-      "cimiefiiaegbelhefglklhhakcgmhkai" # Plasma Integration
-      "clngdbkpkpeebahjckkjfobafhncgmne" # Stylus
-      "dhdgffkkebhmkfjojejmpbldmpobfkfo" # Tampermonkey
-      "ddkjiahejlhfcafbddmgiahcphecmpfh" # uBlock Origin Lite
-    ];
-  };
 
   # development
   programs.vscode = {
     enable = true;
     package = pkgs.vscode-fhs;
   };
-
-  environment.systemPackages = with pkgs; [
-    # system-level apps
-    chromium
-  ];
 
   programs._1password-gui = {
     enable = true;

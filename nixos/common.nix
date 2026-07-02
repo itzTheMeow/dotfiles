@@ -15,6 +15,9 @@ in
 {
   system.stateVersion = "25.11";
 
+  home-manager.importAll = [ ./common.hm.nix ];
+  home-manager.importUser = [ ./common.user.hm.nix ];
+
   # import all .nix files in common
   imports = map (name: ./common + "/${name}") (
     builtins.filter (
