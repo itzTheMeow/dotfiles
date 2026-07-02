@@ -1,4 +1,6 @@
 [
+  "chromium"
+  "firefox"
   "gaming"
   "gui"
   "immich-cli"
