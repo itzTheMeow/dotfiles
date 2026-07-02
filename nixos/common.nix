@@ -195,6 +195,9 @@
     KbdInteractiveAuthentication = false;
   };
 
+  # install 1password cli
+  programs._1password.enable = true;
+
   # sops doesnt need rsa keys
   sops.gnupg.sshKeyPaths = [ ];
 

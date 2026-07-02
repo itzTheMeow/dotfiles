@@ -9,8 +9,6 @@
   };
 
   environment.systemPackages = with pkgs; [
-    # we can install the cli via nix for headless machines because it doesnt need desktop integration
-    _1password-cli
     # for kitty ssh serverside support
     kitty
   ];
