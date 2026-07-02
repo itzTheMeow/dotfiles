@@ -6,5 +6,6 @@
   "libreoffice"
   "rclone"
   "rustic"
+  "timefinder"
   "workstation"
 ]
