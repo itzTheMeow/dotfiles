@@ -19,7 +19,7 @@ in
   home-manager.importUser = [ ./common.user.hm.nix ];
 
   # import all .nix files in common
-  imports = map (name: ./common + "/${name}") (
+  imports = map (name: ./_common + "/${name}") (
     builtins.filter (
       name:
       # all nix files
