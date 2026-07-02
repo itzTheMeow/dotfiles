@@ -2,6 +2,7 @@
   "gaming"
   "gui"
   "kde"
+  "libreoffice"
   "rclone"
   "rustic"
   "workstation"
