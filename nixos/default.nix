@@ -2,16 +2,6 @@ hostname:
 let
   hostDir = ./${hostname};
   entries = builtins.readDir hostDir;
-
-  # default enabled features
-  defaultFeatures = [
-    "beszel-agent"
-    "ntfy"
-    "ssh"
-    "tailscale"
-    "trust-cert"
-    "zsh"
-  ];
 in
 {
   imports = [
@@ -35,5 +25,5 @@ in
     ) (builtins.attrNames entries)
   )
   # import all enabled features
-  ++ map (feature: ./_features/${feature}) (defaultFeatures ++ import (hostDir + "/features.nix"));
+  ++ map (feature: ./_features/${feature}) (import (hostDir + "/features.nix"));
 }

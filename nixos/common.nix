@@ -9,8 +9,23 @@
   xelib,
   ...
 }:
+let
+  commonFiles = builtins.readDir ./common;
+in
 {
   system.stateVersion = "25.11";
+
+  # import all .nix files in common
+  imports = map (name: ./common + "/${name}") (
+    builtins.filter (
+      name:
+      # all nix files
+      commonFiles.${name} == "regular"
+      && builtins.match ".*\\.nix" name != null
+      # ignore home-manager modules
+      && builtins.match ".*\\.hm\\.nix" name == null
+    ) (builtins.attrNames commonFiles)
+  );
 
   # base nix settings
   nix.settings = {
