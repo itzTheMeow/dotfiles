@@ -1,6 +1,7 @@
 [
   "gaming"
   "gui"
+  "immich-cli"
   "kde"
   "libreoffice"
   "rclone"
