@@ -49,7 +49,7 @@ in
     pete = {
       username = "tv";
       fullname = "TV";
-      ip = "100.64.0.13";
+      ip = "100.64.0.19";
       type = [
         "desktop"
         "kde"
