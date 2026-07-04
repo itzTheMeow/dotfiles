@@ -4,4 +4,5 @@
   "kde"
   "rclone"
   "rustic"
+  "waydroid"
 ]
