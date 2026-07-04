@@ -18,4 +18,9 @@ in
       ./screenshot2.webp
     ];
   };
+  developer = "Ludia";
+  genres = [
+    "Strategy"
+    "Cooking"
+  ];
 }
