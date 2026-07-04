@@ -75,7 +75,10 @@ in
 
       # chat
       element-desktop
-      teams-for-linux
+      (teams-for-linux.overrideAttrs (old: {
+        # check fails on github CI, ts will be removed soon anyway
+        doInstallCheck = false;
+      }))
 
       ### the rest of these are in nixos programs
 
