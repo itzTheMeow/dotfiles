@@ -13,5 +13,6 @@
       "dhdgffkkebhmkfjojejmpbldmpobfkfo" # Tampermonkey
       "ddkjiahejlhfcafbddmgiahcphecmpfh" # uBlock Origin Lite
     ];
+    enablePlasmaBrowserIntegration = true;
   };
 }
