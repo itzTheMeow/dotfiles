@@ -142,7 +142,7 @@
         system: hostname:
         let
           #TODO:26.11 pete has to use custom bigscreen branch
-          nixpkgs = if hostname == "pete" then inputs.nixpkgs-bigscreen else inputs.nixpkgs;
+          nixpkgs = if hostname == "pete" then inputs.nixpkgs-unstable else inputs.nixpkgs;
 
           pkgs = import nixpkgs (nixpkgs_args system);
           pkgs-unstable = import nixpkgs-unstable (nixpkgs_args system);
