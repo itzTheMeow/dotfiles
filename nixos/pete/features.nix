@@ -5,5 +5,6 @@
   "kde"
   "rclone"
   "rustic"
+  "vacuumtube"
   "waydroid"
 ]
