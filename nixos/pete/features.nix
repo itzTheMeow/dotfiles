@@ -1,4 +1,5 @@
 [
+  "chromium"
   "gaming"
   "gui"
   "kde"
