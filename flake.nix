@@ -141,6 +141,9 @@
       mkNixosConfiguration =
         system: hostname:
         let
+          #TODO:26.11 pete has to use custom bigscreen branch
+          nixpkgs = if hostname == "pete" then inputs.nixpkgs-bigscreen else inputs.nixpkgs;
+
           pkgs = import nixpkgs (nixpkgs_args system);
           pkgs-unstable = import nixpkgs-unstable (nixpkgs_args system);
           xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
