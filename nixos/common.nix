@@ -237,4 +237,37 @@ in
     autoEnable = false;
     inherit (xelib.globals.catppuccin) accent flavor;
   };
+
+  persist.ed.persist = {
+    directories = [
+      {
+        var = {
+          lib = [
+            "nixos" # nix state info
+            "systemd/coredump"
+          ];
+          log = [ ];
+        };
+      }
+    ];
+    files = [
+      # keep trust settings for rebuilds
+      "/root/.local/share/nix/trusted-settings.json"
+      {
+        etc = [
+          # keep ssh host keys
+          {
+            ssh = [
+              "ssh_host_ed25519_key.pub"
+              "ssh_host_ed25519_key"
+              "ssh_host_rsa_key.pub"
+              "ssh_host_rsa_key"
+            ];
+          }
+          # and machine ID
+          "machine-id"
+        ];
+      }
+    ];
+  };
 }

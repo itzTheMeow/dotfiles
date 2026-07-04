@@ -18,24 +18,10 @@
           var = {
             lib = [
               "bluetooth"
-              "nixos"
-              "systemd/coredump"
               "tailscale"
             ];
-            log = [ ];
           };
         }
-      ];
-      files.etc = [
-        {
-          ssh = [
-            "ssh_host_ed25519_key.pub"
-            "ssh_host_ed25519_key"
-            "ssh_host_rsa_key.pub"
-            "ssh_host_rsa_key"
-          ];
-        }
-        "machine-id"
       ];
     };
 
