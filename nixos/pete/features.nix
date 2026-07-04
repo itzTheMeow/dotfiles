@@ -3,6 +3,7 @@
   "gaming"
   "gui"
   "kde"
+  "plezy"
   "rclone"
   "rustic"
   "vacuumtube"
