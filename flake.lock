@@ -186,11 +186,11 @@
     },
     "nixpkgs-bigscreen": {
       "locked": {
-        "lastModified": 1783141799,
-        "narHash": "sha256-Fwl4xseNb6PTuncZnZ7SdfLkmnqnB1+CD/77aCDpTZk=",
+        "lastModified": 1783184626,
+        "narHash": "sha256-W/GwX7lb1I67FmJAuQDDKtUP7N//9rhJuqSSrhD2PcE=",
         "owner": "itzthemeow",
         "repo": "nixpkgs",
-        "rev": "4b646553b81b9286efa587152e5d17b3294f8918",
+        "rev": "f07ddb8ae92c441bfd75feec79e83c1e12023229",
         "type": "github"
       },
       "original": {
@@ -333,11 +333,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783147313,
-        "narHash": "sha256-lv2CKfL75JCF0UylciFrE6VH0MyQWbU4BVsCyC+EWNA=",
+        "lastModified": 1783183866,
+        "narHash": "sha256-aUE+6QdXcvXbhlwtD2lrHDmSFpqv0s4m/LC09NzbKgA=",
         "ref": "refs/heads/master",
-        "rev": "cd544be3ccc73703e9a31a4d0982decabb8f8b51",
-        "revCount": 33,
+        "rev": "e588d663bc66850425c49df5b04bf41b68e1cf12",
+        "revCount": 34,
         "type": "git",
         "url": "https://forge.xela.codes/xela/timefinder-electron.git"
       },
