@@ -184,6 +184,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-bigscreen": {
+      "locked": {
+        "lastModified": 1783141799,
+        "narHash": "sha256-Fwl4xseNb6PTuncZnZ7SdfLkmnqnB1+CD/77aCDpTZk=",
+        "owner": "itzthemeow",
+        "repo": "nixpkgs",
+        "rev": "4b646553b81b9286efa587152e5d17b3294f8918",
+        "type": "github"
+      },
+      "original": {
+        "owner": "itzthemeow",
+        "ref": "nixos-26.05-bigscreen",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-bind916": {
       "locked": {
         "lastModified": 1643372900,
@@ -248,6 +264,7 @@
         "impermanence": "impermanence",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-bigscreen": "nixpkgs-bigscreen",
         "nixpkgs-bind916": "nixpkgs-bind916",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "plasma-manager": "plasma-manager",
