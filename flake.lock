@@ -115,11 +115,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780430198,
-        "narHash": "sha256-oN2aq7A2yatpHBEDYphZt615SUJNmgm9yCfmwmz9gX0=",
+        "lastModified": 1783203399,
+        "narHash": "sha256-aysM4H73XiQ6tZ9Xq86A73WfyWbDy0V/r65QFHWU+yY=",
         "owner": "itzTheMeow",
         "repo": "home-manager",
-        "rev": "6145b03d8e5a68844be0f520050b0dc32745d525",
+        "rev": "fab1bb012af64fb26532e7d8a8f41d7cb5c745e2",
         "type": "github"
       },
       "original": {
@@ -180,22 +180,6 @@
       "original": {
         "owner": "nixos",
         "ref": "nixos-26.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs-bigscreen": {
-      "locked": {
-        "lastModified": 1783184626,
-        "narHash": "sha256-W/GwX7lb1I67FmJAuQDDKtUP7N//9rhJuqSSrhD2PcE=",
-        "owner": "itzthemeow",
-        "repo": "nixpkgs",
-        "rev": "f07ddb8ae92c441bfd75feec79e83c1e12023229",
-        "type": "github"
-      },
-      "original": {
-        "owner": "itzthemeow",
-        "ref": "nixos-26.05-bigscreen",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -264,7 +248,6 @@
         "impermanence": "impermanence",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-bigscreen": "nixpkgs-bigscreen",
         "nixpkgs-bind916": "nixpkgs-bind916",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "plasma-manager": "plasma-manager",
