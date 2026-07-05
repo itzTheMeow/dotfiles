@@ -330,7 +330,7 @@ in
           addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];
         };
         folders = lib.mapAttrs (name: value: {
-          path = config.persist.ed.sync.path + value;
+          path = config.persist.ed.sync.path + "/" + value;
           devices = [
             {
               name = "relay";
