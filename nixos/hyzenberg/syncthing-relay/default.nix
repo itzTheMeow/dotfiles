@@ -48,7 +48,7 @@ in
         natEnabled = false;
       };
       # map all possible sync targets to devices
-      devices = lib.genAttrs (builtins.attrNames (builtins.filter (h: h ? syncID) xelib.hosts)) (
+      devices = lib.genAttrs (builtins.attrNames (lib.filterAttrs (h: h ? syncID) xelib.hosts)) (
         hn:
         let
           host = xelib.hosts.${hn};
