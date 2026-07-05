@@ -28,6 +28,9 @@ in
     port = 20088; # web UI port
     enableProxy = true;
 
+    name = "Syncthing Relay";
+    icon = "syncthing";
+
     details = {
       # sync ID of this relay, for other hosts to consume
       id = "CGZGNUC-E3AKRNY-5ABDCXC-U4TXJAU-SB4RWGJ-H74RL32-I4I2VUN-2CUJDQY";
