@@ -43,7 +43,7 @@ in
     overrideDevices = true;
     overrideFolders = true;
 
-    guiAddress = "${app.ip}:${toString app.details.syncPort}";
+    guiAddress = "${app.ip}:${app.portString}";
     guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
 
     settings = {
