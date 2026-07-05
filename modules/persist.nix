@@ -328,6 +328,7 @@ in
         devices.relay = {
           inherit (syncthingRelay.details) id;
           addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];
+          autoAcceptFolders = true;
         };
         folders = lib.mapAttrs (name: _: {
           path = config.persist.ed.sync.path + "/" + name;
