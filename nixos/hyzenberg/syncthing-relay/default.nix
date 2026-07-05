@@ -97,6 +97,7 @@ in
   sops.secrets.syncthing-relay-password = {
     sopsFile = config.sops.opSecrets.syncthing-relay.fullPath;
     key = "password";
+    owner = config.services.syncthing.user;
   };
   sops.opSecrets.syncthing-relay.keys = {
     cert = "op://Private/hhigbwqelxxbtmnltlrwklilyy/cert";
