@@ -293,6 +293,7 @@ in
     };
     home-manager.users.${host.username}.services.syncthing = mkIf usingSyncthing {
       enable = true;
+      tray.enable = true;
       cert = config.sops.secrets.syncthing-cert.path;
       key = config.sops.secrets.syncthing-key.path;
 
