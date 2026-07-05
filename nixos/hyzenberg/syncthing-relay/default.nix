@@ -29,6 +29,7 @@ in
     enableProxy = true;
 
     name = "Syncthing Relay";
+    description = "File Sync Status";
     icon = "syncthing";
 
     details = {
@@ -52,7 +53,7 @@ in
 
     settings = {
       options = {
-        gui.username = host.username;
+        gui.user = host.username;
         listenAddresses = [ "tcp://${app.ip}:${toString app.details.syncPort}" ];
         # we dont need any of this
         globalAnnounceEnabled = false;
