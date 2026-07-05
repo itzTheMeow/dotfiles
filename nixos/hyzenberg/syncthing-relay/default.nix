@@ -38,14 +38,16 @@ in
       # port for syncthing itself
       syncPort = 20089;
       # default syncthing options to share between relay/hosts
-      options = {
+      settings = {
         gui.theme = "black";
-        # we dont need any of this
-        globalAnnounceEnabled = false;
-        localAnnounceEnabled = false;
-        relaysEnabled = false;
-        natEnabled = false;
-        urAccepted = 3;
+        options = {
+          urAccepted = 3;
+          # we dont need any of this
+          globalAnnounceEnabled = false;
+          localAnnounceEnabled = false;
+          relaysEnabled = false;
+          natEnabled = false;
+        };
       };
     };
   };
@@ -61,11 +63,9 @@ in
     guiAddress = "${app.ip}:${app.portString}";
     guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
 
-    settings = {
-      options = lib.recursiveUpdate {
-        gui.user = host.username;
-        listenAddresses = [ "tcp://${app.ip}:${toString app.details.syncPort}" ];
-      } app.details.options;
+    settings = lib.recursiveUpdate {
+      gui.user = host.username;
+      options.listenAddresses = [ "tcp://${app.ip}:${toString app.details.syncPort}" ];
       # map all possible sync targets to devices
       devices = lib.genAttrs (builtins.attrNames (lib.filterAttrs (_: h: h ? syncID) xelib.hosts)) (
         hn:
@@ -82,7 +82,7 @@ in
         type = "receiveencrypted";
         inherit devices;
       }) syncFolders;
-    };
+    } app.details.settings;
   };
   systemd.services.syncthing.after = [ "tailscale-online.service" ];
 

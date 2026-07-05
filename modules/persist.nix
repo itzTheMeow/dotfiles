@@ -301,10 +301,10 @@ in
       overrideDevices = true;
       overrideFolders = true;
 
-      settings = {
-        options = lib.recursiveUpdate {
+      settings = lib.recursiveUpdate {
+        options = {
           listenAddresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
-        } syncthingRelay.details.options;
+        };
         devices.relay = {
           inherit (syncthingRelay.details) id;
           addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];
@@ -325,7 +325,7 @@ in
             ];
           }
         ) cfg.sync;
-      };
+      } syncthingRelay.details.options;
     };
   };
 }
