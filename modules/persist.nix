@@ -19,6 +19,7 @@ let
 
   cfg = config.persist;
   usingSyncthing = cfg.sync != { };
+  syncthingRelay = xelib.apps.syncthing-relay;
 
   pathTreeType =
     let
@@ -303,20 +304,12 @@ in
       settings = {
         options = {
           listenAddresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
-          # we dont need any of this
-          globalAnnounceEnabled = false;
-          localAnnounceEnabled = false;
-          relaysEnabled = false;
-          natEnabled = false;
+        }
+        // syncthingRelay.details.options;
+        devices.relay = {
+          inherit (syncthingRelay.details) id;
+          addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];
         };
-        devices.relay =
-          let
-            relay = xelib.apps.syncthing-relay;
-          in
-          {
-            inherit (relay.details) id;
-            addresses = [ "tcp://${relay.ip}:${toString relay.details.syncPort}" ];
-          };
         folders = lib.mapAttrs (
           name: value:
           let
