@@ -315,7 +315,7 @@ in
           in
           {
             inherit (relay.details) id;
-            addresses = [ "tcp://${relay.ip}:${relay.portString}" ];
+            addresses = [ "tcp://${relay.ip}:${toString relay.details.syncPort}" ];
           };
         folders = lib.mapAttrs (
           name: value:
