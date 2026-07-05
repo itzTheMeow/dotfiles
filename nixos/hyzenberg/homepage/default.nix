@@ -84,6 +84,7 @@ in
         {
           Sysadmin = [
             (srv "beszel")
+            (srv "syncthing-relay")
             (srv "tautulli")
             (srv "headplane")
             (srv "pocket-id")
