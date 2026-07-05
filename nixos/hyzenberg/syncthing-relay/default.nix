@@ -24,12 +24,14 @@ in
 {
   apps.syncthing-relay = {
     domain = "syncthing.xela";
-    port = 20089;
+    port = 20088; # web UI port
     enableProxy = true;
 
     details = {
       # sync ID of this relay, for other hosts to consume
       id = "CGZGNUC-E3AKRNY-5ABDCXC-U4TXJAU-SB4RWGJ-H74RL32-I4I2VUN-2CUJDQY";
+      # port for syncthing itself
+      syncPort = 20089;
     };
   };
 
@@ -41,9 +43,12 @@ in
     overrideDevices = true;
     overrideFolders = true;
 
+    guiAddress = "${app.ip}:${toString app.details.syncPort}";
+    guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
+
     settings = {
       options = {
-        listenAddresses = [ "tcp://${app.ip}:${app.portString}" ];
+        listenAddresses = [ "tcp://${app.ip}:${toString app.details.syncPort}" ];
         # we dont need any of this
         globalAnnounceEnabled = false;
         localAnnounceEnabled = false;
@@ -78,8 +83,13 @@ in
     sopsFile = config.sops.opSecrets.syncthing-relay.fullPath;
     key = "key";
   };
+  sops.secrets.syncthing-relay-password = {
+    sopsFile = config.sops.opSecrets.syncthing-relay.fullPath;
+    key = "password";
+  };
   sops.opSecrets.syncthing-relay.keys = {
     cert = "op://Private/hhigbwqelxxbtmnltlrwklilyy/cert";
     key = "op://Private/hhigbwqelxxbtmnltlrwklilyy/key";
+    password = "op://Private/mlozpipzstum3fe7cdu4yh3254/password";
   };
 }
