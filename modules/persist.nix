@@ -329,8 +329,8 @@ in
           inherit (syncthingRelay.details) id;
           addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];
         };
-        folders = lib.mapAttrs (name: value: {
-          path = config.persist.ed.sync.path + "/" + value;
+        folders = lib.mapAttrs (name: _: {
+          path = config.persist.ed.sync.path + "/" + name;
           devices = [
             {
               name = "relay";
