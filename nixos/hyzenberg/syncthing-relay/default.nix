@@ -48,13 +48,11 @@ in
     overrideFolders = true;
 
     guiAddress = "${app.ip}:${app.portString}";
-    guiCredentials = {
-      username = host.username;
-      passwordFile = config.sops.secrets.syncthing-relay-password.path;
-    };
+    guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
 
     settings = {
       options = {
+        gui.username = host.username;
         listenAddresses = [ "tcp://${app.ip}:${toString app.details.syncPort}" ];
         # we dont need any of this
         globalAnnounceEnabled = false;
