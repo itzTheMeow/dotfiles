@@ -23,6 +23,8 @@ in
     *   List of common ports for shared services.
     * publicKey
     *   1Password URI to the public key for SSH.
+    * syncID
+    *   Syncthing device ID for the host.
     * backupFrequency
     *   The frequency to run rustic backups on the host.
   */
@@ -43,6 +45,7 @@ in
         ssh = 19487;
       };
       publicKey = "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key";
+      syncID = "46BRBDY-GF66IIA-6N325JU-HU35RNP-KTBRCHR-C72IWB4-DW4L7FH-WXU2PQZ";
       backupFrequency = "05:00";
     };
     # ODROID H4 Ultra
@@ -61,6 +64,7 @@ in
         ssh = 40938;
       };
       publicKey = "op://Private/srsyuq6y32smf66o3cz4fxlqwy/public key";
+      syncID = "6SU2KAI-UALTXPS-WPX7XVF-73PLPHH-GEZGAMU-VB6SWCX-JQRMDHM-TZ564QO";
       backupFrequency = "00:00";
     };
 

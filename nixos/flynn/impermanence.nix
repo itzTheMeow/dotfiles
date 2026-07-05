@@ -129,4 +129,6 @@
         "go"
         "pnpm"
       ];
+
+  persist.sync.test = "test";
 }

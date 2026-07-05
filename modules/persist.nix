@@ -1,7 +1,9 @@
 {
   config,
   host,
+  hostname,
   lib,
+  xelib,
   utils,
   ...
 }:
@@ -16,6 +18,7 @@ let
     ;
 
   cfg = config.persist;
+  usingSyncthing = cfg.sync != { };
 
   pathTreeType =
     let
@@ -199,6 +202,17 @@ in
       default = { };
       description = "Persistent storage entries.";
     };
+
+    sync = mkOption {
+      type = types.attrsOf types.str;
+      default = { };
+      description = ''
+        Directories to be synced with syncthing. Automatically creates 'sync' as a persistent dir if enabled.
+        Attr name is syncthing folder name, value is the path to sync.
+        If the path starts with a /, it is absolute, otherwise it is relative to the user home directory.
+      '';
+
+    };
   };
 
   config = mkIf (cfg.settings.device != null) {
@@ -245,6 +259,79 @@ in
         btrfs subvolume create /btrfs_tmp/root
         umount /btrfs_tmp
       '';
+    };
+
+    # syncthing stuff
+    sops = mkIf usingSyncthing {
+      secrets = {
+        syncthing-cert = {
+          sopsFile = config.sops.opSecrets.syncthing.fullPath;
+          key = "cert";
+          owner = host.username;
+        };
+        syncthing-key = {
+          sopsFile = config.sops.opSecrets.syncthing.fullPath;
+          key = "key";
+          owner = host.username;
+        };
+        syncthing-encryption = {
+          sopsFile = config.sops.opSecrets.syncthing.fullPath;
+          key = "password";
+          owner = host.username;
+        };
+      };
+      opSecrets.syncthing.keys = {
+        cert = "op://Private/Syncthing ${hostname}/cert";
+        key = "op://Private/Syncthing ${hostname}/key";
+        password = "op://Private/txjsx55u5llawardzjrgttafdi/password";
+      };
+    };
+    persist.ed.sync = mkIf usingSyncthing {
+      # directories that dont start with a `/` are relative to user
+      directories = lib.filter (v: lib.hasPrefix "/" v) (lib.attrValues cfg.sync);
+      userDirectories = lib.filter (v: !(lib.hasPrefix "/" v)) (lib.attrValues cfg.sync);
+    };
+    home-manager.users.${host.username}.services.syncthing = mkIf usingSyncthing {
+      enable = true;
+      cert = config.sops.secrets.syncthing-cert.path;
+      key = config.sops.secrets.syncthing-key.path;
+
+      overrideDevices = true;
+      overrideFolders = true;
+
+      settings = {
+        options = {
+          # we dont need any of this
+          globalAnnounceEnabled = false;
+          localAnnounceEnabled = false;
+          relaysEnabled = false;
+          natEnabled = false;
+        };
+        devices.relay =
+          let
+            relay = xelib.apps.syncthing-relay;
+          in
+          {
+            inherit (relay.details) id;
+            addresses = [ "tcp://${relay.ip}:${relay.portString}" ];
+          };
+        folders = lib.mapAttrs (
+          name: value:
+          let
+            # append home directory to non-absolute paths
+            path = if lib.hasPrefix "/" value then value else "/home/${host.username}/${value}";
+          in
+          {
+            path = config.persist.ed.sync.path + path;
+            devices = [
+              {
+                name = "relay";
+                encryptionPasswordFile = config.sops.secrets.syncthing-encryption.path;
+              }
+            ];
+          }
+        ) cfg.sync;
+      };
     };
   };
 }
