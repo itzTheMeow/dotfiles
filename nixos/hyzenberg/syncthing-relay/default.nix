@@ -86,7 +86,7 @@ in
   };
   systemd.services.syncthing.after = [ "tailscale-online.service" ];
   # host needs overridden to local for the webui
-  nginx.proxy.${app.domain}.target.host = "127.0.0.1";
+  nginx.proxy.${app.domain}.target.host = lib.mkForce "127.0.0.1";
 
   sops.secrets.syncthing-relay-cert = {
     sopsFile = config.sops.opSecrets.syncthing-relay.fullPath;
