@@ -60,6 +60,7 @@ in
     overrideDevices = true;
     overrideFolders = true;
 
+    # gui has to be on localhost for API to work
     guiAddress = "127.0.0.1:${app.portString}";
     guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
 
