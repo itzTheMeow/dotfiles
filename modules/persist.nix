@@ -302,10 +302,9 @@ in
       overrideFolders = true;
 
       settings = {
-        options = {
+        options = lib.recursiveUpdate {
           listenAddresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
-        }
-        // syncthingRelay.details.options;
+        } syncthingRelay.details.options;
         devices.relay = {
           inherit (syncthingRelay.details) id;
           addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];

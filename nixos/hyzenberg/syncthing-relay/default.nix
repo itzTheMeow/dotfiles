@@ -39,6 +39,7 @@ in
       syncPort = 20089;
       # default syncthing options to share between relay/hosts
       options = {
+        gui.theme = "black";
         # we dont need any of this
         globalAnnounceEnabled = false;
         localAnnounceEnabled = false;
@@ -61,11 +62,10 @@ in
     guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
 
     settings = {
-      options = {
+      options = lib.recursiveUpdate {
         gui.user = host.username;
         listenAddresses = [ "tcp://${app.ip}:${toString app.details.syncPort}" ];
-      }
-      // app.details.options;
+      } app.details.options;
       # map all possible sync targets to devices
       devices = lib.genAttrs (builtins.attrNames (lib.filterAttrs (_: h: h ? syncID) xelib.hosts)) (
         hn:
