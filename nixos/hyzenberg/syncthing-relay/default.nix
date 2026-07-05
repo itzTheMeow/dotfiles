@@ -78,7 +78,6 @@ in
         {
           id = host.syncID;
           addresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
-          autoAcceptFolders = true;
         }
       );
       folders = lib.mapAttrs (name: devices: {
