@@ -84,6 +84,7 @@ in
         path = "~/${name}";
         type = "receiveencrypted";
         inherit devices;
+        ignorePerms = false;
       }) syncFolders;
     } app.details.settings;
   };
