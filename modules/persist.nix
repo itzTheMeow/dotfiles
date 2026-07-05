@@ -86,8 +86,10 @@ let
     ];
     neededForBoot = true;
   };
-
   mkMount = subvolume: entry: mkBtrfsMount subvolume entry.compression entry.compressForce;
+
+  # sync directories that dont start with a `/` are relative to user
+  mkSyncPath = path: if lib.hasPrefix "/" path then path else "/home/${host.username}/${path}";
 
   mkPersistence = entry: {
     hideMounts = true;
@@ -212,7 +214,6 @@ in
         Attr name is syncthing folder name, value is the path to sync.
         If the path starts with a /, it is absolute, otherwise it is relative to the user home directory.
       '';
-
     };
   };
 
@@ -223,11 +224,27 @@ in
       mapAttrsToList (_: entry: nameValuePair entry.path (mkPersistence entry)) cfg.ed
     );
 
+    # these volumes always should exist
     fileSystems = {
       "/" = mkBtrfsMount "root" 1 false;
       "/nix" = mkBtrfsMount "nix" 5 true;
     }
-    // listToAttrs (mapAttrsToList (name: entry: nameValuePair entry.path (mkMount name entry)) cfg.ed);
+    # mount custom persistent btrfs volumes
+    // listToAttrs (mapAttrsToList (name: entry: nameValuePair entry.path (mkMount name entry)) cfg.ed)
+    # syncthing bind mounts for directories
+    // lib.optionalAttrs usingSyncthing (
+      listToAttrs (
+        mapAttrsToList (
+          name: value:
+          nameValuePair (mkSyncPath value) {
+            device = "${config.persist.ed.sync.path}/${name}";
+            fsType = "none";
+            options = [ "bind" ];
+            depends = [ config.persist.ed.sync.path ];
+          }
+        ) cfg.sync
+      )
+    );
 
     boot.initrd.systemd.services.wipe-file-systems = mkIf cfg.settings.wipeOnBoot.enable {
       unitConfig.DefaultDependencies = false;
@@ -262,7 +279,7 @@ in
       '';
     };
 
-    # syncthing stuff
+    # syncthing secrets
     sops = mkIf usingSyncthing {
       secrets = {
         syncthing-cert = {
@@ -287,11 +304,15 @@ in
         password = "op://Private/txjsx55u5llawardzjrgttafdi/password";
       };
     };
-    persist.ed.sync = mkIf usingSyncthing {
-      # directories that dont start with a `/` are relative to user
-      directories = lib.filter (v: lib.hasPrefix "/" v) (lib.attrValues cfg.sync);
-      userDirectories = lib.filter (v: !(lib.hasPrefix "/" v)) (lib.attrValues cfg.sync);
-    };
+    # enable /z/sync but dont persist anything from it
+    persist.ed.sync = mkIf usingSyncthing { };
+    # make sure bind mounted directories exist on the persistent dir
+    systemd.tmpfiles.rules = lib.mkIf usingSyncthing (
+      map (name: "d ${config.persist.ed.sync.path}/${name} 0755 ${host.username} users -") (
+        builtins.attrNames cfg.sync
+      )
+    );
+    # set up local syncthing service
     home-manager.users.${host.username}.services.syncthing = mkIf usingSyncthing {
       enable = true;
       tray.enable = true;
@@ -302,29 +323,21 @@ in
       overrideFolders = true;
 
       settings = lib.recursiveUpdate {
-        options = {
-          listenAddresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
-        };
+        options.listenAddresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
+        # connect to the relay server
         devices.relay = {
           inherit (syncthingRelay.details) id;
           addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];
         };
-        folders = lib.mapAttrs (
-          name: value:
-          let
-            # append home directory to non-absolute paths
-            path = if lib.hasPrefix "/" value then value else "/home/${host.username}/${value}";
-          in
-          {
-            path = config.persist.ed.sync.path + path;
-            devices = [
-              {
-                name = "relay";
-                encryptionPasswordFile = config.sops.secrets.syncthing-encryption.path;
-              }
-            ];
-          }
-        ) cfg.sync;
+        folders = lib.mapAttrs (name: value: {
+          path = config.persist.ed.sync.path + value;
+          devices = [
+            {
+              name = "relay";
+              encryptionPasswordFile = config.sops.secrets.syncthing-encryption.path;
+            }
+          ];
+        }) cfg.sync;
       } syncthingRelay.details.settings;
     };
   };
