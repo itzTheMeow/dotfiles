@@ -14,8 +14,7 @@ let
       map (
         host:
         let
-          username = xelib.hosts.${host}.username;
-          cfg = self.nixosConfigurations.${host}.config.home-manager.users.${username}.persist.sync or { };
+          cfg = self.nixosConfigurations.${host}.config.persist.sync or { };
         in
         lib.genAttrs (builtins.attrNames cfg) (_: [ host ])
       ) (builtins.attrNames self.nixosConfigurations)
