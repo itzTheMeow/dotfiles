@@ -23,7 +23,10 @@ let
 in
 {
   apps.syncthing-relay = {
+    domain = "syncthing.xela";
     port = 20089;
+    enableProxy = true;
+
     details = {
       # sync ID of this relay, for other hosts to consume
       id = "CGZGNUC-E3AKRNY-5ABDCXC-U4TXJAU-SB4RWGJ-H74RL32-I4I2VUN-2CUJDQY";
