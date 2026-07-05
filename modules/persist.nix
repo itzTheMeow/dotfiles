@@ -325,7 +325,7 @@ in
             ];
           }
         ) cfg.sync;
-      } syncthingRelay.details.options;
+      } syncthingRelay.details.settings;
     };
   };
 }
