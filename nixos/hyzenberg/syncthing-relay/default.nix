@@ -65,6 +65,7 @@ in
 
     settings = lib.recursiveUpdate {
       gui.user = host.username;
+      gui.insecureSkipHostcheck = true;
       options.listenAddresses = [ "tcp://${app.ip}:${toString app.details.syncPort}" ];
       # map all possible sync targets to devices
       devices = lib.genAttrs (builtins.attrNames (lib.filterAttrs (_: h: h ? syncID) xelib.hosts)) (
