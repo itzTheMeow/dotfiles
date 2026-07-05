@@ -301,6 +301,7 @@ in
 
       settings = {
         options = {
+          listenAddresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
           # we dont need any of this
           globalAnnounceEnabled = false;
           localAnnounceEnabled = false;

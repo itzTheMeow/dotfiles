@@ -43,6 +43,7 @@ in
       ports = {
         beszel-agent = 45876;
         ssh = 19487;
+        syncthing = 20399;
       };
       publicKey = "op://Private/kghbljh73rgjxgoyq2rr2frtaa/public key";
       syncID = "46BRBDY-GF66IIA-6N325JU-HU35RNP-KTBRCHR-C72IWB4-DW4L7FH-WXU2PQZ";
@@ -62,6 +63,7 @@ in
       ports = {
         beszel-agent = 59779;
         ssh = 40938;
+        syncthing = 20985;
       };
       publicKey = "op://Private/srsyuq6y32smf66o3cz4fxlqwy/public key";
       syncID = "6SU2KAI-UALTXPS-WPX7XVF-73PLPHH-GEZGAMU-VB6SWCX-JQRMDHM-TZ564QO";
