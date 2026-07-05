@@ -60,7 +60,7 @@ in
     overrideDevices = true;
     overrideFolders = true;
 
-    guiAddress = "${app.ip}:${app.portString}";
+    guiAddress = "127.0.0.1:${app.portString}";
     guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
 
     settings = lib.recursiveUpdate {
@@ -85,6 +85,8 @@ in
     } app.details.settings;
   };
   systemd.services.syncthing.after = [ "tailscale-online.service" ];
+  # host needs overridden to local for the webui
+  nginx.proxy.${app.domain}.target.host = "127.0.0.1";
 
   sops.secrets.syncthing-relay-cert = {
     sopsFile = config.sops.opSecrets.syncthing-relay.fullPath;
