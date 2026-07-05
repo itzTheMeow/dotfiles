@@ -337,6 +337,7 @@ in
               encryptionPasswordFile = config.sops.secrets.syncthing-encryption.path;
             }
           ];
+          ignorePerms = false;
         }) cfg.sync;
       } syncthingRelay.details.settings;
     };
