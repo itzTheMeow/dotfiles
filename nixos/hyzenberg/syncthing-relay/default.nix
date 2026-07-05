@@ -37,6 +37,15 @@ in
       id = "CGZGNUC-E3AKRNY-5ABDCXC-U4TXJAU-SB4RWGJ-H74RL32-I4I2VUN-2CUJDQY";
       # port for syncthing itself
       syncPort = 20089;
+      # default syncthing options to share between relay/hosts
+      options = {
+        # we dont need any of this
+        globalAnnounceEnabled = false;
+        localAnnounceEnabled = false;
+        relaysEnabled = false;
+        natEnabled = false;
+        urAccepted = 3;
+      };
     };
   };
 
@@ -55,12 +64,8 @@ in
       options = {
         gui.user = host.username;
         listenAddresses = [ "tcp://${app.ip}:${toString app.details.syncPort}" ];
-        # we dont need any of this
-        globalAnnounceEnabled = false;
-        localAnnounceEnabled = false;
-        relaysEnabled = false;
-        natEnabled = false;
-      };
+      }
+      // app.details.options;
       # map all possible sync targets to devices
       devices = lib.genAttrs (builtins.attrNames (lib.filterAttrs (_: h: h ? syncID) xelib.hosts)) (
         hn:
