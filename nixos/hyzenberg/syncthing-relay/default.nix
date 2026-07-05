@@ -1,5 +1,6 @@
 {
   config,
+  host,
   lib,
   self,
   xelib,
@@ -44,7 +45,10 @@ in
     overrideFolders = true;
 
     guiAddress = "${app.ip}:${app.portString}";
-    guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
+    guiCredentials = {
+      username = host.username;
+      passwordFile = config.sops.secrets.syncthing-relay-password.path;
+    };
 
     settings = {
       options = {
