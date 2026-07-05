@@ -43,6 +43,7 @@ in
         options = {
           urAccepted = 3;
           # we dont need any of this
+          startBrowser = false;
           globalAnnounceEnabled = false;
           localAnnounceEnabled = false;
           relaysEnabled = false;
@@ -77,6 +78,7 @@ in
         {
           id = host.syncID;
           addresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
+          autoAcceptFolders = true;
         }
       );
       folders = lib.mapAttrs (name: devices: {
