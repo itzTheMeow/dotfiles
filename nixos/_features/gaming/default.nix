@@ -35,21 +35,26 @@ in
   # set global wineprefix for clarity
   environment.variables.WINEPREFIX = wineprefixAbsolute;
   # create user folder
-  systemd.tmpfiles.rules = [
-    "d ${wineprefixAbsolute}/user 0755 ${host.username} users -"
-  ];
+  #systemd.tmpfiles.rules = [
+  #  "d ${wineprefixAbsolute}/user 0755 ${host.username} users -"
+  #];
+
+  # set up syncing for the wine prefix user directory
+  persist.sync.wine = "${wineprefixAbsolute}/user";
 
   home-manager.users.${host.username} = hm: {
     # link in the wine prefix files
     home.file = {
+      # C drive is all linked from the store
       "${wineprefix}/drive_c" = {
         source = "${xelpkgs.wine-prefix}/drive_c";
         recursive = true;
       };
+      # except for the user folder for appdata
       "${wineprefix}/drive_c/users/${host.username}" = {
         source = hm.config.lib.file.mkOutOfStoreSymlink "${wineprefixAbsolute}/user";
       };
-      # set up drives
+      # set up drive links
       "${wineprefix}/dosdevices/c:".source =
         hm.config.lib.file.mkOutOfStoreSymlink "${wineprefixAbsolute}/drive_c";
       "${wineprefix}/dosdevices/z:".source = hm.config.lib.file.mkOutOfStoreSymlink "/";

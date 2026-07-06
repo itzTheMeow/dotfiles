@@ -312,7 +312,7 @@ in
         builtins.attrNames cfg.sync
       )
     );
-    # set up local syncthing service
+    # set up local syncthing service, using home-manager bc its user-scoped
     home-manager.users.${host.username}.services.syncthing = mkIf usingSyncthing {
       enable = true;
       tray.enable = true;
