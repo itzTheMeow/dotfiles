@@ -37,10 +37,15 @@ in
       ];
     });
     settings = {
-      #  auto_sync = true;
-      #  sync_frequency = "5m";
-      #  sync_address = "https://api.atuin.sh";
-      search_mode = "fuzzy";
+      key_path = config.sops.secret.atuin-key.path;
+      auto_sync = true;
+      update_check = false;
+      #TODO: selfhosted
+      sync_address = "https://api.atuin.sh";
+      sync_frequency = "10s";
+      search_mode = "daemon-fuzzy";
+      filter_mode_shell_up_key_binding = "host"; # default to current host history
+      workspaces = true; # enable git repo filtering
     };
   };
 
