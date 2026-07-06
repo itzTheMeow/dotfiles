@@ -46,6 +46,7 @@ in
       search_mode = "daemon-fuzzy";
       filter_mode_shell_up_key_binding = "host"; # default to current host history
       workspaces = true; # enable git repo filtering
+      enter_accept = true;
     };
   };
 
