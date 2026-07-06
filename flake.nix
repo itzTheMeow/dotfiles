@@ -267,10 +267,8 @@
                     findPackages path (relParts ++ [ name ])
                   else if type == "regular" && lib.hasSuffix "package.nix" name then
                     let
-                      rawPrefix = lib.removeSuffix "package.nix" name;
-                      prefix = lib.removeSuffix "." rawPrefix;
-                      nameParts = relParts ++ lib.optional (prefix != "") prefix;
-                      attrName = lib.concatStringsSep "-" nameParts;
+                      prefix = lib.removeSuffix "." (lib.removeSuffix "package.nix" name);
+                      attrName = lib.concatStringsSep "-" (relParts ++ lib.optional (prefix != "") prefix);
                     in
                     [ (lib.nameValuePair attrName (pkgs.callPackage path { })) ]
                   else
@@ -284,7 +282,7 @@
         allPackages = lib.mergeAttrsList (map (host: hostPackages (./nixos + "/${host}")) allHosts);
       in
       {
-        #packages = allPackages;
+        packages = allPackages;
 
         apps.format = {
           type = "app";
