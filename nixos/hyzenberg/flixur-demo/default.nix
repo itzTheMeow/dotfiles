@@ -1,6 +1,7 @@
 # for the flixur demo site and stuff
 {
   dns,
+  hostname,
   pkgs,
   xelib,
   ...
