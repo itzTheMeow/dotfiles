@@ -37,7 +37,7 @@ in
       ];
     });
     settings = {
-      key_path = config.sops.secret.atuin-key.path;
+      key_path = config.sops.secrets.atuin-key.path;
       auto_sync = true;
       update_check = false;
       #TODO: selfhosted
