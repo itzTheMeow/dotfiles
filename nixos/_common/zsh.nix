@@ -1,4 +1,12 @@
-{ host, pkgs, ... }:
+{
+  config,
+  host,
+  pkgs,
+  ...
+}:
+let
+  dataDir = "/etc/atuin/data";
+in
 {
   home-manager.importAll = [ ./zsh.hm.nix ];
 
@@ -11,12 +19,23 @@
 
   # persist the zsh_history directory
   persist.ed.home.userDirectories = [ ".local/share/zsh_history" ];
-  persist.ed.persist.directories = [ "/etc/atuin/data" ];
+  persist.ed.persist.directories = [ dataDir ];
 
-  systemd.tmpfiles.rules = [ "d /etc/atuin/data 0755 xela xela - -" ];
+  environment.variables.ATUIN_DATA_DIR = dataDir;
+  systemd.tmpfiles.rules = [ "d ${dataDir} 0755 ${host.username} users - -" ];
   programs.atuin = {
     enable = true;
     daemon.enable = true;
+    # https://github.com/atuinsh/atuin/pull/2945
+    # apply patch to add ATUIN_DATA_DIR support so we can relocate it
+    package = pkgs.atuin.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [
+        (pkgs.fetchpatch {
+          url = "https://github.com/atuinsh/atuin/commit/6e01ff990f223d2c0ba63742215f2af2111b87ef.patch";
+          hash = "sha256-R4Oo7JgKeYwvp6Wv2YM8CZwAMsx9qy2obAWqIu9azGk=";
+        })
+      ];
+    });
     settings = {
       #  auto_sync = true;
       #  sync_frequency = "5m";
@@ -24,4 +43,11 @@
       search_mode = "fuzzy";
     };
   };
+
+  sops.secrets.atuin-key = {
+    sopsFile = config.sops.opSecrets.atuin.fullPath;
+    key = "key";
+    owner = host.username;
+  };
+  sops.opSecrets.atuin.keys.key = "op://Private/xoqbcl4ot4tbfk4ckzp33xikoi/Encryption";
 }
