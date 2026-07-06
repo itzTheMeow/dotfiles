@@ -1,21 +1,35 @@
 # for the flixur demo site and stuff
-{ dns, xelib, ... }:
 {
-  dnszones.list =
+  dns,
+  pkgs,
+  xelib,
+  ...
+}:
+let
+  domain = "flixur.app";
+
+  website = pkgs.callPackage ./website.package.nix { };
+in
+{
+  dnszones.list.${domain} =
     with dns.lib.combinators;
     with xelib.dns;
     {
-      "flixur.app" = {
-        inherit SOA NS TTL;
+      inherit SOA NS TTL;
 
-        inherit (githubPages) A AAAA;
-
-        subdomains = {
-          www.CNAME = [ (cname (fqdn "flixurapp.github.io")) ];
-          try.CNAME = [ (cname "hyzen.xela.codes.") ];
-          "_github-challenge-flixurapp-org".TXT = [ (txt "3404e86f6c") ];
-        };
+      subdomains = {
+        www.CNAME = [ (cname (fqdn "flixurapp.github.io")) ];
+        try.CNAME = [ (cname "hyzen.xela.codes.") ];
+        "_github-challenge-flixurapp-org".TXT = [ (txt "3404e86f6c") ];
       };
-    };
-  dnszones.dnssecEnabled = [ "flixur.app" ];
+    }
+    // (pointHost hostname);
+  dnszones.dnssecEnabled = [ domain ];
+
+  # serve static site
+  services.nginx.virtualHosts.${domain} = {
+    forceSSL = true;
+    enableACME = true;
+    root = "${website}";
+  };
 }
