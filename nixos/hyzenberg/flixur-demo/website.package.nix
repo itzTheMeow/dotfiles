@@ -6,6 +6,7 @@
 stdenv.mkDerivation {
   name = "flixur-website";
 
+  # its just a static website for now
   src = fetchFromGitea {
     domain = "forge.xela.codes";
     owner = "xela";
@@ -14,7 +15,5 @@ stdenv.mkDerivation {
     hash = "sha256-jEoL1TBlLJnIKQlQbelNZRZpJvSB3G55j0iBrDoV0Gs=";
   };
 
-  # installPhase = ''
-  #   cp -r build $out
-  # '';
+  installPhase = "cp -r . $out";
 }
