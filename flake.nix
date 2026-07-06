@@ -250,19 +250,41 @@
           '';
         };
 
+        # maps all *.package.nix files to their directory name
+        # appends the * part if it exists
         hostPackages =
           hostDir:
-          lib.pipe (builtins.readDir hostDir) [
-            (lib.filterAttrs (
-              name: type: type == "directory" && builtins.pathExists (hostDir + "/${name}/package.nix")
-            ))
-            (lib.mapAttrs (name: _: pkgs.callPackage (hostDir + "/${name}/package.nix") { }))
-          ];
+          let
+            findPackages =
+              dir: relParts:
+              lib.pipe (builtins.readDir dir) [
+                (lib.mapAttrsToList (
+                  name: type:
+                  let
+                    path = dir + "/${name}";
+                  in
+                  if type == "directory" then
+                    findPackages path (relParts ++ [ name ])
+                  else if type == "regular" && lib.hasSuffix "package.nix" name then
+                    let
+                      rawPrefix = lib.removeSuffix "package.nix" name;
+                      prefix = lib.removeSuffix "." rawPrefix;
+                      nameParts = relParts ++ lib.optional (prefix != "") prefix;
+                      attrName = lib.concatStringsSep "-" nameParts;
+                    in
+                    [ (lib.nameValuePair attrName (pkgs.callPackage path { })) ]
+                  else
+                    [ ]
+                ))
+                lib.flatten
+              ];
+          in
+          builtins.listToAttrs (findPackages hostDir [ ]);
 
         allPackages = lib.mergeAttrsList (map (host: hostPackages (./nixos + "/${host}")) allHosts);
       in
       {
-        packages = allPackages;
+        #packages = allPackages;
 
         apps.format = {
           type = "app";
