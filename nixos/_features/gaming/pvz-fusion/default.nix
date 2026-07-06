@@ -1,6 +1,6 @@
 { pkgs, xelpkgs, ... }:
 let
-  pkg = pkgs.callPackage ./pkg.nix { inherit xelpkgs; };
+  pkg = pkgs.callPackage ./package.nix { inherit xelpkgs; };
 in
 {
   title = "Plants vs. Zombies: Fusion";

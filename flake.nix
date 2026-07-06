@@ -279,7 +279,9 @@
           in
           builtins.listToAttrs (findPackages hostDir [ ]);
 
-        allPackages = lib.mergeAttrsList (map (host: hostPackages (./nixos + "/${host}")) allHosts);
+        allPackages = lib.mergeAttrsList (
+          map (host: hostPackages (./nixos + "/${host}")) (allHosts ++ [ "_features" ])
+        );
       in
       {
         packages = allPackages;
