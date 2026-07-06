@@ -7,6 +7,7 @@
   cursors = {
     name = "Colloid-cursors";
     size = 24;
+    #TODO:26.11
     package = pkgs-unstable.colloid-cursors;
   };
   environment = {
