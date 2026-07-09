@@ -3,8 +3,4 @@
   imports = [
     ./common
   ];
-
-  home = {
-    # ...
-  };
 }
