@@ -15,7 +15,11 @@ in
 {
   system.stateVersion = "25.11";
 
-  home-manager.importAll = [ ./common.hm.nix ];
+  home-manager.importAll = [
+    ./common.hm.nix
+    # import local config
+    ../local/home-manager.nix
+  ];
   home-manager.importUser = [ ./common.user.hm.nix ];
 
   imports =
