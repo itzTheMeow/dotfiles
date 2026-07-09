@@ -8,6 +8,8 @@
 {
   imports = lib.optional (!(builtins.elem "console" host.type)) ./not-console.nix;
 
+  home-manager.importUser = [ ./kitty.hm.nix ];
+
   environment.systemPackages = with pkgs; [
     # desktop themeing
     xelib.globals.cursors.package

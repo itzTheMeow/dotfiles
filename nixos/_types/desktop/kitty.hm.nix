@@ -12,7 +12,7 @@
 
       editor = "nano";
       scrollback_lines = 5000;
-      startup_session = builtins.toString (
+      startup_session = toString (
         pkgs.writeText "default.conf" ''
           focus
           focus_os_window
