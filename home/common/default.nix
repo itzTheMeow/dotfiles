@@ -7,8 +7,6 @@
 }:
 {
   imports = [
-    # import local config
-    ../../local/home-manager.nix
     # various default programs
     ../programs/fastfetch
     ../programs/oh-my-posh
