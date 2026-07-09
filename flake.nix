@@ -89,54 +89,6 @@
         (import ./xelib/opsecrets.nix).homeManagerModule
       ];
 
-      mkHomeConfiguration =
-        system: hostname:
-        home-manager.lib.homeManagerConfiguration rec {
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-            overlays = [
-              (
-                final: prev: # fixes fish on macos
-                if prev.stdenv.isDarwin then
-                  {
-                    fish = prev.fish.overrideAttrs (_: {
-                      doCheck = false;
-                    });
-                  }
-                else
-                  { }
-              )
-            ];
-          };
-
-          modules = home-manager-modules ++ [ ./home/${hostname}.nix ];
-
-          extraSpecialArgs = rec {
-            inherit
-              inputs
-              hostname
-              home-manager
-              self
-              ;
-            pkgs-unstable = import nixpkgs-unstable {
-              inherit system;
-              config.allowUnfree = true;
-            };
-            xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
-            xelib = import ./xelib {
-              inherit
-                hostname
-                pkgs
-                pkgs-unstable
-                self
-                xelpkgs
-                ;
-            };
-            host = xelib.hosts.${hostname};
-          };
-        };
-
       mkNixosConfiguration =
         system: hostname:
         let
@@ -219,7 +171,7 @@
     {
       homeConfigurations = {
         # non-nixos
-        macintosh = mkHomeConfiguration "x86_64-darwin" "macintosh";
+        #macintosh = mkHomeConfiguration "x86_64-darwin" "macintosh";
       };
 
       nixosConfigurations = nixpkgs.lib.genAttrs x86Hosts (
