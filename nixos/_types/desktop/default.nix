@@ -76,4 +76,13 @@
       RestartSec = "5s";
     };
   };
+
+  persist.ed.home = {
+    userDirectories = [
+      ".config/session" # used by apps to store session data
+    ];
+    userFiles = [
+      "Desktop/.directory" # only keep the fact that it exists. nothing on desktop is kept
+    ];
+  };
 }
