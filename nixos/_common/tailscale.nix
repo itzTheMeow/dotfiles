@@ -15,7 +15,9 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${pkgs.bash}/bin/bash -c 'until ${pkgs.iproute2}/bin/ip addr show tailscale0 | ${pkgs.gnugrep}/bin/grep -q 100.64.0; do sleep 0.5; done'";
+      ExecStart = pkgs.writeShellScript "wait-for-tailscale-ip" ''
+        until ${pkgs.iproute2}/bin/ip addr show tailscale0 | ${pkgs.gnugrep}/bin/grep -q 100.64.0; do sleep 0.5; done
+      '';
     };
   };
 }
