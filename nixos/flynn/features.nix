@@ -2,13 +2,10 @@
   "chromium"
   "firefox"
   "gaming"
-  "gui"
   "immich-cli"
-  "kde"
   "libreoffice"
   "plezy"
   "rclone"
   "rustic"
   "timefinder"
-  "workstation"
 ]

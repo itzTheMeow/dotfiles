@@ -1,8 +1,6 @@
 [
   "chromium"
   "gaming"
-  "gui"
-  "kde"
   "plezy"
   "rclone"
   "rustic"
