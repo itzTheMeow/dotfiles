@@ -10,7 +10,6 @@
     # import local config
     ../../local/home-manager.nix
     # various default programs
-    ../programs/btop
     ../programs/fastfetch
     ../programs/oh-my-posh
     ../programs/rustic
