@@ -13,6 +13,7 @@ in
       ExecStart = "${pati}/bin/pati";
       StateDirectory = "pati";
       EnvironmentFile = config.sops.secrets.pati.path;
+      Restart = "always";
 
       # hardening
       DynamicUser = true;
