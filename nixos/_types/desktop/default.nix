@@ -50,6 +50,16 @@
     enable32Bit = true;
   };
 
+  # fonts
+  fonts = {
+    fontconfig.enable = true;
+    packages = with pkgs; [
+      nerd-fonts.caskaydia-mono
+      corefonts
+      montserrat
+    ];
+  };
+
   # keymapper
   services.keyd = {
     enable = true;
