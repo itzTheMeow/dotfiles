@@ -1,6 +1,13 @@
-# any device with a gui
-{ pkgs, xelib, ... }:
 {
+  host,
+  lib,
+  pkgs,
+  xelib,
+  ...
+}:
+{
+  imports = lib.optional (!(builtins.elem "console" host.type)) ./not-console.nix;
+
   environment.systemPackages = with pkgs; [
     # desktop themeing
     xelib.globals.cursors.package

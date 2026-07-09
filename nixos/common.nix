@@ -18,17 +18,20 @@ in
   home-manager.importAll = [ ./common.hm.nix ];
   home-manager.importUser = [ ./common.user.hm.nix ];
 
-  # import all .nix files in common
-  imports = map (name: ./_common + "/${name}") (
-    builtins.filter (
-      name:
-      # all nix files
-      commonFiles.${name} == "regular"
-      && builtins.match ".*\\.nix" name != null
-      # ignore home-manager modules
-      && builtins.match ".*\\.hm\\.nix" name == null
-    ) (builtins.attrNames commonFiles)
-  );
+  imports =
+    # import all .nix files in common
+    map (name: ./_common + "/${name}") (
+      builtins.filter (
+        name:
+        # all nix files
+        commonFiles.${name} == "regular"
+        && builtins.match ".*\\.nix" name != null
+        # ignore home-manager modules
+        && builtins.match ".*\\.hm\\.nix" name == null
+      ) (builtins.attrNames commonFiles)
+    )
+    # import type configs
+    ++ map (name: ./_types + "/${name}") host.type;
 
   # base nix settings
   nix.settings = {

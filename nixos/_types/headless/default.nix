@@ -1,4 +1,3 @@
-# any device without a gui
 { ... }:
 {
   # just gets default systemd boot with a quick timeout

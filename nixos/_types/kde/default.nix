@@ -1,4 +1,3 @@
-# kde specific settings
 {
   pkgs,
   xelib,
