@@ -3,6 +3,4 @@
   imports = [
     ./common
   ];
-
-  home = { };
 }
