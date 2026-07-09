@@ -63,6 +63,7 @@
   # keymapper
   services.keyd = {
     enable = true;
+    # wireless tv remote
     keyboards.remotecontrol = {
       ids = [ "1915:1001" ];
       settings.main = {
