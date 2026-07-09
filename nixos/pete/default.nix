@@ -1,7 +1,7 @@
 {
   config,
   host,
-  xelpkgs,
+  pkgs,
   ...
 }:
 {
@@ -23,14 +23,12 @@
         user = host.username;
       };
       defaultSession = "plasma-bigscreen-wayland";
-      sessionPackages = [ xelpkgs.plasma-bigscreen ];
+      sessionPackages = [ pkgs.kdePackages.plasma-bigscreen ];
     };
   };
 
-  xdg.portal.configPackages = [ xelpkgs.plasma-bigscreen ];
-  environment.systemPackages = [
-    xelpkgs.plasma-bigscreen
-  ];
+  xdg.portal.configPackages = [ pkgs.kdePackages.plasma-bigscreen ];
+  environment.systemPackages = [ pkgs.kdePackages.plasma-bigscreen ];
 
   sops.secrets.user_key = {
     sopsFile = config.sops.opSecrets.user_key.fullPath;
