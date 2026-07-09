@@ -23,9 +23,6 @@
   # custom hostname for this device
   networking.hostName = lib.mkForce "meow-pc";
 
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
-
   environment.sessionVariables = xelib.globals.environment // {
     # this is for node-canvas...
     LD_LIBRARY_PATH = with pkgs; [

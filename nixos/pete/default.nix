@@ -17,9 +17,7 @@
   # most of this is from this PR: https://github.com/NixOS/nixpkgs/pull/428353
   # and this VM: https://git.allpurposem.at/mat/bigscreen-waydroid-vm/src/commit/d5a30a4cc69065a84c4ae16b59b54d8b06174347/configuration.nix
   services = {
-    desktopManager.plasma6.enable = true;
     displayManager = {
-      sddm.enable = true;
       autoLogin = {
         enable = true;
         user = host.username;

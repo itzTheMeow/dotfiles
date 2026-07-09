@@ -5,6 +5,11 @@
   ...
 }:
 {
+  # actually enable kde
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
+
+  # set up qt styling
   qt = {
     enable = true;
     platformTheme = "kde";
@@ -70,4 +75,8 @@
       RemainAfterExit = true;
     };
   };
+
+  persist.ed.home.userFiles = [
+    ".config/kactivitymanagerd-statsrc" # favorites list order
+  ];
 }

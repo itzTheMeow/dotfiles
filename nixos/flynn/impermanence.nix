@@ -48,7 +48,6 @@
         ".config/Pinta"
         ".config/Plexamp"
         ".config/RSS Guard 4"
-        ".config/session"
         ".config/teams-for-linux"
         ".config/timefinder-electron"
         ".config/vesktop"
@@ -70,7 +69,6 @@
         "Videos"
       ];
       userFiles = [
-        "Desktop/.directory" # only keep the fact that it exists. nothing on desktop is kept
         ".ssh/known_hosts"
         ".wakatime.cfg"
         ".config/Fougue Ltd/Mayo.conf"
@@ -79,7 +77,6 @@
         ".config/pegasus-frontend/stats.db"
         ".config/qalculate/qalculate-qt.cfg"
         ".config/qdiskinfo/qdiskinfo.conf" # TODO: make declarative
-        ".config/kactivitymanagerd-statsrc" # favorites list order
       ];
     };
 
