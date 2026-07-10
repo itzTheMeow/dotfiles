@@ -29,6 +29,10 @@
 
   xdg.portal.configPackages = [ pkgs.kdePackages.plasma-bigscreen ];
   environment.systemPackages = [ pkgs.kdePackages.plasma-bigscreen ];
+  programs.kdeconnect.enable = true; # required for bigscreen to launch
+
+  #!! TEMPORARY FOR TESTING
+  systemd.services.home-manager-tv.serviceConfig.TimeoutStartSec = pkgs.lib.mkForce "10s";
 
   sops.secrets.user_key = {
     sopsFile = config.sops.opSecrets.user_key.fullPath;
