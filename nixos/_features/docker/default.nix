@@ -1,9 +1,4 @@
-{
-  hostname,
-  lib,
-  xelib,
-  ...
-}:
+{ ... }:
 {
   virtualisation.docker = {
     enable = true;
@@ -12,7 +7,8 @@
     daemon.settings = {
       ipv6 = true;
       ip6tables = true;
-      fixed-cidr-v6 = "${lib.removeSuffix "1" xelib.dns.addr6.${hostname}}/64";
+      # local subnet so we dont clobber the network
+      fixed-cidr-v6 = "fd00:ffff::/80";
     };
   };
   # make oci-containers use docker
