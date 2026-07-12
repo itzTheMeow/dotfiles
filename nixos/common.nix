@@ -3,8 +3,9 @@
   host,
   hostname,
   inputs,
-  pkgs,
+  lib,
   pkgs-unstable,
+  pkgs,
   self,
   xelib,
   ...
@@ -140,6 +141,15 @@ in
   networking = {
     hostName = hostname;
     networkmanager.enable = true;
+    defaultGateway6 = lib.mkIf (xelib.dns.gateway6 ? hostname) xelib.dns.gateway6.${hostname};
+    interfaces = lib.mkIf (xelib.dns.gateway6 ? hostname) {
+      ${xelib.dns.gateway6.${hostname}.interface}.ipv6.addresses = [
+        {
+          address = xelib.dns.addr6.${hostname};
+          prefixLength = 64;
+        }
+      ];
+    };
   };
 
   environment.systemPackages = with pkgs; [
