@@ -141,8 +141,8 @@ in
   networking = {
     hostName = hostname;
     networkmanager.enable = true;
-    defaultGateway6 = lib.optionalAttrs (xelib.dns.gateway6 ? hostname) xelib.dns.gateway6.${hostname};
-    interfaces = lib.optionalAttrs (xelib.dns.gateway6 ? hostname) {
+    defaultGateway6 = lib.mkIf (xelib.dns.gateway6 ? ${hostname}) xelib.dns.gateway6.${hostname};
+    interfaces = lib.mkIf (xelib.dns.gateway6 ? ${hostname}) {
       ${xelib.dns.gateway6.${hostname}.interface}.ipv6.addresses = [
         {
           address = xelib.dns.addr6.${hostname};
