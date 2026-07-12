@@ -8,8 +8,8 @@ let
     domain = "forge.xela.codes";
     owner = "xela-archive";
     repo = "YTMusic";
-    rev = "fdc35b4dc984e4a417148b26e1c3b3b525024154";
-    hash = "sha256-XyWS6yVMdimu3+6jNSe0yVAhENRnltIqN23M5hu9WeM=";
+    rev = "db38f3be115d1d9d6cde79d150079fb78e1d6b60";
+    hash = "sha256-sPx0dmVJcAvBtf2N6PU6rVJSEjQ+t5DVrGkDUtMfEb8=";
   };
 
   client = buildPnpmPackage {
