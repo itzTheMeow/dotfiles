@@ -78,7 +78,7 @@ in
               certUsage = "dane-ee";
               selector = "spki";
               matchingType = "sha256";
-              certificate = "352cba4e587a76233644a4c40d0a94c5cc2387a2c42fb903ad5eb937157a33e8";
+              certificate = "646fd5c19a789036d79436d03b1f492cd244b05ba387f6dfa95fb72350452e8e";
             }
           ];
           "_caldavs._tcp".TXT = [ (txt "path=/SOGo/dav/") ];
