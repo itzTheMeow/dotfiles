@@ -39,6 +39,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+    nypkgs = {
+      url = "github:yunfachi/nypkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # my stuff
     timefinder-electron = {
@@ -114,12 +118,12 @@
             host = xelib.hosts.${hostname};
           };
 
-          xelib = import ./xelib (
-            extras
+          xelib =
+            (import ./xelib (extras // { inherit pkgs; }))
+            # tack on umport library
             // {
-              inherit pkgs;
-            }
-          );
+              umport = inputs.nypkgs.lib.${system}.umport;
+            };
         in
         nixpkgs.lib.nixosSystem {
           inherit system;
@@ -152,7 +156,7 @@
               home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
             }
           ]
-          ++ map (file: ./modules/${file}) (builtins.attrNames (builtins.readDir ./modules));
+          ++ xelib.umport { path = ./modules; };
           specialArgs = extras // {
             inherit xelib;
           };
