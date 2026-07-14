@@ -216,6 +216,26 @@
         "type": "github"
       }
     },
+    "nypkgs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1775762014,
+        "narHash": "sha256-Ytfywtoxw1I+baHDuwKyUeCY3/1dDxWZWy59MPlSGHg=",
+        "owner": "yunfachi",
+        "repo": "nypkgs",
+        "rev": "37b32b2f1d8677120ac346c3cf735b6fafa94776",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yunfachi",
+        "repo": "nypkgs",
+        "type": "github"
+      }
+    },
     "plasma-manager": {
       "inputs": {
         "home-manager": [
@@ -250,6 +270,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-bind916": "nixpkgs-bind916",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "nypkgs": "nypkgs",
         "plasma-manager": "plasma-manager",
         "sops-nix": "sops-nix",
         "timefinder-electron": "timefinder-electron"
