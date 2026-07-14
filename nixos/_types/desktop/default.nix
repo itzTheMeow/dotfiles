@@ -6,7 +6,10 @@
   ...
 }:
 {
-  imports = lib.optional (!(builtins.elem "console" host.type)) ./not-console.nix;
+  imports = [
+    ./1password.nix
+  ]
+  ++ lib.optional (!(builtins.elem "console" host.type)) ./not-console.nix;
 
   home-manager.importUser = [ ./kitty.hm.nix ];
 
