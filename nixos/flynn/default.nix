@@ -43,12 +43,6 @@
     package = pkgs.vscode-fhs;
   };
 
-  programs._1password-gui = {
-    enable = true;
-    package = pkgs._1password-gui;
-    polkitPolicyOwners = [ host.username ];
-  };
-
   systemd.tmpfiles.rules = [
     "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"
   ];

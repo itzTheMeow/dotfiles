@@ -28,7 +28,6 @@
     home = {
       userDirectories = [
         xelib.locationDir
-        ".config/1Password"
         ".config/app.yaak.desktop"
         ".config/blender"
         ".config/chromium"
@@ -73,7 +72,6 @@
         ".wakatime.cfg"
         ".config/Fougue Ltd/Mayo.conf"
         ".config/discordchatexporter/Settings.dat"
-        ".config/op/config"
         ".config/pegasus-frontend/stats.db"
         ".config/qalculate/qalculate-qt.cfg"
         ".config/qdiskinfo/qdiskinfo.conf" # TODO: make declarative

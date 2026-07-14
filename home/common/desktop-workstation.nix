@@ -65,17 +65,6 @@
       #swiftformat
     ];
 
-    file = {
-      ".config/1Password/ssh/agent.toml".text = ''
-        [[ssh-keys]]
-        vault = "Private"
-        [[ssh-keys]]
-        vault = "NVSTly"
-        [[ssh-keys]]
-        vault = "NVSTly Internal"
-      '';
-    };
-
     sessionVariables = {
       VIRTUAL_ENV_DISABLE_PROMPT = "1";
       VISUAL = "code --wait";
