@@ -141,9 +141,25 @@ in
   networking = {
     hostName = hostname;
     networkmanager.enable = true;
-    defaultGateway6 = lib.mkIf (xelib.dns.gateway6 ? ${hostname}) xelib.dns.gateway6.${hostname};
-    interfaces = lib.mkIf (xelib.dns.gateway6 ? ${hostname}) {
-      ${xelib.dns.gateway6.${hostname}.interface}.ipv6.addresses = [
+  }
+  # manually configure network for supported hosts
+  // lib.optionalAttrs (host ? net) {
+    defaultGateway = {
+      address = host.net.gateway;
+      inherit (host.net) interface;
+    };
+    defaultGateway6 = {
+      address = host.net.gateway6;
+      inherit (host.net) interface;
+    };
+    interfaces.${host.net.interface} = {
+      ipv4.addresses = [
+        {
+          address = xelib.dns.addr.${hostname};
+          prefixLength = 22;
+        }
+      ];
+      ipv6.addresses = [
         {
           address = xelib.dns.addr6.${hostname};
           prefixLength = 64;
