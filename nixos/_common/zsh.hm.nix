@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  config,
+  pkgs,
+  xelib,
+  ...
+}:
 let
   initExtra = ''
     clear
@@ -41,5 +46,32 @@ in
       };
     };
     dircolors.enable = true;
+
+    atuin = {
+      enable = true;
+      daemon.enable = true;
+      # https://github.com/atuinsh/atuin/pull/2945
+      # apply patch to add ATUIN_DATA_DIR support so we can relocate it
+      package = pkgs.atuin.overrideAttrs (old: {
+        patches = (old.patches or [ ]) ++ [
+          (pkgs.fetchpatch {
+            url = "https://github.com/atuinsh/atuin/commit/6e01ff990f223d2c0ba63742215f2af2111b87ef.patch";
+            hash = "sha256-R4Oo7JgKeYwvp6Wv2YM8CZwAMsx9qy2obAWqIu9azGk=";
+          })
+        ];
+      });
+      settings = {
+        key_path = config.sops.secrets.atuin-key.path;
+        auto_sync = true;
+        update_check = false;
+        sync_address = xelib.apps.atuin-server.url;
+        sync_frequency = "10s";
+        search_mode = "daemon-fuzzy";
+        filter_mode_shell_up_key_binding = "host"; # default to current host history
+        workspaces = true; # enable git repo filtering
+        enter_accept = true;
+      };
+      forceOverwriteSettings = true;
+    };
   };
 }
