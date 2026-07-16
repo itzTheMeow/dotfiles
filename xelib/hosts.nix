@@ -1,5 +1,14 @@
 let
   EVERY_6H = "*-*-* 00,06,12,18:00:00";
+
+  # default netcup-specific network settings
+  netcup = {
+    interface = "ens3";
+    nameservers = [
+      "46.38.225.230"
+      "46.38.252.230"
+    ];
+  };
 in
 {
   /*
@@ -9,6 +18,8 @@ in
     *   The account "description" or full name.
     * ip
     *   The tailscale IP address.
+    * net
+    *   TODO:
     * type
     *   The type(s) of the device. Nested types should be both included in the list.
     *   "headless":  No GUI, just a server.
@@ -75,7 +86,7 @@ in
       username = "walt";
       ip = "100.64.0.3";
       net = {
-        interface = "ens3";
+        inherit (netcup) nameservers interface;
         gateway = "152.53.168.1";
         gateway6 = "fe80::1";
       };
@@ -93,7 +104,7 @@ in
       username = "mike";
       ip = "100.64.0.10";
       net = {
-        interface = "ens3";
+        inherit (netcup) nameservers interface;
         gateway = "152.53.52.1";
         gateway6 = "fe80::1";
       };
