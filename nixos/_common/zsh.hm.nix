@@ -45,8 +45,6 @@ in
       };
       setOptions = [ "INC_APPEND_HISTORY" ];
     };
-    dircolors = {
-      enable = true;
-    };
+    dircolors.enable = true;
   };
 }
