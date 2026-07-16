@@ -144,6 +144,10 @@ in
   }
   # manually configure network for supported hosts
   // lib.optionalAttrs (host ? net) {
+    nameservers = host.net.nameservers ++ [
+      "1.1.1.1"
+      "9.9.9.9"
+    ];
     defaultGateway = {
       address = host.net.gateway;
       inherit (host.net) interface;
