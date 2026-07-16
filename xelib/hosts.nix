@@ -74,6 +74,11 @@ in
     hyzenberg = {
       username = "walt";
       ip = "100.64.0.3";
+      net = {
+        interface = "ens3";
+        gateway = "152.53.168.1";
+        gateway6 = "fe80::1";
+      };
       type = [ "headless" ];
       accent = "#f38ba8"; # Red
       ports = {
@@ -87,6 +92,11 @@ in
     ehrman = {
       username = "mike";
       ip = "100.64.0.10";
+      net = {
+        interface = "ens3";
+        gateway = "152.53.52.1";
+        gateway6 = "fe80::1";
+      };
       type = [ "headless" ];
       accent = "#89dceb"; # Sky
       ports = {

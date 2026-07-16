@@ -47,17 +47,6 @@ rec {
       ehrman = "2a0a:4cc0:2000:21ab::1";
       hyzenberg = "2a0a:4cc0:2000:a0bb::1";
     };
-    # ipv6 gateways for hosts, in here because it goes with the addr6 stuff
-    gateway6 = {
-      ehrman = {
-        address = "fe80::1";
-        interface = "ens3";
-      };
-      hyzenberg = {
-        address = "fe80::1";
-        interface = "ens3";
-      };
-    };
 
     # util functions
     fqdn = d: "${d}.";
