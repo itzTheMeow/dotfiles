@@ -11,5 +11,6 @@ in
     enable = true;
     host = app.ip;
     port = app.port;
+    openRegistration = true;
   };
 }
