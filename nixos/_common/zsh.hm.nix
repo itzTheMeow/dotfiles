@@ -1,4 +1,4 @@
-{ host, pkgs, ... }:
+{ pkgs, ... }:
 let
   initExtra = ''
     clear
@@ -8,20 +8,17 @@ let
     # run fastfetch outside of vscode
     [ "$TERM_PROGRAM" != "vscode" ] && ${pkgs.fastfetch}/bin/fastfetch
   '';
-  shellHistorySize = 100000;
 in
 {
   programs = {
     bash = {
       enable = true;
-      bashrcExtra = ''
-        shopt -s histappend
-        shopt -s checkwinsize
-        ${initExtra}
-      '';
+      bashrcExtra = initExtra;
       historyControl = [ "ignoreboth" ];
-      historyFileSize = shellHistorySize;
-      historySize = shellHistorySize;
+      historyFileSize = 0;
+      historySize = 100;
+      # auto update window size variables
+      shellOptions = [ "checkwinsize" ];
     };
     zsh = {
       enable = true;
@@ -37,13 +34,11 @@ in
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
       history = {
-        size = shellHistorySize;
-        save = shellHistorySize;
-        share = true;
-        append = true;
-        path = "/home/${host.username}/.local/share/zsh_history/history";
+        # actual zsh history is (mostly) disabled so atuin can do its thing
+        size = 100;
+        save = 0;
+        share = false;
       };
-      setOptions = [ "INC_APPEND_HISTORY" ];
     };
     dircolors.enable = true;
   };
