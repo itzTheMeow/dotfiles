@@ -1,10 +1,15 @@
 {
   config,
+  hm,
+  host,
   pkgs,
   xelib,
   ...
 }:
 let
+  # if current user is the "main" account and should host the daemon
+  atuinEnableDaemon = hm.config.home.username == host.username;
+
   initExtra = ''
     clear
     # source the secure shellfish file if present
@@ -49,7 +54,7 @@ in
 
     atuin = {
       enable = true;
-      daemon.enable = true;
+      daemon.enable = atuinEnableDaemon;
       # https://github.com/atuinsh/atuin/pull/2945
       # apply patch to add ATUIN_DATA_DIR support so we can relocate it
       package = pkgs.atuin.overrideAttrs (old: {
@@ -62,6 +67,7 @@ in
       });
       settings = {
         key_path = config.sops.secrets.atuin-key.path;
+        session_path = config.sops.secrets.atuin-session.path;
         auto_sync = true;
         update_check = false;
         sync_address = xelib.apps.atuin-server.url;
@@ -70,6 +76,12 @@ in
         filter_mode_shell_up_key_binding = "host"; # default to current host history
         workspaces = true; # enable git repo filtering
         enter_accept = true;
+
+        # configure non-main daemons to
+        daemon = hm.lib.mkIf (!atuinEnableDaemon) {
+          enabled = true;
+          systemd_socket = true;
+        };
       };
       forceOverwriteSettings = true;
     };

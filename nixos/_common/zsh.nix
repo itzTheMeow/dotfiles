@@ -29,5 +29,13 @@ in
     key = "key";
     owner = host.username;
   };
-  sops.opSecrets.atuin.keys.key = "op://Private/xoqbcl4ot4tbfk4ckzp33xikoi/Encryption";
+  sops.secrets.atuin-session = {
+    sopsFile = config.sops.opSecrets.atuin.fullPath;
+    key = "session";
+    owner = host.username;
+  };
+  sops.opSecrets.atuin.keys = {
+    key = "op://Private/xoqbcl4ot4tbfk4ckzp33xikoi/Encryption";
+    session = "op://Private/xoqbcl4ot4tbfk4ckzp33xikoi/Session";
+  };
 }
