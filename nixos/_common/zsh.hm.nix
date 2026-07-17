@@ -77,13 +77,17 @@ in
         workspaces = true; # enable git repo filtering
         enter_accept = true;
 
-        # configure non-main daemons to
+        # configure non-main daemons to use the main one
         daemon = hm.lib.mkIf (!atuinEnableDaemon) {
           enabled = true;
-          systemd_socket = true;
+          socket_path = "/run/user/1000/atuin.sock";
         };
       };
       forceOverwriteSettings = true;
     };
   };
+
+  systemd.user.services.atuin-daemon.Service.Environment = [
+    "ATUIN_DATA_DIR=${config.environment.variables.ATUIN_DATA_DIR}"
+  ];
 }
