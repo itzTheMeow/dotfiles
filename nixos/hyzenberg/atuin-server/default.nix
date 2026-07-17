@@ -13,4 +13,5 @@ in
     port = app.port;
     openRegistration = true;
   };
+  systemd.services.atuin.after = [ "tailscale-online.service" ];
 }
