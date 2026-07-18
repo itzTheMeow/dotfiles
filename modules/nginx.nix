@@ -321,6 +321,7 @@ in
             clientSecretFile = config.sops.groupPaths.nginx.oauth-secret;
             oidcIssuerUrl = xelib.apps.pocket-id.url;
             scope = "openid email groups";
+            email.domains = [ "*" ]; # allowed_groups does the actual filtering
 
             cookie.secretFile = config.sops.groupPaths.nginx.oauth-cookies;
             reverseProxy = true;
