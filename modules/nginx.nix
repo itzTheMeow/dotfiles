@@ -327,12 +327,9 @@ in
 
             reverseProxy = true;
 
-            nginx = {
-              domain = cfg.oauth2Proxy.domain;
-              virtualHosts = lib.mapAttrs (_: opts: {
-                allowed_groups = opts.oidcGroups;
-              }) gatedProxies;
-            };
+            nginx.virtualHosts = lib.mapAttrs (_: opts: {
+              allowed_groups = opts.oidcGroups;
+            }) gatedProxies;
           };
 
           sops.groups.nginx = {
