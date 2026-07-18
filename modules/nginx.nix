@@ -324,8 +324,10 @@ in
 
             cookie.secretFile = config.sops.groupPaths.nginx.oauth-cookies;
             reverseProxy = true;
+            trustedProxyIP = xelib.globals.trustedProxies;
 
             nginx = {
+              #TODO: this needs figured out
               domain = xelib.domain;
               virtualHosts = lib.mapAttrs (_: opts: {
                 allowed_groups = opts.oidcGroups;

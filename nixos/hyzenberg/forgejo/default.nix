@@ -49,7 +49,7 @@ in
       "ui.meta".DESCRIPTION = "xela.codes personal software forge.";
       security = {
         INSTALL_LOCK = true; # disable install page
-        REVERSE_PROXY_TRUSTED_PROXIES = "127.0.0.0/8,::1/128,100.64.0.0/10";
+        REVERSE_PROXY_TRUSTED_PROXIES = lib.concatStringsSep "," xelib.globals.trustedProxies;
       };
       mirror.DEFAULT_INTERVAL = "1h"; # default mirror sync interval
 
