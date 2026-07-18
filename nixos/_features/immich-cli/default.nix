@@ -8,15 +8,12 @@
 {
   environment.systemPackages = [ pkgs.immich-cli ];
 
-  sops.secrets.immich-cli = {
-    sopsFile = config.sops.opSecrets.immich.fullPath;
-    key = "key";
-  };
-  sops.opSecrets.immich.keys.key = "op://Private/lfuwax7zpv45oqen4zj7yu65tq/API Keys/CLI";
+  # authenticate the user automatically
+  sops.groups.immich-cli.key = "op://Private/lfuwax7zpv45oqen4zj7yu65tq/API Keys/CLI";
   sops.templates."immich-auth.yaml" = {
     content = xelib.toYAMLString {
       url = "https://${xelib.apps.immich.domain}/api";
-      key = config.sops.placeholder.immich-cli;
+      key = config.sops.groupPlaceholders.immich-cli.key;
     };
     path = "/home/${host.username}/.config/immich/auth.yml";
     owner = host.username;
