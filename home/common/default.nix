@@ -54,7 +54,7 @@
       cdtemp = "cd $(mktemp -d) && pwd";
 
       # shortcuts
-      sc = "systemctl";
+      sc = "sudo systemctl";
       scu = "systemctl --user";
 
       # short custom commands
