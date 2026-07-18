@@ -326,7 +326,10 @@ in
               whitelist-domain = "*.${xelib.domain}";
             };
 
-            cookie.secretFile = config.sops.groupPaths.nginx.oauth-cookies;
+            cookie = {
+              domain = ".${xelib.domain}";
+              secretFile = config.sops.groupPaths.nginx.oauth-cookies;
+            };
             reverseProxy = true;
             trustedProxyIP = xelib.globals.trustedProxies;
 
