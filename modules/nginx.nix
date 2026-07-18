@@ -86,6 +86,12 @@ in
                 default = null;
                 description = "Enable anubis protection for this domain. Provided options will be merged into the anubis instance.";
               };
+
+              oidcGroups = mkOption {
+                type = types.nullOr (types.listOf types.str);
+                default = null;
+                description = "If set, this host will be gated behind Pocket ID and only accessible by the listed groups.";
+              };
             };
             config = {
               local = lib.mkDefault (builtins.match ".+\\.(xela|internal)$" name != null);
@@ -128,176 +134,216 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    # base nginx config
-    services.nginx = {
-      enable = true;
-      recommendedBrotliSettings = true;
-      recommendedGzipSettings = true;
-      recommendedProxySettings = true;
-      recommendedTlsSettings = true;
+  config = lib.mkIf cfg.enable (
+    lib.mkMerge [
+      {
+        # base nginx config
+        services.nginx = {
+          enable = true;
+          recommendedBrotliSettings = true;
+          recommendedGzipSettings = true;
+          recommendedProxySettings = true;
+          recommendedTlsSettings = true;
 
-      clientMaxBodySize = "1g";
-    };
+          clientMaxBodySize = "1g";
+        };
 
-    # generate a dummy 100-year cert for catchall requests
-    systemd.services.nginx-default-cert = {
-      description = "Generate self-signed certificate for nginx default server";
-      wantedBy = [ "multi-user.target" ];
-      before = [ "nginx.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-      };
-      script = ''
-        CERT_DIR="${defaultCertDir}"
-        mkdir -p "$CERT_DIR"
-        if [ ! -f "$CERT_DIR/fullchain.pem" ]; then
-          echo "Generating self-signed certificate for nginx default server..."
-          ${pkgs.openssl}/bin/openssl req -x509 -newkey rsa:2048 -nodes \
-            -keyout "$CERT_DIR/key.pem" \
-            -out "$CERT_DIR/fullchain.pem" \
-            -days 36500 \
-            -subj "/CN=_"
-          chmod 640 "$CERT_DIR"/*.pem
-          chown -R nginx:nginx "$CERT_DIR"
-          echo "Certificate generated at $CERT_DIR"
-        fi
-      '';
-    };
-
-    # open http(s) ports
-    networking.firewall.allowedTCPPorts = [
-      80
-      443
-    ];
-    users.users.nginx.extraGroups = [
-      "acme" # for challenge files
-      "anubis" # for anubis sockets
-    ];
-
-    services.nginx.virtualHosts = {
-      # default catch-all host for random requests
-      "_" = {
-        default = true;
-        locations."/" = {
-          return = "404 'NOT FOUND'";
-          extraConfig = ''
-            default_type text/plain;
+        # generate a dummy 100-year cert for catchall requests
+        systemd.services.nginx-default-cert = {
+          description = "Generate self-signed certificate for nginx default server";
+          wantedBy = [ "multi-user.target" ];
+          before = [ "nginx.service" ];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+          };
+          script = ''
+            CERT_DIR="${defaultCertDir}"
+            mkdir -p "$CERT_DIR"
+            if [ ! -f "$CERT_DIR/fullchain.pem" ]; then
+              echo "Generating self-signed certificate for nginx default server..."
+              ${pkgs.openssl}/bin/openssl req -x509 -newkey rsa:2048 -nodes \
+                -keyout "$CERT_DIR/key.pem" \
+                -out "$CERT_DIR/fullchain.pem" \
+                -days 36500 \
+                -subj "/CN=_"
+              chmod 640 "$CERT_DIR"/*.pem
+              chown -R nginx:nginx "$CERT_DIR"
+              echo "Certificate generated at $CERT_DIR"
+            fi
           '';
         };
-        # add self-signed cert for SSL catch-all
-        addSSL = true;
-        sslCertificate = "${defaultCertDir}/fullchain.pem";
-        sslCertificateKey = "${defaultCertDir}/key.pem";
-      };
-    }
-    # create each domain host
-    // builtins.mapAttrs (
-      domain: opts:
-      let
-        allowedHosts = lib.lists.unique (
-          opts.allowedHosts
-          # map the list of services to the hosts they run on
-          ++ (map (name: xelib.apps.${name}.host) opts.allowedAppHosts)
-          ++ xelib.trustedHosts
-        );
-        locationExtraConfig = lib.optionalAttrs opts.local {
-          extraConfig = ''
-            # local domains dont have a body size limit
-            client_max_body_size 0;
 
-            # allow trusted tailscale hosts
-            ${lib.concatMapStringsSep "\n" (h: "allow ${xelib.hosts.${h}.ip}; # ${h}") allowedHosts}
-
-            # allow local ips
-            allow 127.0.0.1;
-            allow ::1;
-
-            # block all other traffic
-            deny all;
-          '';
-        };
-      in
-      lib.mkMerge [
-        {
-          forceSSL = true;
-          # ACME needs enabled manually if the custom server isnt being used
-          enableACME = !opts.local;
-          useACMEHost = lib.mkIf opts.local domain;
-          locations."/" = # only configure location if requested
-            lib.mkIf (!opts.dontConfigureLocation) (
-              {
-                proxyPass =
-                  # route through anubis first
-                  if opts.anubis != null then
-                    "http://unix:${config.services.anubis.instances.${domain}.settings.BIND}"
-                  else
-                    opts.proxyPassTarget;
-                inherit (opts) proxyWebsockets;
-              }
-              // locationExtraConfig
-            );
-        }
-        (opts.extraConfig locationExtraConfig)
-      ]
-    ) cfg.proxy
-    # create redirect hosts
-    // builtins.mapAttrs (
-      domain: opts:
-      lib.mkMerge [
-        {
-          enableACME = true;
-          forceSSL = true;
-          locations."/".return = "${toString opts.code} ${opts.dest}";
-        }
-        opts.extraConfig
-      ]
-    ) cfg.redirects;
-
-    # create local cert for each local domain
-    security.acme.certs = builtins.mapAttrs (
-      domain: opts:
-      let
-        stepca = xelib.apps.step-ca;
-      in
-      lib.mkIf opts.local {
-        server = "https://${stepca.ip}:${stepca.portString}/acme/acme/directory";
-      }
-    ) cfg.proxy;
-
-    # create anubis instances for domains
-    services.anubis = {
-      defaultOptions.policy = {
-        useDefaultBotRules = false;
-        settings = {
-          # store = {
-          #   backend = "bbolt";
-          #   parameters.path = "/var/lib/anubis/data.bdb";
-          # };
-        };
-        extraBots = [
-          {
-            import = "(data)/common/allow-private-addresses.yaml";
-          }
-          {
-            import = "(data)/meta/default-config.yaml";
-          }
+        # open http(s) ports
+        networking.firewall.allowedTCPPorts = [
+          80
+          443
         ];
-      };
-      instances = builtins.mapAttrs (
-        domain: opts:
-        lib.mkIf (opts.anubis != null) (
+        users.users.nginx.extraGroups = [
+          "acme" # for challenge files
+          "anubis" # for anubis sockets
+        ];
+
+        services.nginx.virtualHosts = {
+          # default catch-all host for random requests
+          "_" = {
+            default = true;
+            locations."/" = {
+              return = "404 'NOT FOUND'";
+              extraConfig = ''
+                default_type text/plain;
+              '';
+            };
+            # add self-signed cert for SSL catch-all
+            addSSL = true;
+            sslCertificate = "${defaultCertDir}/fullchain.pem";
+            sslCertificateKey = "${defaultCertDir}/key.pem";
+          };
+        }
+        # create each domain host
+        // builtins.mapAttrs (
+          domain: opts:
+          let
+            allowedHosts = lib.lists.unique (
+              opts.allowedHosts
+              # map the list of services to the hosts they run on
+              ++ (map (name: xelib.apps.${name}.host) opts.allowedAppHosts)
+              ++ xelib.trustedHosts
+            );
+            locationExtraConfig = lib.optionalAttrs opts.local {
+              extraConfig = ''
+                # local domains dont have a body size limit
+                client_max_body_size 0;
+
+                # allow trusted tailscale hosts
+                ${lib.concatMapStringsSep "\n" (h: "allow ${xelib.hosts.${h}.ip}; # ${h}") allowedHosts}
+
+                # allow local ips
+                allow 127.0.0.1;
+                allow ::1;
+
+                # block all other traffic
+                deny all;
+              '';
+            };
+          in
           lib.mkMerge [
             {
-              enable = true;
-              # forward passing requests to the original target
-              settings.TARGET = opts.proxyPassTarget;
+              forceSSL = true;
+              # ACME needs enabled manually if the custom server isnt being used
+              enableACME = !opts.local;
+              useACMEHost = lib.mkIf opts.local domain;
+              locations."/" = # only configure location if requested
+                lib.mkIf (!opts.dontConfigureLocation) (
+                  {
+                    proxyPass =
+                      # route through anubis first
+                      if opts.anubis != null then
+                        "http://unix:${config.services.anubis.instances.${domain}.settings.BIND}"
+                      else
+                        opts.proxyPassTarget;
+                    inherit (opts) proxyWebsockets;
+                  }
+                  // locationExtraConfig
+                );
             }
-            opts.anubis
+            (opts.extraConfig locationExtraConfig)
           ]
+        ) cfg.proxy
+        # create redirect hosts
+        // builtins.mapAttrs (
+          domain: opts:
+          lib.mkMerge [
+            {
+              enableACME = true;
+              forceSSL = true;
+              locations."/".return = "${toString opts.code} ${opts.dest}";
+            }
+            opts.extraConfig
+          ]
+        ) cfg.redirects;
+
+        # create local cert for each local domain
+        security.acme.certs = builtins.mapAttrs (
+          domain: opts:
+          let
+            stepca = xelib.apps.step-ca;
+          in
+          lib.mkIf opts.local {
+            server = "https://${stepca.ip}:${stepca.portString}/acme/acme/directory";
+          }
+        ) cfg.proxy;
+
+        # create anubis instances for domains
+        services.anubis = {
+          defaultOptions.policy = {
+            useDefaultBotRules = false;
+            settings = {
+              # store = {
+              #   backend = "bbolt";
+              #   parameters.path = "/var/lib/anubis/data.bdb";
+              # };
+            };
+            extraBots = [
+              {
+                import = "(data)/common/allow-private-addresses.yaml";
+              }
+              {
+                import = "(data)/meta/default-config.yaml";
+              }
+            ];
+          };
+          instances = builtins.mapAttrs (
+            domain: opts:
+            lib.mkIf (opts.anubis != null) (
+              lib.mkMerge [
+                {
+                  enable = true;
+                  # forward passing requests to the original target
+                  settings.TARGET = opts.proxyPassTarget;
+                }
+                opts.anubis
+              ]
+            )
+          ) cfg.proxy;
+        };
+      }
+      /*
+        (
+          let
+            gatedProxies = (lib.filterAttrs (_: opts: opts.oidcGroups != null) cfg.proxy);
+          in
+          lib.mkIf (gatedProxies != { }) {
+            services.oauth2-proxy = {
+              enable = true;
+              provider = "oidc";
+
+              clientID = cfg.oauth2Proxy.clientID;
+              clientSecretFile = cfg.oauth2Proxy.clientSecretFile;
+
+              oidcIssuerUrl = xelib.apps.pocket-id.url;
+              scope = "openid email profile groups";
+
+              cookie.secretFile = cfg.oauth2Proxy.cookieSecretFile;
+
+              reverseProxy = true;
+
+              nginx = {
+                domain = cfg.oauth2Proxy.domain;
+                virtualHosts = lib.mapAttrs (_: opts: {
+                  allowed_groups = opts.oidcGroups;
+                }) gatedProxies;
+              };
+            };
+
+            sops.opSecrets.nginx.keys = {
+              oauth-id = "op://pynjry6q3rp5ax7bjlxn53olza/7ai4tgg43qbo55ep5sxpneekvi/username";
+              oauth-secret = "op://pynjry6q3rp5ax7bjlxn53olza/7ai4tgg43qbo55ep5sxpneekvi/credential";
+              oauth-cookies = "op://pynjry6q3rp5ax7bjlxn53olza/7ai4tgg43qbo55ep5sxpneekvi/cookies";
+            };
+          }
         )
-      ) cfg.proxy;
-    };
-  };
+      */
+    ]
+  );
 }
