@@ -1,0 +1,17 @@
+oauth-cookies: ENC[AES256_GCM,data:DOSmPCAHvyR2hb2PQ0Vt61jeNn66ZE0e8SeA6x0zL6Q9AAF22zYYMnMQ,iv:L0TjI9EEzuK208PGvMI5Ig27xy5IQW7cDmQeK0V+o3o=,tag:nL+qWvYlsg2WQQSA6aqDjg==,type:str]
+oauth-secret: ENC[AES256_GCM,data:m9kCfmVdAb5MNyRT1TMnoUjPEyNbM6UhyUmO00AFl2Y=,iv:rgJ/TCXpsctJExDe6Qu7UITJ0cwuP/4VXBOGp6lJrLs=,tag:OTUlIA0BvEjr7HopQP3j+g==,type:str]
+sops:
+  age:
+    - recipient: age1ys7j0me46jdes87e5hargcghn49974e7gs40u4mcph9ygt8slcgsxhf2gt
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBlcVBCM0pHWWcrWjZEeU5D
+        YWltMHZrVEtTY1F6RThhc3ZTTlJVVlRJbkdVCkVEZGR3VkRCa25mYVVRRXdZaEhD
+        V29seVBTdHRPV2FhVHJOaEV5V1FCNzAKLS0tIEI0Skp4SXd0eUlERzlPWHZTbHdi
+        WUViUFM1emJPZWFiZ0FrUjl4S1VDNkEKr8bVce5AztJ4+u+Z6FazFqwhG9/sOLcs
+        TqJKvenwRYo7HnBnLLfkgEjwWB6P0rjP3EXRrodQyhhkfGDilPZwng==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-07-18T18:22:11Z"
+  mac: ENC[AES256_GCM,data:bNLwai7x/cu0M1ZeSp1b/tXyW2MU7Vr+3SaARe64xdMlsbF7aJqohV4kZYOyqEZejLU7xBQpdhpM+TZY4JLVssWCn8RiRholnQYzYzpAqP+gxpHqTfQJMxkubiXdmy/SYgDfbhmIrtSk5kWy2pW09I9FNYQwjR5wXHyXMg+AAxw=,iv:408kKZK5aKAyMN8qaymHaYRNoFWBF9t4FBP+fXxiutA=,tag:NOp9wQ3QGMhxGp2pykb0WA==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1

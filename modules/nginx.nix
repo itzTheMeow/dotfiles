@@ -308,42 +308,39 @@ in
           ) cfg.proxy;
         };
       }
-      /*
-        (
-          let
-            gatedProxies = (lib.filterAttrs (_: opts: opts.oidcGroups != null) cfg.proxy);
-          in
-          lib.mkIf (gatedProxies != { }) {
-            services.oauth2-proxy = {
-              enable = true;
-              provider = "oidc";
+      (
+        let
+          gatedProxies = (lib.filterAttrs (_: opts: opts.oidcGroups != null) cfg.proxy);
+        in
+        lib.mkIf (gatedProxies != { }) {
+          services.oauth2-proxy = {
+            enable = true;
+            provider = "oidc";
 
-              clientID = cfg.oauth2Proxy.clientID;
-              clientSecretFile = cfg.oauth2Proxy.clientSecretFile;
+            clientID = "d01f56d1-664e-4973-90ca-afcaad1199a2"; # why not a file... :pensive:
+            clientSecretFile = config.sops.groupPaths.nginx.oauth-secret;
 
-              oidcIssuerUrl = xelib.apps.pocket-id.url;
-              scope = "openid email profile groups";
+            oidcIssuerUrl = xelib.apps.pocket-id.url;
+            scope = "openid email profile groups";
 
-              cookie.secretFile = cfg.oauth2Proxy.cookieSecretFile;
+            cookie.secretFile = config.sops.groupPaths.nginx.oauth-cookies;
 
-              reverseProxy = true;
+            reverseProxy = true;
 
-              nginx = {
-                domain = cfg.oauth2Proxy.domain;
-                virtualHosts = lib.mapAttrs (_: opts: {
-                  allowed_groups = opts.oidcGroups;
-                }) gatedProxies;
-              };
+            nginx = {
+              domain = cfg.oauth2Proxy.domain;
+              virtualHosts = lib.mapAttrs (_: opts: {
+                allowed_groups = opts.oidcGroups;
+              }) gatedProxies;
             };
+          };
 
-            sops.opSecrets.nginx.keys = {
-              oauth-id = "op://pynjry6q3rp5ax7bjlxn53olza/7ai4tgg43qbo55ep5sxpneekvi/username";
-              oauth-secret = "op://pynjry6q3rp5ax7bjlxn53olza/7ai4tgg43qbo55ep5sxpneekvi/credential";
-              oauth-cookies = "op://pynjry6q3rp5ax7bjlxn53olza/7ai4tgg43qbo55ep5sxpneekvi/cookies";
-            };
-          }
-        )
-      */
+          sops.groups.nginx = {
+            oauth-secret = "op://pynjry6q3rp5ax7bjlxn53olza/7ai4tgg43qbo55ep5sxpneekvi/credential";
+            oauth-cookies = "op://pynjry6q3rp5ax7bjlxn53olza/7ai4tgg43qbo55ep5sxpneekvi/cookies";
+          };
+        }
+      )
     ]
   );
 }
