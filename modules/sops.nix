@@ -118,6 +118,14 @@ in
         Computed secret paths for `sops.groups`, matches the names in the group.
       '';
     };
+    groupPlaceholders = mkOption {
+      type = types.attrsOf (types.attrsOf types.str);
+      default = { };
+      internal = true;
+      description = ''
+        Computed secret placeholders for `sops.groups`, matches the names in the group.
+      '';
+    };
   };
 
   config = {
@@ -129,6 +137,13 @@ in
       acc: e:
       lib.recursiveUpdate acc {
         ${e.group}.${e.fieldName} = config.sops.secrets.${groupSecretName e}.path;
+      }
+    ) { } allGroupEntries;
+    # and placeholders
+    sops.groupPlaceholders = lib.foldl' (
+      acc: e:
+      lib.recursiveUpdate acc {
+        ${e.group}.${e.fieldName} = config.sops.placeholder.${groupSecretName e};
       }
     ) { } allGroupEntries;
   };
