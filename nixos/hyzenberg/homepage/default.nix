@@ -65,6 +65,7 @@ in
         {
           Media = [
             (srv "plex")
+            (srv "jellyfin")
             (srv "forgejo")
             (srv "immich")
             (srv "mealie")
