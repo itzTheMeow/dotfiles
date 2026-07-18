@@ -325,9 +325,12 @@ in
             cookie.secretFile = config.sops.groupPaths.nginx.oauth-cookies;
             reverseProxy = true;
 
-            nginx.virtualHosts = lib.mapAttrs (_: opts: {
-              allowed_groups = opts.oidcGroups;
-            }) gatedProxies;
+            nginx = {
+              domain = xelib.domain;
+              virtualHosts = lib.mapAttrs (_: opts: {
+                allowed_groups = opts.oidcGroups;
+              }) gatedProxies;
+            };
           };
 
           sops.groups.nginx = {
