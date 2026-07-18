@@ -319,12 +319,10 @@ in
 
             clientID = "d01f56d1-664e-4973-90ca-afcaad1199a2"; # why not a file... :pensive:
             clientSecretFile = config.sops.groupPaths.nginx.oauth-secret;
-
             oidcIssuerUrl = xelib.apps.pocket-id.url;
-            scope = "openid email profile groups";
+            scope = "openid email groups";
 
             cookie.secretFile = config.sops.groupPaths.nginx.oauth-cookies;
-
             reverseProxy = true;
 
             nginx.virtualHosts = lib.mapAttrs (_: opts: {
