@@ -112,23 +112,17 @@ in
   };
 
   # signing key
-  sops.secrets = {
-    "forgejo-signing-key-pub" = {
-      sopsFile = config.sops.opSecrets.forgejo-signing.fullPath;
-      key = "pub";
+  sops.groups.forgejo = {
+    signing-key-pub = {
+      value = "op://Private/s6lqgzcbzjrvvhhetoycc3dv3q/public key";
       owner = "forgejo";
       path = "${signingKeyPath}.pub";
     };
-    "forgejo-signing-key" = {
-      sopsFile = config.sops.opSecrets.forgejo-signing.fullPath;
-      key = "private";
+    signing-key = {
+      value = "op://Private/s6lqgzcbzjrvvhhetoycc3dv3q/private key?ssh-format=openssh";
       owner = "forgejo";
       path = signingKeyPath;
     };
-  };
-  sops.opSecrets.forgejo-signing.keys = {
-    pub = "op://Private/s6lqgzcbzjrvvhhetoycc3dv3q/public key";
-    private = "op://Private/s6lqgzcbzjrvvhhetoycc3dv3q/private key?ssh-format=openssh";
   };
 
   nginx.proxy.${app.domain} = {

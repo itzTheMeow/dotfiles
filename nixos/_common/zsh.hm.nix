@@ -66,7 +66,7 @@ in
         ];
       });
       settings = {
-        key_path = config.sops.secrets.atuin-key.path;
+        key_path = config.sops.groupPaths.atuin.key;
         auto_sync = true;
         update_check = false;
         sync_address = xelib.apps.atuin-server.url;

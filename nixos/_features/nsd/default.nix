@@ -28,7 +28,7 @@ in
       "0.0.0.0"
       "::0"
     ];
-    keys.nixos-master.keyFile = config.sops.secrets.nsd-nixos-master.path;
+    keys.nixos-master.keyFile = config.sops.groupPaths.nsd.tsig-nixos-master;
     nsid = "ascii_${hostname}";
     #remoteControl.enable = true;
     zones = lib.mapAttrs (
@@ -36,7 +36,7 @@ in
       (
         if isMaster then
           let
-            childNodes = builtins.removeAttrs xelib.dns.addr [ xelib.dns.Master ];
+            childNodes = removeAttrs xelib.dns.addr [ xelib.dns.Master ];
             childNotifiers = map (ip: "${ip} nixos-master") (lib.attrValues childNodes);
           in
           {
@@ -72,11 +72,9 @@ in
     };
 
   # tsig key
-  sops.secrets.nsd-nixos-master = {
-    sopsFile = config.sops.opSecrets.nsd-keys.fullPath;
-    key = "nixos-master";
+  sops.groups.nsd.tsig-nixos-master = {
+    value = "op://Private/varbqv6lwh75bxatyjh3i2gboe/credential";
     owner = "nsd";
     group = "nsd";
   };
-  sops.opSecrets.nsd-keys.keys.nixos-master = "op://Private/varbqv6lwh75bxatyjh3i2gboe/credential";
 }

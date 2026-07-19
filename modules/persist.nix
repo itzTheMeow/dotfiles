@@ -281,28 +281,18 @@ in
 
     # syncthing secrets
     sops = mkIf usingSyncthing {
-      secrets = {
-        syncthing-cert = {
-          sopsFile = config.sops.opSecrets.syncthing.fullPath;
-          key = "cert";
-          owner = host.username;
+      groups.syncthing =
+        let
+          s = value: {
+            inherit value;
+            owner = host.username;
+          };
+        in
+        {
+          cert = s "op://Private/Syncthing ${hostname}/cert";
+          key = s "op://Private/Syncthing ${hostname}/key";
+          password = s "op://Private/txjsx55u5llawardzjrgttafdi/password";
         };
-        syncthing-key = {
-          sopsFile = config.sops.opSecrets.syncthing.fullPath;
-          key = "key";
-          owner = host.username;
-        };
-        syncthing-encryption = {
-          sopsFile = config.sops.opSecrets.syncthing.fullPath;
-          key = "password";
-          owner = host.username;
-        };
-      };
-      opSecrets.syncthing.keys = {
-        cert = "op://Private/Syncthing ${hostname}/cert";
-        key = "op://Private/Syncthing ${hostname}/key";
-        password = "op://Private/txjsx55u5llawardzjrgttafdi/password";
-      };
     };
     # enable /z/sync but dont persist anything from it
     persist.ed.sync = mkIf usingSyncthing { };
@@ -316,8 +306,8 @@ in
     home-manager.users.${host.username}.services.syncthing = mkIf usingSyncthing {
       enable = true;
       tray.enable = true;
-      cert = config.sops.secrets.syncthing-cert.path;
-      key = config.sops.secrets.syncthing-key.path;
+      cert = config.sops.groupPaths.syncthing.cert;
+      key = config.sops.groupPaths.syncthing.key;
 
       overrideDevices = true;
       overrideFolders = true;
@@ -334,7 +324,7 @@ in
           devices = [
             {
               name = "relay";
-              encryptionPasswordFile = config.sops.secrets.syncthing-encryption.path;
+              encryptionPasswordFile = config.sops.groupPaths.syncthing.password;
             }
           ];
           ignorePerms = false;

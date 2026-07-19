@@ -27,7 +27,7 @@
           type = "pcloud";
           hostname = "api.pcloud.com";
         };
-        secrets.token = config.sops.secrets.rclone-pcloud_token.path;
+        secrets.token = config.sops.groupPaths.rclone.pcloud-token;
       };
     };
   };

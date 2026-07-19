@@ -60,17 +60,11 @@ lib.mkMerge (
 
             };
           };
-          secrets.server.connections.default.token_url =
-            config.sops.secrets."forgejo-runner-${runner.id}".path;
+          secrets.server.connections.default.token_url = config.sops.groupPaths.forgejo."runner-${runner.id}";
         };
 
         systemd.services."forgejo-runner-${runner.id}".after = [ "forgejo-load-runner-images.service" ];
-
-        sops.secrets."forgejo-runner-${runner.id}" = {
-          sopsFile = config.sops.opSecrets.forgejo-runners.fullPath;
-          key = runner.id;
-        };
-        sops.opSecrets.forgejo-runners.keys.${runner.id} =
+        sops.groups.forgejo."runner-${runner.id}" =
           "op://Private/yjdttmakvgkuiia5xhda2pl3ve/Actions Runners/${runner.id}";
       })
       [
