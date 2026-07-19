@@ -13,14 +13,13 @@
         port = host.ports.ssh;
       }
     ];
-    authorizedKeysFiles = [ config.sops.secrets.public_key.path ];
+    authorizedKeysFiles = [ config.sops.groupPaths.openssh.authorized_key ];
   };
   # make sure we wait for tailscale to assign the IP before starting sshd
   systemd.services.sshd.after = [ "tailscale-online.service" ];
 
-  sops.secrets.public_key = {
-    sopsFile = config.sops.opSecrets.openssh_authorized_keys.fullPath;
+  sops.groups.openssh.authorized_key = {
+    value = host.publicKey;
     mode = "0444";
   };
-  sops.opSecrets.openssh_authorized_keys.keys.public_key = host.publicKey;
 }

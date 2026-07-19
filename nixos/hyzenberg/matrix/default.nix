@@ -31,7 +31,7 @@ in
         enabled = true;
         issuer = app.url;
         endpoint = "http://${app.ip}:${toString app.details.masPort}";
-        secret_path = config.sops.secrets.matrix-synapse-mas-secret.path;
+        secret_path = config.sops.groupPaths.matrix-synapse.mas-secret;
       };
 
       listeners = [
@@ -122,7 +122,7 @@ in
       secrets.keys = [
         {
           kid = "primary-signing-key";
-          key_file = config.sops.secrets.matrix-synapse-mas-rsa.path;
+          key_file = config.sops.groupPaths.matrix-synapse.mas-rsa;
         }
       ];
 
@@ -137,48 +137,32 @@ in
     extraConfigFiles = [ config.sops.templates."matrix-synapse-oidc.yaml".path ];
   };
 
-  sops.opSecrets.matrix-synapse.keys = {
-    masRSA = "op://Private/6xrchf67gk2l53glqwdmjhkavu/emnvkabz6cxppmfpab5dhzy2o4";
-    masSecret = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Secret";
-    masKey = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Key";
-    client = "op://Private/6xrchf67gk2l53glqwdmjhkavu/username";
-    secret = "op://Private/6xrchf67gk2l53glqwdmjhkavu/credential";
+  sops.groups.matrix-synapse = {
+    mas-rsa = {
+      value = "op://Private/6xrchf67gk2l53glqwdmjhkavu/emnvkabz6cxppmfpab5dhzy2o4";
+      owner = "matrix-authentication-service";
+    };
+    mas-secret = {
+      value = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Secret";
+      owner = "matrix-synapse";
+    };
+    mas-key = "op://Private/6xrchf67gk2l53glqwdmjhkavu/MAS Key";
+    oidc-client = "op://Private/6xrchf67gk2l53glqwdmjhkavu/username";
+    oidc-secret = "op://Private/6xrchf67gk2l53glqwdmjhkavu/credential";
   };
 
-  sops.secrets.matrix-synapse-mas-secret = {
-    sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
-    key = "masSecret";
-    owner = "matrix-synapse";
-  };
-  sops.secrets.matrix-synapse-mas-key = {
-    sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
-    key = "masKey";
-  };
-  sops.secrets.matrix-synapse-oidc-client = {
-    sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
-    key = "client";
-  };
-  sops.secrets.matrix-synapse-oidc-secret = {
-    sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
-    key = "secret";
-  };
-  sops.secrets.matrix-synapse-mas-rsa = {
-    sopsFile = config.sops.opSecrets.matrix-synapse.fullPath;
-    key = "masRSA";
-    owner = "matrix-authentication-service";
-  };
   sops.templates."matrix-synapse-oidc.yaml" = {
     content = xelib.toYAMLString {
-      matrix.secret = config.sops.placeholder.matrix-synapse-mas-secret;
+      matrix.secret = config.sops.groupPlaceholders.matrix-synapse.mas-secret;
 
-      secrets.encryption = config.sops.placeholder.matrix-synapse-mas-key;
+      secrets.encryption = config.sops.groupPlaceholders.matrix-synapse.mas-key;
 
       upstream_oauth2.providers = [
         {
           id = "01KPZDCTG6RFS2E102SATDDAAQ";
           issuer = xelib.apps.pocket-id.url;
-          client_id = config.sops.placeholder.matrix-synapse-oidc-client;
-          client_secret = config.sops.placeholder.matrix-synapse-oidc-secret;
+          client_id = config.sops.groupPlaceholders.matrix-synapse.oidc-client;
+          client_secret = config.sops.groupPlaceholders.matrix-synapse.oidc-secret;
           token_endpoint_auth_method = "client_secret_basic";
           scope = "openid profile email";
           claims_imports = {

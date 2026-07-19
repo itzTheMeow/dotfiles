@@ -1,5 +1,4 @@
 {
-  config,
   host,
   pkgs,
   ...
@@ -24,10 +23,8 @@ in
   environment.variables.ATUIN_DATA_DIR = dataDir;
   systemd.tmpfiles.rules = [ "d ${dataDir} 0755 ${host.username} users - -" ];
 
-  sops.secrets.atuin-key = {
-    sopsFile = config.sops.opSecrets.atuin.fullPath;
-    key = "key";
+  sops.groups.atuin.key = {
+    value = "op://Private/xoqbcl4ot4tbfk4ckzp33xikoi/Encryption";
     owner = host.username;
   };
-  sops.opSecrets.atuin.keys.key = "op://Private/xoqbcl4ot4tbfk4ckzp33xikoi/Encryption";
 }

@@ -119,17 +119,15 @@ in
           "networkmanager"
           "wheel"
         ];
-        hashedPasswordFile = config.sops.secrets.password.path;
+        hashedPasswordFile = config.sops.groupPaths.system.password;
       };
     };
   };
   # default user password via sops
-  sops.secrets.password = {
-    sopsFile = config.sops.opSecrets.password.fullPath;
-    key = "password";
+  sops.groups.system.password = {
+    value = "op://Private/${hostname} User Password/credential";
     neededForUsers = true;
   };
-  sops.opSecrets.password.keys.password = "op://Private/${hostname} User Password/credential";
 
   # clear /tmp on boot
   boot.tmp.cleanOnBoot = true;
