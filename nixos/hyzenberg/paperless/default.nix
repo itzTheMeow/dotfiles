@@ -40,18 +40,11 @@ in
   };
   systemd.services.paperless-web.after = [ "tailscale-online.service" ];
 
-  sops.secrets.paperless-clientid = {
-    sopsFile = config.sops.opSecrets.paperless.fullPath;
-    key = "id";
-  };
-  sops.secrets.paperless-clientsecret = {
-    sopsFile = config.sops.opSecrets.paperless.fullPath;
-    key = "secret";
-  };
-  sops.opSecrets.paperless.keys = {
+  sops.groups.paperless = {
     id = "op://Private/bdrrieifx4gegwpuqcrbjbykq4/OAuth/Client ID";
     secret = "op://Private/bdrrieifx4gegwpuqcrbjbykq4/OAuth/Secret";
   };
+
   sops.templates."paperless.env".content = xelib.toENVString {
     # escape quotes
     PAPERLESS_SOCIALACCOUNT_PROVIDERS = builtins.replaceStrings [ "\"" ] [ "\\\"" ] (
@@ -67,8 +60,8 @@ in
             {
               provider_id = "pocket-id";
               name = "Pocket ID";
-              client_id = config.sops.placeholder.paperless-clientid;
-              secret = config.sops.placeholder.paperless-clientsecret;
+              client_id = config.sops.groupPlaceholders.paperless.id;
+              secret = config.sops.groupPlaceholders.paperless.secret;
               settings.server_url = xelib.apps.pocket-id.url;
             }
           ];
