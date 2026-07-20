@@ -8,22 +8,30 @@
   ...
 }@inputs:
 let
+  inherit (lib) mkOption types;
+
   cfg = config.home-manager;
+
+  # either a path to a home-manager module or a function that is the module itself
+  hmModuleEntry = types.oneOf [
+    types.path
+    (types.functionTo types.attrs)
+  ];
 in
 {
   options.home-manager = {
-    imports = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.listOf lib.types.path);
+    imports = mkOption {
+      type = types.attrsOf (types.listOf hmModuleEntry);
       default = { };
       description = "Set of usernames and home-manager modules to import.";
     };
-    importUser = lib.mkOption {
-      type = lib.types.listOf lib.types.path;
+    importUser = mkOption {
+      type = types.listOf hmModuleEntry;
       default = [ ];
       description = "home-manager extension modules to import for the host user.";
     };
-    importAll = lib.mkOption {
-      type = lib.types.listOf lib.types.path;
+    importAll = mkOption {
+      type = types.listOf hmModuleEntry;
       default = [ ];
       description = "home-manager extension modules to import for both the host user and root.";
     };
@@ -42,7 +50,17 @@ in
 
   # map the usernames to module imports and expose `hm` as the hm inputs
   config.home-manager.users = lib.mapAttrs (
-    _: files: hm:
-    lib.mkMerge (map (file: import file (inputs // { inherit hm; })) files)
+    _: entries: hm:
+    lib.mkMerge (
+      map (
+        entry:
+        # call the module function
+        if lib.isFunction entry then
+          entry hm
+        # otherwise import it with the hm parameter added
+        else
+          import entry (inputs // { inherit hm; })
+      ) entries
+    )
   ) cfg.imports;
 }
