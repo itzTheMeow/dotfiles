@@ -1,8 +1,4 @@
-{
-  config,
-  host,
-  ...
-}:
+{ host, ... }:
 {
   home-manager.importUser = [ ./rclone.hm.nix ];
 
@@ -12,10 +8,8 @@
     enableProxy = true;
   };
 
-  sops.secrets.webdav-htpasswd = {
-    sopsFile = config.sops.opSecrets.webdav.fullPath;
-    key = "htpasswd";
+  sops.groups.webdav.htpasswd = {
+    value = "op://Private/zdj2mgqfhx2lue2iehaxgejyzy/htpasswd";
     owner = host.username;
   };
-  sops.opSecrets.webdav.keys.htpasswd = "op://Private/zdj2mgqfhx2lue2iehaxgejyzy/htpasswd";
 }

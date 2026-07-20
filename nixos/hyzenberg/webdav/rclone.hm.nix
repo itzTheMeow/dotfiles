@@ -13,7 +13,7 @@ in
     protocol = "webdav";
     options = {
       addr = "${app.ip}:${app.portString}";
-      htpasswd = config.sops.secrets.webdav-htpasswd.path;
+      htpasswd = config.sops.groupPaths.webdav.htpasswd;
     };
   };
   systemd.user.services."rclone-serve:.Misc.AppData.webdav@pcloud".Service.ExecStartPre =

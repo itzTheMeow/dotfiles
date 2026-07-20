@@ -1,5 +1,4 @@
 {
-  config,
   host,
   pkgs,
   ...
@@ -34,11 +33,8 @@
   #!! TEMPORARY FOR TESTING
   systemd.services.home-manager-tv.serviceConfig.TimeoutStartSec = pkgs.lib.mkForce "10s";
 
-  sops.secrets.user_key = {
-    sopsFile = config.sops.opSecrets.user_key.fullPath;
-    key = "private_key";
+  sops.groups.system.user-key = {
+    value = "op://Private/wd7y5xz4qgp5loohnmc4wrj3t4/private key?ssh-format=openssh";
     owner = host.username;
   };
-  sops.opSecrets.user_key.keys.private_key =
-    "op://Private/wd7y5xz4qgp5loohnmc4wrj3t4/private key?ssh-format=openssh";
 }

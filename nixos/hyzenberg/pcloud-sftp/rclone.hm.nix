@@ -13,7 +13,7 @@ in
     protocol = "sftp";
     options = {
       addr = "${host.ip}:${toString sftpPort}";
-      authorized-keys = config.sops.secrets.pcloud-sftp-authorizedkeys.path;
+      authorized-keys = config.sops.groupPaths.rclone.pcloud-sftp-authorizedkeys;
     };
   };
   systemd.user.services."rclone-serve:.@pcloud".Service.ExecStartPre =

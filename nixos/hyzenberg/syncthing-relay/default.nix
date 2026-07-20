@@ -55,15 +55,15 @@ in
 
   services.syncthing = {
     enable = true;
-    cert = config.sops.secrets.syncthing-relay-cert.path;
-    key = config.sops.secrets.syncthing-relay-key.path;
+    cert = config.sops.groupPaths.syncthing-relay.cert;
+    key = config.sops.groupPaths.syncthing-relay.key;
 
     overrideDevices = true;
     overrideFolders = true;
 
     # gui has to be on localhost for API to work
     guiAddress = "127.0.0.1:${app.portString}";
-    guiPasswordFile = config.sops.secrets.syncthing-relay-password.path;
+    guiPasswordFile = config.sops.groupPaths.syncthing-relay.password;
 
     settings = lib.recursiveUpdate {
       gui.user = host.username;
@@ -92,22 +92,12 @@ in
   # host needs overridden to local for the webui
   nginx.proxy.${app.domain}.target.host = lib.mkForce "127.0.0.1";
 
-  sops.secrets.syncthing-relay-cert = {
-    sopsFile = config.sops.opSecrets.syncthing-relay.fullPath;
-    key = "cert";
-  };
-  sops.secrets.syncthing-relay-key = {
-    sopsFile = config.sops.opSecrets.syncthing-relay.fullPath;
-    key = "key";
-  };
-  sops.secrets.syncthing-relay-password = {
-    sopsFile = config.sops.opSecrets.syncthing-relay.fullPath;
-    key = "password";
-    owner = config.services.syncthing.user;
-  };
-  sops.opSecrets.syncthing-relay.keys = {
+  sops.groups.syncthing-relay = {
     cert = "op://Private/hhigbwqelxxbtmnltlrwklilyy/cert";
     key = "op://Private/hhigbwqelxxbtmnltlrwklilyy/key";
-    password = "op://Private/mlozpipzstum3fe7cdu4yh3254/password";
+    password = {
+      value = "op://Private/mlozpipzstum3fe7cdu4yh3254/password";
+      owner = config.services.syncthing.user;
+    };
   };
 }
