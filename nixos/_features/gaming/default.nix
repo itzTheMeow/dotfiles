@@ -38,6 +38,7 @@ in
   #systemd.tmpfiles.rules = [
   #  "d ${wineprefixAbsolute}/user 0755 ${host.username} users -"
   #];
+  environment.systemPackages = with pkgs; [ prismlauncher ];
 
   # set up syncing for the wine prefix user directory
   persist.sync.wine = "${wineprefixAbsolute}/user";
