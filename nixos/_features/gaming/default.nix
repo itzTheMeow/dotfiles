@@ -41,10 +41,13 @@ in
   #systemd.tmpfiles.rules = [
   #  "d ${wineprefixAbsolute}/user 0755 ${host.username} users -"
   #];
-  environment.systemPackages = with pkgs; [ prismlauncher ];
 
   # set up syncing for the wine prefix user directory
   persist.sync.wine = "${wineprefixAbsolute}/user";
+
+  # minecraft/prism
+  environment.systemPackages = with pkgs; [ prismlauncher ];
+  persist.sync.prismlauncher = "/home/${host.username}/.local/share/PrismLauncher2";
 
   home-manager.users.${host.username} = hm: {
     # link in the wine prefix files
