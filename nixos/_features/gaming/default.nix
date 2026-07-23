@@ -47,7 +47,7 @@ in
 
   # minecraft/prism
   environment.systemPackages = with pkgs; [ prismlauncher ];
-  persist.sync.prismlauncher = "/home/${host.username}/.local/share/PrismLauncher2";
+  persist.sync.prismlauncher = "/home/${host.username}/.local/share/PrismLauncher";
 
   home-manager.users.${host.username} = hm: {
     # link in the wine prefix files
