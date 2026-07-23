@@ -42,6 +42,15 @@
           nix run ".#$target" -- "$@"
         fi
       '')
+      (writeShellScriptBin "nxb" ''
+        if [ -z "$1" ]; then
+          nix build .
+        else
+          target="$1"
+          shift
+          nix build ".#$target" -- "$@"
+        fi
+      '')
       # custom packages
       xelpkgs.download-organizer
       xelpkgs.nx
