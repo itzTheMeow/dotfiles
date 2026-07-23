@@ -8,9 +8,12 @@
 }@inputs:
 let
   # hosts that should have less games
-  minimalGamesHosts = [ "flynn" ];
+  minimalGamesHosts = [ ];
   # specific games to include for "minimal" installs
-  minimalGames = [ "pvz-fusion" ];
+  minimalGames = [
+    "pvz-fusion"
+    "prism-launcher"
+  ];
 
   dir = builtins.readDir ./.;
   gameDirs = builtins.filter (
