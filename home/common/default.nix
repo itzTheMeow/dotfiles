@@ -37,7 +37,7 @@
         if [ -z "$1" ]; then
           nix run .
         else
-          local target="$1"
+          target="$1"
           shift
           nix run ".#$target" -- "$@"
         fi
