@@ -33,7 +33,15 @@
       # custom scripts
       (writeShellScriptBin "0x0" ''curl -A "xela.codes/1.0.0" -F "file=@$1" https://0x0.st'')
       (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
-      (writeShellScriptBin "nxr" "nix run .#$1")
+      (writeShellScriptBin "nxr" ''
+        if [ -z "$1" ]; then
+          nix run .
+        else
+          local target="$1"
+          shift
+          nix run ".#$target" -- "$@"
+        fi
+      '')
       # custom packages
       xelpkgs.download-organizer
       xelpkgs.nx
