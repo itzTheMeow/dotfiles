@@ -45,9 +45,6 @@ in
       remmina
       qdiskinfo
 
-      # games
-      prismlauncher
-
       # development
       figma-linux
       gh
