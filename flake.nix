@@ -28,6 +28,10 @@
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    copyparty = {
+      url = "github:9001/copyparty";
+      inputs.flake-utils.follows = "flake-utils";
+    };
     dns = {
       # https://github.com/nix-community/dns.nix/pull/52
       url = "github:felixalbrigtsen/dns.nix/f5a60ede524ee641256f878b1f28d4151577a727";
@@ -80,6 +84,7 @@
         config.allowUnfree = true;
         overlays = [
           # overlays from inputs
+          inputs.copyparty.overlays.default
           inputs.timefinder-electron.overlays.default
         ]
         # custom overlays
@@ -138,6 +143,7 @@
 
             # misc
             catppuccin.nixosModules.catppuccin
+            inputs.copyparty.nixosModules.default
             inputs.impermanence.nixosModules.impermanence
 
             # main config
