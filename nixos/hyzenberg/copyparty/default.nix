@@ -93,6 +93,7 @@ in
         maxUploads = 50;
       });
   };
+  systemd.services.copyparty.after = [ "tailscale-online.service" ];
 
   sops.groups.copyparty.admin-password = {
     value = "op://Private/whr3dgxxwzhxi6axd45fzta3km/Password Hash";
