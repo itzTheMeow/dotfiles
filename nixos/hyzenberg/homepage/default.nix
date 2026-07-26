@@ -64,6 +64,7 @@ in
         }
         {
           Media = [
+            (srv "copyparty")
             (srv "plex")
             (srv "jellyfin")
             (srv "forgejo")
