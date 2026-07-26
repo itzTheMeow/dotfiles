@@ -47,7 +47,7 @@
       url = "github:yunfachi/nypkgs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    vscode-server-fix.url = "github:nix-community/nixos-vscode-server";
+    vscode-server-fix={url = "github:nix-community/nixos-vscode-server";};
 
     # my stuff
     timefinder-electron = {
@@ -146,6 +146,7 @@
             catppuccin.nixosModules.catppuccin
             inputs.copyparty.nixosModules.default
             inputs.impermanence.nixosModules.impermanence
+            inputs.vscode-server-fix.nixosModules.default
 
             # main config
             (import ./nixos hostname)
