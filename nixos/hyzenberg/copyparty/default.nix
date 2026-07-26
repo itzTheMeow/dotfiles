@@ -6,7 +6,7 @@ let
   baseVolumeDir = "/var/lib/copyparty/volumes";
 
   mkVolume = name: opts: {
-    ${name} = lib.recursiveUpdate {
+    "/${name}" = lib.recursiveUpdate {
       path = "${baseVolumeDir}/${name}";
       access = {
         wG = "*"; # write/upget for everyone
