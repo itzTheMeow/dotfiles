@@ -73,6 +73,7 @@ in
       dedup = true; # file deduplication
       safe-dedup = 1; # make deduplication faster
     };
+    # needs generated on the same machine to match hash
     accounts.${adminAccount}.passwordFile = config.sops.groupPaths.copyparty.admin-password;
     volumes =
       (mkDropVolume {
