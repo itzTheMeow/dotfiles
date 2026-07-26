@@ -49,7 +49,6 @@
     };
     vscode-server-fix.url = "github:nix-community/nixos-vscode-server";
 
-
     # my stuff
     timefinder-electron = {
       url = "git+https://forge.xela.codes/xela/timefinder-electron.git";
