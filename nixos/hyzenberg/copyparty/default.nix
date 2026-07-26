@@ -59,6 +59,7 @@ in
       i = app.ip;
       p = app.port;
       rproxy = -1; # trust closest reverse proxy
+      xff-src = "100.64.0.0/16"; # trust tailscale proxy
       og-ua = "(Discord|Twitter|Slack)bot"; # do opengraph for these user-agents only
 
       # hardening
