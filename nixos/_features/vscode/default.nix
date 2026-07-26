@@ -3,5 +3,8 @@
     enable = true;
     package = pkgs.vscode-fhs;
   };
-  services.vscode-server={enable = true;installPath="$HOME/.vscode";};
+  services.vscode-server = {
+    enable = true;
+    installPath = "$HOME/.vscode";
+  };
 }
