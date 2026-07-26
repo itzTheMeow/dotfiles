@@ -8,4 +8,5 @@
   "rclone"
   "rustic"
   "timefinder"
+  "vscode"
 ]
