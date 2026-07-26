@@ -36,12 +36,6 @@
   # enable docker
   virtualisation.docker.enable = true;
 
-  # development
-  programs.vscode = {
-    enable = true;
-    package = pkgs.vscode-fhs;
-  };
-
   systemd.tmpfiles.rules = [
     "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"
   ];
