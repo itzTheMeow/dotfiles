@@ -5,22 +5,20 @@ let
   adminAccount = "admin";
   baseVolumeDir = "/var/lib/copyparty/volumes";
 
-  mkVolume =
-    name: opts:
-    lib.recursiveUpdate {
-      ${name} = {
-        path = "${baseVolumeDir}/${name}";
-        access = {
-          wG = "*"; # write/upget for everyone
-          A = adminAccount; # admin for admin
-        };
-        flags = {
-          fk = "8"; # 8-character filekeys
-          nosub = true; # no uploading into subfolders
-          e2d = true; # per-volume upload db
-        };
+  mkVolume = name: opts: {
+    ${name} = lib.recursiveUpdate {
+      path = "${baseVolumeDir}/${name}";
+      access = {
+        wG = "*"; # write/upget for everyone
+        A = adminAccount; # admin for admin
+      };
+      flags = {
+        fk = "8"; # 8-character filekeys
+        nosub = true; # no uploading into subfolders
+        e2d = true; # per-volume upload db
       };
     } opts;
+  };
   mkDropVolume =
     {
       # max size of files in `maxUnit` units
