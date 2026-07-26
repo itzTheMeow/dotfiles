@@ -47,6 +47,8 @@
       url = "github:yunfachi/nypkgs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    vscode-server-fix.url = "github:nix-community/nixos-vscode-server";
+
 
     # my stuff
     timefinder-electron = {
