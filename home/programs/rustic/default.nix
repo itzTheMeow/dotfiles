@@ -230,16 +230,18 @@ lib.mkMerge [
   (mkConfig "ehrman" "op://Private/4bs7irl4o4rkmzv7dp25zufsxu/password" "/" { })
 
   (mkConfig "ipad" "op://Private/7kaur74rgd5da4kfcabgy3ahb4/password" "/mnt/ipad" {
-    rclone = {
-      remote = "ipad:/";
-      args = {
-        "vfs-read-chunk-size" = "128M";
-        "vfs-read-chunk-size-limit" = "off";
-        "buffer-size" = "128M";
-        "transfers" = "16";
-        "checkers" = "16";
-        "sftp-concurrency" = "16";
+    /*
+      rclone = {
+        remote = "ipad:/";
+        args = {
+          "vfs-read-chunk-size" = "128M";
+          "vfs-read-chunk-size-limit" = "off";
+          "buffer-size" = "128M";
+          "transfers" = "16";
+          "checkers" = "16";
+          "sftp-concurrency" = "16";
+        };
       };
-    };
+    */
   })
 ]
