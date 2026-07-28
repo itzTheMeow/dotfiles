@@ -2,6 +2,7 @@
 let
   vesktop-custom = pkgs.symlinkJoin {
     name = "vesktop";
+    #TODO:26.11 this can probably go back to regular pkgs if its not vastly different
     paths = [ pkgs-unstable.vesktop ];
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
