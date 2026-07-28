@@ -51,6 +51,7 @@ in
       OAUTH_MERGE_ACCOUNTS_BY_EMAIL = "True";
       DEFAULT_USER_ROLE = "user"; # approve new users automatically
 
+      ENABLE_API_KEYS = "True";
       BYPASS_MODEL_ACCESS_CONTROL = "True"; # all users get all models
       MCP_INITIALIZE_TIMEOUT = "45"; # allow MCP servers to take longer
       THREAD_POOL_SIZE = "2000"; # concurrency for production servers
