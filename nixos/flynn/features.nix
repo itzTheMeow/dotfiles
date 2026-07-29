@@ -3,6 +3,7 @@
   "firefox"
   "gaming"
   "immich-cli"
+  "kilo"
   "libreoffice"
   "plezy"
   "rclone"
