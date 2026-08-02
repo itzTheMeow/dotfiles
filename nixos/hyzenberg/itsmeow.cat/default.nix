@@ -49,5 +49,5 @@ in
     port = 1973;
     enableDNS = true;
   };
-  nginx.proxy."stripe-test.itsmeow.cat".target = xelib.hosts.flynn.ip;
+  nginx.proxy."stripe-test.itsmeow.cat".target.host = xelib.hosts.flynn.ip;
 }
