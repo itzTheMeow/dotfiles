@@ -52,6 +52,6 @@ in
   };
   nginx.proxy."stripe-test.itsmeow.cat".target = {
     host = xelib.hosts.flynn.ip;
-    port = config.apps.stripe-test-relay-flynn;
+    port = config.apps.stripe-test-relay-flynn.port;
   };
 }
