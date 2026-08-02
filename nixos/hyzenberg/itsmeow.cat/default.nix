@@ -42,4 +42,12 @@ in
       serverAliases = [ "autodiscover.${domain}" ];
     };
   };
+
+  # stripe testing for nvstly
+  apps.stripe-test-relay-flynn = {
+    domain = "stripe-test.itsmeow.cat";
+    host = "flynn";
+    port = 1973;
+    enableDNS = true;
+  };
 }
