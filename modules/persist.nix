@@ -3,8 +3,9 @@
   host,
   hostname,
   lib,
-  xelib,
+  self,
   utils,
+  xelib,
   ...
 }:
 let
@@ -20,6 +21,11 @@ let
   cfg = config.persist;
   usingSyncthing = cfg.sync != { };
   syncthingRelay = xelib.apps.syncthing-relay;
+
+  syncthingGuiAddress = "127.0.0.1:8384";
+  syncthingApiKey = builtins.substring 0 32 (
+    builtins.hashString "sha256" "syncthing-tray-${toString self.lastModified}-${hostname}"
+  );
 
   pathTreeType =
     let
@@ -303,33 +309,94 @@ in
       )
     );
     # set up local syncthing service, using home-manager bc its user-scoped
-    home-manager.users.${host.username}.services.syncthing = mkIf usingSyncthing {
-      enable = true;
-      tray.enable = true;
-      cert = config.sops.groupPaths.syncthing.cert;
-      key = config.sops.groupPaths.syncthing.key;
+    home-manager.users.${host.username} = mkIf usingSyncthing {
+      services.syncthing = {
+        enable = true;
+        tray.enable = true;
+        guiAddress = syncthingGuiAddress;
+        cert = config.sops.groupPaths.syncthing.cert;
+        key = config.sops.groupPaths.syncthing.key;
 
-      overrideDevices = true;
-      overrideFolders = true;
+        overrideDevices = true;
+        overrideFolders = true;
 
-      settings = lib.recursiveUpdate {
-        options.listenAddresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
-        # connect to the relay server
-        devices.relay = {
-          inherit (syncthingRelay.details) id;
-          addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];
+        settings = lib.recursiveUpdate {
+          gui.apiKey = syncthingApiKey;
+          options.listenAddresses = [ "tcp://${host.ip}:${toString host.ports.syncthing}" ];
+          # connect to the relay server
+          devices.relay = {
+            inherit (syncthingRelay.details) id;
+            addresses = [ "tcp://${syncthingRelay.ip}:${toString syncthingRelay.details.syncPort}" ];
+          };
+          folders = lib.mapAttrs (name: _: {
+            path = config.persist.ed.sync.path + "/" + name;
+            devices = [
+              {
+                name = "relay";
+                encryptionPasswordFile = config.sops.groupPaths.syncthing.password;
+              }
+            ];
+            ignorePerms = false;
+          }) cfg.sync;
+        } syncthingRelay.details.settings;
+      };
+
+      # declarative syncthing-tray config so it auto-connects
+      xdg.configFile."syncthingtray.ini".text = ''
+        [General]
+        v=2.1.0
+
+        [tray]
+        connections\size=1
+        connections\1\label=Primary instance
+        connections\1\syncthingUrl=http://${syncthingGuiAddress}
+        connections\1\apiKey=${syncthingApiKey}
+        connections\1\authEnabled=false
+        connections\1\autoConnect=true
+        connections\1\reconnectInterval=30000
+        connections\1\requestTimeout=60000
+        connections\1\longPollingTimeout=60000
+        connections\1\trafficPollInterval=5000
+        connections\1\devStatsPollInterval=60000
+        connections\1\errorsPollInterval=30000
+        connections\1\diskEventLimit=200
+        connections\1\forceSuspend=false
+        connections\1\pauseOnMetered=false
+        connections\1\localPath=
+        connections\1\httpsCertPath=
+        connections\1\statusComputionFlags=127
+        showTraffic=true
+        showDownloads=false
+        showTabTexts=true
+        showStIcons=true
+        windowType=0
+        frameStyle=16
+        tabPos=1
+        defaultTab=0
+        lastTab=0
+        trayMenuSize=@Size(575 475)
+        ignoreInavailabilityAfterStart=15
+        notifyOnDisconnect=true
+        notifyOnErrors=true
+        notifyOnLauncherErrors=true
+        notifyOnLocalSyncComplete=false
+        notifyOnRemoteSyncComplete=false
+        showSyncthingNotifications=true
+        notifyOnNewDeviceConnects=false
+        notifyOnNewDirectoryShared=false
+        preferIconsFromTheme=false
+        distinguishTrayIcons=false
+        usePaletteForStatusIcons=false
+        usePaletteForTrayIcons=false
+        dbusNotifications=false
+      '';
+
+      systemd.user.services.syncthingtray = {
+        Unit = {
+          After = [ "syncthing-init.service" ];
+          Requires = [ "syncthing-init.service" ];
         };
-        folders = lib.mapAttrs (name: _: {
-          path = config.persist.ed.sync.path + "/" + name;
-          devices = [
-            {
-              name = "relay";
-              encryptionPasswordFile = config.sops.groupPaths.syncthing.password;
-            }
-          ];
-          ignorePerms = false;
-        }) cfg.sync;
-      } syncthingRelay.details.settings;
+      };
     };
   };
 }
