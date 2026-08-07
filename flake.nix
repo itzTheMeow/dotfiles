@@ -43,6 +43,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+    nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
     nypkgs = {
       url = "github:yunfachi/nypkgs";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -88,6 +89,7 @@
         overlays = [
           # overlays from inputs
           inputs.copyparty.overlays.default
+          inputs.nix-vscode-extensions.overlays.default
           inputs.timefinder-electron.overlays.default
         ]
         # custom overlays
