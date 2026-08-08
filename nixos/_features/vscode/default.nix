@@ -1,11 +1,11 @@
 { pkgs, ... }: {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode-fhs;
+    package = pkgs.vscode;
     extensions =
       # officially packaged extensions
       (with pkgs.vscode-extensions; [
-        "1Password".op-vscode # 1Password
+        pkgs.vscode-extensions."1Password".op-vscode # 1Password
         aaron-bond.better-comments # Better Comments #TODO: look into alternatives
         docker.docker # Docker DX
         editorconfig.editorconfig # EditorConfig

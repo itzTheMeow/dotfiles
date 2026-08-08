@@ -51,7 +51,6 @@ in
       mongodb-compass
       okteta
       sqlitebrowser
-      vscode
       yaak
 
       # media
