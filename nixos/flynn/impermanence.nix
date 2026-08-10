@@ -108,9 +108,6 @@
     BUN_INSTALL = "${config.persist.ed.cache.path}/bun"; # this isnt documented but its in the bun source code
     # dart
     PUB_CACHE = "${config.persist.ed.cache.path}/dart";
-    # go
-    GOCACHE = "${config.persist.ed.cache.path}/go/build";
-    GOPATH = "${config.persist.ed.cache.path}/go/path";
     # pnpm
     PNPM_HOME = "${config.persist.ed.cache.path}/pnpm";
   };
@@ -121,7 +118,6 @@
       [
         "bun"
         "dart"
-        "go"
         "pnpm"
       ];
 }

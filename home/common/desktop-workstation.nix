@@ -21,12 +21,6 @@
       pnpm_10
       tsx
 
-      ## go
-      go
-      go-tools
-      gopls
-      tygo
-
       ## nix
       mcp-nixos
       nixd

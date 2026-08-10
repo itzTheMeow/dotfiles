@@ -45,8 +45,6 @@
         # js
         dbaeumer.vscode-eslint # ESLint
         yoavbls.pretty-ts-errors # Pretty TypeScript Errors
-        # go
-        golang.go # Go
         # godot
         geequlim.godot-tools # godot-tools
         # java
@@ -104,8 +102,6 @@
         pwabuilder.pwa-studio # PWABuilder Studio #TODO: deprecate
         # C++
         ms-vscode.cpp-devtools # C/C++ DevTools
-        # go
-        jinliming2.vscode-go-template # Go Template Support
         # html/css
         george-alisson.html-preview-vscode # HTML Preview
         # js
