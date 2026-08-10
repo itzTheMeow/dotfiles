@@ -126,4 +126,7 @@
     enable = true;
     installPath = "$HOME/.vscode";
   };
+
+  # set vscode to default visual editor
+  environment.variables.VISUAL = "code --wait";
 }

@@ -67,7 +67,6 @@
 
     sessionVariables = {
       VIRTUAL_ENV_DISABLE_PROMPT = "1";
-      VISUAL = "code --wait";
     };
   };
 
