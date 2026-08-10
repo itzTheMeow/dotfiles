@@ -1,5 +1,6 @@
 [
   "chromium"
+  "development"
   "firefox"
   "gaming"
   "immich-cli"
