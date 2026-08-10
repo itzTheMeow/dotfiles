@@ -148,6 +148,7 @@ in
 
     # other users
     brayden.ip = "100.64.0.22";
+    brayden-cousin.ip = "100.64.0.13";
 
     # mac, needs organized
     macintosh = {
