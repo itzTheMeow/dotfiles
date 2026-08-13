@@ -21,9 +21,6 @@
       pnpm_10
       tsx
 
-      ## rust
-      cargo
-
       ## shell
       shellcheck
       shfmt
