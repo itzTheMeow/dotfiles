@@ -3,7 +3,7 @@
     protobuf
   ];
 
-  progarms.vscode.extensions = with pkgs.vscode-stores; [
+  programs.vscode.extensions = with pkgs.vscode-stores; [
     openvsx.drblury.protobuf-vsc # Protobuf VSC
   ];
 }
