@@ -33,7 +33,6 @@
       marketplace.alexcvzz.vscode-sqlite # SQLite
       marketplace.fabiospampinato.vscode-diff # Diff
       #marketplace.local-smart.excel-live-server # XVBA - Live Server VBA
-      marketplace.nickac.skriptinsight # Skript + SkriptInsight
       marketplace.plibither8.remove-comments # Remove Comments
       marketplace.pwabuilder.pwa-studio # PWABuilder Studio #TODO: deprecate
       # C++
@@ -75,6 +74,7 @@
       nixpkgs.bierner.markdown-footnotes # Markdown Footnotes
       nixpkgs.bierner.markdown-mermaid # Markdown Preview Mermaid Support
       nixpkgs.bierner.markdown-preview-github-styles # Markdown Preview Github Styling
+      marketplace.yahyabatulu.vscode-markdown-alert # Markdown Preview for Github Alerts
       # swift
       openvsx.vknabel.vscode-swiftformat # SwiftFormat
       openvsx.swiftlang.swift-vscode # Swift
@@ -100,8 +100,6 @@
       marketplace.squarelogic.theme-bright-day # Bright Day Theme
       marketplace.onecrayon.theme-quietlight-vsc # Quiet Light for VSC
       marketplace.larxx.zero-theme # zero theme
-      # also gh markdown stuff
-      marketplace.yahyabatulu.vscode-markdown-alert # Markdown Preview for Github Alerts
     ];
   };
   services.vscode-server = {
