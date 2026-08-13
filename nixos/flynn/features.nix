@@ -11,4 +11,5 @@
   "rustic"
   "timefinder"
   "vscode"
+  "logisim"
 ]
