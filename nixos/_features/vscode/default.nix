@@ -14,14 +14,12 @@
         github.vscode-pull-request-github # GitHub Pull Requests
         jock.svg # SVG
         kilocode.kilo-code # Kilo Code
-        mkhl.shfmt # shfmt
         ms-vscode.makefile-tools # Makefile Tools
         ms-vsliveshare.vsliveshare # Live Share
         nefrob.vscode-just-syntax # vscode-just
         redhat.vscode-xml # XML
         redhat.vscode-yaml # YAML
         tamasfe.even-better-toml # Even Better TOML
-        timonwong.shellcheck # ShellCheck
         tomoki1207.pdf # vscode-pdf
         vadimcn.vscode-lldb # CodeLLDB
         wakatime.vscode-wakatime # WakaTime
