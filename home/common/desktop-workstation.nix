@@ -29,11 +29,6 @@
       ## godot
       pkgs-unstable.godot
 
-      ## protobuf
-      protobuf
-      protoc-gen-go
-      protoc-gen-go-grpc
-
       ## flutter
       flutter
 
