@@ -13,7 +13,10 @@ in
     domain = "ytmusic.xela";
     port = 13287;
     enableProxy = true;
-    allowedHosts = [ "brayden" ];
+    allowedHosts = [
+      "brayden"
+      "brayden-cousin"
+    ];
 
     name = "YTMusic";
     description = "Music Downloader";
