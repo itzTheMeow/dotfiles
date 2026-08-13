@@ -35,12 +35,6 @@
       #marketplace.local-smart.excel-live-server # XVBA - Live Server VBA
       marketplace.plibither8.remove-comments # Remove Comments
       marketplace.pwabuilder.pwa-studio # PWABuilder Studio #TODO: deprecate
-      # C++
-      nixpkgs.ms-vscode.cpptools # C/C++
-      nixpkgs.ms-vscode.cmake-tools # CMake Tools
-      # C#
-      nixpkgs.ms-dotnettools.vscode-dotnet-runtime # .NET Install Tool
-      nixpkgs.ms-dotnettools.csharp # C#
       # python
       nixpkgs.ms-python.black-formatter # Black Formatter
       nixpkgs.ms-python.isort # isort
@@ -86,8 +80,6 @@
       openvsx.sysoev.language-stylus # stylus
       # python
       openvsx.ms-python.vscode-python-envs # Python Environments
-      # C++
-      marketplace.ms-vscode.cpp-devtools # C/C++ DevTools
       # html/css
       marketplace.george-alisson.html-preview-vscode # HTML Preview
       # js
