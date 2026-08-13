@@ -52,9 +52,6 @@
       ## just
       just-lsp
 
-      ## other
-      openapi-generator-cli
-
       ## swift
       #swiftformat
     ];
