@@ -118,7 +118,7 @@ in
   nginx.proxy.${app.domain}.extraConfig = cfg: {
     locations."= /background.jpeg" = lib.mkMerge [
       {
-        alias = "${./background.jpeg}";
+        alias = "${xelib.media}/homepage/background.jpeg";
       }
       cfg
     ];

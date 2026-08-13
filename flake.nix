@@ -53,6 +53,10 @@
     };
 
     # my stuff
+    dotfiles-media = {
+      url = "git+https://forge.xela.codes/xela/dotfiles-media.git";
+      flake = false;
+    };
     timefinder-electron = {
       url = "git+https://forge.xela.codes/xela/timefinder-electron.git";
       inputs.flake-utils.follows = "flake-utils";
