@@ -6,7 +6,7 @@
     nixfmt
   ];
 
-  programs.vscode.extensions = [
-    pkgs.vscode-extensions.jnoortheen.nix-ide # Nix IDE
+  programs.vscode.extensions = with pkgs.vscode-stores; [
+    nixpkgs.jnoortheen.nix-ide # Nix IDE
   ];
 }

@@ -24,8 +24,8 @@ in
     "d ${dir} 0755 ${host.username} users -"
   ];
 
-  programs.vscode.extensions = [
-    pkgs.vscode-extensions.golang.go # Go
-    pkgs.nix-vscode-extensions.vscode-marketplace.jinliming2.vscode-go-template # Go Template Support
+  programs.vscode.extensions = with pkgs.vscode-stores; [
+    nixpkgs.golang.go # Go
+    marketplace.jinliming2.vscode-go-template # Go Template Support
   ];
 }

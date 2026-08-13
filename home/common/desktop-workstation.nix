@@ -21,10 +21,6 @@
       pnpm_10
       tsx
 
-      ## shell
-      shellcheck
-      shfmt
-
       ## python
       python3
       python3Packages.numpy
