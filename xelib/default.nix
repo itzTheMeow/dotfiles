@@ -25,6 +25,9 @@ rec {
     )
   );
 
+  # media store path
+  media = inputs.inputs.dotfiles-media;
+
   # main domain used for almost everything
   domain = "xela.codes";
   myDiscordID = "532045776122150913";

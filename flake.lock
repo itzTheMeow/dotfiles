@@ -89,6 +89,22 @@
         "type": "github"
       }
     },
+    "dotfiles-media": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786590507,
+        "narHash": "sha256-qI1Xdp343nHRMhpY0vC4rSQgbRHtvveF9KSNamHUh7s=",
+        "ref": "refs/heads/master",
+        "rev": "614defa9fc933596ffe20f7812a567be999ee968",
+        "revCount": 2,
+        "type": "git",
+        "url": "https://forge.xela.codes/xela/dotfiles-media.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://forge.xela.codes/xela/dotfiles-media.git"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -367,6 +383,7 @@
         "catppuccin": "catppuccin",
         "copyparty": "copyparty",
         "dns": "dns",
+        "dotfiles-media": "dotfiles-media",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
