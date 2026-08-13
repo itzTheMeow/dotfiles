@@ -21,11 +21,6 @@
       pnpm_10
       tsx
 
-      ## nix
-      mcp-nixos
-      nixd
-      nixfmt
-
       ## rust
       cargo
 
