@@ -37,9 +37,6 @@
       ## flutter
       flutter
 
-      ## just
-      just-lsp
-
       ## swift
       #swiftformat
     ];

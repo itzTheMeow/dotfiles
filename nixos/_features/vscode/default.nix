@@ -14,7 +14,6 @@
       nixpkgs.kilocode.kilo-code # Kilo Code
       nixpkgs.ms-vscode.makefile-tools # Makefile Tools
       nixpkgs.ms-vsliveshare.vsliveshare # Live Share
-      nixpkgs.nefrob.vscode-just-syntax # vscode-just
       nixpkgs.redhat.vscode-xml # XML
       nixpkgs.redhat.vscode-yaml # YAML
       nixpkgs.tamasfe.even-better-toml # Even Better TOML
