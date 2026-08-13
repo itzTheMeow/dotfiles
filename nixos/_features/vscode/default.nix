@@ -51,8 +51,6 @@
         redhat.java # Language Support for Java
         # swift
         llvm-vs-code-extensions.lldb-dap # LLDB DAP
-        # nix
-        jnoortheen.nix-ide # Nix IDE
         # html/css
         svelte.svelte-vscode # Svelte for VS Code
         bradlc.vscode-tailwindcss # Tailwind CSS IntelliSense
