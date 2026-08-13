@@ -24,7 +24,6 @@
       openvsx.antfu.iconify # Iconify IntelliSense
       openvsx.coderabbit.coderabbit-vscode # CodeRabbit
       openvsx.ctcuff.font-preview # Font Preview
-      openvsx.drblury.protobuf-vsc # Protobuf VSC
       openvsx.mark-wiemer.vscode-autohotkey-plus-plus # AHK++
       openvsx.mjmlio.vscode-mjml # MJML Official
       openvsx.pascalreitermann93.vscode-yaml-sort # YAML Sort
