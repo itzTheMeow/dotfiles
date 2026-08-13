@@ -31,9 +31,6 @@
 
       ## flutter
       flutter
-
-      ## swift
-      #swiftformat
     ];
 
     sessionVariables = {

@@ -24,7 +24,6 @@
       openvsx.antfu.iconify # Iconify IntelliSense
       openvsx.coderabbit.coderabbit-vscode # CodeRabbit
       openvsx.ctcuff.font-preview # Font Preview
-      openvsx.mark-wiemer.vscode-autohotkey-plus-plus # AHK++
       openvsx.mjmlio.vscode-mjml # MJML Official
       openvsx.pascalreitermann93.vscode-yaml-sort # YAML Sort
       openvsx.tyriar.luna-paint # Luna Paint
@@ -53,8 +52,6 @@
       nixpkgs.geequlim.godot-tools # godot-tools
       # java
       nixpkgs.redhat.java # Language Support for Java
-      # swift
-      nixpkgs.llvm-vs-code-extensions.lldb-dap # LLDB DAP
       # html/css
       nixpkgs.svelte.svelte-vscode # Svelte for VS Code
       nixpkgs.bradlc.vscode-tailwindcss # Tailwind CSS IntelliSense
@@ -69,9 +66,6 @@
       nixpkgs.bierner.markdown-mermaid # Markdown Preview Mermaid Support
       nixpkgs.bierner.markdown-preview-github-styles # Markdown Preview Github Styling
       marketplace.yahyabatulu.vscode-markdown-alert # Markdown Preview for Github Alerts
-      # swift
-      openvsx.vknabel.vscode-swiftformat # SwiftFormat
-      openvsx.swiftlang.swift-vscode # Swift
       # js
       openvsx.oouo-diogo-perdigao.docthis # Document This
       openvsx.orta.vscode-jest # Jest
@@ -85,8 +79,6 @@
       # js
       marketplace.zengxingxin.sort-js-object-keys # Sort JS Object Keys
       marketplace.typescriptteam.native-preview # TypeScript 7
-      # swift/ios
-      marketplace.ivhernandez.vscode-plist # Property List Editor
       # themes
       marketplace.garytyler.darcula-pycharm # Darcula PyCharm Theme
       marketplace.squarelogic.theme-bright-day # Bright Day Theme
