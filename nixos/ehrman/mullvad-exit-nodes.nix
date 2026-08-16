@@ -183,43 +183,52 @@ let
       };
     };
 
+  exitNodeNames = map (n: n.name) xelib.exitNodes;
+
   restartMullvadExitNode = pkgs.writeShellScriptBin "restart-mullvad-exit-node" ''
     set -euo pipefail
 
     if [ $# -ne 1 ]; then
       echo "Usage: restart-mullvad-exit-node <region>"
       echo ""
-      echo "Available regions:"
-      ${pkgs.docker}/bin/docker ps -a --format '{{.Names}}' \
-        | grep '^${mkGluetunContainer ""}' \
-        | sed 's/^${mkGluetunContainer ""}/  - /' || true
+      echo "Valid regions:"
+      ${lib.concatMapStrings (name: "echo \"  - ${name}\";\n") exitNodeNames}
       exit 1
     fi
 
     NAME="$1"
-    GLUETUN="${mkGluetunContainer "$NAME"}"
-    TAILSCALE="${mkTailscaleContainer "$NAME"}"
-    SOCKS5="${mkSocks5Container "$NAME"}"
 
-    if ! ${pkgs.docker}/bin/docker inspect "$GLUETUN" >/dev/null 2>&1; then
-      echo "Error: container $GLUETUN does not exist"
-      exit 1
-    fi
+    case "$NAME" in
+      ${lib.concatStringsSep "|" exitNodeNames})
+        ;;
+      *)
+        echo "Error: '$NAME' is not a valid region"
+        echo ""
+        echo "Valid regions:"
+        ${lib.concatMapStrings (name: "echo \"  - ${name}\";\n") exitNodeNames}
+        exit 1
+        ;;
+    esac
+
+    GLUETUN_SERVICE="docker-${mkGluetunContainer "$NAME"}.service"
+    TAILSCALE_SERVICE="docker-${mkTailscaleContainer "$NAME"}.service"
+    SOCKS5_SERVICE="docker-${mkSocks5Container "$NAME"}.service"
+    GLUETUN_CONTAINER="${mkGluetunContainer "$NAME"}"
 
     echo "Stopping dependents of $NAME..."
-    ${pkgs.docker}/bin/docker stop "$TAILSCALE" "$SOCKS5" 2>/dev/null || true
+    sudo ${pkgs.systemd}/bin/systemctl stop "$TAILSCALE_SERVICE" "$SOCKS5_SERVICE"
 
-    echo "Restarting $GLUETUN to obtain a new IP..."
-    ${pkgs.docker}/bin/docker restart "$GLUETUN"
+    echo "Restarting $GLUETUN_SERVICE to obtain a new IP..."
+    sudo ${pkgs.systemd}/bin/systemctl restart "$GLUETUN_SERVICE"
 
-    echo "Waiting for $GLUETUN to be healthy..."
-    until [ "$(${pkgs.docker}/bin/docker inspect --format='{{.State.Health.Status}}' "$GLUETUN" 2>/dev/null)" = "healthy" ]; do
+    echo "Waiting for $GLUETUN_CONTAINER to be healthy..."
+    until [ "$(sudo ${pkgs.docker}/bin/docker inspect --format='{{.State.Health.Status}}' "$GLUETUN_CONTAINER" 2>/dev/null)" = "healthy" ]; do
       sleep 2
     done
-    echo "$GLUETUN is healthy"
+    echo "$GLUETUN_CONTAINER is healthy"
 
     echo "Starting dependents..."
-    ${pkgs.docker}/bin/docker start "$TAILSCALE" "$SOCKS5" 2>/dev/null || true
+    sudo ${pkgs.systemd}/bin/systemctl start "$TAILSCALE_SERVICE" "$SOCKS5_SERVICE"
 
     echo "Restart of $NAME complete"
   '';
