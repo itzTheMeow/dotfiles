@@ -16,12 +16,16 @@ let
   configDir = "/var/lib/mullvad-exit";
   MTU = "1420";
 
+  mkGluetunContainer = name: "mullvad-exit-gluetun-${name}";
+  mkTailscaleContainer = name: "mullvad-exit-tailscale-${name}";
+  mkSocks5Container = name: "mullvad-exit-socks5-${name}";
+
   mkMullvadExitNode =
     cfg:
     let
-      gluetunContainer = "mullvad-exit-gluetun-${cfg.name}";
-      tailscaleContainer = "mullvad-exit-tailscale-${cfg.name}";
-      socks5Container = "mullvad-exit-socks5-${cfg.name}";
+      gluetunContainer = mkGluetunContainer cfg.name;
+      tailscaleContainer = mkTailscaleContainer cfg.name;
+      socks5Container = mkSocks5Container cfg.name;
       tailscalePort = basePorts.tailscale + cfg.index;
       stunPort = basePorts.stun + cfg.index;
       extraOptions = [
@@ -178,6 +182,47 @@ let
         WIREGUARD_PRIVATE_KEY = "op://Private/marehbn7mhvixiywnnggztiosm/${cfg.name}/Private Key";
       };
     };
+
+  restartMullvadExitNode = pkgs.writeShellScriptBin "restart-mullvad-exit-node" ''
+    set -euo pipefail
+
+    if [ $# -ne 1 ]; then
+      echo "Usage: restart-mullvad-exit-node <region>"
+      echo ""
+      echo "Available regions:"
+      ${pkgs.docker}/bin/docker ps -a --format '{{.Names}}' \
+        | grep '^${mkGluetunContainer ""}' \
+        | sed 's/^${mkGluetunContainer ""}/  - /' || true
+      exit 1
+    fi
+
+    NAME="$1"
+    GLUETUN="${mkGluetunContainer "$NAME"}"
+    TAILSCALE="${mkTailscaleContainer "$NAME"}"
+    SOCKS5="${mkSocks5Container "$NAME"}"
+
+    if ! ${pkgs.docker}/bin/docker inspect "$GLUETUN" >/dev/null 2>&1; then
+      echo "Error: container $GLUETUN does not exist"
+      exit 1
+    fi
+
+    echo "Stopping dependents of $NAME..."
+    ${pkgs.docker}/bin/docker stop "$TAILSCALE" "$SOCKS5" 2>/dev/null || true
+
+    echo "Restarting $GLUETUN to obtain a new IP..."
+    ${pkgs.docker}/bin/docker restart "$GLUETUN"
+
+    echo "Waiting for $GLUETUN to be healthy..."
+    until [ "$(${pkgs.docker}/bin/docker inspect --format='{{.State.Health.Status}}' "$GLUETUN" 2>/dev/null)" = "healthy" ]; do
+      sleep 2
+    done
+    echo "$GLUETUN is healthy"
+
+    echo "Starting dependents..."
+    ${pkgs.docker}/bin/docker start "$TAILSCALE" "$SOCKS5" 2>/dev/null || true
+
+    echo "Restart of $NAME complete"
+  '';
 in
 lib.mkMerge (
   [
@@ -190,6 +235,8 @@ lib.mkMerge (
 
       # create .env dir
       systemd.tmpfiles.rules = [ "d ${envDir} 0700 root root - -" ];
+
+      environment.systemPackages = [ restartMullvadExitNode ];
     }
   ]
   # map config for each exit node
