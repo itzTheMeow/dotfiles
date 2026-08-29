@@ -43,6 +43,7 @@ in
       pcloud
       remmina
       qdiskinfo
+      impactor
 
       # development
       figma-linux
