@@ -1,6 +1,6 @@
 #TODO:pr https://github.com/NixOS/nixpkgs/pull/554137
 final: prev: {
-  impactor =
+  impactor = final.callPackage (
     {
       lib,
       fetchFromGitHub,
@@ -108,5 +108,6 @@ final: prev: {
           bsd3
         ];
       };
-    });
+    })
+  ) { };
 }
