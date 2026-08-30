@@ -67,6 +67,9 @@
     enable32Bit = true;
   };
 
+  # enable usbmuxd service
+  services.usbmuxd.enable = true;
+
   # fonts
   fonts = {
     fontconfig.enable = true;
