@@ -86,10 +86,13 @@
       marketplace.larxx.zero-theme # zero theme
     ];
   };
-  services.vscode-server = {
-    enable = true;
-    installPath = "$HOME/.vscode";
-  };
+  #TODO: fix this server thing
+  /*
+    services.vscode-server = {
+      enable = true;
+      installPath = "$HOME/.vscode";
+    };
+  */
 
   # set vscode to default visual editor
   environment.variables.VISUAL = "code --wait";
