@@ -75,17 +75,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1768939908,
+        "lastModified": 1788076475,
         "narHash": "sha256-sD4UyILWAhk7aexE3YpDOdb71ZEeL+1/+LV05XIWCBo=",
-        "owner": "felixalbrigtsen",
+        "owner": "nix-community",
         "repo": "dns.nix",
-        "rev": "f5a60ede524ee641256f878b1f28d4151577a727",
+        "rev": "4710a34f2c36e7a0d634d7ba8fe2499d75f012a2",
         "type": "github"
       },
       "original": {
-        "owner": "felixalbrigtsen",
+        "owner": "nix-community",
         "repo": "dns.nix",
-        "rev": "f5a60ede524ee641256f878b1f28d4151577a727",
         "type": "github"
       }
     },
