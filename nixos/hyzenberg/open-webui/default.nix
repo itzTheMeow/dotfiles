@@ -2,6 +2,12 @@
 let
   app = config.apps.open-webui;
 
+  mkConfig = prefix_id: model_ids: {
+    enable = true;
+    inherit prefix_id model_ids;
+    connection_type = "external";
+  };
+
   #TODO: add mtp
   MAIN_MODEL = "qwen3.6:35b-a3b-q4_K_M";
   OTHER_MODELS = [
@@ -50,6 +56,13 @@ in
       OPENID_PROVIDER_URL = "${xelib.apps.pocket-id.url}/.well-known/openid-configuration";
       OAUTH_MERGE_ACCOUNTS_BY_EMAIL = "True";
       DEFAULT_USER_ROLE = "user"; # approve new users automatically
+
+      # configs for openai API connections
+      OPENAI_API_CONFIGS = builtins.toJSON {
+        "0" = mkConfig "google" [ ];
+        "1" = mkConfig "moonshot" [ ];
+        "2" = mkConfig "openrouter" [ ];
+      };
 
       ENABLE_API_KEYS = "True";
       BYPASS_MODEL_ACCESS_CONTROL = "True"; # all users get all models
