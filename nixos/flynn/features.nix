@@ -5,7 +5,6 @@
   "gaming"
   "immich-cli"
   "impactor"
-  "kilo"
   "libreoffice"
   "opencode"
   "plezy"

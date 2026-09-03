@@ -11,7 +11,6 @@
       nixpkgs.github.vscode-github-actions # GitHub Actions
       nixpkgs.github.vscode-pull-request-github # GitHub Pull Requests
       nixpkgs.jock.svg # SVG
-      nixpkgs.kilocode.kilo-code # Kilo Code
       nixpkgs.ms-vscode.makefile-tools # Makefile Tools
       nixpkgs.ms-vsliveshare.vsliveshare # Live Share
       nixpkgs.redhat.vscode-xml # XML
