@@ -7,6 +7,7 @@
   "impactor"
   "kilo"
   "libreoffice"
+  "opencode"
   "plezy"
   "rclone"
   "rustic"
