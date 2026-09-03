@@ -1,0 +1,21 @@
+diff --git a/backend/open_webui/config.py b/backend/open_webui/config.py
+index 57f4712..6494ef8 100644
+--- a/backend/open_webui/config.py
++++ b/backend/open_webui/config.py
+@@ -402,10 +402,15 @@ OPENAI_API_BASE_URLS = [
+ ]
+ OPENAI_API_BASE_URLS = ConfigVar('OPENAI_API_BASE_URLS', 'openai.api_base_urls', OPENAI_API_BASE_URLS)
+ 
++try:
++    _openai_api_configs_env = json.loads(os.environ.get('OPENAI_API_CONFIGS', '{}'))
++except Exception:
++    _openai_api_configs_env = {}
++
+ OPENAI_API_CONFIGS = ConfigVar(
+     'OPENAI_API_CONFIGS',
+     'openai.api_configs',
+-    {},
++    _openai_api_configs_env,
+ )
+ 
+ # Get the actual OpenAI API key based on the base URL
