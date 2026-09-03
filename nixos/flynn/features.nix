@@ -4,6 +4,7 @@
   "firefox"
   "gaming"
   "immich-cli"
+  "impactor"
   "kilo"
   "libreoffice"
   "plezy"
