@@ -161,7 +161,13 @@
             inputs.copyparty.nixosModules.default
             inputs.impermanence.nixosModules.impermanence
             inputs.vscode-server-fix.nixosModules.default
-
+          ]
+          # custom forgejo-runner module from unstable (stable doesn't have it yet)
+          # TODO:26.11 remove this import once the upstream module reaches stable
+          ++ nixpkgs.lib.optionals (hostname != "pete") [
+            (nixpkgs-unstable + "/nixos/modules/services/continuous-integration/forgejo-runner.nix")
+          ]
+          ++ [
             # main config
             (import ./nixos hostname)
 
