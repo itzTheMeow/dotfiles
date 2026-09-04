@@ -299,7 +299,11 @@ in
     kwin = {
       nightLight = {
         enable = true;
-        mode = "automatic";
+        mode = "location";
+        location = {
+          latitude = "40.39";
+          longitude = "-76.84";
+        };
       };
       titlebarButtons = {
         left = [
