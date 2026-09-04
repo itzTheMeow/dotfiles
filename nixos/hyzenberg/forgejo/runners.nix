@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  utils,
   xelib,
   ...
 }:
@@ -63,7 +64,9 @@ lib.mkMerge (
           secrets.server.connections.default.token_url = config.sops.groupPaths.forgejo."runner-${runner.id}";
         };
 
-        systemd.services."forgejo-runner-${runner.id}".after = [ "forgejo-load-runner-images.service" ];
+        systemd.services."forgejo-runner-${utils.escapeSystemdPath runner.id}".after = [
+          "forgejo-load-runner-images.service"
+        ];
         sops.groups.forgejo."runner-${runner.id}" =
           "op://Private/yjdttmakvgkuiia5xhda2pl3ve/Actions Runners/${runner.id}";
       })
