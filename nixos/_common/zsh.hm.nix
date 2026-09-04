@@ -2,6 +2,7 @@
   config,
   hm,
   host,
+  hostname,
   pkgs,
   xelib,
   ...
@@ -57,14 +58,19 @@ in
       daemon.enable = atuinEnableDaemon;
       #TODO:pr https://github.com/atuinsh/atuin/pull/2945
       # apply patch to add ATUIN_DATA_DIR support so we can relocate it
-      package = pkgs.atuin.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [
-          (pkgs.fetchpatch {
-            url = "https://github.com/atuinsh/atuin/commit/6e01ff990f223d2c0ba63742215f2af2111b87ef.patch";
-            hash = "sha256-R4Oo7JgKeYwvp6Wv2YM8CZwAMsx9qy2obAWqIu9azGk=";
-          })
-        ];
-      });
+      #TODO:26.11 this needs fixed since atuin's source changed somewhere and the patch wont apply on unstable
+      package =
+        if hostname == "pete" then
+          pkgs.atuin
+        else
+          pkgs.atuin.overrideAttrs (old: {
+            patches = (old.patches or [ ]) ++ [
+              (pkgs.fetchpatch {
+                url = "https://github.com/atuinsh/atuin/commit/6e01ff990f223d2c0ba63742215f2af2111b87ef.patch";
+                hash = "sha256-R4Oo7JgKeYwvp6Wv2YM8CZwAMsx9qy2obAWqIu9azGk=";
+              })
+            ];
+          });
       settings = {
         key_path = config.sops.groupPaths.atuin.key;
         auto_sync = true;
