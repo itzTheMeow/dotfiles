@@ -94,6 +94,13 @@
           inputs.copyparty.overlays.default
           inputs.nix-vscode-extensions.overlays.default
           inputs.timefinder-electron.overlays.default
+          # expose nixpkgs-unstable so overlays can use `final.unstable`
+          (final: prev: {
+            unstable = import nixpkgs-unstable {
+              inherit system;
+              config.allowUnfree = true;
+            };
+          })
         ]
         # custom overlays
         ++ (map (file: import ./overlays/${file}) (builtins.attrNames (builtins.readDir ./overlays)));
