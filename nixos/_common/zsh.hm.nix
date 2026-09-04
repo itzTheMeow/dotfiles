@@ -55,7 +55,7 @@ in
     atuin = {
       enable = true;
       daemon.enable = atuinEnableDaemon;
-      # https://github.com/atuinsh/atuin/pull/2945
+      #TODO:pr https://github.com/atuinsh/atuin/pull/2945
       # apply patch to add ATUIN_DATA_DIR support so we can relocate it
       package = pkgs.atuin.overrideAttrs (old: {
         patches = (old.patches or [ ]) ++ [

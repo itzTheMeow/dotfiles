@@ -39,7 +39,7 @@ in
   '';
 
   # we have to use docker for this until this is stable:
-  # https://github.com/NixOS/nixpkgs/pull/374132
+  #TODO:pr https://github.com/NixOS/nixpkgs/pull/374132
   virtualisation.oci-containers.containers.vencloud = {
     image = "ghcr.io/vencord/vencloud:v0.0.1";
     autoStart = true;

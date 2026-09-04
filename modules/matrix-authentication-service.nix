@@ -1,5 +1,5 @@
-# https://github.com/NixOS/nixpkgs/pull/387274
-# https://github.com/NixOS/nixpkgs/pull/527621 (new)
+#TODO:pr https://github.com/NixOS/nixpkgs/pull/387274
+#TODO:pr https://github.com/NixOS/nixpkgs/pull/527621 (new)
 #TODO:26.11 merged
 {
   config,
