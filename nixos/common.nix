@@ -260,11 +260,11 @@ in
   nix.settings = {
     substituters = [
       "https://cache.nixos.org/"
-      "https://attic.xela.codes/master"
+      "https://attic.xela.codes/xela-master"
     ];
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "master:<public-key>"
+      "xela-master:<public-key>"
     ];
   };
 
