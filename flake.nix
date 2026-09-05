@@ -65,10 +65,10 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://attic.xela.codes/master"
+      "https://attic.xela.codes/xela-master"
     ];
     extra-trusted-public-keys = [
-      "master:<public-key>"
+      "xela-master:<public-key>"
     ];
   };
 
