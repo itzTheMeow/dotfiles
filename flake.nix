@@ -1,4 +1,4 @@
-{
+rec {
   description = "My nixos config";
 
   inputs = {
@@ -63,13 +63,10 @@
     };
   };
 
+  # this HAS to be static so its the source of truth for the atticd config
   nixConfig = {
-    extra-substituters = [
-      "https://attic.xela.codes/xela-master"
-    ];
-    extra-trusted-public-keys = [
-      "xela-master:<public-key>"
-    ];
+    extra-substituters = [ "https://attic.xela.codes/xela-master" ];
+    extra-trusted-public-keys = [ "xela-master:<public-key>" ];
   };
 
   outputs =
@@ -86,6 +83,18 @@
       ...
     }@inputs:
     let
+      # parse the attic settings from the nixConfig
+      # this'll need changed if we ever have more than one substituter
+      attic =
+        let
+          match = builtins.match "https://([^/]+)/?(.+)" (builtins.head nixConfig.extra-substituters);
+        in
+        {
+          domain = builtins.elemAt match 0;
+          cacheName = builtins.elemAt match 1;
+          publicKey = builtins.head nixConfig.extra-trusted-public-keys;
+        };
+
       nixpkgs_args = system: {
         inherit system;
         config.allowUnfree = true;
@@ -125,6 +134,7 @@
 
           extras = {
             inherit
+              attic
               dns
               home-manager
               hostname
@@ -201,6 +211,9 @@
       allHosts = x86Hosts;
     in
     {
+      # re-export for CI
+      inherit attic;
+
       homeConfigurations = {
         # non-nixos
         #macintosh = mkHomeConfiguration "x86_64-darwin" "macintosh";

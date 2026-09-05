@@ -25,14 +25,6 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v30
 
-      - name: Configure Attic
-        run: |
-          mkdir -p ~/.config/nix
-          cat >> ~/.config/nix/nix.conf << EOF
-          extra-substituters = https://attic.xela.codes/xela-master
-          extra-trusted-public-keys = xela-master:<public-key>
-          EOF
-
       - name: Build System
         run: |
           nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel \
@@ -41,8 +33,10 @@ jobs:
       - name: Push to Attic
         run: |
           nix profile install nixpkgs#attic-client
-          attic login ci https://attic.xela.codes "${{ secrets.ATTIC_TOKEN }}"
-          attic push ci:xela-master \
+          ATTIC_DOMAIN=$(nix eval --raw .#attic.domain)
+          CACHE_NAME=$(nix eval --raw .#attic.cacheName)
+          attic login ci "https://$ATTIC_DOMAIN" "${{ secrets.ATTIC_TOKEN }}"
+          attic push "ci:$CACHE_NAME" \
             $(nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel --no-link --print-out-paths)
 
       - name: Calculate and Log System Size

@@ -1,10 +1,10 @@
-{ config, ... }:
+{ attic, config, ... }:
 let
   app = config.apps.attic;
 in
 {
   apps.attic = {
-    domain = "attic.xela.codes";
+    domain = attic.domain;
     port = 29073;
     enableProxy = true;
     enableDNS = true;
