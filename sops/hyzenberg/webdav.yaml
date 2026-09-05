@@ -1,16 +1,16 @@
-htpasswd: ENC[AES256_GCM,data:67KYr/cWWX8uWTH0iJcXqRL77dl2F45x+dqvn4rr5v0MzLWJKvaXGtcw9oU60jQe9CQD5oNh3tkzezBe9yLoCiM=,iv:T0G9LEZUg1A3ZtneF8Z/o3nDWIhTdzPRQajrCMnpQsI=,tag:BvLQLR+RhlhRPBHvaZ74Ug==,type:str]
+htpasswd: ENC[AES256_GCM,data:HNlfi68/X3KLYdT7jVsbyD+eziDUVnN0gGSZQS/zzYrlGqRP6/oWA7x2sjJfe5hZ/ux5zbnkoCXQIv0mQkiMc7Q=,iv:/6tyNKCuuxDu8hL7JrUA8DVMTrcCCWikaU+yA77omdI=,tag:Cw/VgYWv8JkmQOlwewkm/g==,type:str]
 sops:
   age:
     - recipient: age1ys7j0me46jdes87e5hargcghn49974e7gs40u4mcph9ygt8slcgsxhf2gt
       enc: |
         -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBnSUJqOGdSaUdETUViN2lZ
-        RXBZWmpjcTBzeG05ZndHQk0rUDh5RUVsR1dVCmVydXJGYS9JUWNucFdXandQbUVG
-        WTBOYU1LQUF1aUpydU02cGZ5SnFBK28KLS0tIDdxdGpaYW5MSVJ6ZlR4RDNhM1dj
-        MEFLL2QvaTM2aHVXT2lLMXI0Q2MvdDgK38oSLB6gxv+3UWLz6ElnNk4pb/yWzhcp
-        fXFG5WbLHdqML89ZzJpLN83PI7aMfTTghJrsuMwNKwyx0wr13WiSsg==
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB5eGV1aGtPT3llN0p5ZjN1
+        T2xvcFcySmw2SGx5WEg2Q1dTYmxjVG5NM3lBClczdnF6MmRiV3dwNEoreEErU0Ix
+        VXlLcWNNMUloT2luVkZsZGk5NEZmYjQKLS0tIHFIaHNFbjJ5YjhLUXZjM29qWlB1
+        WkNYZzg5Q05GdTNkTm1vajZtWXo1NFkK2KjnfRZU0mgc7BglbZTPoVjLRiYdUzSW
+        otklZAD5dNCHL7bsuK90tFXH+1ya3OcTLr+VYbpCH/3HUWPK6vVPbA==
         -----END AGE ENCRYPTED FILE-----
-  lastmodified: "2026-09-03T20:46:55Z"
-  mac: ENC[AES256_GCM,data:vRDdQLVVU1ZDEiIB6Fgr7yozQh8l59q0toVTVrw9/xcrIY2qVloyFHNbkXsYjq3wWg3nqLXX2RT0aMXsDvbnQCy5szz+D0YqJKFn8OwOs6KEGO5VdY6ONAXkNnyFk6iHwvrQ7E9Dq3L8rfYyFTa22naVazUi011nPBRLUolgwLQ=,iv:QqItmYC75IrzVyGRQ4jlmkeY3ne0C+JJZirVQY3A84M=,tag:qlMoI5knWPxOdnhthl/pLg==,type:str]
+  lastmodified: "2026-09-05T05:41:40Z"
+  mac: ENC[AES256_GCM,data:RzNOmPRWelVHP+giZzR02qSU9/2DqRd646tY+PZuXbNl2FvYluEVoc5kLvAea6KNMEx+HFwcx8DWyZwvrZlS9V4bAKbVhNdIFs0RDQu2NWFnhlxrxHB/Bp0phn9OrS+U6CTO5EE2rwXLQCzxMBC31ys5kOo5VWkR/QEnakNK9dc=,iv:gKey0unpbQsSfQpBMW3cFbkOnpv+mN+t0ne2wi9Nis4=,tag:Bfiz7MZt02f4gQbCVev50A==,type:str]
   unencrypted_suffix: _unencrypted
   version: 3.12.1
