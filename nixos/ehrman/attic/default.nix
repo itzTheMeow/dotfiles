@@ -17,7 +17,7 @@ in
 
   #?INIT:
   #  local admin token
-  #? atticd-atticadm make-token --sub admin --validity '999 years' \
+  #? sudo atticd-atticadm make-token --sub admin --validity '999 years' \
   #?   --create-cache '*' --configure-cache '*' \
   #?   --configure-cache-retention '*' --destroy-cache '*'
   #  actually create the cache (run this on a local machine after attic login)
@@ -28,7 +28,7 @@ in
   #  use public key in nixos/common.nix and flake.nix
   #? attic cache info xela-master
   #  create a token for CI with push perms
-  #? atticd-atticadm make-token --sub ci --validity '999 years' --push '*'
+  #? sudo atticd-atticadm make-token --sub ci --validity '999 years' --push '*'
   #  store that in GitHub secrets as ATTIC_TOKEN
 
   services.atticd = {
