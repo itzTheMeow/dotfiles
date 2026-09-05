@@ -1,4 +1,5 @@
 {
+  attic,
   config,
   host,
   hostname,
@@ -260,11 +261,11 @@ in
   nix.settings = {
     substituters = [
       "https://cache.nixos.org/"
-      "https://attic.xela.codes/xela-master"
+      "https://${attic.domain}/${attic.cacheName}"
     ];
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "xela-master:<public-key>"
+      attic.publicKey
     ];
   };
 
