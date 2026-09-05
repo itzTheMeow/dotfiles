@@ -1,4 +1,9 @@
-{ attic, config, ... }:
+{
+  attic,
+  config,
+  pkgs,
+  ...
+}:
 let
   app = config.apps.attic;
 in
@@ -11,7 +16,7 @@ in
   };
 
   #?INIT:
-  #  local admin token (if needed)
+  #  local admin token
   #? atticd-atticadm make-token --sub admin --validity '999 years' \
   #?   --create-cache '*' --configure-cache '*' \
   #?   --configure-cache-retention '*' --destroy-cache '*'
@@ -40,6 +45,7 @@ in
     };
   };
   systemd.services.atticd.after = [ "tailscale-online.service" ];
+  environment.systemPackages = [ pkgs.attic-server ];
 
   # allow big binaries to be pushed
   nginx.proxy.${app.domain}.extraConfig = _: {
@@ -49,6 +55,6 @@ in
   };
 
   sops.envFiles.attic = {
-    ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64 = "op://Private/kbmwv3qqjiufkdffc25svnfvd4/credential";
+    ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64 = "op://Private/kbmwv3qqjiufkdffc25svnfvd4/JWT Secret";
   };
 }
