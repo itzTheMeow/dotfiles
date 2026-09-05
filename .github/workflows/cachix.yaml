@@ -29,8 +29,8 @@ jobs:
         run: |
           mkdir -p ~/.config/nix
           cat >> ~/.config/nix/nix.conf << EOF
-          extra-substituters = https://attic.xela.codes/systems
-          extra-trusted-public-keys = systems:<public-key-from-attic-cache-info>
+          extra-substituters = https://attic.xela.codes/master
+          extra-trusted-public-keys = master:<public-key>
           EOF
 
       - name: Build System
@@ -42,9 +42,8 @@ jobs:
         run: |
           nix profile install nixpkgs#attic-client
           attic login ci https://attic.xela.codes "${{ secrets.ATTIC_TOKEN }}"
-          attic push ci:systems \
-            $(nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel --no-link --print-out-paths) \
-            --ignore-upstream-cache-filter
+          attic push ci:master \
+            $(nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel --no-link --print-out-paths)
 
       - name: Calculate and Log System Size
         run: |

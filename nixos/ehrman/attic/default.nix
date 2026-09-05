@@ -16,12 +16,12 @@ in
   #?   --create-cache '*' --configure-cache '*' \
   #?   --configure-cache-retention '*' --destroy-cache '*'
   #  actually create the cache
-  #? attic cache create systems
+  #? attic cache create master
   #  make cache public
-  #? attic cache configure --public systems
+  #? attic cache configure --public master
   #  get public key for nix config
   #  use public key in nixos/common.nix and flake.nix
-  #? attic cache info systems
+  #? attic cache info master
   #  create a token for CI with push perms
   #? atticd-atticadm make-token --sub ci --validity '999 years' --push '*'
   #  store that in GitHub secrets as ATTIC_TOKEN
