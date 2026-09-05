@@ -35,8 +35,7 @@ in
       allowed-hosts = [ app.domain ];
       "garbage-collection" = {
         interval = "12 hours";
-        #                          DD   HH   MM   SS
-        default-retention-period = 30 * 24 * 60 * 60;
+        default-retention-period = "30d";
       };
     };
   };
