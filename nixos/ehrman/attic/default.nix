@@ -20,7 +20,7 @@ in
   #? atticd-atticadm make-token --sub admin --validity '999 years' \
   #?   --create-cache '*' --configure-cache '*' \
   #?   --configure-cache-retention '*' --destroy-cache '*'
-  #  actually create the cache
+  #  actually create the cache (run this on a local machine after attic login)
   #? attic cache create xela-master
   #  make cache public
   #? attic cache configure --public xela-master
