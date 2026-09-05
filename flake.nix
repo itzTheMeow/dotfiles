@@ -65,10 +65,10 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://xelacodes.cachix.org"
+      "https://attic.xela.codes/systems"
     ];
     extra-trusted-public-keys = [
-      "xelacodes.cachix.org-1:mlXOAvMV//6WvlZAv0xu8fBflpDZTOo9n4mU9W7XxyU="
+      "systems:<public-key>"
     ];
   };
 

@@ -190,7 +190,7 @@ in
     pkg-config
 
     ## nix-related
-    cachix
+    attic-client
     home-manager
     nix-diff
     nixpkgs-review
@@ -256,15 +256,15 @@ in
   # sops doesnt need rsa keys
   sops.gnupg.sshKeyPaths = [ ];
 
-  # trust nixos and cachix caches
+  # trust nixos and attic caches
   nix.settings = {
     substituters = [
       "https://cache.nixos.org/"
-      "https://xelacodes.cachix.org"
+      "https://attic.xela.codes/systems"
     ];
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "xelacodes.cachix.org-1:mlXOAvMV//6WvlZAv0xu8fBflpDZTOo9n4mU9W7XxyU="
+      "systems:<public-key>"
     ];
   };
 
