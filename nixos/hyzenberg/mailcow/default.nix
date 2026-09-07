@@ -44,7 +44,9 @@ in
       daneCheck = pkgs.writeShellApplication {
         name = "check-dane";
         runtimeInputs = with pkgs; [
+          coreutils
           dnsutils
+          gawk
           ntfy-sh
           openssl
         ];
@@ -60,7 +62,6 @@ in
         ExecStart = "${daneCheck}/bin/check-dane ${app.domain}";
         Environment = [
           "HOME=${home}"
-          "PATH=${home}/.nix-profile/bin:$PATH"
           "NTFY_CONFIG=${home}/.config/ntfy/client.yml"
           "NTFY_TOPIC=${xelib.globals.environment.NTFY_TOPIC}"
           "NTFY_TAGS=mail"
