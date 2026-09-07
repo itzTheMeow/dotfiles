@@ -1,6 +1,7 @@
 {
   config,
   dns,
+  host,
   hostname,
   lib,
   pkgs,
@@ -35,6 +36,45 @@ in
     995 # POP3S
     4190 # ManageSieve
   ];
+
+  # nightly check that the DANE-TA pin still matches the served chain
+  systemd.services.mailcow-dane-check =
+    let
+      home = "/home/${host.username}";
+      daneCheck = pkgs.writeShellApplication {
+        name = "check-dane";
+        runtimeInputs = with pkgs; [
+          dnsutils
+          ntfy-sh
+          openssl
+        ];
+        text = builtins.readFile ./check-dane.sh;
+      };
+    in
+    {
+      description = "Verify DANE-TA pin for ${app.domain}";
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${daneCheck}/bin/check-dane ${app.domain}";
+        Environment = [
+          "HOME=${home}"
+          "PATH=${home}/.nix-profile/bin:$PATH"
+          "NTFY_CONFIG=${home}/.config/ntfy/client.yml"
+          "NTFY_TOPIC=${xelib.globals.environment.NTFY_TOPIC}"
+          "NTFY_TAGS=mail"
+        ];
+      };
+    };
+  systemd.timers.mailcow-dane-check = {
+    description = "Nightly DANE-TA pin check for ${app.domain}";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "*-*-* 00:00:00";
+      Persistent = true;
+    };
+  };
 
   # copy over new ssl certs when generated
   security.acme.certs.${app.domain}.postRun =
