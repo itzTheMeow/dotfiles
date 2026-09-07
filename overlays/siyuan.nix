@@ -8,6 +8,10 @@
 # default `electron` attr is still 41) to match siyuan 3.8.2's Electron 42.
 # The kernel's go.mod requires go >= 1.26.5; stable only carries go 1.26.4, so
 # go is taken from the (overlay-free) unstable import.
+#
+# tesseract (eng only) is wrapped into the desktop app's PATH so the kernel's
+# built-in OCR works: util/ocr.go probes `tesseract --version`/`--list-langs` at
+# boot and auto-OCRs images in data/assets when the binary is reachable.
 #TODO:pr https://github.com/NixOS/nixpkgs/pull/556604
 final: prev:
 let
@@ -16,6 +20,9 @@ let
   # it bound to the newer go so the kernel's go.mod (go >= 1.26.5) is satisfied.
   buildGoModule = prev.callPackage "${prev.path}/pkgs/build-support/go/module.nix" {
     inherit go;
+  };
+  tesseract = prev.tesseract.override {
+    enableLanguages = [ "eng" ];
   };
   siyuan = prev.callPackage (
     {
@@ -35,6 +42,7 @@ let
       copyDesktopItems,
       nix-update-script,
       xdg-utils,
+      tesseract,
       zip,
       darwin,
     }:
@@ -207,7 +215,7 @@ let
             --add-flags $out/share/siyuan/resources/app \
             --set ELECTRON_FORCE_IS_PACKAGED 1 \
             --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
-            --suffix PATH : ${lib.makeBinPath [ xdg-utils ]} \
+            --suffix PATH : ${lib.makeBinPath [ xdg-utils tesseract ]} \
             --inherit-argv0
 
         install -Dm644 src/assets/icon.svg $out/share/icons/hicolor/scalable/apps/siyuan.svg
@@ -266,7 +274,7 @@ let
         platforms = lib.attrNames platformIds;
       };
     })
-  ) { electron = prev.electron_42; };
+  ) { electron = prev.electron_42; inherit tesseract; };
 in
 {
   inherit siyuan;
