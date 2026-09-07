@@ -10,6 +10,7 @@
   "plezy"
   "rclone"
   "rustic"
+  "siyuan"
   "timefinder"
   "vscode"
 ]
