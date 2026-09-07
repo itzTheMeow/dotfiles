@@ -116,7 +116,7 @@ in
           mail = pointHost hostname;
           "_25._tcp.mail".TLSA = [
             {
-              certUsage = "dane-ee";
+              certUsage = "dane-ta";
               selector = "spki";
               matchingType = "sha256";
               certificate = "646fd5c19a789036d79436d03b1f492cd244b05ba387f6dfa95fb72350452e8e";
