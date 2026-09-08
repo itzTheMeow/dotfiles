@@ -1,0 +1,1220 @@
+diff --git a/api/asset.go b/api/asset.go
+index 6f7efdf..926dc9a 100644
+--- a/api/asset.go
++++ b/api/asset.go
+@@ -144,14 +144,7 @@ func getImageOCRText(c *gin.Context) {
+ 
+ 	path = arg["path"].(string)
+ 
+-	// 加密笔记本的资源不参与全局 OCR（OCR 文本存在全局 data/assets/ocr-texts.json）
+-	if absPath, absErr := model.GetAssetAbsPathInBox(path, ""); absErr == nil && model.IsEncryptedAssetPath(absPath) {
+-		ret.Data = map[string]any{
+-			"text": "",
+-		}
+-		return
+-	}
+-
++	// 加密笔记本锁定后其 OCR 文本已从内存丢弃，GetAssetText 对 box key 自动路由，返回空串
+ 	ret.Data = map[string]any{
+ 		"text": util.GetAssetText(path),
+ 	}
+@@ -169,9 +162,13 @@ func setImageOCRText(c *gin.Context) {
+ 	path := arg["path"].(string)
+ 	text := arg["text"].(string)
+ 
+-	// 加密笔记本的资源不参与全局 OCR
+-	if absPath, absErr := model.GetAssetAbsPathInBox(path, ""); absErr == nil && model.IsEncryptedAssetPath(absPath) {
+-		return
++	// 加密笔记本锁定时不接受落盘明文文本（Store 在锁定后为空，fail-closed）
++	if boxID := util.BoxIDFromAssetKey(path); "" != boxID {
++		if model.IsEncryptedBox(boxID) && !model.IsBoxUnlocked(boxID) {
++			ret.Code = -1
++			ret.Msg = "Encrypted notebook is locked, please unlock it first"
++			return
++		}
+ 	}
+ 	util.SetAssetText(path, text)
+ 
+@@ -195,6 +192,22 @@ func ocr(c *gin.Context) {
+ 
+ 	path := arg["path"].(string)
+ 
++	if boxID := util.BoxIDFromAssetKey(path); "" != boxID {
++		// 加密笔记本：解密后 OCR，文本写入 box 隔离的加密存储
++		ocrJSON, err := model.OcrAssetInBox(boxID, path)
++		if nil != err {
++			ret.Code = -1
++			ret.Msg = err.Error()
++			ret.Data = map[string]any{"closeTimeout": 7000}
++			return
++		}
++		ret.Data = map[string]any{
++			"text":    util.GetOcrJsonText(ocrJSON),
++			"ocrJSON": ocrJSON,
++		}
++		return
++	}
++
+ 	// 加密笔记本的资源不参与全局 OCR
+ 	absPath, err := model.GetAssetAbsPathInBox(path, "")
+ 	if err != nil {
+diff --git a/model/crypto.go b/model/crypto.go
+index 2671326..b1787f2 100644
+--- a/model/crypto.go
++++ b/model/crypto.go
+@@ -1457,6 +1457,11 @@ func unlockBoxHeld(boxID string, password string, boxEnc *conf.BoxEncryption) (e
+ 	dekCached = true
+ 	cachedDEKsLock.Unlock()
+ 
++	// 加载本 box 的 OCR 文本（解密 <box>/.siyuan/ocr-texts），加载失败不阻断解锁
++	if err = loadBoxOCRTexts(boxID, dek); err != nil {
++		logging.LogWarnf("load box OCR texts [%s] failed: %s", boxID, err)
++	}
++
+ 	// 初始化自动锁定访问时间戳，记录解锁时刻
+ 	newVal := &atomic.Int64{}
+ 	newVal.Store(time.Now().UnixNano())
+@@ -1524,6 +1529,10 @@ func lockBoxWithPreparationHeld(boxID string, prepare func()) {
+ 	beginEncryptedBoxLock(boxID)
+ 	FlushTxQueue()
+ 	sql.FlushQueue()
++	// 在清除 DEK 前把本 box 的 OCR 文本加密落盘（此时 DEK 仍缓存在内存中）
++	if err := saveBoxOCRTexts(boxID); err != nil {
++		logging.LogWarnf("save box OCR texts [%s] before locking failed: %s", boxID, err)
++	}
+ 	if prepare != nil {
+ 		prepare()
+ 	}
+@@ -1544,6 +1553,8 @@ func lockBoxWithPreparationHeld(boxID string, prepare func()) {
+ 
+ // lockBoxHeld 在已持有 box 写锁的前提下执行该 box 的锁定清理（不含全局缓存刷新）。
+ func lockBoxHeld(boxID string) {
++	// 丢弃本 box 的 OCR 文本内存副本（明文不留存），已在上游 saveBoxOCRTexts 加密落盘
++	util.ClearBoxAssetsTexts(boxID)
+ 	// 此时已排空在途操作并持有 box 写锁，可以安全清除该笔记本的明文 HEIF 预览缓存。
+ 	heif.ClearMemoryCache(boxID)
+ 	RevokeManagedEncryptedExportsForBox(boxID)
+diff --git a/model/ocr.go b/model/ocr.go
+index 9eb6965..f3f2a4e 100644
+--- a/model/ocr.go
++++ b/model/ocr.go
+@@ -29,23 +29,39 @@ func autoOCRAssets() {
+ 
+ 	defer logging.Recover()
+ 
++	// 一次任务中最多处理 7 张图片，防止长时间占用系统资源
++	budget := 7
++
+ 	assetsPath := util.GetDataAssetsAbsPath()
+ 	assets := getUnOCRAssetsAbsPaths()
+ 	if 0 < len(assets) {
+-		for i, assetAbsPath := range assets {
++		for _, assetAbsPath := range assets {
+ 			text := util.GetOcrJsonText(util.Tesseract(assetAbsPath))
+ 			p := strings.TrimPrefix(assetAbsPath, assetsPath)
+ 			p = "assets" + filepath.ToSlash(p)
+ 			util.SetAssetText(p, text)
+-			if 7 <= i { // 一次任务中最多处理 7 张图片，防止长时间占用系统资源
++			budget--
++			if 0 >= budget {
++				break
++			}
++		}
++	}
++
++	// 加密笔记本：解析全部未 OCR 图片，解密到临时文件后交给 tesseract，结果按 box 隔离存储
++	if 0 < budget {
++		boxAssets := getUnOCRBoxAssets()
++		for _, boxID := range sortedBoxIDs(boxAssets) {
++			if 0 >= budget {
+ 				break
+ 			}
++			budget -= ocrBoxAssets(boxID, boxAssets[boxID], budget)
+ 		}
+ 	}
+ 
+ 	util.CleanNotExistAssetsTexts()
++	saveAllBoxesOCRTexts()
+ 
+-	// 刷新 OCR 结果到数据库
++	// 刷新 OCR 结果到数据库（NodeOCRQueue 同时包含普通与加密笔记本的节点）
+ 	util.NodeOCRQueueLock.Lock()
+ 	defer util.NodeOCRQueueLock.Unlock()
+ 	for _, id := range util.NodeOCRQueue {
+@@ -67,7 +83,8 @@ func getUnOCRAssetsAbsPaths() (ret []string) {
+ 			continue
+ 		}
+ 		absPath := filepath.Join(assetsPath, strings.TrimPrefix(asset.Path, "assets"))
+-		// 加密笔记本的 asset 是密文，跳过 OCR（避免密文图片产出垃圾文本污染搜索索引）
++		// 加密笔记本的 asset 走 getUnOCRBoxAssets 单独处理（解密 + box 隔离存储），此处保持跳过，
++		// 避免把密文图片当作全局资源产生垃圾文本污染全局索引
+ 		if IsEncryptedAssetPath(absPath) {
+ 			continue
+ 		}
+@@ -78,4 +95,5 @@ func getUnOCRAssetsAbsPaths() (ret []string) {
+ 
+ func FlushAssetsTextsJob() {
+ 	util.SaveAssetsTexts()
++	saveAllBoxesOCRTexts()
+ }
+diff --git a/model/ocr_box.go b/model/ocr_box.go
+new file mode 100644
+index 0000000..7c8c57a
+--- /dev/null
++++ b/model/ocr_box.go
+@@ -0,0 +1,245 @@
++// SiYuan - From thought to insight, with agents
++// Copyright (c) 2020-present, b3log.org
++//
++// This program is free software: you can redistribute it and/or modify
++// it under the terms of the GNU Affero General Public License as published by
++// the Free Software Foundation, either version 3 of the License, or
++// (at your option) any later version.
++//
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU Affero General Public License for more details.
++//
++// You should have received a copy of the GNU Affero General Public License
++// along with this program.  If not, see <https://www.gnu.org/licenses/>.
++
++package model
++
++import (
++	"errors"
++	"fmt"
++	"io/fs"
++	"os"
++	"path/filepath"
++	"sort"
++	"strings"
++
++	"github.com/88250/gulu"
++	"github.com/siyuan-note/filelock"
++	"github.com/siyuan-note/logging"
++	"github.com/siyuan-note/siyuan/kernel/treenode"
++	"github.com/siyuan-note/siyuan/kernel/util"
++)
++
++// 加密笔记本的 OCR 文本 store：
++//   - 落盘位置 <DataDir>/<boxID>/.siyuan/ocr-texts，内容用 DEK 派生子密钥加密（默认不含明文，见设计文档 §20）；
++//   - 解锁时加载进内存（util/ocr_box.go），锁定/卸载时先落盘再丢弃内存副本；
++//   - 内存/落盘均按 box 隔离，不进入全局 data/assets/ocr-texts.json，避免把密文笔记本内容写入明文索引。
++
++const boxOCRTextKeyPurpose = "siyuan/ocr-texts"
++
++func boxOCRAAD(boxID string) []byte {
++	return []byte("siyuan:ocr-texts:" + boxID)
++}
++
++func encryptBoxOCRTexts(boxID string, dek, plaintext []byte) ([]byte, error) {
++	key := util.DeriveSubKey(dek, boxOCRTextKeyPurpose)
++	defer zeroAndClear(key)
++	return util.EncryptWithAAD(key, plaintext, boxOCRAAD(boxID))
++}
++
++func decryptBoxOCRTexts(boxID string, dek, ciphertext []byte) ([]byte, error) {
++	key := util.DeriveSubKey(dek, boxOCRTextKeyPurpose)
++	defer zeroAndClear(key)
++	return util.DecryptWithAAD(key, ciphertext, boxOCRAAD(boxID))
++}
++
++func boxOCRTextsPath(boxID string) string {
++	return util.BoxAssetsTextsFilePath(boxID)
++}
++
++func loadBoxOCRTexts(boxID string, dek []byte) error {
++	p := boxOCRTextsPath(boxID)
++	if !filelock.IsExist(p) {
++		return nil
++	}
++	data, err := filelock.ReadFile(p)
++	if err != nil {
++		return err
++	}
++	plain, err := decryptBoxOCRTexts(boxID, dek, data)
++	if err != nil {
++		logging.LogErrorf("decrypt box OCR texts [%s] failed: %s", boxID, err)
++		return err
++	}
++	texts := map[string]string{}
++	if err = gulu.JSON.UnmarshalJSON(plain, &texts); err != nil {
++		logging.LogErrorf("unmarshal box OCR texts [%s] failed: %s", boxID, err)
++		return err
++	}
++	util.LoadBoxAssetsTexts(boxID, texts)
++	return nil
++}
++
++func saveBoxOCRTexts(boxID string) error {
++	texts, changed := util.DumpBoxAssetsTexts(boxID)
++	if !changed {
++		return nil
++	}
++	dek, ok := cachedDEKCopy(boxID)
++	if !ok {
++		return errors.New("encrypted notebook is locked, please unlock it first")
++	}
++	defer zeroAndClear(dek)
++	data, err := gulu.JSON.MarshalIndentJSON(texts, "", "  ")
++	if err != nil {
++		return err
++	}
++	ciphertext, err := encryptBoxOCRTexts(boxID, dek, data)
++	if err != nil {
++		return err
++	}
++	if err = os.MkdirAll(util.BoxAssetsTextsDir(boxID), 0755); err != nil {
++		return err
++	}
++	if err = filelock.WriteFile(boxOCRTextsPath(boxID), ciphertext); err != nil {
++		return err
++	}
++	util.ResetBoxAssetsTextsDirty(boxID)
++	return nil
++}
++
++func saveAllBoxesOCRTexts() {
++	for _, boxID := range treenode.GetOpenedEncryptedBoxIDs() {
++		if !isBoxUnlockedForAccess(boxID) {
++			continue
++		}
++		if err := saveBoxOCRTexts(boxID); err != nil {
++			logging.LogWarnf("save box OCR texts [%s] failed: %s", boxID, err)
++		}
++	}
++}
++
++// getUnOCRBoxAssets 返回所有已解锁加密笔记本中尚未 OCR 的图片资源。
++// key 为不含查询参数的 "assets/..." 相对路径；返回前清理已不存在资源的文本记录。
++func getUnOCRBoxAssets() map[string][]string {
++	ret := map[string][]string{}
++	for _, boxID := range treenode.GetOpenedEncryptedBoxIDs() {
++		if !isBoxUnlockedForAccess(boxID) {
++			continue
++		}
++		assetsDir := filepath.Join(util.DataDir, boxID, "assets")
++		if !filelock.IsExist(assetsDir) {
++			continue
++		}
++		util.CleanNotExistBoxAssetsTexts(boxID)
++		var relPaths []string
++		_ = filelock.Walk(assetsDir, func(path string, d fs.DirEntry, err error) error {
++			if nil != err || nil == d {
++				return err
++			}
++			if d.IsDir() {
++				if strings.HasPrefix(d.Name(), ".") {
++					return filepath.SkipDir
++				}
++				return nil
++			}
++			if strings.HasPrefix(d.Name(), ".") || filelock.IsHidden(path) || util.IsOfficeTempFile(path) {
++				return nil
++			}
++			rel := filepath.ToSlash(filepath.Join("assets", strings.TrimPrefix(path, assetsDir)))
++			if !util.IsTesseractExtractable(rel) {
++				return nil
++			}
++			if util.ExistsBoxAssetText(boxID, rel) {
++				return nil
++			}
++			relPaths = append(relPaths, rel)
++			return nil
++		})
++		if 0 < len(relPaths) {
++			ret[boxID] = relPaths
++		}
++	}
++	return ret
++}
++
++// ocrBoxAssetFile 解密 box 内图片到临时文件后交给 tesseract（tesseract 需要文件路径），
++// 返回 TSV 结果，临时明文文件随即删除。
++func ocrBoxAssetFile(boxID, relPath string) (ret []map[string]any, err error) {
++	plain, err := ReadAssetBytesInBox(boxID, relPath)
++	if err != nil {
++		return nil, err
++	}
++	defer clear(plain)
++	tmpDir := filepath.Join(util.TempDir, "ocr")
++	if err = os.MkdirAll(tmpDir, 0700); err != nil {
++		return nil, err
++	}
++	tmpPath := filepath.Join(tmpDir, fmt.Sprintf("%s-%s%s", boxID, gulu.Rand.String(12), filepath.Ext(relPath)))
++	if err = os.WriteFile(tmpPath, plain, 0600); err != nil {
++		return nil, err
++	}
++	defer func() {
++		if rmErr := os.Remove(tmpPath); rmErr != nil {
++			logging.LogWarnf("remove temp OCR file [%s] failed: %s", tmpPath, rmErr)
++		}
++	}()
++	return util.Tesseract(tmpPath), nil
++}
++
++// OcrAssetInBox 对加密笔记本内的图片执行 OCR（供 API /api/asset/ocr 手动触发）。
++func OcrAssetInBox(boxID, assetPath string) (ret []map[string]any, err error) {
++	if !util.TesseractEnabled {
++		return nil, errors.New(Conf.Language(266))
++	}
++	if "" == boxID || !IsEncryptedBox(boxID) {
++		return nil, errors.New("not an encrypted notebook asset")
++	}
++	if !isBoxUnlockedForAccess(boxID) {
++		return nil, errors.New("Encrypted notebook is locked, please unlock it first")
++	}
++	relPath := AssetPathWithoutQuery(assetPath)
++	ret, err = ocrBoxAssetFile(boxID, relPath)
++	if err != nil {
++		return nil, err
++	}
++	text := util.GetOcrJsonText(ret)
++	util.SetBoxAssetText(boxID, relPath, text)
++	if "" != text {
++		if err = saveBoxOCRTexts(boxID); err != nil {
++			logging.LogWarnf("save box OCR texts [%s] failed: %s", boxID, err)
++		}
++	}
++	return
++}
++
++// ocrBoxAssets 对给定加密笔记本的图片执行 OCR，返回处理数量；budget 为该任务本轮剩余上限。
++func ocrBoxAssets(boxID string, relPaths []string, budget int) (processed int) {
++	if !util.TesseractEnabled || "" == boxID || !isBoxUnlockedForAccess(boxID) {
++		return 0
++	}
++	for _, relPath := range relPaths {
++		if budget <= processed {
++			break
++		}
++		tsv, err := ocrBoxAssetFile(boxID, relPath)
++		if err != nil {
++			logging.LogWarnf("ocr box asset [%s] failed: %s", relPath, err)
++			continue
++		}
++		util.SetBoxAssetText(boxID, relPath, util.GetOcrJsonText(tsv))
++		processed++
++	}
++	return processed
++}
++
++// sortedBoxIDs 输出稳定的 boxID 顺序，保证自动 OCR 任务的可重复性。
++func sortedBoxIDs(boxAssets map[string][]string) (ret []string) {
++	for boxID := range boxAssets {
++		ret = append(ret, boxID)
++	}
++	sort.Strings(ret)
++	return
++}
+diff --git a/model/ocr_box_integration_test.go b/model/ocr_box_integration_test.go
+new file mode 100644
+index 0000000..47d8375
+--- /dev/null
++++ b/model/ocr_box_integration_test.go
+@@ -0,0 +1,262 @@
++// SiYuan - From thought to insight, with agents
++// Copyright (c) 2020-present, b3log.org
++//
++// This program is free software: you can redistribute it and/or modify
++// it under the terms of the GNU Affero General Public License as published by
++// the Free Software Foundation, either version 3 of the License, or
++// (at your option) any later version.
++//
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU Affero General Public License for more details.
++//
++// You should have received a copy of the GNU Affero General Public License
++// along with this program.  If not, see <https://www.gnu.org/licenses/>.
++
++//go:build sqlcipher || libsqlcipher
++
++package model
++
++import (
++	"bytes"
++	"context"
++	"encoding/base64"
++	"errors"
++	"os"
++	"os/exec"
++	"path/filepath"
++	"slices"
++	"strings"
++	"testing"
++	"time"
++
++	"github.com/88250/lute/ast"
++	"github.com/siyuan-note/siyuan/kernel/conf"
++	"github.com/siyuan-note/siyuan/kernel/filesys"
++	"github.com/siyuan-note/siyuan/kernel/sql"
++	"github.com/siyuan-note/siyuan/kernel/treenode"
++	"github.com/siyuan-note/siyuan/kernel/util"
++)
++
++const boxOCRTextsE2ETestEnv = "SIYUAN_TEST_BOX_OCR_TEXTS_E2E"
++
++// TestBoxOCRTextsEndToEnd covers the whole encrypted-notebook OCR pipeline against the
++// real kernel primitives:
++//   - an asset is written into the encrypted box (ciphertext at rest),
++//   - a document referencing it is indexed BEFORE OCR: the referencing container is queued
++//     for a deferred OCR reindex and the keyword is not yet searchable,
++//   - tesseract runs on a decrypted temp file and its text lands in the per-box store,
++//   - draining the OCR queue reindexes the block, and the keyword is now findable by the
++//     encrypted-notebook in-box full-text search (never by the global search index),
++//   - the persisted sidecar does not contain the OCR text or the boxID as plaintext,
++//   - on lock the in-memory copy is dropped, on unlock it is restored from the sidecar,
++//   - a tampered sidecar is rejected instead of being loaded.
++//
++// 该测试会改写进程内全局工作区路径（util.DataDir 等），通过子进程执行避免污染同进程其他测试，
++// 与 kernel/model/crypto_create_sqlcipher_test.go 的隔离模式一致。
++func TestBoxOCRTextsEndToEnd(t *testing.T) {
++	if os.Getenv(boxOCRTextsE2ETestEnv) == "1" {
++		testBoxOCRTextsEndToEnd(t)
++		return
++	}
++
++	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
++	defer cancel()
++	cmd := exec.CommandContext(ctx, os.Args[0], "-test.run=^TestBoxOCRTextsEndToEnd$")
++	cmd.Env = append(os.Environ(), boxOCRTextsE2ETestEnv+"=1")
++	output, err := cmd.CombinedOutput()
++	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
++		t.Fatalf("encrypted-notebook OCR E2E timed out:\n%s", output)
++	}
++	if err != nil {
++		t.Fatalf("encrypted-notebook OCR E2E failed: %v\n%s", err, output)
++	}
++}
++
++func testBoxOCRTextsEndToEnd(t *testing.T) {
++	setupCryptoModelDirs(t)
++
++	Conf = NewAppConf()
++	Conf.FileTree = conf.NewFileTree()
++	*Conf.FileTree.BoxDocEnabled = true
++	Conf.NotebookCrypto = conf.NewNotebookCrypto()
++	Conf.Sync = conf.NewSync()
++	Conf.Search = conf.NewSearch()
++	sql.InitDatabase(true)
++	sql.InitHistoryDatabase(true)
++	sql.InitAssetContentDatabase(true)
++	t.Cleanup(sql.CloseDatabase)
++
++	password := "ocr-box-e2e-test"
++	if err := EnableEncryptedNotebook(password); err != nil {
++		t.Fatalf("enable encrypted notebooks failed: %v", err)
++	}
++	boxID, err := CreateEncryptedBox("OCR Enc", password)
++	if err != nil {
++		t.Fatalf("create encrypted notebook failed: %v", err)
++	}
++
++	util.Container = util.ContainerStd
++	util.InitTesseract()
++	if !util.TesseractEnabled {
++		t.Skip("tesseract-ocr not available in the test environment")
++	}
++	util.WaitForTesseractInit()
++
++	// 1. 往加密笔记本写入一张密文图片（内容为 "Hello OCR"）
++	raw, err := base64.StdEncoding.DecodeString(testOCRFixtureHelloOCR)
++	if err != nil {
++		t.Fatalf("decode OCR fixture failed: %v", err)
++	}
++	blockID := ast.NewNodeID()
++	fName := encryptedAssetName(".png", blockID)
++	assetAbsPath := filepath.Join(util.DataDir, boxID, "assets", fName)
++	if err := os.MkdirAll(filepath.Dir(assetAbsPath), 0755); err != nil {
++		t.Fatal(err)
++	}
++	if err := writeAssetFile(assetAbsPath, bytes.NewReader(raw), boxID, "ocr-sample.png"); err != nil {
++		t.Fatalf("write encrypted asset failed: %v", err)
++	}
++	onDisk, err := os.ReadFile(assetAbsPath)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if !IsEncryptedNotebookData(onDisk) {
++		t.Fatal("encrypted asset was stored as plaintext")
++	}
++
++	relPath := "assets/" + fName
++	key := relPath + "?box=" + boxID
++	if dump := os.Getenv("SIYUAN_DEBUG_DUMP"); dump != "" {
++		_ = os.WriteFile(filepath.Join(dump, "decrypted-from-box.png"), raw, 0644)
++	}
++
++	// 2. 先建立引用该图片的文档并写入索引（此时资源尚未 OCR，容器节点应被挂入 NodeOCRQueue 待重索引）
++	docID := ast.NewNodeID()
++	docPath := "/" + docID + ".sy"
++	docTree := treenode.NewTree(boxID, docPath, "/OCR Doc", "OCR Doc")
++	paragraph := docTree.Root.FirstChild
++	img := &ast.Node{Type: ast.NodeImage, ID: ast.NewNodeID(), Box: boxID, Path: docPath}
++	img.AppendChild(&ast.Node{Type: ast.NodeLinkDest, Tokens: []byte(key)})
++	paragraph.AppendChild(img)
++	if _, err := filesys.WriteTree(docTree); err != nil {
++		t.Fatalf("write encrypted doc failed: %v", err)
++	}
++	treenode.UpsertBlockTree(docTree)
++	sql.IndexTreeQueue(docTree)
++	sql.FlushQueue()
++	util.NodeOCRQueueLock.Lock()
++	pending := append([]string(nil), util.NodeOCRQueue...)
++	util.NodeOCRQueueLock.Unlock()
++	if !slices.Contains(pending, paragraph.ID) {
++		t.Fatalf("paragraph [%s] should be queued for OCR reindex, got %v", paragraph.ID, pending)
++	}
++	if _, _, matched, _, _ := FullTextSearchBlockInBoxWithHPathContext(context.Background(), "hello", nil, nil, nil, nil, 0, 1, 0, 1, 32, boxID, true, nil, nil); 0 != matched {
++		t.Fatalf("OCR text should not be searchable before reindex, matched=%d", matched)
++	}
++
++	// 3. 手动触发 OCR：解密 -> tesseract -> box 隔离文本
++	if _, err := OcrAssetInBox(boxID, relPath); err != nil {
++		t.Fatalf("ocr asset in box failed: %v", err)
++	}
++	ocrText := util.GetAssetText(key)
++	if !strings.Contains(strings.ToLower(ocrText), "hello") {
++		t.Fatalf("OCR text not found after recognition, got [%s]", ocrText)
++	}
++	if !util.ExistsAssetText(key) {
++		t.Fatal("box OCR text not recorded")
++	}
++	if util.ExistsAssetText(relPath) {
++		t.Fatal("box OCR text leaked into the global asset store")
++	}
++
++	// 4. 重索引挂起节点，OCR 文本应进入加密笔记本自己的 FTS
++	util.NodeOCRQueueLock.Lock()
++	pending = append([]string(nil), util.NodeOCRQueue...)
++	util.NodeOCRQueue = nil
++	util.NodeOCRQueueLock.Unlock()
++	for _, id := range pending {
++		sql.IndexNodeQueue(id)
++	}
++	sql.FlushQueue()
++	blocks, _, matched, _, _ := FullTextSearchBlockInBoxWithHPathContext(context.Background(), "hello", nil, nil, nil, nil, 0, 1, 0, 1, 32, boxID, true, nil, nil)
++	if matched < 1 {
++		t.Fatal("OCR text is not searchable inside the encrypted notebook")
++	}
++	searchHit := false
++	for _, b := range blocks {
++		if b.ID == paragraph.ID && strings.Contains(strings.ToLower(b.Content), "hello") {
++			searchHit = true
++		}
++	}
++	if !searchHit {
++		t.Fatal("the paragraph referencing the encrypted image was not returned by the in-box FTS search")
++	}
++
++	// 5. 全局（普通笔记本）搜索不得命中加密笔记本的 OCR 文本
++	if _, _, matched, _, _ := FullTextSearchBlockInBoxWithHPathContext(context.Background(), "hello", nil, nil, nil, nil, 0, 1, 0, 1, 32, "", true, nil, nil); 0 != matched {
++		t.Fatalf("OCR text leaked into the global search index, matched=%d", matched)
++	}
++
++	// 6. 明文 OCR 文本不得以明文出现在 sidecar
++	store, err := os.ReadFile(util.BoxAssetsTextsFilePath(boxID))
++	if err != nil {
++		t.Fatal(err)
++	}
++	if !IsEncryptedNotebookData(store) {
++		t.Fatal("box OCR texts sidecar is not encrypted at rest")
++	}
++	if bytes.Contains(store, []byte("hello")) || bytes.Contains(store, []byte(boxID)) {
++		t.Fatal("box OCR texts sidecar leaks plaintext or boxID")
++	}
++
++	// 7. 锁定：内存副本必须被丢弃
++	util.ClearBoxAssetsTexts(boxID)
++	if util.ExistsAssetText(key) {
++		t.Fatal("box OCR text survived the lock drop")
++	}
++
++	// 8. 重新解锁：从加密 sidecar 恢复
++	dek, ok := cachedDEKCopy(boxID)
++	if !ok {
++		t.Fatal("DEK not cached for the unlocked box")
++	}
++	defer zeroAndClear(dek)
++	if err := loadBoxOCRTexts(boxID, dek); err != nil {
++		t.Fatalf("load box OCR texts failed: %v", err)
++	}
++	if loaded := util.GetAssetText(key); loaded != ocrText {
++		t.Fatalf("restored OCR text mismatch: got [%s], want [%s]", loaded, ocrText)
++	}
++
++	// 9. 篡改的 sidecar 必须被拒绝
++	util.ClearBoxAssetsTexts(boxID)
++	if err := os.WriteFile(util.BoxAssetsTextsFilePath(boxID), []byte("tampered"), 0644); err != nil {
++		t.Fatal(err)
++	}
++	if err := loadBoxOCRTexts(boxID, dek); err == nil {
++		t.Fatal("tampered box OCR texts sidecar was not rejected")
++	}
++}
++
++// setupCryptoModelDirs points the util paths at a fresh temp root (shared by the other
++// encrypted-notebook sqlcipher tests).
++func setupCryptoModelDirs(t *testing.T) {
++	root := t.TempDir()
++	util.WorkspaceDir = root
++	util.DataDir = filepath.Join(root, "data")
++	util.TempDir = filepath.Join(root, "temp")
++	util.ConfDir = filepath.Join(root, "conf")
++	util.HistoryDir = filepath.Join(root, "history")
++	util.QueueDir = filepath.Join(util.TempDir, "queue")
++	util.DBPath = filepath.Join(util.TempDir, util.DBName)
++	util.HistoryDBPath = filepath.Join(util.TempDir, "history.db")
++	util.AssetContentDBPath = filepath.Join(util.TempDir, "asset_content.db")
++	util.BlockTreeDBPath = filepath.Join(util.TempDir, "blocktree.db")
++	for _, dir := range []string{util.DataDir, util.TempDir, util.ConfDir, util.HistoryDir} {
++		if err := os.MkdirAll(dir, 0755); err != nil {
++			t.Fatal(err)
++		}
++	}
++}
+diff --git a/model/ocr_box_test.go b/model/ocr_box_test.go
+new file mode 100644
+index 0000000..b7e2171
+--- /dev/null
++++ b/model/ocr_box_test.go
+@@ -0,0 +1,106 @@
++package model
++
++import (
++	"bytes"
++	"os"
++	"path/filepath"
++	"testing"
++
++	"github.com/siyuan-note/siyuan/kernel/util"
++)
++
++const testBoxOCRBoxID = "20260812000002-ocrbox1"
++
++// TestBoxOCRTextsEncryptedRoundTrip 验证 box OCR 文本加密落盘、加载回内存，且落盘文件不含明文 JSON。
++func TestBoxOCRTextsEncryptedRoundTrip(t *testing.T) {
++	tmpDir := t.TempDir()
++	origDataDir, origTempDir := util.DataDir, util.TempDir
++	util.DataDir = tmpDir
++	util.TempDir = filepath.Join(tmpDir, "temp")
++	if err := os.MkdirAll(util.TempDir, 0755); err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() {
++		util.DataDir, util.TempDir = origDataDir, origTempDir
++	})
++
++	// 模拟运行中的加密笔记本：box conf 标记加密 + DEK 缓存。
++	boxDir := filepath.Join(util.DataDir, testBoxOCRBoxID)
++	if err := os.MkdirAll(filepath.Join(boxDir, ".siyuan"), 0755); err != nil {
++		t.Fatal(err)
++	}
++	dek := make([]byte, 32)
++	for i := range dek {
++		dek[i] = byte(i)
++	}
++	setTestDEK(t, testBoxOCRBoxID, dek)
++	t.Cleanup(func() {
++		cachedDEKsLock.Lock()
++		delete(cachedDEKs, testBoxOCRBoxID)
++		cachedDEKsLock.Unlock()
++	})
++
++	key := "assets/scan.png?box=" + testBoxOCRBoxID
++	util.SetAssetText(key, "the quick brown fox")
++
++	if err := saveBoxOCRTexts(testBoxOCRBoxID); err != nil {
++		t.Fatalf("saveBoxOCRTexts: %v", err)
++	}
++	if util.BoxAssetsTextsDirty(testBoxOCRBoxID) {
++		t.Error("dirty flag not cleared after save")
++	}
++
++	p := boxOCRTextsPath(testBoxOCRBoxID)
++	raw, err := os.ReadFile(p)
++	if err != nil {
++		t.Fatalf("read ocr-texts: %v", err)
++	}
++	if bytes.Contains(raw, []byte("the quick brown fox")) {
++		t.Fatal("plaintext OCR text leaked to disk")
++	}
++	if bytes.Contains(raw, []byte("\"assets/scan.png\"")) {
++		t.Fatal("plaintext key leaked to disk")
++	}
++
++	// 锁定：清内存
++	util.ClearBoxAssetsTexts(testBoxOCRBoxID)
++	util.ResetBoxAssetsTextsDirty(testBoxOCRBoxID)
++	if "" != util.GetAssetText(key) {
++		t.Fatal("box OCR text not dropped on lock")
++	}
++
++	// 解锁：从加密文件恢复
++	if err = loadBoxOCRTexts(testBoxOCRBoxID, dek); err != nil {
++		t.Fatalf("loadBoxOCRTexts: %v", err)
++	}
++	if got := util.GetAssetText(key); got != "the quick brown fox" {
++		t.Fatalf("reloaded getAsset = %q, want the quick brown fox", got)
++	}
++}
++
++// TestBoxOCRTextsTamperRejected 验证篡改密文后无法解密出可用的 OCR 文本。
++func TestBoxOCRTextsTamperRejected(t *testing.T) {
++	tmpDir := t.TempDir()
++	origDataDir := util.DataDir
++	util.DataDir = tmpDir
++	t.Cleanup(func() { util.DataDir = origDataDir })
++
++	boxDir := filepath.Join(util.DataDir, testBoxOCRBoxID)
++	if err := os.MkdirAll(filepath.Join(boxDir, ".siyuan"), 0755); err != nil {
++		t.Fatal(err)
++	}
++	dek := bytes.Repeat([]byte{0x42}, 32)
++	if err := os.WriteFile(boxOCRTextsPath(testBoxOCRBoxID), bytes.Repeat([]byte{0x00}, 128), 0600); err != nil {
++		t.Fatal(err)
++	}
++	if err := loadBoxOCRTexts(testBoxOCRBoxID, dek); err == nil {
++		t.Fatal("tampered box OCR texts must not load")
++	}
++}
++
++// setTestDEK 直接把明文 DEK 塞进缓存，模拟已解锁状态。
++func setTestDEK(t *testing.T, boxID string, dek []byte) {
++	cachedDEKsLock.Lock()
++	cachedDEKs[boxID] = append([]byte(nil), dek...)
++	cachedDEKsLock.Unlock()
++}
+diff --git a/model/ocr_fixture_test.go b/model/ocr_fixture_test.go
+new file mode 100644
+index 0000000..3447748
+--- /dev/null
++++ b/model/ocr_fixture_test.go
+@@ -0,0 +1,6 @@
++package model
++
++// testOCRFixtureHelloOCR is a 1200x300 PNG of "Hello OCR" (LiberationSans Bold,
++// 96pt), verified to be read reliably by tesseract 5 (eng). Used to drive the
++// encrypted-notebook OCR E2E test deterministically.
++const testOCRFixtureHelloOCR = "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x0TJt76z74Voe9Obpm8cnN4rxB1hYv0BX+4fZ/ds6ncVhq7e/Pc2ZYN3JLV9Ydfc22Px654u/yv49/gI20EkEvj/Qb3Ny1dt3/VTRlZicrkql9RtfL1bZ9FTzgfExcWXaiedvwYlw/xZ7/965fYdBzIy80qVrpBa/YoWTWJ4I/fLso07duw5lpl5smSZ0uVTq1/a4JrzImspd/2qHTt3/piZmZVTMrlMpYur1b+yET2m/isQWADU4CMhADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1PgP0AQFY/npL5kAAAAASUVORK5CYII="
+diff --git a/treenode/node.go b/treenode/node.go
+index 05327ca..a8c07e3 100644
+--- a/treenode/node.go
++++ b/treenode/node.go
+@@ -195,6 +195,14 @@ func IsNodeOCRed(node *ast.Node) (ret bool) {
+ 			}
+ 
+ 			linkDestStr := linkDest.TokensStr()
++			// 加密笔记本资源（key 带 ?box=）：按 box 内文件存在性与 box 隔离的 OCR 文本判断
++			if boxID := util.BoxIDFromAssetKey(linkDestStr); "" != boxID {
++				if util.ExistsBoxAssetFile(boxID, linkDestStr) && !util.ExistsAssetText(linkDestStr) {
++					ret = false
++					return ast.WalkStop
++				}
++				return ast.WalkContinue
++			}
+ 			if !cache.ExistAsset(linkDestStr) {
+ 				return ast.WalkContinue
+ 			}
+diff --git a/util/ocr.go b/util/ocr.go
+index ce4ebc0..61a565d 100644
+--- a/util/ocr.go
++++ b/util/ocr.go
+@@ -141,6 +141,10 @@ func SaveAssetsTexts() {
+ }
+ 
+ func SetAssetText(asset, text string) {
++	if boxID := BoxIDFromAssetKey(asset); "" != boxID {
++		SetBoxAssetText(boxID, asset, text)
++		return
++	}
+ 	assetsTextsLock.Lock()
+ 	oldText, ok := assetsTexts[asset]
+ 	assetsTexts[asset] = text
+@@ -151,6 +155,9 @@ func SetAssetText(asset, text string) {
+ }
+ 
+ func ExistsAssetText(asset string) (ret bool) {
++	if boxID := BoxIDFromAssetKey(asset); "" != boxID {
++		return ExistsBoxAssetText(boxID, asset)
++	}
+ 	assetsTextsLock.Lock()
+ 	_, ret = assetsTexts[asset]
+ 	assetsTextsLock.Unlock()
+@@ -178,6 +185,9 @@ func OcrAsset(asset string) (ret []map[string]any, err error) {
+ }
+ 
+ func GetAssetText(asset string) (ret string) {
++	if boxID := BoxIDFromAssetKey(asset); "" != boxID {
++		return GetBoxAssetText(boxID, asset)
++	}
+ 	assetsTextsLock.Lock()
+ 	ret = assetsTexts[asset]
+ 	assetsTextsLock.Unlock()
+@@ -185,6 +195,10 @@ func GetAssetText(asset string) (ret string) {
+ }
+ 
+ func RemoveAssetText(asset string) {
++	if boxID := BoxIDFromAssetKey(asset); "" != boxID {
++		RemoveBoxAssetText(boxID, asset)
++		return
++	}
+ 	assetsTextsLock.Lock()
+ 	delete(assetsTexts, asset)
+ 	assetsTextsLock.Unlock()
+diff --git a/util/ocr_box.go b/util/ocr_box.go
+new file mode 100644
+index 0000000..2d05442
+--- /dev/null
++++ b/util/ocr_box.go
+@@ -0,0 +1,246 @@
++// SiYuan - From thought to insight, with agents
++// Copyright (c) 2020-present, b3log.org
++//
++// This program is free software: you can redistribute it and/or modify
++// it under the terms of the GNU Affero General Public License as published by
++// the Free Software Foundation, either version 3 of the License, or
++// (at your option) any later version.
++//
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU Affero General Public License for more details.
++//
++// You should have received a copy of the GNU Affero General Public License
++// along with this program.  If not, see <https://www.gnu.org/licenses/>.
++
++package util
++
++import (
++	"path/filepath"
++	"strings"
++	"sync"
++	"sync/atomic"
++
++	"github.com/88250/lute/ast"
++	"github.com/siyuan-note/filelock"
++)
++
++// 加密笔记本的 OCR 文本按 box 隔离存储：
++//   - 内存中每个已解锁 box 一张 map，key 为不含查询参数的 "assets/..." 路径（与普通 notebook 一致）；
++//   - 索引（sql/block.go）与 API 使用带 ?box= 参数的完整 key，由 SetAssetText/GetAssetText/ExistsAssetText
++//     统一路由到对应的 box 存储，普通 notebook 的行为保持不变；
++//   - 持久化由 model 层负责（加密落盘 + 解锁加载 + 锁定丢弃，见 model/ocr_box.go），
++//     util 仅维护内存状态与变更标记，不接触明文文件。
++var (
++	boxAssetsTexts        = map[string]map[string]string{}
++	boxAssetsTextsLock    = sync.Mutex{}
++	boxAssetsTextsChanged = map[string]*atomic.Bool{}
++)
++
++func BoxAssetsTextsDir(boxID string) string {
++	return filepath.Join(DataDir, boxID, ".siyuan")
++}
++
++func BoxAssetsTextsFilePath(boxID string) string {
++	return filepath.Join(BoxAssetsTextsDir(boxID), "ocr-texts")
++}
++
++// BoxIDFromAssetKey 解析 asset key 中的 ?box= 参数；无参数或非法 ID 返回空串。
++func BoxIDFromAssetKey(asset string) string {
++	if idx := strings.Index(asset, "?"); 0 <= idx {
++		for _, pair := range strings.Split(asset[idx+1:], "&") {
++			if strings.HasPrefix(pair, "box=") {
++				boxID := strings.TrimSpace(strings.TrimPrefix(pair, "box="))
++				if ast.IsNodeIDPattern(boxID) {
++					return boxID
++				}
++				return ""
++			}
++		}
++	}
++	return ""
++}
++
++// IsEncryptedBoxAssetKey 判断 asset key 是否指向加密笔记本内的资源。
++func IsEncryptedBoxAssetKey(asset string) bool {
++	return "" != BoxIDFromAssetKey(asset)
++}
++
++// normalizeBoxAssetKey 去掉查询参数得到 "assets/..." 形式，作为 box 内存储的实际 key。
++func normalizeBoxAssetKey(asset string) string {
++	if idx := strings.Index(asset, "?"); 0 <= idx {
++		asset = asset[:idx]
++	}
++	return filepath.ToSlash(asset)
++}
++
++func boxAssetsTextsMap(boxID string) map[string]string {
++	texts, ok := boxAssetsTexts[boxID]
++	if !ok {
++		texts = map[string]string{}
++		boxAssetsTexts[boxID] = texts
++	}
++	return texts
++}
++
++func boxAssetsTextsDirty(boxID string) *atomic.Bool {
++	dirty, ok := boxAssetsTextsChanged[boxID]
++	if !ok {
++		dirty = &atomic.Bool{}
++		boxAssetsTextsChanged[boxID] = dirty
++	}
++	return dirty
++}
++
++// SetBoxAssetText 记录加密笔记本内资源的 OCR 文本。boxID 为空或资源路径非法时忽略。
++func SetBoxAssetText(boxID, asset, text string) {
++	if "" == boxID {
++		return
++	}
++	key := normalizeBoxAssetKey(asset)
++	if !strings.HasPrefix(key, "assets/") {
++		return
++	}
++	boxAssetsTextsLock.Lock()
++	texts := boxAssetsTextsMap(boxID)
++	oldText, ok := texts[key]
++	texts[key] = text
++	boxAssetsTextsLock.Unlock()
++	if !ok || oldText != text {
++		boxAssetsTextsDirty(boxID).Store(true)
++	}
++}
++
++// GetBoxAssetText 读取加密笔记本内资源的 OCR 文本；box 未解锁（未加载）时返回空串。
++func GetBoxAssetText(boxID, asset string) (ret string) {
++	if "" == boxID {
++		return
++	}
++	key := normalizeBoxAssetKey(asset)
++	boxAssetsTextsLock.Lock()
++	if texts, ok := boxAssetsTexts[boxID]; ok {
++		ret = texts[key]
++	}
++	boxAssetsTextsLock.Unlock()
++	return
++}
++
++// ExistsBoxAssetText 判断加密笔记本内资源是否已有 OCR 文本记录。
++func ExistsBoxAssetText(boxID, asset string) bool {
++	if "" == boxID {
++		return false
++	}
++	key := normalizeBoxAssetKey(asset)
++	boxAssetsTextsLock.Lock()
++	_, ok := boxAssetsTexts[boxID][key]
++	boxAssetsTextsLock.Unlock()
++	return ok
++}
++
++// RemoveBoxAssetText 删除加密笔记本内资源的 OCR 文本记录。
++func RemoveBoxAssetText(boxID, asset string) {
++	if "" == boxID {
++		return
++	}
++	key := normalizeBoxAssetKey(asset)
++	boxAssetsTextsLock.Lock()
++	if texts, ok := boxAssetsTexts[boxID]; ok {
++		if _, existed := texts[key]; existed {
++			delete(texts, key)
++			boxAssetsTextsChanged[boxID].Store(true)
++		}
++	}
++	boxAssetsTextsLock.Unlock()
++}
++
++// BoxAssetFilePath 返回加密笔记本资源文件的绝对路径（不释放密文）。
++func BoxAssetFilePath(boxID, asset string) string {
++	key := normalizeBoxAssetKey(asset)
++	key = strings.TrimPrefix(key, "assets/")
++	return filepath.Join(DataDir, boxID, "assets", key)
++}
++
++// ExistsBoxAssetFile 判断加密笔记本资源文件是否存在于磁盘。
++func ExistsBoxAssetFile(boxID, asset string) bool {
++	if "" == boxID {
++		return false
++	}
++	return filelock.IsExist(BoxAssetFilePath(boxID, asset))
++}
++
++// CleanNotExistBoxAssetsTexts 清理已不存在资源对应的 OCR 文本记录。
++func CleanNotExistBoxAssetsTexts(boxID string) {
++	boxAssetsTextsLock.Lock()
++	texts, ok := boxAssetsTexts[boxID]
++	if !ok {
++		boxAssetsTextsLock.Unlock()
++		return
++	}
++	var toRemoves []string
++	for asset := range texts {
++		if filelock.IsExist(BoxAssetFilePath(boxID, "assets/"+strings.TrimPrefix(asset, "assets/"))) {
++			continue
++		}
++		toRemoves = append(toRemoves, asset)
++	}
++	for _, asset := range toRemoves {
++		delete(texts, asset)
++	}
++	dirty := boxAssetsTextsChanged[boxID]
++	boxAssetsTextsLock.Unlock()
++	if 0 < len(toRemoves) {
++		dirty.Store(true)
++	}
++}
++
++// ClearBoxAssetsTexts 丢弃指定 box 的内存 OCR 文本（锁定/卸载时调用，防止明文残留在内存）。
++func ClearBoxAssetsTexts(boxID string) {
++	boxAssetsTextsLock.Lock()
++	delete(boxAssetsTexts, boxID)
++	delete(boxAssetsTextsChanged, boxID)
++	boxAssetsTextsLock.Unlock()
++}
++
++// LoadBoxAssetsTexts 载入指定 box 的 OCR 文本（解锁时调用）。texts 可能为 nil。
++func LoadBoxAssetsTexts(boxID string, texts map[string]string) {
++	boxAssetsTextsLock.Lock()
++	boxAssetsTexts[boxID] = texts
++	dirty := boxAssetsTextsDirty(boxID)
++	boxAssetsTextsLock.Unlock()
++	dirty.Store(false)
++}
++
++// DumpBoxAssetsTexts 返回指定 box 的 OCR 文本副本及是否有未持久化的变更。
++func DumpBoxAssetsTexts(boxID string) (texts map[string]string, changed bool) {
++	boxAssetsTextsLock.Lock()
++	texts = map[string]string{}
++	if src, ok := boxAssetsTexts[boxID]; ok {
++		for k, v := range src {
++			texts[k] = v
++		}
++	}
++	if dirty := boxAssetsTextsChanged[boxID]; nil != dirty {
++		changed = dirty.Load()
++	}
++	boxAssetsTextsLock.Unlock()
++	return
++}
++
++// ResetBoxAssetsTextsDirty 在成功持久化后清除变更标记。
++func ResetBoxAssetsTextsDirty(boxID string) {
++	boxAssetsTextsLock.Lock()
++	dirty := boxAssetsTextsChanged[boxID]
++	boxAssetsTextsLock.Unlock()
++	if nil != dirty {
++		dirty.Store(false)
++	}
++}
++
++// BoxAssetsTextsDirty 判断指定 box 是否有未持久化的 OCR 文本变更。
++func BoxAssetsTextsDirty(boxID string) bool {
++	boxAssetsTextsLock.Lock()
++	dirty := boxAssetsTextsChanged[boxID]
++	boxAssetsTextsLock.Unlock()
++	return nil != dirty && dirty.Load()
++}
+diff --git a/util/ocr_box_test.go b/util/ocr_box_test.go
+new file mode 100644
+index 0000000..d8a0ea9
+--- /dev/null
++++ b/util/ocr_box_test.go
+@@ -0,0 +1,95 @@
++package util
++
++import (
++	"os"
++	"path/filepath"
++	"testing"
++)
++
++func TestBoxIDFromAssetKey(t *testing.T) {
++	const boxID = "20260812000000-source0"
++	cases := []struct {
++		key  string
++		want string
++	}{
++		{"assets/foo.png?box=" + boxID, boxID},
++		{"assets/foo.png?box=" + boxID + "&style=thumb#preview", boxID},
++		{"assets/foo.png?style=thumb", ""},
++		{"assets/foo.png", ""},
++		{"assets/foo.png?box=not-an-id", ""},
++	}
++	for _, c := range cases {
++		if got := BoxIDFromAssetKey(c.key); got != c.want {
++			t.Errorf("BoxIDFromAssetKey(%q) = %q, want %q", c.key, got, c.want)
++		}
++	}
++}
++
++func TestBoxOCRTextsRoutingAndPersistence(t *testing.T) {
++	tmpDir := t.TempDir()
++	boxID := "20260812000001-abcdefg"
++	utilDataDir := DataDir
++	DataDir = tmpDir
++	defer func() { DataDir = utilDataDir }()
++
++	boxDir := filepath.Join(DataDir, boxID)
++	if err := os.MkdirAll(boxDir, 0755); err != nil {
++		t.Fatal(err)
++	}
++	assetFile := filepath.Join(boxDir, "assets", "scan.png")
++	if err := os.MkdirAll(filepath.Dir(assetFile), 0755); err != nil {
++		t.Fatal(err)
++	}
++	if err := os.WriteFile(assetFile, []byte("image-bytes"), 0600); err != nil {
++		t.Fatal(err)
++	}
++
++	key := "assets/scan.png?box=" + boxID
++	SetAssetText(key, "hello world")
++
++	if !ExistsBoxAssetText(boxID, "assets/scan.png") {
++		t.Error("box text not recorded")
++	}
++	if !ExistsBoxAssetText(boxID, key) {
++		t.Error("box text not found via query key")
++	}
++	if !ExistsAssetText(key) {
++		t.Error("ExistsAssetText not routed to box store")
++	}
++	if got := GetAssetText(key); got != "hello world" {
++		t.Errorf("GetAssetText(key) = %q, want hello world", got)
++	}
++	if !ExistsBoxAssetFile(boxID, "assets/scan.png") {
++		t.Error("box asset file not detected")
++	}
++	if ExistsAssetText("assets/missing.png?box=" + boxID) {
++		t.Error("missing box text handled wrongly")
++	}
++
++	// 锁定前导出（模拟 saveBoxOCRTexts 之前的 Dump）
++	texts, changed := DumpBoxAssetsTexts(boxID)
++	if !changed || texts["assets/scan.png"] != "hello world" {
++		t.Errorf("DumpBoxAssetsTexts = %v changed=%v", texts, changed)
++	}
++
++	ClearBoxAssetsTexts(boxID)
++	if ExistsAssetText(key) {
++		t.Error("box text not cleared on lock")
++	}
++
++	LoadBoxAssetsTexts(boxID, texts)
++	if got := GetAssetText(key); got != "hello world" {
++		t.Errorf("reload GetAssetText(key) = %q, want hello world", got)
++	}
++	RemoveAssetText(key)
++	if ExistsAssetText(key) {
++		t.Error("box text not removed")
++	}
++
++	// 普通资产行为保持不变
++	SetAssetText("assets/global.png", "g")
++	if GetAssetText("assets/global.png") != "g" {
++		t.Error("global text routing broken")
++	}
++	ClearBoxAssetsTexts(boxID)
++}
