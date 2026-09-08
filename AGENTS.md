@@ -9,6 +9,10 @@ NixOS configuration for personal machines.
 - Single repo manages: NixOS hosts, home-manager configs, custom packages (from upstream flakes), overlays, Go secret-generation tooling, and GitHub/Forgejo CI.
 - Everything is declarative where possible; secrets come from 1Password via SOPS (not committed).
 
+## Tooling
+
+- **Use the `nixos` MCP server for ALL nixpkgs/module/package lookups** — packages, NixOS / home-manager / nixvim / darwin options, flakes, channels, /nix/store paths, version history. It queries live APIs (search.nixos.org, NixHub, FlakeHub) and is far more current than training data or `nix search`. Trigger it on any mention of a package name, attribute path, option, channel, or store path — even when you think you know the answer (indexes can be stale too; when a version matters, verify against the flake-locked revisions in `flake.lock`).
+
 ## Directory layout
 
 - `flake.nix` — entry point. Defines inputs, `nixosConfigurations`, `homeConfigurations`, `packages`, and the `format` app.
@@ -36,7 +40,7 @@ NixOS configuration for personal machines.
 - **Hosts table (`xelib/hosts.nix`)**: single source for per-host data: username, full name, tailscale `ip`, `type` (list of device types), accent color, ports, public-key URI, backup cadence. Access via `xelib.hosts.<hostname>`.
 - **`apps` module (`modules/apps.nix`)**: define apps as attrsets (`apps.<name> = { port, domain, ... }`). Auto-wires nginx proxies and DNS zones, and it feeds the homepage. `xelib.apps` aggregates from all hosts.
   - **Always reference derived accessors** (`config.apps.<name>.ip`, `.portString`, `.url`, `.host`, `.domain`) instead of local port/ip variables when wiring a service. They resolve automatically: `ip` → the tailscale IP of the host (`xelib.hosts.<host>.ip`), `portString` → `toString .port`, `url` → `https://<domain>` when `domain` is set.
-  - **Bind services to `config.apps.<name>.ip`** (the tailscale IP) for anything reachable from other hosts, not `127.0.0.1` — except where nginx alone needs to reach it, in which case binding to the app IP is still fine since nginx proxies by host.
+  - **Bind services to `config.apps.<name>.ip`** (the tailscale IP) for anything reachable from other hosts, not `127.0.0.1` — except where nginx alone needs to reach it, in which case binding to the app IP is still fine since nginx proxies by host. Conversely, **non-user-facing internal ports** (e.g. Garage `rpc`/`admin`) should bind to `127.0.0.1` when nothing on another host needs them.
   - `name`/`description`/`icon` are **only for homepage display** — omit unless the app is added to the homepage `services` list (in `homepage/default.nix`). `name` auto-derives to the title-cased attr-name if omitted.
   - Extra per-app metadata goes in `details` (a free-form attrs, e.g. `config.apps.<name>.details.buckets = [...]`), used for extra ports/params not covered by the core fields.
 - **`nginx` module (`modules/nginx.nix`)**: `nginx.proxy.<domain>` creates an nginx vhost (docs: `target`, `local`, `allowedHosts`, `anubis`, `oidcGroups`...). Non-local domains get ACME certs; `.xela`/`.internal` domains are treated as local (tailscale-only, self-signed/step-ca cert).
@@ -45,6 +49,7 @@ NixOS configuration for personal machines.
 - **SOPS secrets (`modules/sops.nix` + `xelib/opsecrets.nix`)**: two patterns —
   - `sops.envFiles.<name> = { KEY = "op://..." }` → a single dotenv secret file (`sops/<host>/<name>.env`), usable as `environmentFile`.
   - `sops.groups.<name>.<field> = "op://..."` (or `{ value = ...; ... }`) → individual secrets, resolves to `sops.groupPaths.<group>.<field>`. Access actual file via `config.sops.groupPaths.<group>.<field>` (placeholder via `groupPlaceholders`).
+  - **Always use the 1Password item ID (UUID) in `op://` URLs** (e.g. `op://Private/<uuid>/<field>`) — never the item name, which can change.
   - These are declared in modules/hosts; the Go tool reads the evaluated `opSecrets` and writes the SOPS files. After adding a new 1Password-backed secret, run the go tool to regenerate.
 - **`xelpkgs`**: custom packages (from `pkgs/`) exposed to modules as `xelpkgs` (a specialArg). Individual packages also come out as flake `packages` via the `*.package.nix` convention (see below).
 - **`package.nix` convention**: any directory anywhere under a host dir or `_features/` containing `*.package.nix` gets turned into a flake package. Naming: relative path joined with `-` (e.g. `_features/gaming/` → `gaming-<name>`).
@@ -53,12 +58,13 @@ NixOS configuration for personal machines.
 
 ## Conventions
 
+- **Do not add service-specific items/instructions to AGENTS.md unless explicitly requested.** AGENTS.md is for repo-wide guidance; keep service details in the service's own config file (e.g. garage notes live in `nixos/hyzenberg/garage/default.nix`).
 - **Comment markers** (see `README.md`):
   - `#?INIT:` — something that must be run non-declaratively during machine setup; the `#?`-prefixed lines after it are the commands to run.
   - `TODO:pr` — waiting on a PR merge. `TODO:26.11` — waiting on next nixpkgs release (nixpkgs 26.11).
 - Modules should follow the repo's `inherit` alphabetized style and use `lib`/`mkOption` for options.
 - Prefer reusing the host table (`xelib.hosts`), `apps`, and the modules in `modules/` over re-declaring per-host configuration.
-- Secrets: never put plaintext secret values in Nix files. Reference 1Password URIs and let SOPS/opSecrets handle them.
+- Secrets: never put plaintext secret values in Nix files. Reference 1Password URIs (always by item **ID**, never item name) and let SOPS/opSecrets handle them.
 
 ## Commands / workflow
 
