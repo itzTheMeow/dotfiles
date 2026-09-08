@@ -2,6 +2,7 @@
   config,
   host,
   pkgs,
+  pkgs-unstable,
   xelib,
   xelpkgs,
   ...
@@ -33,7 +34,7 @@ in
       jdk21
 
       # desktop apps
-      (joplin-desktop.overrideAttrs (old: {
+      (pkgs-unstable.joplin-desktop.overrideAttrs (old: {
         # joplin needs to run with compatibility settings for wayland
         postFixup = (old.postFixup or "") + ''
           substituteInPlace $out/share/applications/joplin.desktop \
