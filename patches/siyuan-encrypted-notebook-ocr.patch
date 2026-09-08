@@ -1,5 +1,5 @@
 diff --git a/api/asset.go b/api/asset.go
-index 6f7efdf..926dc9a 100644
+index 6f7efdf..67d961a 100644
 --- a/api/asset.go
 +++ b/api/asset.go
 @@ -144,14 +144,7 @@ func getImageOCRText(c *gin.Context) {
@@ -29,7 +29,7 @@ index 6f7efdf..926dc9a 100644
 +	if boxID := util.BoxIDFromAssetKey(path); "" != boxID {
 +		if model.IsEncryptedBox(boxID) && !model.IsBoxUnlocked(boxID) {
 +			ret.Code = -1
-+			ret.Msg = "Encrypted notebook is locked, please unlock it first"
++			ret.Msg = model.Conf.Language(309)
 +			return
 +		}
  	}
@@ -410,10 +410,10 @@ index 0000000..7c8c57a
 +}
 diff --git a/model/ocr_box_integration_test.go b/model/ocr_box_integration_test.go
 new file mode 100644
-index 0000000..47d8375
+index 0000000..4f51df8
 --- /dev/null
 +++ b/model/ocr_box_integration_test.go
-@@ -0,0 +1,262 @@
+@@ -0,0 +1,261 @@
 +// SiYuan - From thought to insight, with agents
 +// Copyright (c) 2020-present, b3log.org
 +//
@@ -457,17 +457,16 @@ index 0000000..47d8375
 +
 +const boxOCRTextsE2ETestEnv = "SIYUAN_TEST_BOX_OCR_TEXTS_E2E"
 +
-+// TestBoxOCRTextsEndToEnd covers the whole encrypted-notebook OCR pipeline against the
-+// real kernel primitives:
-+//   - an asset is written into the encrypted box (ciphertext at rest),
-+//   - a document referencing it is indexed BEFORE OCR: the referencing container is queued
-+//     for a deferred OCR reindex and the keyword is not yet searchable,
-+//   - tesseract runs on a decrypted temp file and its text lands in the per-box store,
-+//   - draining the OCR queue reindexes the block, and the keyword is now findable by the
-+//     encrypted-notebook in-box full-text search (never by the global search index),
-+//   - the persisted sidecar does not contain the OCR text or the boxID as plaintext,
-+//   - on lock the in-memory copy is dropped, on unlock it is restored from the sidecar,
-+//   - a tampered sidecar is rejected instead of being loaded.
++// TestBoxOCRTextsEndToEnd 使用真实内核原语对加密笔记本 OCR 全链路进行端到端验证：
++//   - 向加密笔记本写入一张密文图片（资源落盘始终为密文），
++//   - 在 OCR 之前先建立引用该图片的文档并写入索引：引用容器应挂入待重索引的节点
++//     队列（NodeOCRQueue），此时关键词还搜不到，
++//   - tesseract 对解密后的临时文件执行识别，结果写入按 box 隔离的存储，
++//   - 排空 OCR 队列完成重索引后，关键词可在加密笔记本内部全文搜索中命中
++//     （全局搜索索引永不泄漏），
++//   - 加密落盘的 sidecar 中不含明文 OCR 文本，也不含 boxID，
++//   - 锁定时内存副本被丢弃，解锁时从 sidecar 恢复，
++//   - 被篡改的 sidecar 会被拒绝加载。
 +//
 +// 该测试会改写进程内全局工作区路径（util.DataDir 等），通过子进程执行避免污染同进程其他测试，
 +// 与 kernel/model/crypto_create_sqlcipher_test.go 的隔离模式一致。
@@ -656,8 +655,8 @@ index 0000000..47d8375
 +	}
 +}
 +
-+// setupCryptoModelDirs points the util paths at a fresh temp root (shared by the other
-+// encrypted-notebook sqlcipher tests).
++// setupCryptoModelDirs 将 util 层的路径指向全新的临时根目录（与其它加密笔记本
++// sqlcipher 测试共用该隔离模式）。
 +func setupCryptoModelDirs(t *testing.T) {
 +	root := t.TempDir()
 +	util.WorkspaceDir = root
@@ -790,15 +789,14 @@ index 0000000..b7e2171
 +}
 diff --git a/model/ocr_fixture_test.go b/model/ocr_fixture_test.go
 new file mode 100644
-index 0000000..3447748
+index 0000000..f6d7819
 --- /dev/null
 +++ b/model/ocr_fixture_test.go
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,5 @@
 +package model
 +
-+// testOCRFixtureHelloOCR is a 1200x300 PNG of "Hello OCR" (LiberationSans Bold,
-+// 96pt), verified to be read reliably by tesseract 5 (eng). Used to drive the
-+// encrypted-notebook OCR E2E test deterministically.
++// testOCRFixtureHelloOCR 是一张 1200x300 的 "Hello OCR" PNG（LiberationSans Bold 96pt），
++// 经验证 tesseract 5（eng）可稳定识别，用于确定性驱动加密笔记本 OCR 端到端测试。
 +const testOCRFixtureHelloOCR = "iVBORw0KGgoAAAANSUhEUgAABLAAAAEsCAAAAAD21hWMAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAd0SU1FB+oJBwkNB8/XGO0AAAAldEVYdGRhdGU6Y3JlYXRlADIwMjYtMDktMDdUMDk6MTM6MDcrMDA6MDA1XAl/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI2LTA5LTA3VDA5OjEzOjA3KzAwOjAwRAGxwwAAACh0RVh0ZGF0ZTp0aW1lc3RhbXAAMjAyNi0wOS0wN1QwOToxMzowNyswMDowMBMUkBwAABakSURBVHja7d17nE31/sfx74zLjFs0TqFiRCK3EMpRocQvRaXR5fxcQxL1E06U09HpdHtQVMeZ/NKF7geVSwmRy0kIuUTuuZPKJZoZZszM+SPG+uy9117ftfee2Y/P8Xr+Nd+1vvu71l5m3tZe+3tJyDcAoENivE8AAGwRWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQgsAGoQWADUILAAqEFgAVCDwAKgBoEFQA0CC4AaBBYANQisc8fABIcHxK7Kzl3z4n2igBsCC4AaBBYANYrH+wTONXNWOEvdUsNUff6Uo5DyYLzPvNAd+mb9rl27j2ZmZZUsXbrsJampl19dPbKW9n2zadfuPceyMrOKJyWdf2GlmlfUa1wi3m8PsUBgFbGZ/3SWrg0XWE+edBRq/ncHVtacaUu2FZROnDhsNhljTKVrOt72B38tHZk5Y+n+glJ29vFfthpjTKlr2nW+3O01K5t5tVoiOTmlcpU69ZrUiPeVOscRWIi/RemfZYTccXD69H6t+qZZ/5bmTR+/ICfknqwFCx5rdH/XchGeYU7O8Z83G2NM1RvvbM/NWvzwDAtxlvdek9aTM1x35355b43RmVYtZf+jVue5Oe771zxY9W/HojzbPRM7Vh62Lw6XCcYYAgvxtqhp19UeVfY8Wvu9fO+WZtZ7+AePKr8+WfOdqM/48KhLh/xaZNcHAoGFeDrWtbVXXBljzN6u1+3wqHL4tk7bLFr6pXuHQ1Gfdc6YOl8UxdVBEAILcbS80XuWNZc0nhp2/9JGMyxb+ryxTUR6+LH904V6YeCCwEL8fOB533TWr11GhNk7tdUe65b2tF4Q/annPzG4EC8M3BBYiJtx/5vjp/qz/fPcdr1zj5+Wjt2yJAZnP3Z0YV0XuCOwEC/pD1k8SXca389lx7Seub4ayuq4NQbnP3xxoVwWhENgIU5mPey2J9ntt/L150JuXt/N7darZLHQ2490ORH9G8jrczL6RuAPHUcRHxvvDr4rKv7HVs1qVi2bYLL2b1+7YFFw76sRtTsHt/Tbbb8Fb2zS6pqal55X3Px6ZP+yJYt/Cdy9dsSLrmdWsXrgltzjxw6HuIfbOmFgvK/iuScfRWqAuPoLwlVNctasGeND9xO7Kjl3fVEU1yEneDRMtTEHRZVfJ1wRVCdlf3BTwalR/vGtokb25BsDqxRb6dgvxneaHqHON2vVhHZBt2tVTxXFpYIDHwkRF8+tCNhQduzWRy4UW87rs/6tigG1DvcJamlpesCGxEE7nrlMbCnRZd7ihrJSrs8v+ZKb9Jmzu3uC3Ljny6K/cOc4AgvxsOuZgA1XrxtUMqhWYs8N7QM2zQrqjjU44AFWlUVjzw8+4HXfPinTZvEs3yd90aRPS8ktk4vsguF3PMPS79CS1et37zuemVimbNXLr2hzVWH+J3Ro6Tc/7NiXkXEyuXTpKtVTG7dIjaydvwY8r+78bqmQ9Sp9+uAEuWXE7fJ3dvYyub/2nNCnVGxk3R5Zzg2jOvg/7Q7T24tvNhdG9u4RMQJLub1vT1t15hYj+8ier41JuWtA/cI51g8fTl535u81M9PsXm6MuaTz3S0SfLf0/buy3OFfbr+Ixf//5Ntiw5Y37xflp2T9i76o6nbQLsXSnGmzaE0j/5fgpl5vOovbfvE5+Q2ixEdC1b7rnDpiRcBHosPjG9yyuRCO9dWtNUesDeo5tfeVlg3ePeW3rZflOded4v4fZ8IbLeWGF8U5rFsqdhb/2DWvjOn8d1GcFMlVCOhubzN8ETFEYCl2rO+Vn4TsgTSrwUh/PSm9be9w3WcuuzZ0qzffX2PH3xfFpA9Lh6lc/P3yorxFPOl+S1YefnW44w5v5Cg0uNBEoEY9UdwZSRuIHIGl19L6r7t1Fc95qu3PMT3WmPqfh9m7pW0PuxmrTntfdpx6pEHY2tVGyvKrjp9Pyei7+PGwLRUbd/qHyl3fPrDusYiuRFNRinZ6LfhEYKn1fptw430Xtv4xdof6LW2IR8/wt1vYD2M2ZoooVXzco/rAmqL4qWO2v+U/iV1/KRW+pZbNjSnVbvTaA+90qxzhtZD3Zb5yGtEjsLR6r2v4gSHft4nZJHPH2n3kWWfd9dut2zsuB+H195q3uMQjonjSsXDiXLGnQnevQz/25y8Ozxna0KtaGGXlqUXREiJAYCk1u6fXyOFNf8qzaslTVvulFrX2ttlvUcsYY4ycxjjRe3mNXjLSZp79Uc6j96fSXi3dPqptcnRXQ37ULhthK4gQ3Rp02t9NfjNXuV2dCzMPfLXEmVGzxgyNybF6L7OqtqfLQsv7jYWi1KqK5wtKdxLz/J196p6zUtS7IybvN7zdonRJERwRDgSWTj3EcN7Lnk37vS/Uj49PdNx4jUyrHoND/eODgA0tOzROLXPiwLrZc+VXkV8/8bxdi6tEqbPFK9JEYO04dGbEzkZxr1amVQzerodTi0SxVuEfEU58JFTp43nOUts1XU733az85jTHAJfMYTE41K6AL9Nu/u6rx2+um1q79cOztt8td734nVWLuWtFsY3FS1rL39OC+yrZUvMieKI0WzwZvLBa4R8RTgSWRqcedZaaf1bmbKGTc6zd1O+jP9bDYgWuxJdmne1Gn/rh62ICg1ODrFrcJr5aS6lr8ZIK8jH5mjM/yPd3tUVLUcr/qyjeVPhHhEBgxVWbhDDcvwWc4vxGLnmSGDXc0TGfQV70s/iulGs7TPg/Uez9uih+afW0a5coNbAa2NMwdAt7xeY6Ub9bT0/IBSzSCv+IEAgsjcY6C/cF/J2OdtxvTTke7aHkaJb+9wXs7tlbFF+waVJ2H7O5wTJGjo4sePAtVzS93KqpKOSPkpNM1OhU2EdEAAJLoQ1iLqnA+esq3Hv254ypFs2Fs0+Mx6k0KqjCKNHjYOZRizZlYNk9BaoWugUZWBdH+Wa9bLol4KHgIP58ihpXXKFPnIXGQdNy9nL8bLtYn5t3xBeBQ4K7HaWIhSGyvXuYGiMXMvXu1BBcq6CFI2JzRIMDLeWtn3Bz3YDhSVXvi6wtRI5uDQpNdxauC9rdrPTZp9rzc6L75uxjZ6FErxA1eomPgbN6G09iViqTYnUechaXgvcnBgwlR9kl9IxPmwZt+u3okezgim+UsWgNMUVg6ZO1xllqGbS/RPOFBT8fX9kimkMdEl2mWoea/KluLeeSWYvyvZ+hy8CyS5nk0C2c8N+SxZu2XMv+Ab4jLHp8JNRntejkXiO4gnMGlJUmGgvF6J7Qf6A3OAuHNno3KsdRJ3m/wASG0YnTvWPzRb/RklYtxUy7l4r2eDCGwNLoW1EK8eDGOV4kusCShwrdz6mJKK3zblTe1dtN3CUHIhU7fRuXkOi/pVhpNc0uahFTfCTUZ6coZe8NquAcArwhqkOtEaUrQ9aRPQ7Wezcqp4CxW9FU9kkreIPJma51Cln39FLRNwLfCCx9ZLcAj9Fs9pO+hLLFWUgpH7JOdVH6wbtR+Zf+m/cLjDGiu71LYGVZPD+LkXLpXYvqUBD4SKjPXj+Vjx6O5lCin5PLbOmVxe/QAe9G5VwxdvMMHhSlsiGbyrV8WB610oO3kVdxwh1WXHUNt0rW8y4PZfxNzLffrt9ASEfEF3oVQ1dKLO/sDWWRPxfJ87M6E9lswUO6KmKYz8EiWcLmqjt7F2aHL4RFYMVV79Zhdr7gElhZxo9ffNWW5Izl5V1qicCy+IQn79TsFvjZKkoF/d7ldFQ/1LNqKyrFVjQu/IPAFR8J9bF7TH1GNJ+TZDS6dRso6f6SkGRg2U0oIWOt4L5UBtYWq6aikzumCA4CVwSWPv5WAbR7qB2a7N1dzKWWuEvPMZ7qiGfjW4/anImc869guLcc7rzWpqVovTu7KI4CFwSWPv46SGb7qi3JnkZuWZTt/pKQzhN9XfMWe7/C/CjX5Gl25gfZ0cJm6nkLPfKlbPlJs180/wUgSgSWPv6GoETTO0l2QHCLPrHdcxkIY4x8CmRzxyIXaq1Q0JWjobhZ27bPoin/SqSL4u7I1jNETBBY+oghtyn5HgZGehhjzHmidNSlltjutWSXMcZcI0ofWfRQF8O9zdUFMVVWTlUx07ulDRH0pL2+hyimf+2/CcQIgaVPJWehUD+fVBDZ6PJ94ykxSaDNnFT/I0o/zfF8wa+zRPGWsz+2FTsmex97UP3m6Ue8q0mjRdeQvD7RfMxGVAgsfcTcUNn+HsH7JOJnd+g6e8QCiVWNt3qy0ljPF0ySHd0d83zK8dgLNnm19N08s2JAlbs/9zfu8ILnRHHj075ejRgisPSRf+4/R9iKFfEt3PHQh5KDf6zWvbpVlOZ5PSzPlpHW2NHbto18zOY5RfMIY4w5OblDtWEW00qc1Vd+in3ebnkgxB6BpY+cBb1QOx/Jx+OrQ9ZZI0pNjIWesjjYYxHrV3eKonOezzK3i10TPW6xFpx5yrV/VN1rxh+1vg4Jr4o+HTl9YrSoNvwisPSRK8hsjbAVK1eJUug7oeXOQoJVP/DmDURx2Stha+96QhTLdneW5PPw3AfCZl/Gg87z7v+csdboIVH85mX7lyKWCCx9aotH4csjbcZGK3FjEbIDQq5Y07VRRWOjnywO/zZM3Zzucumf7uK7y5vkaMxFYRc2GyhuwJIG+bgST8lvE/6yw8drETsElj7FxYrsn0fajI0KYoLl5TtDVJl71Fm62a7d3vLP/8Stu9zr9pM9S5PkyjWJAQvZPDbdvaWxE0Wxp936F78rJ5+jZd7v47WIHQJLoXbOwr5vI23Gxh3OQv6EEDUmuNd3lxzQ+fJAK7eHT7l935IbBgasC9ZbjifMu+cTl5bMmMGiWOJR40eX9qI47y1fr0aMEFgK3SH+1YI+BOU1b9qh57AX35mzZr/FyL7wuolFd9KPBlVYN81ZatjU2OkbsOjprpahFyT76Va5trRJeTygRsknZflE2jMhn4hnDRgiNwytYXz5pxxhMOSgv5cjNrw6SiO2BoirvyBcVTEsr6Zzz43OPYkbAl7nWPs04fyXXQ7dT7xE9EX9wrnnLnG+9weeY65clGec9XVYHDQ7aM/9QZXyJgXNPPVBcKWghc5argw+3pLAdexTM87uFAvTBo0lPONvsoE0///4iBp3WBqJByh592aKnaeGn/05P+POKA81QgTLa/8K2P1n8c3hRRarEp52Xf/ALRNrDZFdNDLfatzjp4BKd90T1FLCa4EDrpc0S5svvy1c0LZl4GfOV2xGPQrDZB+zqdP8NoDoEVgapYnbhXXdxADngc5ejT2iXb69YRdR7C6Wds4dImeHGuFjXPYLQT22MsbUafbYjM0njDHZu+e/1KnyfUHzxVw2PkRLdYL6GOR/1LZajzeWHMw1xmRumjqk1g3zA6t062T8SpKDoM0Af1O/IibifYt3ronJR8L8D+Q/4lXbC/YcFrcgZQ+4Hdr2I2H+HjkCOmHgoYJdS2X/b9P8lJ8rsbuSCa14ObfVqlO2hG6qr9tvd5JbU1f85ny93UfC/PyA27u+Mf7dgDfusFS6RzzFMqvqD1icZYzJWjas5ofOHSMqR32oS0aJYv64ar0mbzp8dOf8Z5q1WCZ2Jb1RzE/DVWecF3rHqeMu3xWUnuYy8Gec2xrMJ12aqjwrolXmx8gzfn1hJI0gGszprtNrV4ppGrLS0xMvKJVxOGBMb5OhMThUv6/eFeWMiRNdzqm+d2NOzee1O+qnfvnPWrrsKTnjDl/zgP5hdvWILkWVpx92FvP7rmNxwiLGHZZONd4N/JYt7+DOnwPyKmVKTP4/mtDCqtrw7lbVHJp96ecJW5VFLV33JU9L89HSxYuu9FHb6UH54G3byAjbQaQILKVu85yYwJSd4bOnkYvkOdda1BruY2TeGY1X32hd96Y14VImacpo63C+ekVd26qBio2XfzBjVkXYECJEYGk1+BWPdY4rzmlp15KncrM9O0eUGBtBXhlzwdyn7b5YLPX8HI/FAIcuqG3VUuLQRX6G5ARoJkdB5vYu1OnIEITAUuuh6eeH291o6R9jdqgyU18Mv7hE9YWDIms5ccSGDhbV7tw4zHMZ+mvXPWvRtarJv0dbrJPh7lmZm2tHR9gOIkNg6dVxjXtfouSRy62m0rM1+Lt27juTRnwfeTjW+Gx+2/A1Ejp+NTXVoqWSj20b6jGl/OWTVkYZ4xVelOWnimIxRBQgsBSrNn3udSF3JPff/KS/xcA81Zoz36XvQLkh25+O6suyG75YcV8F170XDtg4w/azbZXRu0c3ct2beNMnG7t73qh56dpGFE/0yY+wIUSCwFLtpsXfDro0YFtCszF706tF1FxYN8z9/omgx0TJt76z74Voe9Obpm8cnN4rxB1hYv0BX+4fZ/ds6ncVhq7e/Pc2ZYN3JLV9Ydfc22Px654u/yv49/gI20EkEvj/Qb3Ny1dt3/VTRlZicrkql9RtfL1bZ9FTzgfExcWXaiedvwYlw/xZ7/965fYdBzIy80qVrpBa/YoWTWJ4I/fLso07duw5lpl5smSZ0uVTq1/a4JrzImspd/2qHTt3/piZmZVTMrlMpYur1b+yET2m/isQWADU4CMhADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1CCwAKhBYAFQg8ACoAaBBUANAguAGgQWADUILABqEFgA1PgP0AQFY/npL5kAAAAASUVORK5CYII="
 diff --git a/treenode/node.go b/treenode/node.go
 index 05327ca..a8c07e3 100644
