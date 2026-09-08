@@ -13,6 +13,14 @@
 # tesseract (eng only) is wrapped into the desktop app's PATH so the kernel's
 # built-in OCR works: util/ocr.go probes `tesseract --version`/`--list-langs` at
 # boot and auto-OCRs images in data/assets when the binary is reachable.
+#
+# siyuan-encrypted-notebook-ocr.patch adds OCR support for encrypted notebooks:
+# each notebook's OCR text lives in a per-box encrypted sidecar
+# (<box>/.siyuan/ocr-texts), keyed off the notebook DEK, and feeds the notebook's
+# own full-text index. Prototype for an upstream PR; the upstream issue draft is
+# patches/siyuan-encrypted-notebook-ocr.md (fill the TODO:pr URL below after
+# filing the issue). Remove the patch once upstream ships the feature, otherwise
+# it will conflict with the parent commit.
 #TODO:pr https://github.com/NixOS/nixpkgs/pull/556604
 final: prev:
 let
@@ -94,6 +102,7 @@ let
               (replaceVars ../patches/siyuan-set-pandoc-path.patch {
                 pandoc_path = lib.getExe pandoc;
               })
+              ../patches/siyuan-encrypted-notebook-ocr.patch
             ];
 
             # this patch makes it so that file permissions are not kept when copying files using the gulu package
