@@ -5,10 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"maps"
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
@@ -193,7 +195,85 @@ builtins.mapAttrs (name: conf: {
 		}
 	}
 
+	log("cleaning up unused secrets...")
+	cleanupSecrets(dotfiles, configs)
+
 	log("done.")
+}
+
+func cleanupSecrets(dotfiles string, configs NixConfig) {
+	root := path.Join(dotfiles, "sops")
+
+	expectedFiles := make(map[string]struct{})
+	expectedDirs := make(map[string]struct{})
+	for _, config := range configs {
+		for _, file := range config.NixOS {
+			expectedFiles[path.Join(dotfiles, file.Path)] = struct{}{}
+			expectedDirs[path.Join(dotfiles, path.Dir(file.Path))] = struct{}{}
+		}
+		for _, file := range config.HomeManager {
+			expectedFiles[path.Join(dotfiles, file.Path)] = struct{}{}
+			expectedDirs[path.Join(dotfiles, path.Dir(file.Path))] = struct{}{}
+		}
+	}
+
+	removedFiles := 0
+	removedDirs := 0
+	dirs := []string{}
+	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			if p != root {
+				if _, ok := expectedDirs[p]; ok {
+					dirs = append(dirs, p)
+					return nil
+				}
+				// orphaned host dir
+				log("removing unused dir %s", p)
+				if err := os.RemoveAll(p); err != nil {
+					return err
+				}
+				removedDirs++
+				return fs.SkipDir
+			}
+			dirs = append(dirs, p)
+			return nil
+		}
+		if _, ok := expectedFiles[p]; !ok {
+			log("removing unused %s", p)
+			if err := os.Remove(p); err != nil {
+				return err
+			}
+			removedFiles++
+		}
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	// remove any dirs left empty, deepest first
+	slices.SortFunc(dirs, func(a, b string) int {
+		return strings.Compare(b, a)
+	})
+	for _, dir := range dirs {
+		if dir == root {
+			continue
+		}
+		if entries, err := os.ReadDir(dir); err == nil && len(entries) == 0 {
+			log("removing empty dir %s", dir)
+			if err := os.Remove(dir); err != nil {
+				panic(err)
+			}
+			removedDirs++
+		} else if err != nil {
+			panic(err)
+		}
+	}
+
+	log("removed %d files, %d dirs", removedFiles, removedDirs)
 }
 
 func shellJSON(ptr any, cmd string, args ...string) error {
