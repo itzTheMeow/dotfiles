@@ -50,7 +50,7 @@ in
 
   #  creates any declared buckets and their access keys
   #  retreive keys for buckets as needed with:
-  #? garage key info <bucket>
+  #? garage key info <bucket> --show-secret
   systemd.services.garage-buckets = {
     description = "Create Garage buckets";
     after = [ "garage.service" ];
