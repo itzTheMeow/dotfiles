@@ -35,6 +35,10 @@ NixOS configuration for personal machines.
 
 - **Hosts table (`xelib/hosts.nix`)**: single source for per-host data: username, full name, tailscale `ip`, `type` (list of device types), accent color, ports, public-key URI, backup cadence. Access via `xelib.hosts.<hostname>`.
 - **`apps` module (`modules/apps.nix`)**: define apps as attrsets (`apps.<name> = { port, domain, ... }`). Auto-wires nginx proxies and DNS zones, and it feeds the homepage. `xelib.apps` aggregates from all hosts.
+  - **Always reference derived accessors** (`config.apps.<name>.ip`, `.portString`, `.url`, `.host`, `.domain`) instead of local port/ip variables when wiring a service. They resolve automatically: `ip` → the tailscale IP of the host (`xelib.hosts.<host>.ip`), `portString` → `toString .port`, `url` → `https://<domain>` when `domain` is set.
+  - **Bind services to `config.apps.<name>.ip`** (the tailscale IP) for anything reachable from other hosts, not `127.0.0.1` — except where nginx alone needs to reach it, in which case binding to the app IP is still fine since nginx proxies by host.
+  - `name`/`description`/`icon` are **only for homepage display** — omit unless the app is added to the homepage `services` list (in `homepage/default.nix`). `name` auto-derives to the title-cased attr-name if omitted.
+  - Extra per-app metadata goes in `details` (a free-form attrs, e.g. `config.apps.<name>.details.buckets = [...]`), used for extra ports/params not covered by the core fields.
 - **`nginx` module (`modules/nginx.nix`)**: `nginx.proxy.<domain>` creates an nginx vhost (docs: `target`, `local`, `allowedHosts`, `anubis`, `oidcGroups`...). Non-local domains get ACME certs; `.xela`/`.internal` domains are treated as local (tailscale-only, self-signed/step-ca cert).
 - **`persist` module (`modules/persist.nix`)**: declarative btrfs persistence/impermanence. `persist.ed.<name>` = subvolume to persist, `persist.sync` = syncthing dirs. Wipe-on-boot supported.
 - **Features list**: `nixos/<host>/features.nix` returns a list of feature names; only those get imported from `nixos/_features/`.
