@@ -1,13 +1,14 @@
-# Vendored from nixpkgs PR #556604 ("siyuan: 3.7.3 -> 3.8.2"): the latest
-# stable with the fts5 + sqlcipher kernel tags, CGO enabled, and the pandoc
-# archives built from the Nix pandoc binary (pandoc-resources kept for the
-# kernel). Requires the sqlcipher (CGO) kernel build for at-rest encryption of
+# Based on nixpkgs PR #556604 ("siyuan: 3.7.3 -> 3.8.2"), bumped to 3.8.3
+# locally: the fts5 + sqlcipher kernel tags with CGO, and the pandoc archives
+# built from the Nix pandoc binary (pandoc-resources kept for the kernel).
+# Requires the sqlcipher (CGO) kernel build for at-rest encryption of
 # encrypted notebooks.
 #
-# Electron is pinned to electron_42 from the stable channel (nixos-26.05's
-# default `electron` attr is still 41) to match siyuan 3.8.2's Electron 42.
+# Electron is taken from the (overlay-free) unstable import: siyuan 3.8.3
+# declares electron 44.2.0, but neither nixos-26.05 nor nixos-unstable carry
+# electron_44 yet, so we pin the newest packaged one (electron_43, 43.4.1).
 # The kernel's go.mod requires go >= 1.26.5; stable only carries go 1.26.4, so
-# go is taken from the (overlay-free) unstable import.
+# go is also taken from the (overlay-free) unstable import.
 #
 # tesseract (eng only) is wrapped into the desktop app's PATH so the kernel's
 # built-in OCR works: util/ocr.go probes `tesseract --version`/`--list-langs` at
@@ -74,20 +75,20 @@ let
         in
         stdenv.mkDerivation (finalAttrs: {
           pname = "siyuan";
-          version = "3.8.2";
+          version = "3.8.3";
 
           src = fetchFromGitHub {
             owner = "siyuan-note";
             repo = "siyuan";
             tag = "v${finalAttrs.version}";
-            hash = "sha256-MzsfeAWApHLDt4+aC9/O+5Dl8OD8p0l+/8tb2ZZyTos=";
+            hash = "sha256-+0CO1E0w4XCBRypjZftB0kRe01ebWI/piOySmDK5TL4=";
           };
 
           kernel = buildGoModule {
             name = "${finalAttrs.pname}-${finalAttrs.version}-kernel";
             inherit (finalAttrs) src;
             sourceRoot = "${finalAttrs.src.name}/kernel";
-            vendorHash = "sha256-x8saxKDLeZdEbTBjNXnOBU9zkliZXm6D92Mom8CUCbs=";
+            vendorHash = "sha256-nlJD343y8j6WdFKDlMIMKGmyNap3eujWJOxXFji78e8=";
 
             patches = [
               (replaceVars ../patches/siyuan-set-pandoc-path.patch {
@@ -101,7 +102,7 @@ let
             modPostBuild = ''
               chmod +w vendor/github.com/88250/gulu
               substituteInPlace vendor/github.com/88250/gulu/file.go \
-                  --replace-fail "os.Chmod(dest, sourceinfo.Mode())" "os.Chmod(dest, 0644)"
+                  --replace-fail "destMode := sourceinfo.Mode()" "destMode := os.FileMode(0644)"
             '';
 
             # Set flags and tags as per upstream's Dockerfile
@@ -147,7 +148,7 @@ let
               ;
             inherit pnpm;
             fetcherVersion = 4;
-            hash = "sha256-ACWwXIwuiLp/e+1dwlClzAi8ZC6oEQc3ETFK/WvVnGk=";
+            hash = "sha256-PItwjC+UnGbOu00AFKgyvWl67uxMVQv4C60v3CY6Nz0=";
           };
 
           sourceRoot = "${finalAttrs.src.name}/app";
@@ -283,7 +284,7 @@ let
         })
       )
       {
-        electron = prev.electron_42;
+        electron = final.unstable.electron_43;
         inherit tesseract;
       };
 in
