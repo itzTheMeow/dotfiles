@@ -92,6 +92,7 @@ rec {
           "a"
           "mx"
         ],
+        reportAddr ? "reports@${domain}",
       }:
       with inputs.dns.lib.combinators;
       {
@@ -104,7 +105,13 @@ rec {
             s = [ "email" ];
           }
         ];
-        DMARC = [ { p = "reject"; } ];
+        DMARC = [
+          {
+            p = "reject";
+            rua = "mailto:${reportAddr}";
+            ruf = [ "mailto:${reportAddr}" ];
+          }
+        ];
         MX = [ (mx.mx 10 (fqdn mail.domain)) ];
         SRV = [
           {
@@ -117,6 +124,7 @@ rec {
         TXT = [ (spf.strict spfAllowed) ];
         subdomains.autoconfig.CNAME = [ (cname (fqdn mail.domain)) ];
         subdomains.autodiscover.CNAME = [ (cname (fqdn mail.domain)) ];
+        subdomains."_smtp._tls".TXT = [ (txt "v=TLSRPTv1; rua=mailto:${reportAddr}") ];
       };
 
     # prebuilt zone config
@@ -131,6 +139,36 @@ rec {
     ];
     TTL = 60 * 60; # 1hr
   };
+
+  #! dont forget to bump ID below
+  mtaStsPolicy = pkgs.writeText "mta-sts.txt" ''
+    version: STSv1
+    mode: enforce
+    mx: ${mail.domain}
+    max_age: 86400
+  '';
+  # Sets up an `mta-sts` subdomain for a mailcow domain.
+  mkMtaSts =
+    domain:
+    let
+      inherit (inputs.dns.lib.combinators) txt;
+    in
+    {
+      dnszones.list.${domain}.subdomains = {
+        # bump the ID whenever the policy above changes
+        "_mta-sts".TXT = [ (txt "v=STSv1; id=20260910") ];
+        mta-sts = dns.pointHost hostname;
+      };
+      nginx.proxy."mta-sts.${domain}" = {
+        dontConfigureLocation = true;
+        extraConfig = _: {
+          locations."/.well-known/mta-sts.txt" = {
+            alias = mtaStsPolicy;
+            extraConfig = "default_type text/plain;";
+          };
+        };
+      };
+    };
 
   exitNodes = [
     # comments after `index` are there so global find can find taken ports
