@@ -162,7 +162,7 @@ rec {
       nginx.proxy."mta-sts.${domain}" = {
         dontConfigureLocation = true;
         extraConfig = _: {
-          locations."/.well-known/mta-sts.txt" = {
+          locations."= /.well-known/mta-sts.txt" = {
             alias = mtaStsPolicy;
             extraConfig = "default_type text/plain;";
           };
