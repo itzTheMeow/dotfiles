@@ -3,6 +3,7 @@ let
   pkg = pkgs.prismlauncher;
 in
 {
+  slug = "minecraft";
   title = "Minecraft (Prism Launcher)";
   collections = [ "PC" ];
   files = [ "${pkg}/bin/prismlauncher" ];

@@ -3,10 +3,10 @@ let
   pkg = pkgs.callPackage ./package.nix { inherit xelpkgs; };
 in
 {
+  slug = "hells-kitchen-the-game";
   title = "Hell's Kitchen: The Game";
   collections = [ "PC" ];
   files = [ "${pkg}/bin/hells-kitchen" ];
-  favorite = true;
   assets = {
     logo =
       pkgs.runCommand "hells-kitchen-logo.png" { nativeBuildInputs = [ pkgs.imagemagick ]; }
