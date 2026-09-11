@@ -5,10 +5,7 @@
   ...
 }:
 {
-  persist.settings.wipeOnBoot = {
-    enable = true;
-    keepDays = 7;
-  };
+  persist.settings.wipeOnBoot.enable = true;
 
   persist.ed = {
     persist = {
