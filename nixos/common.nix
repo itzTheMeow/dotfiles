@@ -179,6 +179,7 @@ in
     jq
     killport
     openssl
+    ripgrep
     wev
     wget
 
