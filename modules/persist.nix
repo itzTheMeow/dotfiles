@@ -138,10 +138,10 @@ in
                       description = "Whether to wipe and recreate the root subvolume on boot.";
                     };
 
-                    keepDays = mkOption {
+                    keepCount = mkOption {
                       type = types.int;
-                      default = 7;
-                      description = "How many days of old root subvolumes to keep.";
+                      default = 5;
+                      description = "How many old root subvolumes to keep.";
                     };
                   };
                 }
@@ -269,15 +269,22 @@ in
         mount ${cfg.settings.device} /btrfs_tmp
         mkdir -p /btrfs_tmp/old_roots
 
-        # delete roots older than keepDays
-        # do this before moving
-        for i in $(find /btrfs_tmp/old_roots/ -mindepth 1 -maxdepth 1 -mtime +${toString cfg.settings.wipeOnBoot.keepDays}); do
-          btrfs subvolume delete -R "$i"
-        done
-
         if [[ -e /btrfs_tmp/root ]]; then
-          timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%-d_%H:%M:%S")
+          # clear /tmp before saving to avoid preserving it in old roots
+          rm -rf /btrfs_tmp/root/tmp/*
+
+          timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%d_%H-%M-%S")
           mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
+        fi
+
+        # delete oldest roots beyond keepCount
+        count=$(ls -1d /btrfs_tmp/old_roots/*/ 2>/dev/null | wc -l)
+        if (( count > ${toString cfg.settings.wipeOnBoot.keepCount} )); then
+          for i in $(ls -1d -t /btrfs_tmp/old_roots/*/ | tail -n +${
+            toString (cfg.settings.wipeOnBoot.keepCount + 1)
+          }); do
+            btrfs subvolume delete -R "$i"
+          done
         fi
 
         btrfs subvolume create /btrfs_tmp/root
