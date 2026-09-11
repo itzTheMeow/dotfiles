@@ -3,6 +3,7 @@ let
   pkg = pkgs.callPackage ./package.nix { inherit xelpkgs; };
 in
 {
+  slug = "pvz-fusion";
   title = "Plants vs. Zombies: Fusion";
   collections = [ "PC" ];
   files = [ "${pkg}/bin/pvz-fusion" ];
