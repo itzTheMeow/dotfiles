@@ -61,3 +61,10 @@ hostname := env('HOSTNAME')
 # reload home-manager profile
 @hm:
     home-manager switch --flake .#{{ hostname }}
+
+# list /z files/dirs not linked by the current impermanence config
+@orphaned:
+    f=$(mktemp) && \
+    nix eval --json '.#nixosConfigurations.{{ hostname }}.config.persist.linkPaths' > "$f" && \
+    sudo bash scripts/orphaned.sh "{{ hostname }}" "$f"; \
+    r=$?; rm -f "$f"; exit $r
