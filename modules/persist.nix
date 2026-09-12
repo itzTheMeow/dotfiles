@@ -242,6 +242,14 @@ in
       '';
     };
 
+    orphanIgnore = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = ''
+        Paths under settings.dir that are managed without bind mounts or symlinks and should be skipped by orphan checks.
+      '';
+    };
+
     linkPaths = mkOption {
       type = types.submodule (
         { ... }:
@@ -256,6 +264,11 @@ in
               type = types.listOf types.str;
               default = [ ];
               description = "Storage paths of bind-mounted files.";
+            };
+            ignore = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = "Storage paths to skip in orphan checks.";
             };
           };
         }
@@ -279,6 +292,7 @@ in
             map (name: "${cfg.ed.sync.path}/${name}") (builtins.attrNames cfg.sync)
           );
         files = lib.concatLists (map (v: v.files) storagePaths);
+        ignore = map (p: "${cfg.settings.dir}/${p}") cfg.orphanIgnore;
       };
 
     boot.initrd.supportedFilesystems = [ "btrfs" ];

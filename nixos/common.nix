@@ -277,6 +277,7 @@ in
     inherit (xelib.globals.catppuccin) accent flavor;
   };
 
+  persist.orphanIgnore = [ "cache" ]; # ignore cache dirs from persistence
   persist.ed.persist = {
     directories = [
       {

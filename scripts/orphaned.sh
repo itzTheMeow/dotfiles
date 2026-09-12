@@ -69,6 +69,12 @@ while IFS= read -r p; do
 	mark_chain "$p"
 done < <(jq -r '.files[]' <<<"$json")
 
+declare -A ignored=()
+while IFS= read -r p; do
+	[[ -n "$p" ]] || continue
+	ignored["$p"]=1
+done < <(jq -r '.ignore[]' <<<"$json")
+
 orphans=0
 
 walk() { # dir
@@ -76,6 +82,8 @@ walk() { # dir
 	while IFS= read -r c; do
 		# bind-mounted dir: everything beneath it is live, skip the whole tree
 		[[ -z "${dirroots[$c]+x}" ]] || continue
+		# explicitly ignored (managed outside of persistence links)
+		[[ -z "${ignored[$c]+x}" ]] || continue
 		if [[ -n "${chain[$c]+x}" ]]; then
 			[[ -d "$c" ]] && walk "$c"
 			continue
