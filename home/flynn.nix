@@ -34,13 +34,6 @@ in
       jdk21
 
       # desktop apps
-      (pkgs-unstable.joplin-desktop.overrideAttrs (old: {
-        # joplin needs to run with compatibility settings for wayland
-        postFixup = (old.postFixup or "") + ''
-          substituteInPlace $out/share/applications/joplin.desktop \
-            --replace "Exec=joplin-desktop" "Exec=joplin-desktop --ozone-platform=wayland"
-        '';
-      }))
       pcloud
       remmina
       qdiskinfo
