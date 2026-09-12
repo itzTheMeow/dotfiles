@@ -35,8 +35,6 @@
         ".config/GIMP"
         ".config/godot"
         ".config/inkscape"
-        ".config/Joplin" # electron
-        ".config/joplin-desktop" # user data
         ".config/libreoffice"
         ".config/MongoDB Compass"
         ".config/obs-studio"
@@ -59,7 +57,6 @@
         "ActivityWatchSync"
         "Documents"
         "Downloads"
-        "JoplinBackup"
         "Music"
         "Pictures"
         "Videos"
