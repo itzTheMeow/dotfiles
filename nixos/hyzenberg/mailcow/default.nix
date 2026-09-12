@@ -16,8 +16,11 @@ let
     proto = "tcp";
     target = xelib.dns.fqdn xelib.mail.domain;
   };
+
+  updateModule = import ./update.nix { inherit config lib pkgs; };
 in
 lib.mkMerge [
+  updateModule
   {
     apps.mailcow = {
       domain = "mail.xela.codes";
