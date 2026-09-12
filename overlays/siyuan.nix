@@ -56,6 +56,7 @@ let
           tesseract,
           zip,
           darwin,
+          _1password-cli,
         }:
         let
           inherit (stdenv.hostPlatform) isLinux isDarwin system;
@@ -103,6 +104,7 @@ let
                 pandoc_path = lib.getExe pandoc;
               })
               ../patches/siyuan-encrypted-notebook-ocr.patch
+              ../patches/siyuan-master-password-op.patch
             ];
 
             # this patch makes it so that file permissions are not kept when copying files using the gulu package
@@ -161,6 +163,9 @@ let
           };
 
           sourceRoot = "${finalAttrs.src.name}/app";
+
+          # 空密码提交时内核会按需 op read 读取加密笔记本主密码，因此允许前端空密码解锁。
+          patches = [ ../patches/siyuan-master-password-op-frontend.patch ];
 
           env.ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
 
@@ -226,11 +231,13 @@ let
                 --chdir $out/share/siyuan/resources \
                 --add-flags $out/share/siyuan/resources/app \
                 --set ELECTRON_FORCE_IS_PACKAGED 1 \
+                --set SIYUAN_MASTER_PASSWORD_OP "op://Private/65oqfbkcvggpgjuufzn44pj5ei/password" \
                 --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
                 --suffix PATH : ${
                   lib.makeBinPath [
                     xdg-utils
                     tesseract
+                    _1password-cli
                   ]
                 } \
                 --inherit-argv0
