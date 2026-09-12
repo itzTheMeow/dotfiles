@@ -107,6 +107,26 @@ let
       files = flattenPaths entry.userFiles;
     };
   };
+
+  # storage paths under settings.dir that the current config links into the live system
+  mkStoragePaths =
+    entry:
+    let
+      # flattenPaths prefixes user entries with a leading slash (/.cache/...)
+      usr =
+        p:
+        "${entry.path}/home/${host.username}/${if lib.hasPrefix "/" p then lib.removePrefix "/" p else p}";
+    in
+    {
+      dirs = lib.concatLists [
+        (map (p: entry.path + p) (flattenPaths entry.directories))
+        (map usr (flattenPaths entry.userDirectories))
+      ];
+      files = lib.concatLists [
+        (map (p: entry.path + p) (flattenPaths entry.files))
+        (map usr (flattenPaths entry.userFiles))
+      ];
+    };
 in
 {
   options.persist = {
@@ -221,9 +241,46 @@ in
         If the path starts with a /, it is absolute, otherwise it is relative to the user home directory.
       '';
     };
+
+    linkPaths = mkOption {
+      type = types.submodule (
+        { ... }:
+        {
+          options = {
+            dirs = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = "Storage paths of bind-mounted directories.";
+            };
+            files = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = "Storage paths of bind-mounted files.";
+            };
+          };
+        }
+      );
+      default = { };
+      internal = true;
+      description = "Storage paths under settings.dir that the current impermanence config links into the live system.";
+    };
   };
 
   config = mkIf (cfg.settings.device != null) {
+    # internal linkPaths for orphaned script
+    persist.linkPaths =
+      let
+        storagePaths = lib.mapAttrsToList (_: entry: mkStoragePaths entry) cfg.ed;
+      in
+      {
+        dirs =
+          lib.concatLists (map (v: v.dirs) storagePaths)
+          ++ lib.optionals usingSyncthing (
+            map (name: "${cfg.ed.sync.path}/${name}") (builtins.attrNames cfg.sync)
+          );
+        files = lib.concatLists (map (v: v.files) storagePaths);
+      };
+
     boot.initrd.supportedFilesystems = [ "btrfs" ];
 
     environment.persistence = listToAttrs (
