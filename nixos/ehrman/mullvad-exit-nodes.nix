@@ -31,7 +31,7 @@ let
       extraOptions = [
         "--sysctl=net.ipv4.ip_forward=1"
         "--sysctl=net.ipv6.conf.all.forwarding=1"
-        "--sysctl=net.ipv6.conf.all.disable_ipv6=1"
+        "--sysctl=net.ipv6.conf.all.disable_ipv6=0"
       ];
     in
     {
@@ -121,8 +121,7 @@ let
                   echo "WARNING: ${gluetunContainer} went unhealthy, stopping dependents..."
                   # stop tailscale and socks5 cleanly so they don't linger
                   # in a broken state while gluetun recovers
-                  ${pkgs.docker}/bin/docker stop ${tailscaleContainer} 2>/dev/null || true
-                  ${pkgs.docker}/bin/docker stop ${socks5Container} 2>/dev/null || true
+                  ${pkgs.systemd}/bin/systemctl stop docker-${tailscaleContainer}.service docker-${socks5Container}.service 2>/dev/null || true
                 fi
                 WAS_HEALTHY=false
                 continue
@@ -131,8 +130,7 @@ let
               if [ "$WAS_HEALTHY" = "false" ]; then
                 echo "${gluetunContainer} recovered, restarting dependents..."
                 sleep 3
-                ${pkgs.docker}/bin/docker start ${tailscaleContainer} 2>/dev/null || true
-                ${pkgs.docker}/bin/docker start ${socks5Container} 2>/dev/null || true
+                ${pkgs.systemd}/bin/systemctl start docker-${tailscaleContainer}.service docker-${socks5Container}.service 2>/dev/null || true
                 WAS_HEALTHY=true
                 echo "Dependents restarted"
               fi
