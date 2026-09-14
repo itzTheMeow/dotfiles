@@ -63,7 +63,7 @@ rec {
     };
   };
 
-  # this HAS to be static so its the source of truth for the atticd config
+  # this HAS to be static for the flake, so its the source of truth for the atticd config
   nixConfig = {
     extra-substituters = [ "https://attic.xela.codes/xela-master" ];
     extra-trusted-public-keys = [ "xela-master:Ul5iGYi/rWkh/IOZTxGvRi7AjiGAvCbYs68mcm3Al1w=" ];
