@@ -1,6 +1,6 @@
 {
   config,
-  pkgs,
+  pkgs-unstable,
   ...
 }:
 let
@@ -21,7 +21,8 @@ in
 
   services.immich = {
     enable = true;
-    package = pkgs.immich;
+    #TODO:26.11 stable (remove)
+    package = pkgs-unstable.immich;
     host = app.ip;
     inherit (app) port;
     # todo:
