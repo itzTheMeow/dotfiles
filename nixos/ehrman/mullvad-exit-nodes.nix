@@ -103,11 +103,16 @@ let
             echo "${gluetunContainer} is healthy"
           '';
 
-          # watches gluetun health and restarts only tailscale+socks5 when it
-          # recovers — does NOT restart gluetun itself, avoiding cascade failures
+          # watches gluetun health and restarts dependents on recovery;
+          # if stuck unhealthy past the threshold, force-restarts gluetun
+          # for a fresh server/IP to break out of bad-endpoint loops
           watcherScript = pkgs.writeShellScript "gluetun-watcher-${cfg.name}" ''
             echo "Starting gluetun health watcher for ${cfg.name}..."
             WAS_HEALTHY=true
+            UNHEALTHY_SINCE=""
+            FORCED_RESTARTS=0
+            STUCK_RESTART_THRESHOLD=300  # seconds before forcing gluetun restart
+            MAX_FORCED_RESTARTS=3
 
             while true; do
               sleep 15
@@ -119,11 +124,23 @@ let
               if [ "$STATUS" != "healthy" ]; then
                 if [ "$WAS_HEALTHY" = "true" ]; then
                   echo "WARNING: ${gluetunContainer} went unhealthy, stopping dependents..."
-                  # stop tailscale and socks5 cleanly so they don't linger
-                  # in a broken state while gluetun recovers
                   ${pkgs.systemd}/bin/systemctl stop docker-${tailscaleContainer}.service docker-${socks5Container}.service 2>/dev/null || true
+                  WAS_HEALTHY=false
+                  UNHEALTHY_SINCE=$(date +%s)
                 fi
-                WAS_HEALTHY=false
+
+                # gluetun retries the VPN in-process; if it still can't
+                # recover after the threshold, force a full restart for
+                # a new public IP endpoint
+                NOW=$(date +%s)
+                ELAPSED=$((NOW - UNHEALTHY_SINCE))
+
+                if [ "$ELAPSED" -ge "$STUCK_RESTART_THRESHOLD" ] && [ "$FORCED_RESTARTS" -lt "$MAX_FORCED_RESTARTS" ]; then
+                  echo "${gluetunContainer} stuck unhealthy for $ELAPSED seconds, forcing VPN restart (attempt $(( FORCED_RESTARTS + 1 ))/$MAX_FORCED_RESTARTS)..."
+                  ${pkgs.systemd}/bin/systemctl restart docker-${gluetunContainer}.service || true
+                  FORCED_RESTARTS=$((FORCED_RESTARTS + 1))
+                  UNHEALTHY_SINCE=$(date +%s)
+                fi
                 continue
               fi
 
@@ -132,6 +149,8 @@ let
                 sleep 3
                 ${pkgs.systemd}/bin/systemctl start docker-${tailscaleContainer}.service docker-${socks5Container}.service 2>/dev/null || true
                 WAS_HEALTHY=true
+                FORCED_RESTARTS=0
+                UNHEALTHY_SINCE=""
                 echo "Dependents restarted"
               fi
             done
