@@ -176,7 +176,7 @@ let
 
       # wireguard key/addr
       sops.envFiles."mullvad-exit-node-${cfg.name}" = {
-        WIREGUARD_ADDRESSES = "op://Private/marehbn7mhvixiywnnggztiosm/${cfg.name}/Address";
+        WIREGUARD_ADDRESSES = "op://Private/marehbn7mhvixiywnnggztiosm/${cfg.name}/Address6";
         WIREGUARD_PRIVATE_KEY = "op://Private/marehbn7mhvixiywnnggztiosm/${cfg.name}/Private Key";
       };
     };
