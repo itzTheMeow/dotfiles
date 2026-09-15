@@ -75,8 +75,4 @@
       RemainAfterExit = true;
     };
   };
-
-  persist.ed.home.userFiles = [
-    ".config/kactivitymanagerd-statsrc" # kickoff favorites order (declared in home/plasma/favorites.nix)
-  ];
 }
