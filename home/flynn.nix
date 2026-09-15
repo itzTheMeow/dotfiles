@@ -2,7 +2,6 @@
   config,
   host,
   pkgs,
-  pkgs-unstable,
   xelib,
   xelpkgs,
   ...
@@ -27,6 +26,8 @@ in
     ./programs/discordchatexporter
     ./programs/thunderbird
     ./programs/vesktop
+
+    ./plasma/favorites.nix
   ];
 
   home = {
@@ -178,6 +179,23 @@ in
   programs.plasma = {
     enable = true;
     overrideConfig = true;
+    launcherFavorites = [
+      "applications:kitty.desktop"
+      "applications:org.kde.dolphin.desktop"
+      "preferred://browser"
+      "applications:chromium-browser.desktop"
+      "applications:vesktop.desktop"
+      "applications:thunderbird.desktop"
+      "applications:joplin.desktop"
+      "applications:code.desktop"
+      "applications:timefinder-electron.desktop"
+      "applications:org.pegasus_frontend.Pegasus"
+      "applications:steam.desktop"
+      "applications:org.prismlauncher.PrismLauncher.desktop"
+      "applications:systemsettings.desktop"
+      "applications:org.kde.plasma-systemmonitor.desktop"
+      "applications:plexamp.desktop"
+    ];
     workspace = {
       cursor = {
         theme = xelib.globals.cursors.name;
