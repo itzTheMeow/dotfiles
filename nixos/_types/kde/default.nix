@@ -77,6 +77,6 @@
   };
 
   persist.ed.home.userFiles = [
-    ".config/kactivitymanagerd-statsrc" # favorites list order
+    ".config/kactivitymanagerd-statsrc" # kickoff favorites order (declared in home/plasma/favorites.nix)
   ];
 }
