@@ -56,7 +56,7 @@ let
   ];
 in
 lib.mkMerge [
-  (xelib.mkSSHSecrets config machines)
+  (xelib.mkSSHSecrets machines)
 
   {
     home-manager.importUser = [
