@@ -1,11 +1,6 @@
-{ pkgs-unstable, ... }: {
-  #TODO:26.11 swap to regular (also below for home-manager too)
-  environment.systemPackages = with pkgs-unstable; [ opencode ];
-
-  persist.ed.home.userDirectories = [
-    ".config/opencode"
-    #".local/share/opencode"
-  ];
+{ pkgs, pkgs-unstable, ... }: {
+  # TODO:26.11 swap opencode to regular (also below for home-manager too)
+  environment.systemPackages = (with pkgs; [ playwright-mcp ]) ++ (with pkgs-unstable; [ opencode ]);
 
   home-manager.importUser = [
     (
@@ -27,6 +22,7 @@
           + "/packages/opencode/src/kilocode/review/review.txt";
       in
       {
+        home.file.".config/opencode/opencode.jsonc".source = ./opencode.jsonc;
         # add a custom command using kilo's prompt for reviews
         home.file.".config/opencode/commands/review-full.md".source = review;
       }
