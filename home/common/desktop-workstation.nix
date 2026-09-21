@@ -1,16 +1,10 @@
 {
-  config,
   lib,
   pkgs-unstable,
   pkgs,
-  xelib,
   ...
 }:
 {
-  imports = [
-    ./ssh.nix
-  ];
-
   home = {
     packages = with pkgs; [
       # development
@@ -38,73 +32,21 @@
     };
   };
 
-  programs = {
-    ssh = {
-      enable = true;
-      enableDefaultConfig = false;
-      matchBlocks = {
-        ${xelib.apps.forgejo.domain} = {
-          identityFile = [
-            config.sops.secrets.forgejo_key.path
-            config.sops.secrets.github_ssh_signing.path
-          ];
-          identitiesOnly = true;
-        };
-        "github.com" = {
-          identityFile = [
-            config.sops.secrets.github_ssh_auth.path
-            config.sops.secrets.github_ssh_signing.path
-          ];
-          identitiesOnly = true;
-        };
-        "*" = {
-          extraOptions = {
-            IdentityAgent =
-              if pkgs.stdenv.isDarwin then
-                "~/Library/Group\\ Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-              else
-                "~/.1password/agent.sock";
-          };
-        };
-      };
+  programs.git = {
+    signing = {
+      format = "ssh";
+      key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUZNxXcceFgiGEGJlvFM1DLaYFMOYO+oVfVmCcUqXRw";
+      signer =
+        if pkgs.stdenv.isDarwin then
+          "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+        else
+          "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}";
+      signByDefault = true;
     };
-
-    git = {
-      signing = {
-        format = "ssh";
-        key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUZNxXcceFgiGEGJlvFM1DLaYFMOYO+oVfVmCcUqXRw";
-        signer =
-          if pkgs.stdenv.isDarwin then
-            "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-          else
-            "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}";
-        signByDefault = true;
-      };
-      # borrowed from https://github.com/bobvanderlinden/nixos-config/blob/0c09c5c162413816d3278c406d85c05f0010527c/home/default.nix#L938
-      settings.url."git@github.com:".insteadOf = [
-        "https://github.com/"
-        "github:"
-      ];
-    };
-  };
-
-  sops.secrets.github_ssh_auth = {
-    sopsFile = config.sops.opSecrets.git_ssh.fullPath;
-    key = "github_auth";
-  };
-  sops.secrets.github_ssh_signing = {
-    sopsFile = config.sops.opSecrets.git_ssh.fullPath;
-    key = "github_signing";
-  };
-  sops.secrets.forgejo_key = {
-    sopsFile = config.sops.opSecrets.git_ssh.fullPath;
-    key = "forgejo";
-  };
-  sops.opSecrets.git_ssh = {
-    keys = {
-      github_auth = "op://Private/royxpwncznclgwwbtp5gq4syle/public key";
-      github_signing = "op://Private/brpzxia4pb2uk7ujbyf3nj7qci/public key";
-      forgejo = "op://Private/hgsv724d4jvdaqfljg664v62aq/public key";
-    };
+    # borrowed from https://github.com/bobvanderlinden/nixos-config/blob/0c09c5c162413816d3278c406d85c05f0010527c/home/default.nix#L938
+    settings.url."git@github.com:".insteadOf = [
+      "https://github.com/"
+      "github:"
+    ];
   };
 }
