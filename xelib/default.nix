@@ -254,22 +254,16 @@ rec {
 
   # make the nixos-side sops secret entries for a list of ssh machines
   mkSSHSecrets =
-    config: machines:
+    machines:
     lib.mkMerge (
       map (
         { name, publicKey, ... }:
-        let
-          keyName = sshKeyName name;
-        in
         {
-          # public key with SOPS
-          sops.secrets."ssh_pub_${keyName}" = {
-            sopsFile = config.sops.opSecrets.ssh_pubkeys.fullPath;
-            key = keyName;
+          sops.groups.ssh_pubkeys.${sshKeyName name} = {
+            value = publicKey;
             # the user needs to read it from ~/.ssh/config
             owner = hosts.${hostname}.username;
           };
-          sops.opSecrets.ssh_pubkeys.keys.${keyName} = publicKey;
         }
       ) machines
     );
@@ -293,7 +287,7 @@ rec {
         {
           programs.ssh.settings."${host}" = hm.lib.hm.dag.entryBefore [ "*" ] (
             {
-              IdentityFile = config.sops.secrets."ssh_pub_${keyName}".path;
+              IdentityFile = config.sops.groupPaths.ssh_pubkeys.${keyName};
               IdentitiesOnly = true;
             }
             // extraOptions

@@ -7,38 +7,30 @@
 }:
 let
   gitSecrets = {
-    sops.opSecrets.git_ssh = {
-      keys = {
-        github_auth = "op://Private/royxpwncznclgwwbtp5gq4syle/public key";
-        github_signing = "op://Private/brpzxia4pb2uk7ujbyf3nj7qci/public key";
-        forgejo = "op://Private/hgsv724d4jvdaqfljg664v62aq/public key";
+    sops.groups.git_ssh = {
+      github_auth = {
+        value = "op://Private/royxpwncznclgwwbtp5gq4syle/public key";
+        owner = host.username;
       };
-    };
-    sops.secrets.github_ssh_auth = {
-      sopsFile = config.sops.opSecrets.git_ssh.fullPath;
-      key = "github_auth";
-      owner = host.username;
-    };
-    sops.secrets.github_ssh_signing = {
-      sopsFile = config.sops.opSecrets.git_ssh.fullPath;
-      key = "github_signing";
-      owner = host.username;
-    };
-    sops.secrets.forgejo_key = {
-      sopsFile = config.sops.opSecrets.git_ssh.fullPath;
-      key = "forgejo";
-      owner = host.username;
+      github_signing = {
+        value = "op://Private/brpzxia4pb2uk7ujbyf3nj7qci/public key";
+        owner = host.username;
+      };
+      forgejo = {
+        value = "op://Private/hgsv724d4jvdaqfljg664v62aq/public key";
+        owner = host.username;
+      };
     };
   };
 
   codeHosts = {
     "github.com" = [
-      config.sops.secrets.github_ssh_auth.path
-      config.sops.secrets.github_ssh_signing.path
+      config.sops.groupPaths.git_ssh.github_auth
+      config.sops.groupPaths.git_ssh.github_signing
     ];
     ${xelib.apps.forgejo.domain} = [
-      config.sops.secrets.forgejo_key.path
-      config.sops.secrets.github_ssh_signing.path
+      config.sops.groupPaths.git_ssh.forgejo
+      config.sops.groupPaths.git_ssh.github_signing
     ];
   };
 
