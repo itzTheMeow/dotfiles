@@ -245,38 +245,61 @@ rec {
         '';
       });
 
-  # make an ssh config entry
-  mkSSHConfig =
+  # the sops secret key for an ssh entry
+  sshKeyName =
+    name:
+    lib.strings.stringAsChars (c: if builtins.match "[a-z0-9]" c != null then c else "") (
+      lib.strings.toLower name
+    );
+
+  # make the nixos-side sops secret entries for a list of ssh machines
+  mkSSHSecrets =
     config: machines:
-    let
-      mkMachine =
-        {
-          host,
-          publicKey,
-          name ? host,
-          args ? host,
-          extraOptions ? { },
-        }:
+    lib.mkMerge (
+      map (
+        { name, publicKey, ... }:
         let
-          keyName = lib.strings.stringAsChars (c: if builtins.match "[a-z0-9]" c != null then c else "") (
-            lib.strings.toLower name
-          );
+          keyName = sshKeyName name;
         in
         {
           # public key with SOPS
           sops.secrets."ssh_pub_${keyName}" = {
             sopsFile = config.sops.opSecrets.ssh_pubkeys.fullPath;
             key = keyName;
+            # the user needs to read it from ~/.ssh/config
+            owner = hosts.${hostname}.username;
           };
           sops.opSecrets.ssh_pubkeys.keys.${keyName} = publicKey;
-          # ssh match block
-          programs.ssh.matchBlocks."${host}" = {
-            identityFile = config.sops.secrets."ssh_pub_${keyName}".path;
-            identitiesOnly = true;
-          }
-          // extraOptions;
+        }
+      ) machines
+    );
+
+  mkSSHConfig =
+    config: machines: hm:
+    let
+      # kitty launchers only make sense on machines with a GUI
+      isDesktop = builtins.elem "desktop" (hosts.${hostname}.type or [ ]);
+      mkMachine =
+        {
+          host,
+          name ? host,
+          args ? host,
+          extraOptions ? { },
+          ...
+        }:
+        let
+          keyName = sshKeyName name;
+        in
+        {
+          programs.ssh.settings."${host}" = hm.lib.hm.dag.entryBefore [ "*" ] (
+            {
+              IdentityFile = config.sops.secrets."ssh_pub_${keyName}".path;
+              IdentitiesOnly = true;
+            }
+            // extraOptions
+          );
           # desktop file
-          xdg.desktopEntries."ssh-${keyName}" = {
+          xdg.desktopEntries."ssh-${keyName}" = lib.mkIf isDesktop {
             type = "Application";
             name = "SSH ${name} (${host})";
             genericName = "Terminal emulator";
@@ -296,8 +319,7 @@ rec {
           };
         };
     in
-    # merge all options together to return them
-    lib.mkMerge (map mkMachine machines);
+    lib.foldr (lib.recursiveUpdate) { } (map mkMachine machines);
 
   # make a remoteview desktop file for dolphin
   mkRemoteView = name: address: {
