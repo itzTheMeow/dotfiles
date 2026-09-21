@@ -64,6 +64,7 @@
         "--executable-path",
         "/run/current-system/sw/bin/chromium",
         "--headless",
+        "--isolated",
         "--viewport-size",
         "1440x900",
       ],
