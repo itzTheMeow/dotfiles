@@ -1,4 +1,3 @@
-# this is pretty much entirely vibed because i cba to do this NAT shit myself
 {
   config,
   lib,
@@ -7,16 +6,27 @@
   ...
 }:
 let
-  publicIp = xelib.dns.addr.ehrman;
-  serverFqdn = "pond.whenducksfly.com";
-  serverId = publicIp;
+  # config references
+  app = config.apps.headscale;
+
+  # hardcoded tailnet prefix (matches headscale default; not parameterised because
+  # config.services.headscale.settings.ip_prefixes is freeform YAML)
+  tailnetPrefix = "100.64.0.0/10";
   vpnPoolIp = "10.60.0.1";
 
+  # paths / names
   stateDir = "/var/lib/ipad4-gateway";
   runDir = "/run/ipad4-gateway";
   strongswanContainer = "ipad4-gateway-strongswan";
   tailscaleContainer = "ipad4-gateway-tailscale";
   eapSecret = "ipad4-gateway";
+  tailscaleImage = "tailscale/tailscale:v1.98.4";
+
+  # derived values
+  publicIp = xelib.dns.addr.ehrman;
+  serverFqdn = app.domain;
+  serverId = publicIp;
+  baseDomain = config.services.headscale.settings.dns.base_domain;
 
   strongswan = pkgs.strongswan;
 
@@ -42,7 +52,7 @@ let
         send_cert = always
         children {
           ipad4 {
-            local_ts = 100.64.0.0/10
+            local_ts = ${tailnetPrefix}
             remote_ts = dynamic
             esp_proposals = aes256-sha256-modp2048, aes256-sha256-ecp256, aes128-sha256-modp2048
             start_action = none
@@ -58,6 +68,12 @@ let
       }
     }
   '';
+
+  profileTemplate = pkgs.replaceVars ./profile.mobileconfig.in {
+    SERVER_ADDRESS = publicIp;
+    SERVER_ID = serverId;
+    BASE_DOMAIN = baseDomain;
+  };
 
   entrypoint = pkgs.writeShellScript "ipad4-gateway-entrypoint" ''
     set -euo pipefail
@@ -95,7 +111,7 @@ let
       pki --pub --in "$SSDIR"/private/ipad4-server.key.pem --outform pem > "$CONFIG"/server.pub.pem
       pki --issue --lifetime 3650 --cacert "$SSDIR"/x509ca/ca.crt --cakey "$SSDIR"/private/ca.key.pem \
         --in "$CONFIG"/server.pub.pem --type pub \
-        --dn "CN=ipad4-gateway.xela.internal" \
+        --dn "CN=ipad4-gateway.${baseDomain}" \
         --san "${publicIp}" --san "${serverFqdn}" \
         --flag serverAuth --outform pem > "$SSDIR"/x509/ipad4-server.crt
       chmod 600 "$SSDIR"/private/*.pem
@@ -120,58 +136,9 @@ let
       || iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
     CA_B64=$(base64 -w0 "$SSDIR"/x509ca/ca.crt)
-    cat > "$CONFIG"/ipad4.mobileconfig <<EOF
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-      <key>PayloadContent</key>
-      <array>
-        <dict>
-          <key>PayloadType</key><string>com.apple.vpn.managed</string>
-          <key>PayloadIdentifier</key><string>codes.xela.ipad4.vpn</string>
-          <key>PayloadUUID</key><string>a1b2c3d4-0001-4000-8000-000000000001</string>
-          <key>PayloadDisplayName</key><string>iPad 4 Tailnet VPN</string>
-          <key>PayloadDescription</key><string>IKEv2 split tunnel to the xela tailnet</string>
-          <key>PayloadVersion</key><integer>1</integer>
-          <key>UserDefinedName</key><string>Tailnet (iPad 4)</string>
-          <key>VPNType</key><string>IKEv2</string>
-          <key>DNS</key>
-          <dict>
-            <key>ServerAddresses</key><array><string>100.100.100.100</string></array>
-            <key>SearchDomains</key><array><string>xela.internal</string></array>
-          </dict>
-          <key>IKEv2</key>
-          <dict>
-            <key>RemoteAddress</key><string>${publicIp}</string>
-            <key>RemoteIdentifier</key><string>${serverId}</string>
-            <key>LocalIdentifier</key><string>ipad4</string>
-            <key>AuthenticationMethod</key><string>None</string>
-            <key>ExtendedAuthEnabled</key><integer>1</integer>
-            <key>AuthName</key><string>$EAP_USERNAME</string>
-            <key>ServerCertificateIssuerCommonName</key><string>xela iPad 4 Gateway CA</string>
-            <key>ServerCertificateCommonName</key><string>ipad4-gateway.xela.internal</string>
-            <key>DeadPeerDetectionRate</key><string>Medium</string>
-          </dict>
-        </dict>
-        <dict>
-          <key>PayloadType</key><string>com.apple.security.root</string>
-          <key>PayloadIdentifier</key><string>codes.xela.ipad4.ca</string>
-          <key>PayloadUUID</key><string>a1b2c3d4-0002-4000-8000-000000000002</string>
-          <key>PayloadDisplayName</key><string>xela iPad 4 Gateway CA</string>
-          <key>PayloadVersion</key><integer>1</integer>
-          <key>PayloadCertificateFileName</key><string>ipad4-ca.crt</string>
-          <key>PayloadContent</key><data>$CA_B64</data>
-        </dict>
-      </array>
-      <key>PayloadType</key><string>Configuration</string>
-      <key>PayloadIdentifier</key><string>codes.xela.ipad4</string>
-      <key>PayloadUUID</key><string>a1b2c3d4-0000-4000-8000-000000000000</string>
-      <key>PayloadDisplayName</key><string>iPad 4 Tailnet</string>
-      <key>PayloadVersion</key><integer>1</integer>
-    </dict>
-    </plist>
-    EOF
+    cp ${profileTemplate} "$CONFIG"/ipad4.mobileconfig
+    sed -i "s/{{EAP_USERNAME}}/$EAP_USERNAME/g; s/{{CA_B64}}/$CA_B64/g" \
+      "$CONFIG"/ipad4.mobileconfig
 
     charon &
     CHARON_PID=$!
@@ -237,7 +204,7 @@ in
     };
 
     ${tailscaleContainer} = {
-      image = "tailscale/tailscale:v1.98.4";
+      image = "${tailscaleImage}";
       autoStart = true;
       dependsOn = [ strongswanContainer ];
       capabilities = {
@@ -247,7 +214,7 @@ in
       privileged = true;
       networks = [ "container:${strongswanContainer}" ];
       environment = {
-        TS_EXTRA_ARGS = "--login-server=${xelib.apps.headscale.url} --accept-dns=true";
+        TS_EXTRA_ARGS = "--login-server=${app.url} --accept-dns=true";
         TS_STATE_DIR = "/var/lib/tailscale";
         TS_HOSTNAME = "ipad4";
       };
