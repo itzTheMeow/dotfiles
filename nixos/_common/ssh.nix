@@ -72,7 +72,7 @@ lib.mkMerge [
             enableDefaultConfig = false;
             # machine blocks and code hosts all entryBefore "*", so this ends up last
             settings = sshConfig.programs.ssh.settings // {
-              "*" = {
+              "*" = lib.optionalAttrs xelib.isDesktop {
                 IdentityAgent = "~/.1password/agent.sock";
               };
             };

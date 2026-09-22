@@ -43,12 +43,14 @@ in
     {
       home-manager.importUser = [
         (hm: {
-          programs.ssh.settings = lib.genAttrs codeHostNames (
-            domain:
-            hm.lib.hm.dag.entryBefore [ "*" ] {
-              IdentityFile = codeHosts.${domain};
-              IdentitiesOnly = true;
-            }
+          programs.ssh.settings = lib.optionalAttrs xelib.isDesktop (
+            lib.genAttrs codeHostNames (
+              domain:
+              hm.lib.hm.dag.entryBefore [ "*" ] {
+                IdentityFile = codeHosts.${domain};
+                IdentitiesOnly = true;
+              }
+            )
           );
         })
       ];
