@@ -1,6 +1,8 @@
+diff --git a/util/pandoc.go b/util/pandoc.go
+index 6907f9849..d3a21608a 100644
 --- a/util/pandoc.go
 +++ b/util/pandoc.go
-@@ -124,6 +124,7 @@
+@@ -124,6 +124,7 @@ func InitPandoc(customPandocBinPath string) {
  }
  
  func initPandoc(customPandocBinPath string, getVersion func(string) string) {
