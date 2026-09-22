@@ -16,6 +16,9 @@ let
 
   # paths / names
   stateDir = "/var/lib/ipad4-gateway";
+  # world-traversable dir for the generated profile; kept out of stateDir so
+  # nginx can read it without exposing the private keys/tailscale state
+  publicDir = "/var/lib/ipad4-gateway-public";
   runDir = "/run/ipad4-gateway";
   strongswanContainer = "ipad4-gateway-strongswan";
   tailscaleContainer = "ipad4-gateway-tailscale";
@@ -136,9 +139,11 @@ let
       || iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
     CA_B64=$(base64 -w0 "$SSDIR"/x509ca/ca.crt)
-    cp ${profileTemplate} "$CONFIG"/ipad4.mobileconfig
+    mkdir -p /public
+    cp ${profileTemplate} /public/ipad4.mobileconfig
     sed -i "s/{{EAP_USERNAME}}/$EAP_USERNAME/g; s/{{CA_B64}}/$CA_B64/g" \
-      "$CONFIG"/ipad4.mobileconfig
+      /public/ipad4.mobileconfig
+    chmod 644 /public/ipad4.mobileconfig
 
     charon &
     CHARON_PID=$!
@@ -200,7 +205,10 @@ in
       ];
       environment.EAP_USERNAME = "ipad4";
       environmentFiles = [ config.sops.secrets.${eapSecret}.path ];
-      volumes = [ "${stateDir}:/config" ];
+      volumes = [
+        "${stateDir}:/config"
+        "${publicDir}:/public"
+      ];
     };
 
     ${tailscaleContainer} = {
@@ -225,6 +233,7 @@ in
 
   systemd.tmpfiles.rules = [
     "d ${stateDir} 0700 root root - -"
+    "d ${publicDir} 0755 root root - -"
     "d ${runDir} 0700 root root - -"
     #?INIT: paste a headscale pre-auth key here before first boot
     #? echo 'TS_AUTHKEY=<key>' > ${runDir}/ipad4.env
@@ -242,7 +251,7 @@ in
 
   nginx.proxy.${serverFqdn}.extraConfig = _: {
     locations."= /ipad4.mobileconfig" = {
-      alias = "${stateDir}/ipad4.mobileconfig";
+      alias = "${publicDir}/ipad4.mobileconfig";
       extraConfig = "default_type application/x-apple-aspen-config;";
     };
   };
