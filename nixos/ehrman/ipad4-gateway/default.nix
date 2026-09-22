@@ -98,6 +98,9 @@ let
     export SWANCTL_DIR=$SSDIR
     export STRONGSWAN_CONF=$CONFIG/strongswan.conf
 
+    # charon's compiled defaults put its pidfile and vici/stroke sockets under
+    # /var/run, which doesn't exist in the minimal image
+    mkdir -p /var/run
     mkdir -p "$SSDIR"/x509 "$SSDIR"/x509ca "$SSDIR"/x509crl "$SSDIR"/x509ocsp \
       "$SSDIR"/x509aa "$SSDIR"/x509ac "$SSDIR"/pubkey "$SSDIR"/private \
       "$SSDIR"/rsa "$SSDIR"/ecdsa "$SSDIR"/pkcs8 "$SSDIR"/pkcs12
