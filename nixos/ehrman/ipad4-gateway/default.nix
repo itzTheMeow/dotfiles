@@ -51,13 +51,13 @@ let
           eap_id = %any
         }
         pools = ipad4
-        proposals = aes256-sha256-modp2048, aes256-sha256-ecp256, aes128-sha256-modp2048
+        proposals = aes256-sha256-modp2048, aes256-sha256-ecp256, aes128-sha256-modp2048, aes128-sha1-modp1024, 3des-sha1-modp1024
         send_cert = always
         children {
           ipad4 {
             local_ts = ${tailnetPrefix}
             remote_ts = dynamic
-            esp_proposals = aes256-sha256-modp2048, aes256-sha256-ecp256, aes128-sha256-modp2048
+            esp_proposals = aes256-sha256-modp2048, aes256-sha256-ecp256, aes128-sha256-modp2048, aes128-sha1, 3des-sha1
             start_action = none
             dpd_action = clear
           }
