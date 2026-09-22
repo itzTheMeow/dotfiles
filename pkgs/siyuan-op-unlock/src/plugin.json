@@ -1,0 +1,17 @@
+{
+  "name": "siyuan-op-unlock",
+  "author": "xela",
+  "url": "https://github.com/xela/dotfiles",
+  "version": "0.1.0",
+  "minAppVersion": "3.8.0",
+  "frontends": ["desktop"],
+  "backends": ["linux"],
+  "kernels": ["linux"],
+  "displayName": {
+    "default": "1Password unlock"
+  },
+  "description": {
+    "default": "Unlock encrypted notebooks with the 1Password CLI"
+  },
+  "keywords": ["1password", "unlock", "encrypted"]
+}

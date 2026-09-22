@@ -71,6 +71,7 @@ NixOS configuration for personal machines.
   - `TODO:pr` — waiting on a PR merge. `TODO:26.11` — waiting on next nixpkgs release (nixpkgs 26.11).
 - Modules should follow the repo's `inherit` alphabetized style and use `lib`/`mkOption` for options.
 - Prefer reusing the host table (`xelib.hosts`), `apps`, and the modules in `modules/` over re-declaring per-host configuration.
+- Keep app-level customization out of overlays and patches: host-specific env vars, PATH additions, and bundled plugins/extensions belong in the feature module that enables the app. Prefer the app's own extension mechanism (e.g. plugins that shell out to CLIs) over patching its source.
 - Secrets: never put plaintext secret values in Nix files. Reference 1Password URIs (always by item **ID**, never item name) and let SOPS/opSecrets handle them.
 
 ## Commands / workflow
