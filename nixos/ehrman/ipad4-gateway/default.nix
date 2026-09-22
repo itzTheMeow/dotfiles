@@ -145,7 +145,7 @@ let
       /public/ipad4.mobileconfig
     chmod 644 /public/ipad4.mobileconfig
 
-    charon &
+    "${strongswan}/libexec/ipsec/charon" &
     CHARON_PID=$!
     for i in $(seq 1 30); do
       if [ -S /var/run/charon.vici ]; then
