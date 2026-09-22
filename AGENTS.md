@@ -77,6 +77,7 @@ NixOS configuration for personal machines.
 ## Commands / workflow
 
 - Build a host: `nixos-rebuild switch --flake .#<hostname>` (or via `nixosConfigurations`).
+- **Never sync/push overlay files to remote hosts (no `rsync`/`scp` of this repo to ehrman or other machines).** The remote checkouts are updated **manually by the user** on request — the agent only edits the local repo, validates it locally (`nix fmt`/`nix eval`), then asks the user to deploy.
 - Eval/config checks: `nix eval .#nixosConfigurations.<hostname>.config...`.
 - Format the whole repo: `nix run .#format` (nixfmt for nix, gofmt for go, prettier for everything else). Also run periodically via Forgejo CI.
 - Regenerate SOPS secrets: run the `go/sops-build-secrets` tool (requires 1Password desktop app / `OP_SHARED_LIBRARY`).
