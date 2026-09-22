@@ -52,11 +52,6 @@ in
             value = "100.64.0.5";
           }
           {
-            name = "portainer.xela.internal";
-            type = "A";
-            value = "100.64.0.2";
-          }
-          {
             name = "kuma.nvstly.internal";
             type = "A";
             value = "100.64.0.5";
