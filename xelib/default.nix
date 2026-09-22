@@ -18,6 +18,9 @@ rec {
   locationDir = ".dotfiles";
   location = "/home/${hosts.${hostname}.username}/${locationDir}";
 
+  # if the current host is a desktop
+  isDesktop = builtins.elem "desktop" (hosts.${hostname}.type or [ ]);
+
   # aggregate apps from all config hosts
   apps = lib.foldAttrs lib.recursiveUpdate { } (
     map (host: self.nixosConfigurations.${host}.config.apps) (
@@ -271,8 +274,6 @@ rec {
   mkSSHConfig =
     config: machines: hm:
     let
-      # kitty launchers only make sense on machines with a GUI
-      isDesktop = builtins.elem "desktop" (hosts.${hostname}.type or [ ]);
       mkMachine =
         {
           host,
@@ -286,7 +287,8 @@ rec {
         in
         {
           programs.ssh.settings."${host}" = hm.lib.hm.dag.entryBefore [ "*" ] (
-            {
+            # the 1Password agent serves the private key matching this public key
+            lib.optionalAttrs isDesktop {
               IdentityFile = config.sops.groupPaths.ssh_pubkeys.${keyName};
               IdentitiesOnly = true;
             }
