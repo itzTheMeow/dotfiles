@@ -6,7 +6,7 @@
   ...
 }:
 let
-  ipadKey = xelib.sshKeyName "ipad";
+  ipadproKey = xelib.sshKeyName "ipadpro";
 in
 {
   home-manager.importAll = [
@@ -14,10 +14,10 @@ in
       programs.rclone = {
         enable = true;
         remotes = {
-          ipad = {
+          ipadpro = {
             config = {
               type = "sftp";
-              host = xelib.hosts.ipad.ip;
+              host = xelib.hosts.ipadpro.ip;
               user = "root";
               key_use_agent = true;
               known_hosts_file = "~/.ssh/known_hosts";
@@ -25,8 +25,8 @@ in
               md5sum_command = "md5sum";
               sha1sum_command = "sha1sum";
             }
-            // lib.optionalAttrs (config.sops.groupPaths.ssh_pubkeys ? ${ipadKey}) {
-              key_file = config.sops.groupPaths.ssh_pubkeys.${ipadKey};
+            // lib.optionalAttrs (config.sops.groupPaths.ssh_pubkeys ? ${ipadproKey}) {
+              key_file = config.sops.groupPaths.ssh_pubkeys.${ipadproKey};
             };
           };
           pcloud = {

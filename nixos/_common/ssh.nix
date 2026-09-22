@@ -21,7 +21,8 @@ let
     (mkHostSSHItem "hyzenberg" null)
     (mkHostSSHItem "ehrman" null)
     (mkHostSSHItem "huell" null)
-    (mkHostSSHItem "ipad" "iPad")
+    (mkHostSSHItem "ipadpro" "iPad Pro")
+    (mkHostSSHItem "ipad4" "iPad 4")
     {
       name = "Macintosh";
       host = "macintosh.xela.internal";

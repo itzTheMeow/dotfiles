@@ -229,7 +229,7 @@ lib.mkMerge [
   (mkConfig "hyzenberg" "op://Private/o3c3kzrri5dlyphag2smig3vpa/password" "/" { })
   (mkConfig "ehrman" "op://Private/4bs7irl4o4rkmzv7dp25zufsxu/password" "/" { })
 
-  (mkConfig "ipad" "op://Private/7kaur74rgd5da4kfcabgy3ahb4/password" "/mnt/ipad" {
+  (mkConfig "ipadpro" "op://Private/7kaur74rgd5da4kfcabgy3ahb4/password" "/mnt/ipad" {
     /*
       rclone = {
         remote = "ipad:/";
