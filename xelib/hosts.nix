@@ -139,11 +139,16 @@ in
     iphone = {
       ip = "100.64.0.6";
     };
-    ipad = {
+    ipadpro = {
       username = "mobile";
       ip = "100.64.0.1";
       ports.ssh = 22;
       publicKey = "op://Private/tc37c36m3m7h6atgatorajfq4i/public key";
+    };
+    ipad4 = {
+      username = "mobile";
+      ports.ssh = 22;
+      publicKey = "op://Private/ufo2p565cqdvpfzf574k4k23hy/public key";
     };
 
     # other users
@@ -160,6 +165,6 @@ in
     "flynn"
     "pete"
     "iphone"
-    "ipad"
+    "ipadpro"
   ];
 }
