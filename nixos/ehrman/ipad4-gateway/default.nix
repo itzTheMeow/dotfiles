@@ -228,6 +228,10 @@ in
         TS_EXTRA_ARGS = "--login-server=${app.url} --accept-dns=true";
         TS_STATE_DIR = "/var/lib/tailscale";
         TS_HOSTNAME = "ipad4";
+        # containerboot defaults to userspace networking, which has no
+        # tailscale0 kernel interface to forward the VPN traffic into
+        TS_USERSPACE = "false";
+        TS_DEBUG_MTU = "1420";
       };
       environmentFiles = [ "${runDir}/ipad4.env" ];
       volumes = [ "${stateDir}/tailscale:/var/lib/tailscale" ];
