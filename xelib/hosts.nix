@@ -147,7 +147,7 @@ in
     };
     ipad4 = {
       username = "mobile";
-      ip = "100.64.0.0";
+      ip = "100.64.0.24";
       ports.ssh = 22;
       publicKey = "op://Private/ufo2p565cqdvpfzf574k4k23hy/public key";
     };
