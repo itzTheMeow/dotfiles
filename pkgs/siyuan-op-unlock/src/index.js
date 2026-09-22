@@ -54,7 +54,11 @@ module.exports = class SiYuanOPUnlock extends Plugin {
           await this.saveData(STORAGE_KEY, { ref: this.savedRef });
           showMessage(`[${this.name}] ${this.i18n?.saved || "settings saved"}`);
         } catch (error) {
-          showMessage(`[${this.name}] save settings fail: ${error}`, 6000, "error");
+          showMessage(
+            `[${this.name}] save settings fail: ${error}`,
+            6000,
+            "error",
+          );
         }
       },
     });
@@ -62,7 +66,8 @@ module.exports = class SiYuanOPUnlock extends Plugin {
       title: this.i18n?.refTitle || "1Password item ref",
       direction: "row",
       description:
-        this.i18n?.refTip || "op:// URI for `op read`; falls back to $SIYUAN_MASTER_PASSWORD_OP",
+        this.i18n?.refTip ||
+        "op:// URI for `op read`; falls back to $SIYUAN_MASTER_PASSWORD_OP",
       createActionElement: () => {
         this.refInput = document.createElement("input");
         this.refInput.className = "b3-text-field fn__block";
@@ -77,12 +82,18 @@ module.exports = class SiYuanOPUnlock extends Plugin {
     testButton.addEventListener("click", async () => {
       testButton.disabled = true;
       try {
-        const secret = await readOPSecret(this.refInput.value.trim() || this.getRef());
+        const secret = await readOPSecret(
+          this.refInput.value.trim() || this.getRef(),
+        );
         showMessage(
           `[${this.name}] ${this.i18n?.ok || "ok"}, ${secret.length} ${this.i18n?.chars || "chars"}`,
         );
       } catch (error) {
-        showMessage(`[${this.name}] op read failed: ${error.message}`, 6000, "error");
+        showMessage(
+          `[${this.name}] op read failed: ${error.message}`,
+          6000,
+          "error",
+        );
       } finally {
         testButton.disabled = false;
       }
@@ -104,15 +115,19 @@ module.exports = class SiYuanOPUnlock extends Plugin {
   }
 
   getRef() {
-    return this.savedRef || process.env.SIYUAN_MASTER_PASSWORD_OP || DEFAULT_OP_REF;
+    return (
+      this.savedRef || process.env.SIYUAN_MASTER_PASSWORD_OP || DEFAULT_OP_REF
+    );
   }
 
   injectAll() {
-    document.querySelectorAll(`[data-key^="${DIALOG_KEY_PREFIX}"]`).forEach((element) => {
-      if (!element.querySelector(`[${INJECT_ATTR}]`)) {
-        this.injectButton(element);
-      }
-    });
+    document
+      .querySelectorAll(`[data-key^="${DIALOG_KEY_PREFIX}"]`)
+      .forEach((element) => {
+        if (!element.querySelector(`[${INJECT_ATTR}]`)) {
+          this.injectButton(element);
+        }
+      });
   }
 
   injectButton(dialogElement) {
@@ -123,18 +138,25 @@ module.exports = class SiYuanOPUnlock extends Plugin {
     const button = document.createElement("button");
     button.className = "b3-button b3-button--text";
     button.setAttribute(INJECT_ATTR, "");
-    button.setAttribute("aria-label", this.i18n?.unlockOP || "Unlock with 1Password");
+    button.setAttribute(
+      "aria-label",
+      this.i18n?.unlockOP || "Unlock with 1Password",
+    );
     button.textContent = this.i18n?.unlockOP || "1Password";
     const separator = document.createElement("span");
     separator.className = "fn__space";
     // keep the normal confirm button as the rightmost action
     actionElement.insertBefore(separator, actionElement.lastElementChild);
     actionElement.insertBefore(button, separator);
-    button.addEventListener("click", () => this.unlockWithOP(dialogElement, button));
+    button.addEventListener("click", () =>
+      this.unlockWithOP(dialogElement, button),
+    );
   }
 
   async unlockWithOP(dialogElement, button) {
-    const notebookId = dialogElement.getAttribute("data-key").slice(DIALOG_KEY_PREFIX.length);
+    const notebookId = dialogElement
+      .getAttribute("data-key")
+      .slice(DIALOG_KEY_PREFIX.length);
     const ref = this.getRef();
     if (!ref) {
       showMessage(
@@ -155,10 +177,13 @@ module.exports = class SiYuanOPUnlock extends Plugin {
         );
         return;
       }
-      const response = await fetchSyncPost("/api/notebook/unlockAndOpenNotebook", {
-        notebook: notebookId,
-        password,
-      });
+      const response = await fetchSyncPost(
+        "/api/notebook/unlockAndOpenNotebook",
+        {
+          notebook: notebookId,
+          password,
+        },
+      );
       if (response.code !== 0) {
         showMessage(
           `[${this.name}] ${this.i18n?.failed || "unlock failed"}: ${response.msg || response.code}`,
@@ -176,7 +201,9 @@ module.exports = class SiYuanOPUnlock extends Plugin {
   }
 
   destroyDialog(dialogElement) {
-    const dialog = (window.siyuan?.dialogs || []).find((item) => item.element === dialogElement);
+    const dialog = (window.siyuan?.dialogs || []).find(
+      (item) => item.element === dialogElement,
+    );
     if (dialog) {
       dialog.destroy();
     } else {
