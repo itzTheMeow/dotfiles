@@ -23,6 +23,7 @@
       in
       {
         home.file.".config/opencode/opencode.jsonc".source = ./opencode.jsonc;
+        home.file.".config/opencode/AGENTS.md".source = ./AGENTS.md;
         # add a custom command using kilo's prompt for reviews
         home.file.".config/opencode/commands/review-full.md".source = review;
       }
