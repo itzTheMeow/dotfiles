@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Mounts the ipad over sftp.
+# Mounts pcloud over sftp.
 
 # make sure directory exists
 mkdir -p /mnt/pcloud
