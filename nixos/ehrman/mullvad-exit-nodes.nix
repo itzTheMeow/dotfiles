@@ -114,6 +114,16 @@ let
             STUCK_RESTART_THRESHOLD=300  # seconds before forcing gluetun restart
             MAX_FORCED_RESTARTS=3
 
+            # reconcile state on startup: if gluetun is healthy, make sure
+            # dependents are running (covers watcher crash/restart scenarios)
+            STARTUP_STATUS=$(${pkgs.docker}/bin/docker inspect \
+              --format='{{.State.Health.Status}}' \
+              ${gluetunContainer} 2>/dev/null)
+            if [ "$STARTUP_STATUS" = "healthy" ]; then
+              echo "${gluetunContainer} healthy on startup, ensuring dependents run..."
+              ${pkgs.systemd}/bin/systemctl start docker-${tailscaleContainer}.service docker-${socks5Container}.service 2>/dev/null || true
+            fi
+
             while true; do
               sleep 15
 
@@ -170,7 +180,10 @@ let
               "docker-${gluetunContainer}.service"
               "docker-${tailscaleContainer}.service"
             ];
-            requires = [
+            # must be `wants` not `requires`: the watcher deliberately stops
+            # tailscale/gluetun, and `Requires=` would make systemd take the
+            # watcher down along with them, breaking recovery
+            wants = [
               "docker-${gluetunContainer}.service"
               "docker-${tailscaleContainer}.service"
             ];
