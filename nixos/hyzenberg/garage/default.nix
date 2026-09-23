@@ -39,6 +39,7 @@ in
       };
     };
   };
+  systemd.services.garage.after = [ "tailscale-online.service" ];
 
   # the nixpkgs module doesn't expose a way to pass --single-node
   systemd.services.garage.serviceConfig.ExecStart = lib.mkForce "${garage} server --single-node";
