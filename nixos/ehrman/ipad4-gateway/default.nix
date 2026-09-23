@@ -74,6 +74,10 @@ let
 
   strongswan = pkgs.strongswan;
 
+  # dnsmasq tries to resolve its --user name, which needs a passwd entry; the
+  # minimal image has none
+  etcPasswd = pkgs.writeTextDir "etc/passwd" "root:x:0:0:root:/root:/bin/sh\n";
+
   # swanctl.conf list values are comma-separated, not bracketed
   swanctlStatic = pkgs.writeText "ipad4-swanctl.conf" ''
     connections {
@@ -227,6 +231,7 @@ let
         pkgs.iptables
         pkgs.gnused
         pkgs.gnugrep
+        etcPasswd
       ];
       pathsToLink = [
         "/bin"
