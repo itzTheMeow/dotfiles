@@ -18,8 +18,8 @@ stdenv.mkDerivation rec {
     domain = "forge.xela.codes";
     owner = "xela";
     repo = "ios-apt";
-    rev = "478f1ddf81a28f309d1c38910aef00863cdf5b25";
-    hash = "sha256-wg12xSEpWaq9wPSYZlTrao86Sq4wbSi6tNjMMB9F5Ko=";
+    rev = "18fda1d5b64acb53299d080b1cd0c38362ecaf18";
+    hash = "sha256-C8Qw2ozizQCnfUR9MI3ZZlgKdwcJyJunZGWsASZ9zXY=";
   };
 
   offlineCache = fetchYarnDeps {
