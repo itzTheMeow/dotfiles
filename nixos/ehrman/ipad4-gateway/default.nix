@@ -62,7 +62,9 @@ let
       [
         "no-resolv"
         "no-hosts"
-        "interface=tailscale0"
+        # no interface= restriction on purpose: an SO_BINDTODEVICE socket only
+        # accepts packets arriving on tailscale0, but the iPad's queries arrive
+        # via XFRM decapsulation (iif=eth0), so they'd be rejected
         "listen-address=${gatewayDns}"
         "server=1.1.1.1"
         "server=9.9.9.9"
