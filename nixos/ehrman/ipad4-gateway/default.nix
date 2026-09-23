@@ -31,6 +31,47 @@ let
   serverId = publicIp;
   baseDomain = config.services.headscale.settings.dns.base_domain;
 
+  # DNS server handed to the iPad: the ipad4 node's own tailnet address, which
+  # always exists inside the gateway netns (tailscale0). MagicDNS
+  # (100.100.100.100) can't be used: it only answers via the local tailscaled
+  # resolver, whose upstreams are empty inside this container (it can't watch
+  # /etc/resolv.conf), so every query ends in SERVFAIL.
+  gatewayDns = xelib.hosts.ipad4.ip;
+
+  # local resolver for tunnel clients: answers tailnet names from generated
+  # records and forwards everything else to public resolvers
+  dnsRecords =
+    # *.xela / *.xela.internal app records from headscale extra_records
+    lib.filter (r: builtins.match "(.+\.)?xela(\.internal)?" r.name != null) (
+      config.services.headscale.settings.dns.extra_records or [ ]
+    )
+    # + <host>.xela.internal peer records from the hosts table (those with an IP)
+    ++ lib.concatLists (
+      lib.mapAttrsToList (
+        name: host:
+        lib.optional (host ? ip) {
+          name = "${name}.${baseDomain}";
+          type = "A";
+          value = host.ip;
+        }
+      ) xelib.hosts
+    );
+
+  dnsmasqConf = pkgs.writeText "ipad4-dnsmasq.conf" (
+    lib.concatStringsSep "\n" (
+      [
+        "no-resolv"
+        "no-hosts"
+        "interface=tailscale0"
+        "listen-address=${gatewayDns}"
+        "server=1.1.1.1"
+        "server=9.9.9.9"
+        "cache-size=1000"
+      ]
+      ++ map (r: "host-record=${r.name},${r.value}") (lib.filter (r: r.type == "A") dnsRecords)
+    )
+  );
+
   strongswan = pkgs.strongswan;
 
   # swanctl.conf list values are comma-separated, not bracketed
@@ -67,7 +108,7 @@ let
     pools {
       ipad4 {
         addrs = ${vpnPoolIp}/32
-        dns = 100.100.100.100
+        dns = ${gatewayDns}
       }
     }
   '';
@@ -76,6 +117,7 @@ let
     SERVER_ADDRESS = publicIp;
     SERVER_ID = serverId;
     BASE_DOMAIN = baseDomain;
+    DNS_SERVER = gatewayDns;
   };
 
   entrypoint = pkgs.writeShellScript "ipad4-gateway-entrypoint" ''
@@ -86,6 +128,7 @@ let
         strongswan
         pkgs.bash
         pkgs.coreutils
+        pkgs.dnsmasq
         pkgs.gnugrep
         pkgs.gnused
         pkgs.iproute2
@@ -141,6 +184,11 @@ let
     iptables -t mangle -C FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu 2>/dev/null \
       || iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
+    # local DNS for tunnel clients: serves tailnet records generated above and
+    # forwards everything else upstream
+    cp ${dnsmasqConf} "$CONFIG"/dnsmasq.conf
+    dnsmasq --conf-file="$CONFIG"/dnsmasq.conf --user=root
+
     CA_B64=$(base64 -w0 "$SSDIR"/x509ca/ca.crt)
     mkdir -p /public
     cp ${profileTemplate} /public/ipad4.mobileconfig
@@ -174,6 +222,7 @@ let
         strongswan
         pkgs.bash
         pkgs.coreutils
+        pkgs.dnsmasq
         pkgs.iproute2
         pkgs.iptables
         pkgs.gnused
