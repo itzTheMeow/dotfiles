@@ -61,12 +61,23 @@ in
       Type = "oneshot";
       EnvironmentFile = config.sops.secrets.garage.path;
     };
-    script = lib.concatMapStringsSep "\n" (bucket: ''
-      ${garage} bucket create ${bucket} 2>/dev/null || true
-      if ! ${garage} key info ${bucket} >/dev/null 2>&1; then
-        ${garage} key create ${bucket} >/dev/null 2>&1
-      fi
-      ${garage} bucket allow --read --write --owner ${bucket} --key ${bucket} 2>/dev/null || true
-    '') app.details.buckets;
+    script =
+      # wait for garage to be up first
+      ''
+        i=0
+        while [ $i -lt 30 ]; do
+          ${garage} status >/dev/null 2>&1 && break
+          i=$((i + 1))
+          ${pkgs.coreutils}/bin/sleep 1
+        done
+        ${garage} status >/dev/null 2>&1  # set -e -> fail loudly if garage never came up
+      ''
+      + lib.concatMapStringsSep "\n" (bucket: ''
+        ${garage} bucket create ${bucket} 2>/dev/null || true
+        if ! ${garage} key info ${bucket} >/dev/null 2>&1; then
+          ${garage} key create ${bucket} >/dev/null 2>&1
+        fi
+        ${garage} bucket allow --read --write --owner ${bucket} --key ${bucket} 2>/dev/null || true
+      '') app.details.buckets;
   };
 }
