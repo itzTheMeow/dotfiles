@@ -250,6 +250,9 @@ in
     KbdInteractiveAuthentication = false;
   };
 
+  # ensure /mnt exists
+  systemd.tmpfiles.rules = [ "d /mnt 0755 root root - -" ];
+
   # install 1password cli
   programs._1password.enable = true;
   # persist CLI config
