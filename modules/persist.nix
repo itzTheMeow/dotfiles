@@ -342,7 +342,7 @@ in
 
         if [[ -e /btrfs_tmp/root ]]; then
           # clear /tmp before saving to avoid preserving it in old roots
-          rm -rf /btrfs_tmp/root/tmp/*
+          rm -rf /btrfs_tmp/root/tmp
 
           timestamp=$(date --date="@$(stat -c %Y /btrfs_tmp/root)" "+%Y-%m-%d_%H-%M-%S")
           mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
