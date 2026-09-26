@@ -19,9 +19,6 @@
       python3
       python3Packages.numpy
       python3Packages.tkinter
-
-      ## godot
-      pkgs-unstable.godot
     ];
 
     sessionVariables = {
