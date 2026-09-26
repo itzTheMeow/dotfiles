@@ -44,8 +44,6 @@
       # js
       nixpkgs.dbaeumer.vscode-eslint # ESLint
       nixpkgs.yoavbls.pretty-ts-errors # Pretty TypeScript Errors
-      # godot
-      nixpkgs.geequlim.godot-tools # godot-tools
       # java
       nixpkgs.redhat.java # Language Support for Java
       # html/css
