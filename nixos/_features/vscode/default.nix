@@ -39,9 +39,6 @@
       nixpkgs.ms-python.debugpy # Python Debugger
       nixpkgs.ms-python.python # Python
       nixpkgs.ms-python.vscode-pylance # Pylance
-      # dart/flutter
-      nixpkgs.dart-code.dart-code # Dart
-      nixpkgs.dart-code.flutter # Flutter
       # deno
       nixpkgs.denoland.vscode-deno # Deno
       # js
