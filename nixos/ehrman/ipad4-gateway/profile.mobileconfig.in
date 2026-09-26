@@ -18,18 +18,26 @@
         <key>ServerAddresses</key><array><string>@DNS_SERVER@</string></array>
         <key>SearchDomains</key><array><string>@BASE_DOMAIN@</string></array>
       </dict>
-      <key>IKEv2</key>
-      <dict>
-        <key>RemoteAddress</key><string>@SERVER_ADDRESS@</string>
-        <key>RemoteIdentifier</key><string>@SERVER_ID@</string>
-        <key>LocalIdentifier</key><string>ipad4</string>
-        <key>AuthenticationMethod</key><string>None</string>
-        <key>ExtendedAuthEnabled</key><integer>1</integer>
-        <key>AuthName</key><string>{{EAP_USERNAME}}</string>
-        <key>ServerCertificateIssuerCommonName</key><string>xela iPad 4 Gateway CA</string>
-        <key>ServerCertificateCommonName</key><string>ipad4-gateway.xela.internal</string>
-        <key>DeadPeerDetectionRate</key><string>Medium</string>
-      </dict>
+       <key>IKEv2</key>
+       <dict>
+         <key>RemoteAddress</key><string>@SERVER_ADDRESS@</string>
+         <key>RemoteIdentifier</key><string>@SERVER_ID@</string>
+         <key>LocalIdentifier</key><string>ipad4</string>
+         <key>AuthenticationMethod</key><string>None</string>
+         <key>ExtendedAuthEnabled</key><integer>1</integer>
+         <key>AuthName</key><string>{{EAP_USERNAME}}</string>
+         <key>ServerCertificateIssuerCommonName</key><string>xela iPad 4 Gateway CA</string>
+         <key>ServerCertificateCommonName</key><string>ipad4-gateway.xela.internal</string>
+         <key>DeadPeerDetectionRate</key><string>Medium</string>
+       </dict>
+       <key>OnDemandEnabled</key><integer>1</integer>
+       <key>OnDemandRules</key>
+       <array>
+         <dict>
+           <key>Action</key><string>Connect</string>
+           <key>InterfaceTypeMatch</key><string>Any</string>
+         </dict>
+       </array>
     </dict>
     <dict>
       <key>PayloadType</key><string>com.apple.security.root</string>
