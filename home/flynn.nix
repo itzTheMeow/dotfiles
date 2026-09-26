@@ -184,14 +184,18 @@ in
       "applications:org.kde.dolphin.desktop"
       "preferred://browser"
       "applications:chromium-browser.desktop"
+
       "applications:vesktop.desktop"
       "applications:thunderbird.desktop"
-      "applications:joplin.desktop"
-      "applications:code.desktop"
+      "applications:siyuan.desktop"
       "applications:timefinder-electron.desktop"
+
+      "applications:code.desktop"
       "applications:org.pegasus_frontend.Pegasus"
       "applications:steam.desktop"
       "applications:org.prismlauncher.PrismLauncher.desktop"
+
+      "applications:chrome-gfgbgjphjkdhefmnmbhogcpckgpapbag-Default.desktop" # Snapchat Web
       "applications:systemsettings.desktop"
       "applications:org.kde.plasma-systemmonitor.desktop"
       "applications:plexamp.desktop"
