@@ -5,24 +5,32 @@
   ...
 }:
 let
-  mkHostSSHItem = id: name: {
-    name = if name != null then name else (xelib.toTitleCase id);
+  mkHostSSHItem = id: opts: {
+    name = opts.name or (xelib.toTitleCase id);
     host = xelib.hosts.${id}.ip;
     args = "${xelib.hosts.${id}.username}@${xelib.hosts.${id}.ip}";
     inherit (xelib.hosts.${id}) publicKey;
     extraOptions = {
       Port = xelib.hosts.${id}.ports.ssh;
       ForwardAgent = true;
-    };
+    }
+    // (opts.extraOptions or { });
   };
 
   machines = [
-    (mkHostSSHItem "pete" null)
-    (mkHostSSHItem "hyzenberg" null)
-    (mkHostSSHItem "ehrman" null)
-    (mkHostSSHItem "huell" null)
-    (mkHostSSHItem "ipadpro" "iPad Pro")
-    (mkHostSSHItem "ipad4" "iPad 4")
+    (mkHostSSHItem "pete" { })
+    (mkHostSSHItem "hyzenberg" { })
+    (mkHostSSHItem "ehrman" { })
+    (mkHostSSHItem "huell" { })
+    (mkHostSSHItem "ipadpro" { name = "iPad Pro"; })
+    (mkHostSSHItem "ipad4" {
+      name = "iPad 4";
+      extraOptions = {
+        # ipad openssh version isnt new enough for this
+        WarnWeakCrypto = false;
+      };
+    })
+
     {
       name = "Macintosh";
       host = "macintosh.xela.internal";
