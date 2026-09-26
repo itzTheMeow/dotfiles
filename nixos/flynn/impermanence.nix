@@ -100,8 +100,6 @@
   environment.variables = {
     # bun
     BUN_INSTALL = "${config.persist.ed.cache.path}/bun"; # this isnt documented but its in the bun source code
-    # dart
-    PUB_CACHE = "${config.persist.ed.cache.path}/dart";
     # pnpm
     PNPM_HOME = "${config.persist.ed.cache.path}/pnpm";
   };
@@ -111,7 +109,6 @@
     map (dir: "d ${config.persist.ed.cache.path}/${dir} 0755 ${host.username} users -")
       [
         "bun"
-        "dart"
         "pnpm"
       ];
 }

@@ -22,9 +22,6 @@
 
       ## godot
       pkgs-unstable.godot
-
-      ## flutter
-      flutter
     ];
 
     sessionVariables = {
