@@ -13,6 +13,9 @@
 }:
 let
   commonFiles = builtins.readDir ./_common;
+
+  # impure nixpkgs overlays, relative to /etc; see the nixpkgs-overlays NIX_PATH entry
+  impureOverlaysDir = "nix/nixpkgs-overlays";
 in
 {
   system.stateVersion = "25.11";
@@ -48,8 +51,39 @@ in
     auto-optimise-store = true;
     trusted-users = [ "@wheel" ];
   };
-  nix.nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
+  nix.nixPath = [
+    "nixpkgs=${inputs.nixpkgs}"
+    "nixpkgs-unstable=${inputs.nixpkgs-unstable}"
+    "nixpkgs-overlays=/etc/${impureOverlaysDir}"
+  ];
   nix.channel.enable = false;
+
+  # adds custom overlays to system nixpkgs
+  environment.etc = {
+    "${impureOverlaysDir}/zz-unstable.nix".text = ''
+      final: prev: {
+        unstable = import <nixpkgs-unstable> {
+          system = final.stdenv.hostPlatform.system;
+          config.allowUnfree = true;
+          # required, else nixpkgs re-applies these overlays inside the unstable instance
+          # and `unstable.*` recurses forever
+          overlays = [ ];
+        };
+      }
+    '';
+  }
+  // lib.listToAttrs (
+    map
+      (name: {
+        name = "${impureOverlaysDir}/${name}";
+        value.text = ''import "${xelib.location}/overlays/${name}"'';
+      })
+      (
+        builtins.filter (name: lib.hasSuffix ".nix" name) (
+          builtins.attrNames (builtins.readDir ../overlays)
+        )
+      )
+  );
 
   # garbage collection for derivations
   nix.gc = {
