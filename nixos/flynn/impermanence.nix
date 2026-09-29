@@ -64,7 +64,6 @@
         ".ssh/known_hosts"
         ".wakatime.cfg"
         ".config/Fougue Ltd/Mayo.conf"
-        ".config/discordchatexporter/Settings.dat"
         ".config/pegasus-frontend/stats.db"
         ".config/qalculate/qalculate-qt.cfg"
         ".config/qdiskinfo/qdiskinfo.conf" # TODO: make declarative
