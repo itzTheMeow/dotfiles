@@ -27,7 +27,6 @@
       openvsx.pascalreitermann93.vscode-yaml-sort # YAML Sort
       openvsx.tyriar.luna-paint # Luna Paint
       openvsx.vivaxy.vscode-conventional-commits # Conventional Commits
-      marketplace.activitywatch.aw-watcher-vscode # aw-watcher-vscode #TODO: deprecate
       marketplace.alexcvzz.vscode-sqlite # SQLite
       marketplace.fabiospampinato.vscode-diff # Diff
       #marketplace.local-smart.excel-live-server # XVBA - Live Server VBA

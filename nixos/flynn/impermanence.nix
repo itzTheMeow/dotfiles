@@ -54,7 +54,6 @@
         ".vscode"
         ".wakatime"
         ".wine"
-        "ActivityWatchSync"
         "Documents"
         "Downloads"
         "Music"
