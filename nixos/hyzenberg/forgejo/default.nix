@@ -65,6 +65,9 @@ in
         CRUD_ACTIONS = "always";
         MERGES = "approved, commitssigned";
       };
+      "git.timeout" = {
+        MIGRATE = 1800; # allow 30min for migrations
+      };
       /*
         "git.config" = {
           "gpg.format" = "ssh";
