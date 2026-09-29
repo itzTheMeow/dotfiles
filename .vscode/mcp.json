@@ -1,8 +1,0 @@
-{
-  "servers": {
-    "nixos": {
-      "command": "mcp-nixos",
-      "args": ["--"]
-    }
-  }
-}
