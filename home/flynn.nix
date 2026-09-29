@@ -22,7 +22,6 @@ in
     ./common
     ./common/desktop-workstation.nix
 
-    ./programs/discordchatexporter
     ./programs/thunderbird
     ./programs/vesktop
 
