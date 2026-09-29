@@ -1,0 +1,65 @@
+{
+  "name": "Generic Keyboard 2",
+  "idmatcher": "Keyboard.*",
+  "mapping": {
+    "Left": "left",
+    "Right": "right",
+    "Up": "up",
+    "Down": "down",
+    "Return|Enter|Select": {
+      "short": "enter",
+      "long": "menu"
+    },
+    "Back|Esc|Backspace": {
+      "short": "back",
+      "long": "home"
+    },
+    "Menu": "menu",
+
+    "(?:Shift\\+)?([A-Z0-9.])": "%1",
+
+    "Shift\\+([A-Z])": "jump+%1",
+
+    "Space": ["space", "play_pause"],
+    "P": "play_pause",
+    "Ctrl\\+P": "pause",
+    "X": "stop",
+    "B": "back",
+    "H": "home",
+    "M": "menu",
+    "A": "cycle_audio",
+    "L": "cycle_subtitles",
+    "S": "toggle_subtitles",
+    "Alt\\+A": "increase_audio_delay",
+    "Alt\\+Shift\\+A": "decrease_audio_delay",
+    "Alt\\+S": "increase_subtitles_delay",
+    "Alt\\+Shift\\+S": "decrease_subtitles_delay",
+    "PgUp": ["page_up", "seek_forward"],
+    "PgDown": ["page_down", "seek_backward"],
+    "Home": "step_backward",
+    "End": "step_forward",
+    "Ctrl\\+F": "search",
+    "\\[": "previous_pivot_tab",
+    "\\]": "next_pivot_tab",
+    "=": "increase_volume",
+    "(Shift\\+)?\\+": "increase_volume",
+    "\\-": "decrease_volume",
+    "I": "info",
+    "W": "toggle_watched",
+    "Z": "cycle_aspect_ratio",
+    "Ctrl\\+Shift\\+D": "debug",
+
+    "Home Page": "home",
+    "Media Play": "play_pause",
+    "Media Previous": "skip_previous",
+    "Media Next": "skip_next",
+
+    "Alt\\+(Return|Enter)": "toggle_fullscreen",
+    "F11": "toggle_fullscreen",
+    "\\\\": "toggle_fullscreen",
+    "E": "exit",
+
+    "(Media Fast Forward)|F": "seek_forward",
+    "(Media Rewind)|R": "seek_backward"
+  }
+}
