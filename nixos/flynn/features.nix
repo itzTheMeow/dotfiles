@@ -13,5 +13,6 @@
   "rustic"
   "siyuan"
   "timefinder"
+  "vesktop"
   "vscode"
 ]

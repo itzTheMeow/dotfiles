@@ -44,7 +44,6 @@
         ".config/RSS Guard 4"
         ".config/teams-for-linux"
         ".config/timefinder-electron"
-        ".config/vesktop"
         ".local"
         ".mozilla"
         ".pcloud"

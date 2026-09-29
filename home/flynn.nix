@@ -23,7 +23,6 @@ in
     ./common/desktop-workstation.nix
 
     ./programs/thunderbird
-    ./programs/vesktop
 
     ./plasma/favorites.nix
   ];
