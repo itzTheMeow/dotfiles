@@ -22,8 +22,6 @@ in
     ./common
     ./common/desktop-workstation.nix
 
-    ./programs/thunderbird
-
     ./plasma/favorites.nix
   ];
 

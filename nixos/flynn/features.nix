@@ -12,6 +12,7 @@
   "rclone"
   "rustic"
   "siyuan"
+  "thunderbird"
   "timefinder"
   "vesktop"
   "vscode"
