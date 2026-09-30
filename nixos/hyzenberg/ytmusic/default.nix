@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  pkgs-unstable,
   ...
 }:
 let
@@ -31,7 +30,7 @@ in
 
     serviceConfig = {
       # link in yt-dlp executable
-      ExecStartPre = "${pkgs.coreutils}/bin/ln -sf ${pkgs-unstable.yt-dlp}/bin/yt-dlp /var/lib/ytmusic/yt-dlp";
+      ExecStartPre = "${pkgs.coreutils}/bin/ln -sf ${pkgs.unstable.yt-dlp}/bin/yt-dlp /var/lib/ytmusic/yt-dlp";
       ExecStart = "${ytmusic}/bin/ytmusic";
       StateDirectory = "ytmusic";
       SupplementaryGroups = [ "mediacenter" ];
