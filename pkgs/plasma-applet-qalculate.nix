@@ -7,30 +7,27 @@
   libqalculate,
   mpfr,
   pkg-config,
-  readline,
   stdenv,
   ...
 }:
 stdenv.mkDerivation rec {
   pname = "plasma-applet-qalculate";
-  version = "0.10.1";
+  version = "0.11.3";
 
   src = fetchFromGitHub {
     owner = "dschopf";
     repo = "plasma-applet-qalculate";
     rev = "v${version}";
-    hash = "sha256-4NfgBP6PATOYHJo6Vtt/GdGDWLLvG3zmwaZfbMqhIZg=";
+    hash = "sha256-KWdb/TDUuYONU3fbGF5qs9zOzjpz+siDqCMVJlN6NNQ=";
   };
 
   dontWrapQtApps = true;
 
   buildInputs = [
-    kdePackages.kdeclarative
     kdePackages.ki18n
     kdePackages.libplasma
     libqalculate
     mpfr
-    readline
   ];
 
   nativeBuildInputs = [
