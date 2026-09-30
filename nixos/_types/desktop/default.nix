@@ -92,8 +92,12 @@
     };
   };
 
-  # enable usage of exit nodes for tailscale
-  services.tailscale.useRoutingFeatures = "client";
+  services.tailscale = {
+    # enable usage of exit nodes
+    useRoutingFeatures = "client";
+    # allow LAN access (helps with 30sec takedown time)
+    extraSetFlags = [ "--exit-node-allow-lan-access" ];
+  };
 
   # tailscale system tray
   systemd.user.services.tailscale-systray = {
