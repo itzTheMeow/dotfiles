@@ -48,7 +48,6 @@
         ".mozilla"
         ".pcloud"
         ".pki" # chromium certs
-        ".thunderbird"
         ".vscode-shared"
         ".vscode"
         ".wakatime"
