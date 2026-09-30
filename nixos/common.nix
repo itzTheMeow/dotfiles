@@ -5,7 +5,6 @@
   hostname,
   inputs,
   lib,
-  pkgs-unstable,
   pkgs,
   self,
   xelib,
@@ -245,11 +244,12 @@ in
     renameutils
     tree
 
-    ## ffmpeg/pandoc/yt-dlp
+    ## ffmpeg/typesetting/yt-dlp
     ffmpeg-full
+    typst
     pandoc
     texliveSmall
-    pkgs-unstable.yt-dlp
+    unstable.yt-dlp
 
     ## networking
     dig
