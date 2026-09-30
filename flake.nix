@@ -129,8 +129,7 @@ rec {
           nixpkgs = if hostname == "pete" then inputs.nixpkgs-unstable else inputs.nixpkgs;
 
           pkgs = import nixpkgs (nixpkgs_args system);
-          pkgs-unstable = import nixpkgs-unstable (nixpkgs_args system);
-          xelpkgs = import ./pkgs { inherit pkgs pkgs-unstable; };
+          xelpkgs = import ./pkgs { inherit pkgs; };
 
           extras = {
             inherit
@@ -139,7 +138,6 @@ rec {
               home-manager
               hostname
               inputs
-              pkgs-unstable
               self
               system
               xelib

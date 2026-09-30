@@ -1,4 +1,4 @@
-{ pkgs-unstable, ... }:
+{ pkgs, ... }:
 {
   catppuccin = {
     flavor = "mocha";
@@ -8,7 +8,7 @@
     name = "Colloid-cursors";
     size = 24;
     #TODO:26.11
-    package = pkgs-unstable.colloid-cursors;
+    package = pkgs.unstable.colloid-cursors;
   };
   # proxy IP ranges to trust
   trustedProxies = [

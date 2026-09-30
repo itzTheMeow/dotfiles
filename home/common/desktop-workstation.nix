@@ -1,6 +1,5 @@
 {
   lib,
-  pkgs-unstable,
   pkgs,
   ...
 }:
@@ -9,7 +8,7 @@
     packages = with pkgs; [
       # development
       ## javascript
-      pkgs-unstable.bun
+      unstable.bun
       deno
       nodejs_24
       pnpm_10

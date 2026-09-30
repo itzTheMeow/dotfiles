@@ -1,8 +1,4 @@
-{
-  pkgs,
-  pkgs-unstable,
-  ...
-}:
+{ pkgs, ... }:
 let
   # read the current directory and map it to package names, supporting both
   # bare `<package>.nix` files and `<package>/default.nix` directories
@@ -26,9 +22,7 @@ let
         null
     ) (builtins.attrNames dirContents)
   );
-  specialArgs = {
-    inherit pkgs-unstable xelpkgs;
-  };
+  specialArgs = { inherit xelpkgs; };
   xelpkgs = pkgs.lib.listToAttrs (
     map (e: {
       name = e.pname;
