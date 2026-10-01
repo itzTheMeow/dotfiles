@@ -31,7 +31,7 @@
     kdePackages.plasma-browser-integration
 
     # applets
-    #TODO:pr ... - switch to use unstable for package once merged, also delete overlay
+    #TODO:pr https://github.com/NixOS/nixpkgs/pull/568875 - switch to use unstable for package once merged, also delete overlay
     plasma-applet-qalculate
 
     # desktop theme
