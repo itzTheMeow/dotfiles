@@ -1,5 +1,1 @@
-{
-  home-manager.importUser = [ ./zed.hm.nix ];
-
-  persist.ed.home.userDirectories = [ ".config/zed" ];
-}
+{ home-manager.importUser = [ ./zed.hm.nix ]; }

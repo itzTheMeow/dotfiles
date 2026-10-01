@@ -1,7 +1,8 @@
 { pkgs, xelib, ... }: {
   programs.zed-editor = {
     enable = true;
-    package = pkgs.zed-editor-fhs;
+    #TODO:26.11 flip back to stable
+    package = pkgs.unstable.zed-editor-fhs;
     mutableUserSettings = false;
     extraPackages = with pkgs; [
       nixd
@@ -30,7 +31,6 @@
       "stylus"
       "mjml"
       "live-server"
-      "catppuccin"
     ];
     userSettings = {
       disable_ai = true;
@@ -39,11 +39,8 @@
         diagnostics = true;
         metrics = false;
       };
-      theme = {
-        mode = "system";
-        light = "One Light";
-        dark = "One Dark";
-      };
+      search.
+        search_on_type = true;
       git.inline_blame.enabled = false;
       git_panel = {
         show_count_badge = true;
@@ -99,8 +96,13 @@
           "nixd"
           "!nil"
         ];
+        formatter.external.command = "${pkgs.nixfmt}/bin/nixfmt";
       };
-      lsp.nixd.initialization_options.formatting.command = [ "${pkgs.nixfmt}/bin/nixfmt" ];
     };
+  };
+
+  catppuccin.zed = {
+    enable = true;
+    icons.enable = true;
   };
 }
