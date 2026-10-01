@@ -1,8 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, xelib,   ... }:
 {
   programs.kitty = {
-    enable = true;
-    font.name = "CaskaydiaMono NFM";
+    enable =   true;
+    font.name = xelib.globals.fonts.terminal.name;
     keybindings = {
       "f5" = "load_config_file";
       "ctrl+w" = "quit";

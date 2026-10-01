@@ -74,7 +74,7 @@
   fonts = {
     fontconfig.enable = true;
     packages = with pkgs; [
-      nerd-fonts.caskaydia-mono
+      (map (f: f.package) (builtins.attrValues xelib.globals.fonts))
       corefonts
       montserrat
     ];

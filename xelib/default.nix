@@ -317,6 +317,9 @@ rec {
     in
     lib.foldr (lib.recursiveUpdate) { } (map mkMachine machines);
 
+  # home-manager.importUser entry that installs zed extensions for a specific feature
+  zedExtensions = exts: hm: { programs.zed-editor.extensions = exts; };
+
   # make a remoteview desktop file for dolphin
   mkRemoteView = name: address: {
     ".local/share/remoteview/${name}.desktop" = {

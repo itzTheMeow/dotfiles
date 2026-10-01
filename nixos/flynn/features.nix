@@ -16,4 +16,5 @@
   "timefinder"
   "vesktop"
   "vscode"
+  "zed"
 ]
