@@ -9,10 +9,11 @@ let
   };
 
   #TODO: add mtp
-  MAIN_MODEL = "qwen3.6:35b-a3b-q4_K_M";
+  MAIN_MODEL = "gemma4:26b-a4b-it-qat";
   OTHER_MODELS = [
     "qwen3.5:9b-q8_0"
     "qwen3:14b-q8_0"
+    "qwen3.6:35b-a3b-q4_K_M"
   ];
   TASK_MODEL = "qwen3:0.6b";
 in
