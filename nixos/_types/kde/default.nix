@@ -1,7 +1,6 @@
 {
   pkgs,
   xelib,
-  xelpkgs,
   ...
 }:
 {
@@ -32,7 +31,8 @@
     kdePackages.plasma-browser-integration
 
     # applets
-    xelpkgs.plasma-applet-qalculate
+    #TODO:pr ... - switch to use unstable for package once merged, also delete overlay
+    plasma-applet-qalculate
 
     # desktop theme
     (catppuccin-kde.override {
