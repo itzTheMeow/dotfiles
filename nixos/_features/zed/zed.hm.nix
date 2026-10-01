@@ -39,8 +39,7 @@
         diagnostics = true;
         metrics = false;
       };
-      search.
-        search_on_type = true;
+      search.search_on_type = true;
       git.inline_blame.enabled = false;
       git_panel = {
         show_count_badge = true;
