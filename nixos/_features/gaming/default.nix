@@ -107,7 +107,7 @@ in
     # manage pegasus-frontend
     programs.pegasus-frontend = {
       enable = true;
-      package = xelpkgs.pegasus-frontend;
+      package = pkgs.unstable.pegasus-frontend;
       theme = {
         package = xelpkgs.pegasus-theme-gameos-fire-skye;
         settings = {
@@ -148,5 +148,8 @@ in
       };
       games = map (name: import ./${name}/default.nix inputs) gameDirs;
     };
+    persist.ed.home.userFiles = [
+      ".config/pegasus-frontend/stats.db"
+    ];
   };
 }
