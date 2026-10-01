@@ -1,15 +1,13 @@
 final: prev: {
-  plasma-applet-qalculate = final.kdePackages.callPackage (
+  plasma-applet-qalculate = final.callPackage (
     {
       cmake,
       ctestCheckHook,
-      extra-cmake-modules,
       fetchFromGitHub,
       gettext,
       gtest,
-      ki18n,
+      kdePackages,
       lib,
-      libplasma,
       libqalculate,
       mpfr,
       nix-update-script,
@@ -19,6 +17,8 @@ final: prev: {
     stdenv.mkDerivation (finalAttrs: {
       pname = "plasma-applet-qalculate";
       version = "0.11.3";
+      __structuredAttrs = true;
+      strictDeps = true;
 
       src = fetchFromGitHub {
         owner = "dschopf";
@@ -29,13 +29,13 @@ final: prev: {
 
       nativeBuildInputs = [
         cmake
-        extra-cmake-modules
+        kdePackages.extra-cmake-modules
         gettext
         pkg-config
       ];
       buildInputs = [
-        ki18n
-        libplasma
+        kdePackages.ki18n
+        kdePackages.libplasma
         libqalculate
         mpfr
       ];
