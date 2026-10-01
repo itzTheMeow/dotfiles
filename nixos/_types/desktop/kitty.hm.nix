@@ -1,7 +1,7 @@
-{ pkgs, xelib,   ... }:
+{ pkgs, xelib, ... }:
 {
   programs.kitty = {
-    enable =   true;
+    enable = true;
     font.name = xelib.globals.fonts.terminal.name;
     keybindings = {
       "f5" = "load_config_file";
