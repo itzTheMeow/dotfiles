@@ -73,11 +73,10 @@
   # fonts
   fonts = {
     fontconfig.enable = true;
-    packages = with pkgs; [
-      (map (f: f.package) (builtins.attrValues xelib.globals.fonts))
+    packages =( with pkgs; [
       corefonts
       montserrat
-    ];
+    ]) ++ (map (f: f.package) (builtins.attrValues xelib.globals.fonts));
   };
 
   # keymapper
