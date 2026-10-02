@@ -11,6 +11,7 @@
     extensions = [
       # languages
       "deno"
+      "git-firefly"
       "java"
       "svelte"
       "nix"
