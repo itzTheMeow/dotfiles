@@ -151,6 +151,7 @@ in
       hide_mouse = "never";
       multi_cursor_modifier = "cmd_or_ctrl";
       ui_font_family = "Noto Sans";
+      languages.Java.code_actions_on_format."source.organizeImports" = true;
       languages.Nix = {
         language_servers = [
           "nixd"
