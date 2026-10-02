@@ -54,7 +54,7 @@ in
       "wakatime"
       # markdown/web
       "mermaid"
-      "comment" # better comments
+      "comment"
       "emmet"
       "scss"
       "stylus"
