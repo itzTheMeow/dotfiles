@@ -92,8 +92,11 @@
       programs.vscode = {
         enable = true;
         package = null;
-        profiles.default.userSettings = import ./settings.nix {
-          inherit pkgs xelib;
+        profiles.default = {
+          keybindings = import ./keybinds.nix;
+          userSettings = import ./settings.nix {
+            inherit pkgs xelib;
+          };
         };
       };
     })
