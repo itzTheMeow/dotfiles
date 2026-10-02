@@ -63,7 +63,6 @@ in
 
     mutableUserSettings = false;
     userSettings = {
-      disable_ai = true;
       auto_update = false;
       icon_theme = "VSCode Great Icons Theme";
       # fix comment colors not matching theme
@@ -138,7 +137,13 @@ in
       };
       collaboration_panel.button = false;
       outline_panel.button = false;
-      agent.button = false;
+      agent = {
+        dock = "right";
+        threads_sidebar = {
+          auto_open = false;
+          position = "right";
+        };
+      };
       prettier.allowed = true;
       colorize_brackets = true;
       middle_click_paste = false;
