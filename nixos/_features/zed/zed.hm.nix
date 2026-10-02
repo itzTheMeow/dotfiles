@@ -32,6 +32,7 @@ in
     #TODO:26.11 flip back to stable
     package = pkgs.unstable.zed-editor-fhs;
     mutableUserSettings = false;
+    #mutableUserKeymaps = false;
     extraPackages = with pkgs; [
       nixd
       nixfmt
@@ -159,6 +160,32 @@ in
       };
     };
   };
-
   catppuccin.zed.enable = true;
+
+  # allow zed settings to be modified but overwrite on boot
+  xdg.configFile."zed/settings.json".target = "zed/settings.json.hm";
+  home.activation.zedSettingsReset = hm.lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    $DRY_RUN_CMD rm -f "$HOME/.config/zed/settings.json"
+    $DRY_RUN_CMD install -m 644 "$HOME/.config/zed/settings.json.hm" "$HOME/.config/zed/settings.json"
+  '';
+  /*
+    xdg.configFile."zed/keymap.json".target = "zed/keymap.json.hm";
+    home.activation.zedKeymapReset = hm.lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+      $DRY_RUN_CMD rm -f "$HOME/.config/zed/keymap.json"
+      $DRY_RUN_CMD install -m 644 "$HOME/.config/zed/keymap.json.hm" "$HOME/.config/zed/keymap.json"
+    '';
+  */
+
+  # no maximized/new window dimension setting in zed, so we use a kwin rule
+  programs.plasma.window-rules = [
+    {
+      description = "Always start Zed maximized";
+      match.window-class = "dev.zed.Zed";
+      match.window-types = [ "normal" ];
+      apply = {
+        maximizehorizontally = true;
+        maximizevertically = true;
+      };
+    }
+  ];
 }
