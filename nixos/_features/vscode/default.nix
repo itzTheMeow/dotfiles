@@ -1,7 +1,6 @@
-{ pkgs, ... }: {
+{ pkgs, xelib, ... }: {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode;
     extensions = with pkgs.vscode-stores; [
       nixpkgs."1Password".op-vscode # 1Password
       nixpkgs.aaron-bond.better-comments # Better Comments #TODO: look into alternatives
@@ -86,6 +85,19 @@
       installPath = "$HOME/.vscode";
     };
   */
+
+  # we have to manage settings with home-manager
+  home-manager.importUser = [
+    (_: {
+      programs.vscode = {
+        enable = true;
+        package = null;
+        profiles.default.userSettings = import ./settings.nix {
+          inherit pkgs xelib;
+        };
+      };
+    })
+  ];
 
   # set vscode to default visual editor
   environment.variables.VISUAL = "code --wait";
