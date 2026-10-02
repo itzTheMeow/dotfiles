@@ -51,6 +51,7 @@
         default_width = 280.0;
         dock = "left";
       };
+      buffer_font_family = xelib.globals.fonts.code.name;
       terminal = {
         font_family = xelib.globals.fonts.terminal.name;
         show_count_badge = true;
