@@ -209,6 +209,24 @@ in
         theme = "__aurorae__svg__Catppuccin${xelib.toTitleCase xelib.globals.catppuccin.flavor}-Classic";
       };
     };
+    fonts =
+      let
+        mkFont = pointSize: {
+          family = xelib.globals.fonts.system.name;
+          inherit pointSize;
+        };
+      in
+      {
+        general = mkFont 10;
+        fixedWidth = {
+          family = xelib.globals.fonts.terminal.name;
+          pointSize = 10;
+        };
+        small = mkFont 8;
+        toolbar = mkFont 10;
+        menu = mkFont 10;
+        windowTitle = mkFont 10;
+      };
     panels = [
       {
         location = "top";
