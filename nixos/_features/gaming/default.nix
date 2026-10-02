@@ -111,6 +111,7 @@ in
       '';
 
       # manage pegasus-frontend
+      #TODO:26.11 remove mkIf
       programs.pegasus-frontend = hm.lib.mkIf (hostname != "pete") {
         enable = true;
         #TODO:pr https://github.com/NixOS/nixpkgs/pull/569225 - unstable once this lands
