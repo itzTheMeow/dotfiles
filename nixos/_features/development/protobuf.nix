@@ -13,6 +13,12 @@
   ];
 
   home-manager.importUser = [
+    (utils.vscodeSettings {
+      "[proto]".editor.defaultFormatter = "DrBlury.protobuf-vsc";
+      "[proto3]".editor.defaultFormatter = "DrBlury.protobuf-vsc";
+
+      protobuf.formatOnSave = true;
+    })
     (utils.zedExtensions [ "proto" ])
   ];
 }

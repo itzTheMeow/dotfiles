@@ -15,6 +15,11 @@
   ];
 
   home-manager.importUser = [
+    (utils.vscodeSettings {
+      "[gdscript]".editor.defaultFormatter = "geequlim.godot-tools";
+
+      godotTools.lsp.serverPort = 6005;
+    })
     (utils.zedExtensions [ "gdscript" ])
   ];
 }

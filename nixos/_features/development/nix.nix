@@ -14,6 +14,12 @@
   ];
 
   home-manager.importUser = [
+    (utils.vscodeSettings {
+      "[nix]".editor.defaultFormatter = "jnoortheen.nix-ide";
+
+      nix.enableLanguageServer = true;
+      nix.serverSettings.nixd.formatting.command = [ "${pkgs.lib.getExe pkgs.nixfmt}" ];
+    })
     (utils.zedExtensions [ "nix" ])
   ];
 }

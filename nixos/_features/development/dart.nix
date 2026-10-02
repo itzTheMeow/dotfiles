@@ -27,6 +27,17 @@ in
   ];
 
   home-manager.importUser = [
+    (utils.vscodeSettings {
+      "[dart]".editor = {
+        rulers = [ 80 ];
+        selectionHighlight = false;
+        tabCompletion = "onlySnippets";
+      };
+
+      dart.checkForSdkUpdates = false;
+      dart.hotReloadOnSave = "manual";
+      dart.projectSearchDepth = 2;
+    })
     (utils.zedExtensions [ "dart" ])
     # disable dart/flutter telemetry
     (_: {

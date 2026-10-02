@@ -54,12 +54,6 @@
   githubPullRequests.pullBranch = "never";
 
   # toolchains
-  C_Cpp.default.compilerPath = "${pkgs.lib.getExe pkgs.gcc}";
-  C_Cpp.default.includePath = [
-    "${pkgs.lib.getDev pkgs.glibc}/include"
-    "\${workspaceFolder}/**"
-  ];
-  cmake.cmakePath = "${pkgs.lib.getExe pkgs.cmake}";
   java.configuration.runtimes = [
     {
       default = true;
@@ -73,18 +67,9 @@
 
   # languages
   "1password.editor.suggestStorage" = false;
-  csharp.suppressDotnetInstallWarning = true;
   css.lint.unknownAtRules = "ignore";
-  dart.checkForSdkUpdates = false;
-  dart.hotReloadOnSave = "manual";
-  dart.projectSearchDepth = 2;
   docker.extension.enableComposeLanguageServer = false;
-  dotnet.formatting.organizeImportsOnFormat = true;
   eslint.useFlatConfig = true;
-  go.diagnostic.vulncheck = "Imports";
-  go.toolsManagement.autoUpdate = true;
-  go-template.languages = [ "shellscript" ];
-  godotTools.lsp.serverPort = 6005;
   iconify.inplace = false;
   "js/ts.updateImportsOnFileMove.enabled" = "always";
   jest.runMode = "on-demand";
@@ -92,10 +77,7 @@
   liveshare.connectionMode = "relay";
   liveshare.focusBehavior = "prompt";
   liveshare.shareExternalFiles = false;
-  nix.enableLanguageServer = true;
-  nix.serverSettings.nixd.formatting.command = [ "${pkgs.lib.getExe pkgs.nixfmt}" ];
   prettier.printWidth = 100;
-  protobuf.formatOnSave = true;
   python.analysis.autoImportCompletions = true;
   scss.lint.unknownAtRules = "ignore";
   svelte.enable-ts-plugin = true;
@@ -117,30 +99,18 @@
   vscode-yaml-sort.sortOnSave = -1;
 
   # language formatters
-  "[c]".editor.defaultFormatter = "ms-vscode.cpptools";
-  "[cpp]".editor.defaultFormatter = "ms-vscode.cpptools";
-  "[dart]".editor = {
-    rulers = [ 80 ];
-    selectionHighlight = false;
-    tabCompletion = "onlySnippets";
-  };
   "[dockercompose]".editor = {
     autoIndent = "advanced";
     defaultFormatter = "redhat.vscode-yaml";
     insertSpaces = true;
     tabSize = 2;
   };
-  "[gdscript]".editor.defaultFormatter = "geequlim.godot-tools";
   "[github-actions-workflow]".editor.defaultFormatter = "redhat.vscode-yaml";
-  "[go]".editor.defaultFormatter = "golang.go";
   "[java]".editor = {
     codeActionsOnSave.source.organizeImports = "always";
     defaultFormatter = "redhat.java";
   };
   "[just]".editor.defaultFormatter = "nefrob.vscode-just-syntax";
-  "[nix]".editor.defaultFormatter = "jnoortheen.nix-ide";
-  "[proto]".editor.defaultFormatter = "DrBlury.protobuf-vsc";
-  "[proto3]".editor.defaultFormatter = "DrBlury.protobuf-vsc";
   "[python]".editor.defaultFormatter = "ms-python.black-formatter";
   "[shellscript]".editor.defaultFormatter = "mkhl.shfmt";
   "[svelte]".editor.defaultFormatter = "svelte.svelte-vscode";
@@ -149,7 +119,6 @@
   "[xml]".editor.defaultFormatter = "redhat.vscode-xml";
 
   # chat/ai
-  chat.mcp.gallery.enabled = true;
   chat.tips.enabled = false;
   chat.viewSessions.enabled = false;
   chat.viewSessions.orientation = "stacked";
