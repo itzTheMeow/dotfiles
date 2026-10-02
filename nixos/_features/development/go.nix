@@ -2,6 +2,7 @@
   config,
   host,
   pkgs,
+  utils,
   ...
 }:
 let
@@ -31,8 +32,8 @@ in
 
   # associate .tmpl files with the go-template extension
   home-manager.importUser = [
-    (_: {
-      programs.vscode.profiles.default.userSettings.files.associations."*.tmpl" = "go-template";
+    (utils.vscodeSettings {
+      files.associations."*.tmpl" = "go-template";
     })
   ];
 }

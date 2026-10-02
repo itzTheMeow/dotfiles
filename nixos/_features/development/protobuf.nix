@@ -1,6 +1,6 @@
 {
-  xelib,
   pkgs,
+  utils,
   ...
 }:
 {
@@ -13,6 +13,6 @@
   ];
 
   home-manager.importUser = [
-    (xelib.zedExtensions [ "proto" ])
+    (utils.zedExtensions [ "proto" ])
   ];
 }

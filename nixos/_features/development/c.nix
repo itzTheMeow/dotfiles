@@ -1,7 +1,7 @@
 # C/C++/C#
 {
-  xelib,
   pkgs,
+  utils,
   ...
 }:
 {
@@ -15,7 +15,7 @@
   ];
 
   home-manager.importUser = [
-    (xelib.zedExtensions [
+    (utils.zedExtensions [
       "neocmake"
       "csharp"
     ])

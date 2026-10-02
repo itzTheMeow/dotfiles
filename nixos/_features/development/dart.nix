@@ -2,8 +2,8 @@
 {
   config,
   host,
-  xelib,
   pkgs,
+  utils,
   ...
 }:
 let
@@ -27,7 +27,7 @@ in
   ];
 
   home-manager.importUser = [
-    (xelib.zedExtensions [ "dart" ])
+    (utils.zedExtensions [ "dart" ])
     # disable dart/flutter telemetry
     (_: {
       # version may need bumped if telemetry settings change
