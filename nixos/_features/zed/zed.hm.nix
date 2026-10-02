@@ -159,6 +159,7 @@ in
         ];
         formatter.external.command = "${pkgs.nixfmt}/bin/nixfmt";
       };
+      cli_default_open_behavior = "existing_window";
     };
   };
   catppuccin.zed.enable = true;
