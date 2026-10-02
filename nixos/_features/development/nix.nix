@@ -4,10 +4,7 @@
   ...
 }:
 {
-  environment.systemPackages = with pkgs; [
-    nixd
-    nixfmt
-  ];
+  environment.systemPackages = [ pkgs.nixfmt ];
 
   programs.vscode.extensions = with pkgs.vscode-stores; [
     nixpkgs.jnoortheen.nix-ide # Nix IDE
@@ -21,5 +18,12 @@
       nix.serverSettings.nixd.formatting.command = [ "${pkgs.lib.getExe pkgs.nixfmt}" ];
     })
     (utils.zedExtensions [ "nix" ])
+    (_: {
+      # required for the LSP
+      programs.zed-editor.extraPackages = with pkgs; [
+        nixd
+        nixfmt
+      ];
+    })
   ];
 }

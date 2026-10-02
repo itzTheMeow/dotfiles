@@ -60,10 +60,6 @@ in
 
     mutableUserKeymaps = false;
     userKeymaps = import ./keymap.nix;
-    extraPackages = with pkgs; [
-      nixd
-      nixfmt
-    ];
 
     mutableUserSettings = false;
     userSettings = {
