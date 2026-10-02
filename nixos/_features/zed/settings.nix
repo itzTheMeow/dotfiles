@@ -64,6 +64,7 @@ in
     };
   ui_font_family = xelib.globals.fonts.system.name;
   buffer_font_family = xelib.globals.fonts.code.name;
+  agent_buffer_font_family = xelib.globals.fonts.system.name;
   buffer_font_size = 14.0;
   project_panel = {
     folder_indicator = "both";
