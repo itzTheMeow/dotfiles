@@ -39,13 +39,28 @@
       disable_ai = true;
       auto_update = false;
       icon_theme = "VSCode Great Icons Theme";
+      window_title_separator = " | ";
+      window_title_format = "\${projectName}\${separator}\${fileName}";
       telemetry = {
         diagnostics = true;
         metrics = false;
       };
       search.search_on_type = true;
+      inlay_hints = {
+        show_type_hints = false;
+        enabled = true;
+      };
+      format_on_save = "on";
+      indent_guides.coloring = "indent_aware";
+      inline_code_actions = false;
+      gutter.git_gutter_width.custom = 1.0;
+      sticky_scroll.enabled = true;
       git.inline_blame.enabled = false;
       git_panel = {
+        folder_indicator = "both";
+        group_by = "staging";
+        fallback_branch_name = "main";
+        status_style = "label_color";
         show_count_badge = true;
         file_icons = true;
         tree_view = true;
@@ -58,6 +73,7 @@
         show_count_badge = true;
       };
       project_panel = {
+        folder_indicator = "both";
         hide_root = true;
         git_status_indicator = true;
         diagnostic_badges = true;
@@ -72,11 +88,9 @@
         file_icons = true;
       };
       tab_bar.show_nav_history_buttons = false;
-      toolbar = {
-        quick_actions = false;
-        breadcrumbs = true;
-      };
+      toolbar.quick_actions = false;
       title_bar = {
+        show_branch_status_icon = true;
         show_user_picture = false;
         show_user_menu = false;
         show_sign_in = false;
