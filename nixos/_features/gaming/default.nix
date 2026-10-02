@@ -111,7 +111,7 @@ in
       '';
 
       # manage pegasus-frontend
-      programs.pegasus-frontend = {
+      programs.pegasus-frontend = hm.lib.mkIf (hostname != "pete") {
         enable = true;
         #TODO:pr https://github.com/NixOS/nixpkgs/pull/569225 - unstable once this lands
         #TODO:26.11 flip back to stable if this commit makes it
