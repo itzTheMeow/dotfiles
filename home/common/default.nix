@@ -6,6 +6,9 @@
   ...
 }:
 {
+  # back up files that would be clobbered by home-manager
+  home-manager.backupFileExtension = ".hm-clobbered";
+
   imports = [
     # various default programs
     ../programs/fastfetch
