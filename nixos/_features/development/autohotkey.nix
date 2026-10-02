@@ -1,6 +1,6 @@
 {
-  xelib,
   pkgs,
+  utils,
   ...
 }:
 {
@@ -9,6 +9,6 @@
   ];
 
   home-manager.importUser = [
-    (xelib.zedExtensions [ "autohotkey" ])
+    (utils.zedExtensions [ "autohotkey" ])
   ];
 }

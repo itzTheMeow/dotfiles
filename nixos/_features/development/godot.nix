@@ -1,6 +1,6 @@
 {
-  xelib,
   pkgs,
+  utils,
   ...
 }:
 {
@@ -15,6 +15,6 @@
   ];
 
   home-manager.importUser = [
-    (xelib.zedExtensions [ "gdscript" ])
+    (utils.zedExtensions [ "gdscript" ])
   ];
 }

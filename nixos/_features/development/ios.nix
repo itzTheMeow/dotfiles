@@ -1,7 +1,7 @@
 # swift/ios stuff
 {
-  xelib,
   pkgs,
+  utils,
   ...
 }:
 {
@@ -14,6 +14,6 @@
   ];
 
   home-manager.importUser = [
-    (xelib.zedExtensions [ "swift" ])
+    (utils.zedExtensions [ "swift" ])
   ];
 }

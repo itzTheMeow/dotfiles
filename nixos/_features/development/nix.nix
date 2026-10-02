@@ -1,6 +1,6 @@
 {
-  xelib,
   pkgs,
+  utils,
   ...
 }:
 {
@@ -14,6 +14,6 @@
   ];
 
   home-manager.importUser = [
-    (xelib.zedExtensions [ "nix" ])
+    (utils.zedExtensions [ "nix" ])
   ];
 }

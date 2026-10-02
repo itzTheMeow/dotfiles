@@ -1,7 +1,7 @@
 # minecraft-related development tools
 {
-  xelib,
   pkgs,
+  utils,
   ...
 }:
 {
@@ -10,6 +10,6 @@
   ];
 
   home-manager.importUser = [
-    (xelib.zedExtensions [ "skript" ])
+    (utils.zedExtensions [ "skript" ])
   ];
 }
