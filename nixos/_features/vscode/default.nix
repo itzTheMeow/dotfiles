@@ -101,7 +101,4 @@
       };
     })
   ];
-
-  # set vscode to default visual editor
-  environment.variables.VISUAL = "code --wait";
 }

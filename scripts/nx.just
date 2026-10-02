@@ -30,9 +30,9 @@ hostname := env('HOSTNAME')
 @update input:
     nix flake update --flake . {{ input }}
 
-# open dotfiles repo in vscode
+# open dotfiles repo in zed
 @edit:
-    code .
+    zeditor .
 
 # pull latest changes from git
 @pull:
