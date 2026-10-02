@@ -1,4 +1,32 @@
-{ pkgs, xelib, ... }: {
+{
+  pkgs,
+  xelib,
+  lib,
+  hm,
+  ...
+}:
+let
+  # all for catppuccin theme
+  inherit (hm.config.catppuccin.zed) flavor accent italics;
+  catppuccinThemeJSON = builtins.fromJSON (
+    builtins.readFile "${hm.config.catppuccin.sources.zed}/catppuccin-${
+      lib.optionalString (!italics) "no-italics-"
+    }${accent}.json"
+  );
+  catppuccinThemeName =
+    "Catppuccin ${
+      {
+        latte = "Latte";
+        frappe = "Frappé";
+        macchiato = "Macchiato";
+        mocha = "Mocha";
+      }
+      .${flavor}
+    }"
+    + lib.optionalString (accent != "mauve") " (${accent})"
+    + lib.optionalString (!italics) " - No Italics";
+in
+{
   programs.zed-editor = {
     enable = true;
     #TODO:26.11 flip back to stable
@@ -38,6 +66,20 @@
       disable_ai = true;
       auto_update = false;
       icon_theme = "VSCode Great Icons Theme";
+      # fix comment colors not matching theme
+      theme_overrides.${catppuccinThemeName}.syntax =
+        let
+          theme = lib.findFirst (
+            t: t.name == catppuccinThemeName
+          ) (throw "catppuccin zed theme '${catppuccinThemeName}' not found") catppuccinThemeJSON.themes;
+          commentColor = scope: theme.style.syntax.${scope}.color;
+        in
+        {
+          "constant.comment.todo".color = commentColor "comment.todo";
+          "string.comment.info".color = commentColor "comment.info";
+          "property.comment.error".color = commentColor "comment.error";
+          "keyword.comment.warn".color = commentColor "comment.warn";
+        };
       window_title_separator = " | ";
       window_title_format = "\${projectName}\${separator}\${fileName}";
       telemetry = {
