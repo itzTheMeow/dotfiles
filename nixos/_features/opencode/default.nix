@@ -76,6 +76,13 @@ in
         };
       };
 
+      # expose opencode as an ACP agent in zed
+      programs.zed-editor.userSettings.agent_servers.OpenCode = {
+        type = "custom";
+        command = "opencode";
+        args = [ "acp" ];
+      };
+
       catppuccin.opencode.enable = true;
     })
   ];
