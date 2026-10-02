@@ -16,6 +16,10 @@ in
   # sort
   (bind null { "f7" = "editor::SortLinesCaseInsensitive"; })
 
+  # delete files
+  (bind "ProjectPanel" { "delete" = "project_panel::Delete"; })
+  (unbind "ProjectPanel" { "delete" = "project_panel::Trash"; })
+
   # quick open on ctrl-k
   (bind "Workspace" { "ctrl-k" = "file_finder::Toggle"; })
   (unbind "Workspace" { "ctrl-p" = "file_finder::Toggle"; })
