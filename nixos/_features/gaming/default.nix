@@ -113,7 +113,9 @@ in
       # manage pegasus-frontend
       programs.pegasus-frontend = {
         enable = true;
-        package = pkgs.unstable.pegasus-frontend;
+        #TODO:pr https://github.com/NixOS/nixpkgs/pull/569225 - unstable once this lands
+        #TODO:26.11 flip back to stable if this commit makes it
+        package = pkgs.pegasus-frontend;
         theme = {
           package = xelpkgs.pegasus-theme-gameos-fire-skye;
           settings = {
