@@ -49,7 +49,12 @@ in
   environment.systemPackages = with pkgs; [ prismlauncher ];
   persist.sync.prismlauncher = "/home/${host.username}/.local/share/PrismLauncher";
 
-  home-manager.users.${host.username} = hm: {
+  # pegasus persistence
+  persist.ed.home.userFiles = [
+    ".config/pegasus-frontend/stats.db"
+  ];
+  
+  home-manager.importUser = [(hm: { 
     # link in the wine prefix files
     home.file = {
       # C drive is all linked from the store
@@ -148,8 +153,6 @@ in
       };
       games = map (name: import ./${name}/default.nix inputs) gameDirs;
     };
-    persist.ed.home.userFiles = [
-      ".config/pegasus-frontend/stats.db"
-    ];
-  };
+  })]; 
 }
+ 
