@@ -18,7 +18,6 @@
     "text/html" = "firefox-devedition.desktop";
     "x-scheme-handler/http" = "firefox-devedition.desktop";
     "x-scheme-handler/https" = "firefox-devedition.desktop";
-    "x-scheme-handler/about" = "firefox-devedition.desktop";
-    "x-scheme-handler/unknown" = "firefox-devedition.desktop";
+    "x-scheme-handler/*" = "firefox-devedition.desktop";
   };
 }
