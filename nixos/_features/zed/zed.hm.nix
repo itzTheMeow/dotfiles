@@ -160,7 +160,5 @@ in
     };
   };
 
-  catppuccin.zed = {
-    enable = true;
-  };
+  catppuccin.zed.enable = true;
 }
