@@ -26,6 +26,9 @@ in
   ];
   home-manager.importUser = [ ./common.user.hm.nix ];
 
+  # back up files that would be clobbered by home-manager
+  home-manager.backupFileExtension = ".hm-clobbered";
+
   imports =
     # import all .nix files in common
     map (name: ./_common + "/${name}") (
