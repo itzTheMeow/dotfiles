@@ -1,4 +1,4 @@
-{ host, pkgs, ... }:
+{ pkgs, ... }:
 {
   programs.firefox = {
     enable = true;
@@ -14,10 +14,14 @@
   };
 
   # set as default browser
-  home-manager.users.${host.username}.xdg.mimeApps.defaultApplications = {
-    "text/html" = "firefox-devedition.desktop";
-    "x-scheme-handler/http" = "firefox-devedition.desktop";
-    "x-scheme-handler/https" = "firefox-devedition.desktop";
-    "x-scheme-handler/*" = "firefox-devedition.desktop";
-  };
+  home-manager.importUser = [
+    (_: {
+      xdg.mimeApps.defaultApplications = {
+        "text/html" = "firefox-devedition.desktop";
+        "x-scheme-handler/http" = "firefox-devedition.desktop";
+        "x-scheme-handler/https" = "firefox-devedition.desktop";
+        "x-scheme-handler/*" = "firefox-devedition.desktop";
+      };
+    })
+  ];
 }
