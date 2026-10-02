@@ -31,12 +31,6 @@ in
     enable = true;
     #TODO:26.11 flip back to stable
     package = pkgs.unstable.zed-editor-fhs;
-    mutableUserSettings = false;
-    #mutableUserKeymaps = false;
-    extraPackages = with pkgs; [
-      nixd
-      nixfmt
-    ];
     extensions = [
       # languages
       "deno"
@@ -63,6 +57,15 @@ in
       # icon theme
       "vscode-great-icons"
     ];
+
+    mutableUserKeymaps = false;
+    userKeymaps = import ./keymap.nix;
+    extraPackages = with pkgs; [
+      nixd
+      nixfmt
+    ];
+
+    mutableUserSettings = false;
     userSettings = {
       disable_ai = true;
       auto_update = false;
@@ -164,19 +167,11 @@ in
   };
   catppuccin.zed.enable = true;
 
-  # allow zed settings to be modified but overwrite on boot
-  xdg.configFile."zed/settings.json".target = "zed/settings.json.hm";
-  home.activation.zedSettingsReset = hm.lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-    $DRY_RUN_CMD rm -f "$HOME/.config/zed/settings.json"
-    $DRY_RUN_CMD install -m 644 "$HOME/.config/zed/settings.json.hm" "$HOME/.config/zed/settings.json"
-  '';
-  /*
-    xdg.configFile."zed/keymap.json".target = "zed/keymap.json.hm";
-    home.activation.zedKeymapReset = hm.lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-      $DRY_RUN_CMD rm -f "$HOME/.config/zed/keymap.json"
-      $DRY_RUN_CMD install -m 644 "$HOME/.config/zed/keymap.json.hm" "$HOME/.config/zed/keymap.json"
-    '';
-  */
+  # let zed edit its own keymap/settings, but reset them on every activation
+  home.hijackEditable = {
+    "${hm.config.xdg.configHome}/zed/keymap.json" = { };
+    "${hm.config.xdg.configHome}/zed/settings.json" = { };
+  };
 
   # no maximized/new window dimension setting in zed, so we use a kwin rule
   programs.plasma.window-rules = [
