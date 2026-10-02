@@ -31,10 +31,13 @@
       "stylus"
       "mjml"
       "live-server"
+      # icon theme
+      "vscode-great-icons"
     ];
     userSettings = {
       disable_ai = true;
       auto_update = false;
+      icon_theme = "VSCode Great Icons Theme";
       telemetry = {
         diagnostics = true;
         metrics = false;
@@ -102,6 +105,5 @@
 
   catppuccin.zed = {
     enable = true;
-    icons.enable = true;
   };
 }
