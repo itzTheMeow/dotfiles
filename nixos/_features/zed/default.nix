@@ -1,1 +1,3 @@
-{ home-manager.importUser = [ ./zed.hm.nix ]; }
+{
+  home-manager.importUser = [ ./zed.hm.nix ];
+}

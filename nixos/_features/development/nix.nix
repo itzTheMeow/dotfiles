@@ -3,6 +3,9 @@
   utils,
   ...
 }:
+let
+  nixfmt = "${pkgs.lib.getExe pkgs.nixfmt}";
+in
 {
   environment.systemPackages = [ pkgs.nixfmt ];
 
@@ -15,15 +18,22 @@
       "[nix]".editor.defaultFormatter = "jnoortheen.nix-ide";
 
       nix.enableLanguageServer = true;
-      nix.serverSettings.nixd.formatting.command = [ "${pkgs.lib.getExe pkgs.nixfmt}" ];
+      nix.serverPath = "${pkgs.lib.getExe pkgs.nixd}";
+      nix.serverSettings.nixd.formatting.command = [ nixfmt ];
     })
     (utils.zedExtensions [ "nix" ])
+    (utils.zedSettings {
+      languages.Nix = {
+        language_servers = [
+          "nixd"
+          "!nil"
+        ];
+        formatter.external.command = nixfmt;
+      };
+    })
     (_: {
       # required for the LSP
-      programs.zed-editor.extraPackages = with pkgs; [
-        nixd
-        nixfmt
-      ];
+      programs.zed-editor.extraPackages = [ pkgs.nixd ];
     })
   ];
 }

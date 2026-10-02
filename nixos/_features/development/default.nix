@@ -12,6 +12,7 @@ let
   utils = {
     vscodeSettings = sett: _: { programs.vscode.profiles.default.userSettings = sett; };
     zedExtensions = exts: _: { programs.zed-editor.extensions = exts; };
+    zedSettings = sett: _: { programs.zed-editor.userSettings = sett; };
   };
 
   # nix magic to inject the utils into each file
