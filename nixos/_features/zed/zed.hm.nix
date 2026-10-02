@@ -31,7 +31,6 @@
       "scss"
       "stylus"
       "mjml"
-      "live-server"
       # icon theme
       "vscode-great-icons"
     ];
