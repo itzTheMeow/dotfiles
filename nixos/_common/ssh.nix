@@ -86,6 +86,13 @@ lib.mkMerge [
             };
           };
           xdg.desktopEntries = sshConfig.xdg.desktopEntries;
+
+          # fix ssh config permissions for fhs environments
+          home.file.".ssh/config".target = ".ssh/config.hm";
+          home.activation.sshConfig = hm.lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+            $DRY_RUN_CMD rm -f "$HOME/.ssh/config"
+            $DRY_RUN_CMD install -m 600 "$HOME/.ssh/config.hm" "$HOME/.ssh/config"
+          '';
         }
       )
     ];
