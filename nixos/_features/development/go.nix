@@ -28,4 +28,11 @@ in
     nixpkgs.golang.go # Go
     marketplace.jinliming2.vscode-go-template # Go Template Support
   ];
+
+  # associate .tmpl files with the go-template extension
+  home-manager.importUser = [
+    (_: {
+      programs.vscode.profiles.default.userSettings.files.associations."*.tmpl" = "go-template";
+    })
+  ];
 }
