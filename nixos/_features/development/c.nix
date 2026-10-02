@@ -15,6 +15,19 @@
   ];
 
   home-manager.importUser = [
+    (utils.vscodeSettings {
+      "[c]".editor.defaultFormatter = "ms-vscode.cpptools";
+      "[cpp]".editor.defaultFormatter = "ms-vscode.cpptools";
+
+      C_Cpp.default.compilerPath = "${pkgs.lib.getExe pkgs.gcc}";
+      C_Cpp.default.includePath = [
+        "${pkgs.lib.getDev pkgs.glibc}/include"
+        "\${workspaceFolder}/**"
+      ];
+      cmake.cmakePath = "${pkgs.lib.getExe pkgs.cmake}";
+      csharp.suppressDotnetInstallWarning = true;
+      dotnet.formatting.organizeImportsOnFormat = true;
+    })
     (utils.zedExtensions [
       "neocmake"
       "csharp"

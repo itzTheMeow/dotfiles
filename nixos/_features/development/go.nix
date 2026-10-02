@@ -33,7 +33,12 @@ in
   # associate .tmpl files with the go-template extension
   home-manager.importUser = [
     (utils.vscodeSettings {
+      "[go]".editor.defaultFormatter = "golang.go";
+
       files.associations."*.tmpl" = "go-template";
+      go.diagnostic.vulncheck = "Imports";
+      go.toolsManagement.autoUpdate = true;
+      go-template.languages = [ "shellscript" ];
     })
   ];
 }
