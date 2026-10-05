@@ -22,25 +22,28 @@
     config.common.default = "kde";
   };
 
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages =
     # kde system utils
-    kdePackages.kate
-    kdePackages.kdenlive
-    kdePackages.krfb
-    kdePackages.partitionmanager
-    kdePackages.plasma-browser-integration
+    (with pkgs.kdePackages; [
+      kate
+      kclock
+      kdenlive
+      krfb
+      partitionmanager
+      plasma-browser-integration
+    ])
+    ++ (with pkgs; [
+      # applets
+      #TODO:pr https://github.com/NixOS/nixpkgs/pull/568875 - switch to use unstable for package once merged, also delete overlay
+      plasma-applet-qalculate
 
-    # applets
-    #TODO:pr https://github.com/NixOS/nixpkgs/pull/568875 - switch to use unstable for package once merged, also delete overlay
-    plasma-applet-qalculate
-
-    # desktop theme
-    (catppuccin-kde.override {
-      flavour = [ xelib.globals.catppuccin.flavor ];
-      accents = [ xelib.globals.catppuccin.accent ];
-      winDecStyles = [ "classic" ];
-    })
-  ];
+      # desktop theme
+      (catppuccin-kde.override {
+        flavour = [ xelib.globals.catppuccin.flavor ];
+        accents = [ xelib.globals.catppuccin.accent ];
+        winDecStyles = [ "classic" ];
+      })
+    ]);
 
   # VNC server on Tailscale
   systemd.user.services.krfb = {
