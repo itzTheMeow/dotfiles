@@ -57,7 +57,10 @@
   programs.plasma.window-rules = [
     {
       description = "Always start Zed maximized";
-      match.window-class = "dev.zed.Zed";
+      match.window-class = {
+        value = "dev.zed.Zed";
+        match-whole = false;
+      };
       match.window-types = [ "normal" ];
       apply = {
         maximizehorizontally = true;
