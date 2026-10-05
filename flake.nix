@@ -42,6 +42,10 @@ rec {
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+    degoog = {
+      url = "github:degoog-org/degoog";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
     nypkgs = {
       url = "github:yunfachi/nypkgs";
@@ -167,6 +171,7 @@ rec {
             # misc
             catppuccin.nixosModules.catppuccin
             inputs.copyparty.nixosModules.default
+            inputs.degoog.nixosModules.default
             inputs.impermanence.nixosModules.impermanence
             inputs.vscode-server-fix.nixosModules.default
           ]

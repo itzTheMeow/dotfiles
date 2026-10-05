@@ -7,11 +7,6 @@
   ...
 }:
 let
-  basePorts = {
-    tailscale = 51640;
-    stun = 53480;
-    socks5 = 61230;
-  };
   envDir = "/run/mullvad-exit";
   configDir = "/var/lib/mullvad-exit";
   MTU = "1420";
@@ -23,6 +18,7 @@ let
   mkMullvadExitNode =
     cfg:
     let
+      basePorts = config.apps.mullvad-exit-nodes.details.basePorts;
       gluetunContainer = mkGluetunContainer cfg.name;
       tailscaleContainer = mkTailscaleContainer cfg.name;
       socks5Container = mkSocks5Container cfg.name;
@@ -266,6 +262,16 @@ in
 lib.mkMerge (
   [
     {
+      # stub for the exit node details
+      apps.mullvad-exit-nodes = {
+        port = 0;
+        details.basePorts = {
+          tailscale = 51640;
+          stun = 53480;
+          socks5 = 61230;
+        };
+      };
+
       # enable IP forwarding
       boot.kernel.sysctl = {
         "net.ipv4.ip_forward" = 1;

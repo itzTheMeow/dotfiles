@@ -83,9 +83,10 @@ in
       ENABLE_TAGS_GENERATION = "False";
       ENABLE_FOLLOW_UP_GENERATION = "False";
 
-      #ENABLE_WEB_SEARCH = "True";
-      #WEB_SEARCH_ENGINE = "searxng";
-      #SEARXNG_QUERY_URL = "http://127.0.0.1:8888/search?q=<query>&format=json";
+      # web search through degoog instance
+      ENABLE_WEB_SEARCH = "True";
+      WEB_SEARCH_ENGINE = "searxng";
+      SEARXNG_QUERY_URL = "${xelib.apps.degoog.url}/api/search";
     };
     environmentFile = config.sops.secrets.open-webui.path;
   };
