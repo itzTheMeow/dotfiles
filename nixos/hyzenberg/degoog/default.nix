@@ -20,9 +20,10 @@ let
     pkgs.runCommand "degoog"
       {
         nativeBuildInputs = [ pkgs.makeWrapper ];
-        passthru.meta.mainProgram = "degoog";
+        meta.mainProgram = "degoog";
       }
       ''
+        mkdir -p $out/bin
         cp ${inputs.degoog.packages.${pkgs.system}.default}/bin/degoog $out/bin/degoog
         chmod u+w $out/bin/degoog
         wrapProgram $out/bin/degoog --prefix PATH : ${
