@@ -30,11 +30,6 @@ in
       target = "_top";
       theme = "dark";
       color = "stone";
-      layout = {
-        Media = {
-          style = "columns";
-        };
-      };
     };
 
     services =
