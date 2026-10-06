@@ -1,4 +1,5 @@
 {
+  # keeping these in here so they are closed into inputs
   config,
   host,
   hostname,
