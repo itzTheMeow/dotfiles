@@ -118,9 +118,9 @@ in
               trap 'rm -f "$tmp"' EXIT
 
               if [[ -f "$file" ]]; then
-                jq --argjson ours "$ours" '.settings = ((.settings // {}) + $ours)' "$file" >"$tmp"
+                jq --slurpfile ours "$ours" '.settings = ((.settings // {}) + $ours[0])' "$file" >"$tmp"
               else
-                jq -n --argjson ours "$ours" '{ settings: $ours }' >"$tmp"
+                jq -n --slurpfile ours "$ours" '{ settings: $ours[0] }' >"$tmp"
               fi
 
               chmod 0644 "$tmp"
@@ -129,7 +129,7 @@ in
           }
         ))
         "${config.systemd.services.degoog.serviceConfig.WorkingDirectory}/server-settings.json"
-        (builtins.toJSON settings)
+        "${pkgs.writeText "degoog-declarative-settings.json" (builtins.toJSON settings)}"
       ];
     };
   };
