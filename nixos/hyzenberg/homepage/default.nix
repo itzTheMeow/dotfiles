@@ -45,7 +45,6 @@ in
               icon = "${a.icon}.png";
               inherit (a) description;
               href = a.url;
-              ping = a.url;
             };
           };
       in
