@@ -58,6 +58,7 @@ in
       ]
     );
     environment = {
+      DEGOOG_BIND_ADDRESS = app.ip;
       DEGOOG_PORT = app.port;
       DEGOOG_BASE_URL = app.url;
       DEGOOG_PUBLIC_INSTANCE = false;
@@ -111,10 +112,6 @@ in
       ];
     };
   };
-
-  # degoog has no option to bind an address (bun binds 0.0.0.0), so proxy via loopback
-  #TODO:pr - submitting upstream PR for this
-  nginx.proxy.${app.domain}.target.host = lib.mkForce "127.0.0.1";
 
   sops.envFiles.degoog.DEGOOG_SETTINGS_PASSWORDS = "op://Private/iv2fs5qjw3veizdodpzs5ra63e/password";
 }

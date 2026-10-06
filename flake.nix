@@ -43,8 +43,8 @@ rec {
       inputs.home-manager.follows = "home-manager";
     };
     degoog = {
-      #TODO:pr - switch back to degoog-org/degoog once the nix runtime inputs land
-      url = "github:itzTheMeow/degoog/nix/runtime-inputs";
+      #TODO: switch back to master branch once develop is merged in
+      url = "github:degoog-org/degoog/develop";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
