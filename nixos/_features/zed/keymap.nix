@@ -5,6 +5,16 @@ let
   # shorthand for dropping default bindings within a context
   unbind =
     context: dropped: (if context == null then { } else { inherit context; }) // { unbind = dropped; };
+
+  gitCommitHook = {
+    "ctrl-enter" = [
+      "action::Sequence"
+      [
+        "git::StageAll"
+        "git::Commit"
+      ]
+    ];
+  };
 in
 [
   # rename & select-all-matches
@@ -33,4 +43,10 @@ in
 
   # reload
   (bind null { "ctrl-r" = "workspace::Reload"; })
+
+  # git commit
+  (bind "GitCommit > Editor && mode == auto_height" gitCommitHook)
+  (bind "GitPanel" gitCommitHook)
+  (bind "GitDiff > Editor" gitCommitHook)
+  (bind "CommitEditor > Editor" gitCommitHook)
 ]
