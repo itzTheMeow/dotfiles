@@ -30,6 +30,25 @@ in
       target = "_top";
       theme = "dark";
       color = "stone";
+      useEqualHeights = true;
+      layout = {
+        Information = {
+          style = "row";
+          columns = 4;
+        };
+        Media = {
+          style = "row";
+          columns = 4;
+        };
+        Downloads = {
+          style = "row";
+          columns = 5;
+        };
+        Sysadmin = {
+          style = "row";
+          columns = 5;
+        };
+      };
     };
 
     services =
