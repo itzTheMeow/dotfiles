@@ -25,6 +25,7 @@ in
     domain = "degoog.xela";
     port = 64335;
     enableProxy = true;
+    allowedAppHosts = [ "open-webui" ];
     details.valkeyPort = 64336;
 
     description = "Private Search";
