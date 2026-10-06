@@ -94,15 +94,6 @@ in
           ];
         }
       ];
-
-    widgets = [
-      {
-        search = {
-          provider = "google";
-          target = "_blank";
-        };
-      }
-    ];
   };
 
   systemd.services.homepage-dashboard = {
