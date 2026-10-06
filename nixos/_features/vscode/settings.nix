@@ -122,7 +122,6 @@
   chat.tips.enabled = false;
   chat.viewSessions.enabled = false;
   chat.viewSessions.orientation = "stacked";
-  coderabbit.autoReviewMode = "disabled";
 
   # updates
   extensions.autoUpdate = false;

@@ -20,7 +20,6 @@
       nixpkgs.wakatime.vscode-wakatime # WakaTime
       openvsx.actboy168.tasks # Tasks
       openvsx.antfu.iconify # Iconify IntelliSense
-      openvsx.coderabbit.coderabbit-vscode # CodeRabbit
       openvsx.ctcuff.font-preview # Font Preview
       openvsx.mjmlio.vscode-mjml # MJML Official
       openvsx.pascalreitermann93.vscode-yaml-sort # YAML Sort
