@@ -45,6 +45,7 @@ in
     enabled = true;
     show_type_hints = false;
   };
+  extend_comment_on_newline = false;
 
   # appearance
   icon_theme = "VSCode Great Icons Theme";
