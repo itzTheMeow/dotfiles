@@ -53,6 +53,16 @@ in
   };
   catppuccin.zed.enable = true;
 
+  # allow opening zed in current directory from dolphin
+  xdg.dataFile = xelib.mkDolphinContextAction {
+    name = "zed-open-here";
+    action = "openZedHere";
+    menuName = "Open Zed Here";
+    icon = "zed";
+    tryExec = "zeditor";
+    exec = "zeditor %f";
+  };
+
   # let zed edit its own keymap/settings, but reset them on every activation
   home.hijackEditable = {
     "${hm.config.xdg.configHome}/zed/keymap.json" = { };

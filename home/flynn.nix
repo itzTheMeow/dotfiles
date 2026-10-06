@@ -398,6 +398,7 @@ in
         ShowStatusBar = "FullWidth"; # make bottom status bar full width
         ShowZoomSlider = true; # show zoom slider in bottom status bar
       };
+      ContextMenu.ShowOpenTerminal = false;
     };
   };
 }

@@ -330,4 +330,38 @@ rec {
       '';
     };
   };
+
+  # make a dolphin context-menu action (kio/servicemenus desktop file) to merge
+  # into xdg.dataFile; MimeType defaults to directories so it shows for
+  # empty-space and folder right-clicks, TopLevel keeps it out of a submenu
+  mkDolphinContextAction =
+    {
+      name, # desktop file basename
+      action, # action key, e.g. "openKittyHere"
+      menuName, # label shown in the context menu
+      icon, # icon name or absolute path
+      exec,
+      tryExec ? null,
+      mimeTypes ? [ "inode/directory" ],
+    }:
+    {
+      "kio/servicemenus/${name}.desktop" = {
+        text = lib.concatStringsSep "\n" (
+          [
+            "[Desktop Entry]"
+            "Type=Service"
+            "X-KDE-ServiceTypes=KonqPopupMenu/Plugin"
+            "MimeType=${lib.concatMapStrings (m: "${m};") mimeTypes}"
+            "Actions=${action};"
+            "X-KDE-Priority=TopLevel"
+            ""
+            "[Desktop Action ${action}]"
+            "Name=${menuName}"
+            "Icon=${icon}"
+          ]
+          ++ lib.optional (tryExec != null) "TryExec=${tryExec}"
+          ++ [ "Exec=${exec}" ]
+        );
+      };
+    };
 }
