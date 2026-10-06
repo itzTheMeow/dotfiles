@@ -9,7 +9,6 @@
   imports = [
     # various default programs
     ../programs/fastfetch
-    ../programs/oh-my-posh
     ../programs/rustic
   ];
   news.display = "silent";
