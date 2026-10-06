@@ -1,0 +1,64 @@
+# Zed: make the git commit action include untracked files.
+#
+# With no staged changes, `git::Commit` used to auto-stage only *tracked*
+# modifications and silently leave untracked (new) files out of the commit
+# ("Commit Tracked"). This patch makes that auto-stage include untracked,
+# non-ignored files too, so a single `ctrl-enter` commits everything.
+#
+# Partial commits are unaffected: when anything is already staged,
+# `commit_changes` still commits exactly the index without auto-staging.
+# The button enablement (`can_commit` / `configure_commit_button`) is widened
+# to untracked-only changes and the button titles become "Commit All" /
+# "Amend All" to match the new behavior.
+#
+# Targets zed-editor v1.22.0 (nixpkgs-unstable).
+diff --git a/crates/git_ui/src/git_panel.rs b/crates/git_ui/src/git_panel.rs
+--- a/crates/git_ui/src/git_panel.rs
++++ b/crates/git_ui/src/git_panel.rs
+@@ -3685,7 +3685,6 @@
+         } else {
+             let changed_files = self
+                 .change_entries_by_path()
+-                .filter(|status_entry| !status_entry.status.is_created())
+                 .map(|status_entry| status_entry.repo_path.clone())
+                 .collect::<Vec<_>>();
+ 
+@@ -5961,7 +5960,8 @@
+     }
+ 
+     pub fn can_commit(&self) -> bool {
+-        (self.has_staged_changes() || self.has_tracked_changes()) && !self.has_unstaged_conflicts()
++        (self.has_staged_changes() || self.has_tracked_changes() || self.new_count > 0)
++            && !self.has_unstaged_conflicts()
+     }
+ 
+     pub fn can_stage_all(&self) -> bool {
+@@ -6253,7 +6253,11 @@
+             (false, "Generating commit message...")
+         } else if self.has_unstaged_conflicts() {
+             (false, "You must resolve conflicts before committing")
+-        } else if !self.has_staged_changes() && !self.has_tracked_changes() && !self.amend_pending {
++        } else if !self.has_staged_changes()
++            && !self.has_tracked_changes()
++            && self.new_count == 0
++            && !self.amend_pending
++        {
+             (false, "No changes to commit")
+         } else if self.pending_commit.is_some() {
+             (false, "Commit in progress")
+@@ -6271,14 +6275,14 @@
+             if self.has_staged_changes() {
+                 "Amend"
+             } else if self.has_tracked_changes() {
+-                "Amend Tracked"
++                "Amend All"
+             } else {
+                 "Amend"
+             }
+         } else if self.has_staged_changes() {
+             "Commit"
+         } else {
+-            "Commit Tracked"
++            "Commit All"
+         }
+     }

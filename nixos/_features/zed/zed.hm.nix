@@ -5,11 +5,18 @@
   xelib,
   ...
 }:
+let
+  #TODO:26.11 flip back to stable
+  zed-editor = pkgs.unstable.zed-editor.overrideAttrs (old: {
+    # ctrl-enter commits untracked files too when nothing is staged
+    patches = (old.patches or [ ]) ++ [ ../../../patches/zed-commit-untracked.patch ];
+  });
+in
 {
   programs.zed-editor = {
     enable = true;
-    #TODO:26.11 flip back to stable
-    package = pkgs.unstable.zed-editor-fhs;
+    # patch the base package; .fhs wraps it (finalAttrs.finalPackage)
+    package = zed-editor.fhs;
     extensions = [
       # languages
       "deno"
