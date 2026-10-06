@@ -26,7 +26,7 @@ in
         #  blur = "xs";
       };
       cardBlur = "sm";
-      headerStyle = "clean";
+      #headerStyle = "clean";
       target = "_top";
       theme = "dark";
       color = "stone";
