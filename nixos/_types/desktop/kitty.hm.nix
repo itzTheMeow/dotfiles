@@ -25,5 +25,14 @@
     };
     shellIntegration.mode = "no-cursor";
   };
+
+  # dolphin resolves the TerminalService desktop file via KDesktopFile, which
+  # only looks in XDG_DATA_HOME (~/.local/share/applications) and nowhere else
+  # (KDE bug 501435), so "Open Terminal Here" has no icon unless kitty's entry
+  # exists there.
+  #TODO:26.11 check this
+  # TODO: remove once nixpkgs ships dolphin 26.08+ (KService-based lookup)
+  xdg.dataFile."applications/kitty.desktop".source = "${pkgs.kitty}/share/applications/kitty.desktop";
+
   catppuccin.kitty.enable = true;
 }
