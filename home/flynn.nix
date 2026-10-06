@@ -185,7 +185,7 @@ in
       "applications:siyuan.desktop"
       "applications:timefinder-electron.desktop"
 
-      "applications:code.desktop"
+      "applications:dev.zed.Zed.desktop"
       "applications:org.pegasus_frontend.Pegasus"
       "applications:steam.desktop"
       "applications:org.prismlauncher.PrismLauncher.desktop"
