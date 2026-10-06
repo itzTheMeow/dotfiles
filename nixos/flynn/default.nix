@@ -36,6 +36,9 @@
   # enable docker
   virtualisation.docker.enable = true;
 
+  # throwaway Debian VM for AI coding-agent tests
+  services.ai-test-vm.enable = true;
+
   systemd.tmpfiles.rules = [
     "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"
   ];
