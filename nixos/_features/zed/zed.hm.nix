@@ -15,7 +15,6 @@ in
 {
   programs.zed-editor = {
     enable = true;
-    # patch the base package; .fhs wraps it (finalAttrs.finalPackage)
     package = zed-editor.fhs;
     extensions = [
       # languages
