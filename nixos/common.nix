@@ -244,7 +244,6 @@ in
     usbutils
 
     ## file management
-    ncdu
     renameutils
     tree
 

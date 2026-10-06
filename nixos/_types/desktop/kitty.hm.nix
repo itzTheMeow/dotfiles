@@ -26,24 +26,15 @@
     shellIntegration.mode = "no-cursor";
   };
 
-  # open kitty/ncdu here actions
-  xdg.dataFile =
-    xelib.mkDolphinContextAction {
-      name = "kitty-open-here";
-      action = "openKittyHere";
-      menuName = "Open Kitty Here";
-      icon = "${pkgs.kitty}/share/icons/hicolor/scalable/apps/kitty.svg";
-      tryExec = "kitty";
-      exec = "kitty --directory %f";
-    }
-    // xelib.mkDolphinContextAction {
-      name = "ncdu-open-here";
-      action = "openNcduHere";
-      menuName = "Open ncdu Here";
-      icon = "disk-usage-analyzer";
-      tryExec = "kitty";
-      exec = "kitty --directory %f ncdu";
-    };
+  # open kitty here action
+  xdg.dataFile = xelib.mkDolphinContextAction {
+    name = "kitty-open-here";
+    action = "openKittyHere";
+    menuName = "Open Kitty Here";
+    icon = "${pkgs.kitty}/share/icons/hicolor/scalable/apps/kitty.svg";
+    tryExec = "kitty";
+    exec = "kitty --directory %f";
+  };
 
   catppuccin.kitty.enable = true;
 }
