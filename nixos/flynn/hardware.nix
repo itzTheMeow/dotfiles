@@ -20,6 +20,9 @@ in
   ];
   boot.kernelModules = [ "kvm-intel" ];
 
+  # bluetooth gets screwed during deep sleep so we have to sleep lighter
+  boot.kernelParams = [ "mem_sleep_default=s2idle" ];
+
   # decrypted luks partiton
   boot.initrd.luks.devices.${luksDevice} = {
     device = "/dev/disk/by-uuid/bc39c959-30e1-4cbc-8664-def6a02336a6";
