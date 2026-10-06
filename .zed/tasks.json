@@ -1,6 +1,6 @@
 [
   {
     "label": "Refresh Secrets",
-    "command": "sops-build-secrets",
-  },
+    "command": "sops-build-secrets"
+  }
 ]
