@@ -212,6 +212,7 @@ in
     ## basic deps
     curl
     git
+    git-filter-repo
     jq
     killport
     openssl
