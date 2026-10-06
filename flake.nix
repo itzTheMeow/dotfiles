@@ -157,6 +157,11 @@ rec {
             // {
               umport = inputs.nypkgs.lib.${system}.umport;
             };
+
+          moduleFiles = xelib.umport { path = ./modules; };
+          hmModuleFile = file: nixpkgs.lib.hasSuffix ".hm.nix" (toString file);
+          nixosModules = builtins.filter (file: !hmModuleFile file) moduleFiles;
+          hmModules = builtins.filter hmModuleFile moduleFiles;
         in
         nixpkgs.lib.nixosSystem {
           inherit system;
@@ -193,12 +198,12 @@ rec {
               home-manager.extraSpecialArgs = extras // {
                 inherit xelib;
               };
-              home-manager.sharedModules = home-manager-modules;
+              home-manager.sharedModules = home-manager-modules ++ hmModules;
               home-manager.users.root = import ./home/common;
               home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
             }
           ]
-          ++ xelib.umport { path = ./modules; };
+          ++ nixosModules;
           specialArgs = extras // {
             inherit xelib;
           };

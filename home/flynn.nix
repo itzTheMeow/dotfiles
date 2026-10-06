@@ -21,8 +21,6 @@ in
   imports = [
     ./common
     ./common/desktop-workstation.nix
-
-    ./plasma/favorites.nix
   ];
 
   home = {
