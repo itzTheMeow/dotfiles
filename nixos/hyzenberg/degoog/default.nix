@@ -25,12 +25,13 @@ in
     domain = "degoog.xela";
     port = 64335;
     enableProxy = true;
-    allowedAppHosts = [ "open-webui" ];
     details.valkeyPort = 64336;
 
     description = "Private Search";
     icon = "sh-degoog";
   };
+  # open webui should have access to degoog
+  nginx.proxy.${app.domain}.allowedAppHosts = [ "open-webui" ];
 
   # set up redis for valkey
   services.redis.servers.degoog = {
