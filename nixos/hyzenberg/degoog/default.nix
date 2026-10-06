@@ -28,6 +28,7 @@ in
     details.valkeyPort = 64336;
 
     description = "Private Search";
+    icon = "sh-degoog";
   };
 
   # set up redis for valkey
