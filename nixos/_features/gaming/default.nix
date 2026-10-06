@@ -1,6 +1,7 @@
 {
   host,
   hostname,
+  lib,
   pkgs,
   xelib,
   xelpkgs,
@@ -21,6 +22,43 @@ let
     dir.${name} == "directory"
     && (!(builtins.elem hostname minimalGamesHosts) || builtins.elem name minimalGames)
   ) (builtins.attrNames dir);
+
+  # shared utilities between all games
+  utils = {
+    # download any asset
+    dl =
+      url: hash:
+      builtins.fetchurl {
+        inherit url;
+        sha256 = if hash == "" then lib.fakeHash else hash;
+      };
+    # download an asset from SteamGridDB by asset type + id
+    #   type: "grid" | "hero" | "logo" | "icon"
+    #   id:   numeric id from the steamgriddb.com/<type>/<id> URL
+    #   hash: optional flat sha256 of the asset; "" to discover it
+    sgdb =
+      type: id: hash:
+      pkgs.runCommand "sgdb-${type}-${toString id}"
+        {
+          outputHashMode = "flat";
+          outputHashAlgo = "sha256";
+          outputHash = if hash == "" then lib.fakeHash else hash;
+          nativeBuildInputs = with pkgs; [
+            cacert
+            curl
+            jq
+          ];
+        }
+        ''
+          url=$(curl -sfL "https://www.steamgriddb.com/api/public/asset/${type}/${toString id}" \
+            | jq -r '.data.asset.url')
+          if [ -z "$url" ] || [ "$url" = "null" ]; then
+            echo "sgdb: no '${type}' asset with id ${toString id}" >&2
+            exit 1
+          fi
+          curl -sfL "$url" -o "$out"
+        '';
+  };
 
   winebin = "${pkgs.wineWow64Packages.staging}/bin/wine";
   wineprefix = ".wine";
@@ -153,7 +191,7 @@ in
         collections."PC" = {
           shortname = "nix";
         };
-        games = map (name: import ./${name}/default.nix inputs) gameDirs;
+        games = map (name: import ./${name}/default.nix (inputs // { inherit utils; })) gameDirs;
       };
     })
   ];
