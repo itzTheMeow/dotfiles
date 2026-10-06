@@ -33,4 +33,7 @@ in
 
   # reload
   (bind null { "ctrl-r" = "workspace::Reload"; })
+
+  # i cant not use the terminal keybinds in the text editor...
+  (bind "Editor" { "ctrl-shift-v" = "editor::Paste"; })
 ]
