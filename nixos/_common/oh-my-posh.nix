@@ -1,5 +1,5 @@
 _: {
-  home-manager.importUser = [
+  home-manager.importAll = [
     (_: {
       programs.oh-my-posh = {
         enable = true;
