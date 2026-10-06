@@ -8,7 +8,6 @@
 {
   imports = [
     # various default programs
-    ../programs/fastfetch
     ../programs/rustic
   ];
   news.display = "silent";
