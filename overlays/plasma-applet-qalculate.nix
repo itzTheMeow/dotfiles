@@ -1,3 +1,4 @@
+#TODO:pr https://github.com/NixOS/nixpkgs/pull/568875
 final: prev: {
   plasma-applet-qalculate = final.callPackage (
     {
