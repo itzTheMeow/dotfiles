@@ -3,10 +3,12 @@
   inputs,
   lib,
   pkgs,
+  xelib,
   ...
 }:
 let
   app = config.apps.degoog;
+  mullvad = xelib.apps.mullvad-exit-nodes;
 
   # the flake only ships git as a runtime input, but the curl transports shell out to
   # curl/curl-impersonate and the searxng compat layer shells out to python
@@ -34,6 +36,17 @@ let
           ]
         }
       '';
+
+  # custom declarative settings to be merged into the non-declarative settings file on startup
+  settings = {
+    proxyEnabled = true;
+    proxyUrls = lib.concatStringsSep "\n" (
+      map (node: "socks5://${mullvad.ip}:${toString (mullvad.details.basePorts.socks5 + node.index)}") (
+        xelib.exitNodes
+      )
+    );
+    searxCompatEnabled = true;
+  };
 in
 {
   apps.degoog = {
@@ -69,14 +82,57 @@ in
       DEGOOG_PORT = app.port;
       DEGOOG_BASE_URL = app.url;
       DEGOOG_PUBLIC_INSTANCE = false;
-      # TODO: turn back off once the engines are installed
-      DEGOOG_WIZARD = true;
+      DEGOOG_WIZARD = false;
       DEGOOG_PYTHON_BIN = "${searxPython}/bin/python3";
       DEGOOG_VALKEY_URL = "redis://127.0.0.1:${toString app.details.valkeyPort}";
       LOG_LEVEL = "info";
     };
   };
-  systemd.services.degoog.after = [ "tailscale-online.service" ];
+  systemd.services.degoog.after = [
+    "degoog-settings.service"
+    "tailscale-online.service"
+  ];
+  systemd.services.degoog-settings = {
+    description = "Merge declarative settings into degoog's server-settings.json";
+    wantedBy = [ "degoog.service" ];
+    before = [ "degoog.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = lib.escapeShellArgs [
+        (lib.getExe (
+          pkgs.writeShellApplication {
+            name = "degoog-merge-settings";
+            runtimeInputs = with pkgs; [
+              coreutils
+              jq
+            ];
+            text = ''
+              set -euo pipefail
+
+              file="$1"
+              ours="$2"
+
+              mkdir -p "$(dirname "$file")"
+              tmp="$(mktemp "$(dirname "$file")/.server-settings.json.XXXXXX")"
+              trap 'rm -f "$tmp"' EXIT
+
+              if [[ -f "$file" ]]; then
+                jq --argjson ours "$ours" '.settings = ((.settings // {}) + $ours)' "$file" >"$tmp"
+              else
+                jq -n --argjson ours "$ours" '{ settings: $ours }' >"$tmp"
+              fi
+
+              chmod 0644 "$tmp"
+              mv -f "$tmp" "$file"
+            '';
+          }
+        ))
+        "${config.systemd.services.degoog.serviceConfig.WorkingDirectory}/server-settings.json"
+        (builtins.toJSON settings)
+      ];
+    };
+  };
 
   # degoog has no option to bind an address (bun binds 0.0.0.0), so proxy via loopback
   #TODO:pr - submitting upstream PR for this
