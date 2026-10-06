@@ -98,15 +98,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1791141988,
-        "narHash": "sha256-YjjsBr/20jFkYeQs0Y+64rofMrYY98XDDJn8L34HT2A=",
-        "owner": "degoog-org",
+        "lastModified": 1791252822,
+        "narHash": "sha256-RP/lZRG/gMriqIz7ZqHnxszeAZugCBjBInKWHp18F+M=",
+        "owner": "itzTheMeow",
         "repo": "degoog",
-        "rev": "f25bdd0235b1f5b3d669cd9360d730e07a89fdf8",
+        "rev": "c6486f841511e10cf2273ba9a2381974bf65d751",
         "type": "github"
       },
       "original": {
-        "owner": "degoog-org",
+        "owner": "itzTheMeow",
+        "ref": "nix/runtime-inputs",
         "repo": "degoog",
         "type": "github"
       }

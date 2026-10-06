@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   pkgs,
   xelib,
@@ -9,33 +8,6 @@
 let
   app = config.apps.degoog;
   mullvad = xelib.apps.mullvad-exit-nodes;
-
-  # the flake only ships git as a runtime input, but the curl transports shell out to
-  # curl/curl-impersonate and the searxng compat layer shells out to python
-  #TODO: look into this as a possible upstream fix
-  searxPython = pkgs.python3.withPackages (ps: [
-    ps.babel
-    ps.python-dateutil
-    ps.lxml
-  ]);
-  package =
-    pkgs.runCommand "degoog"
-      {
-        nativeBuildInputs = [ pkgs.makeWrapper ];
-        meta.mainProgram = "degoog";
-      }
-      ''
-        mkdir -p $out/bin
-        cp ${inputs.degoog.packages.${pkgs.system}.default}/bin/degoog $out/bin/degoog
-        chmod u+w $out/bin/degoog
-        wrapProgram $out/bin/degoog --prefix PATH : ${
-          lib.makeBinPath [
-            pkgs.curl
-            pkgs.curl-impersonate
-            searxPython
-          ]
-        }
-      '';
 
   # custom declarative settings to be merged into the non-declarative settings file on startup
   settings = {
@@ -76,14 +48,20 @@ in
 
   services.degoog = {
     enable = true;
-    inherit package;
     environmentFile = config.sops.secrets.degoog.path;
+    # for searx compat layer
+    binPaths.python = pkgs.python3.withPackages (
+      ps: with ps; [
+        babel
+        python-dateutil
+        lxml
+      ]
+    );
     environment = {
       DEGOOG_PORT = app.port;
       DEGOOG_BASE_URL = app.url;
       DEGOOG_PUBLIC_INSTANCE = false;
       DEGOOG_WIZARD = false;
-      DEGOOG_PYTHON_BIN = "${searxPython}/bin/python3";
       DEGOOG_VALKEY_URL = "redis://127.0.0.1:${toString app.details.valkeyPort}";
       LOG_LEVEL = "info";
     };
