@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   xelib,
   ...
 }:
@@ -22,7 +21,7 @@ in
       title = app.domain;
       base = app.url;
       background = {
-        image = "/background.jpeg";
+        image = "${xelib.apps.backgrounds.url}/current/1827398123";
         #  blur = "xs";
       };
       cardBlur = "sm";
@@ -117,15 +116,5 @@ in
         "HOMEPAGE_ALLOWED_HOSTS=${app.domain}"
       ];
     };
-  };
-
-  # we have to serve the background image separately
-  nginx.proxy.${app.domain}.extraConfig = cfg: {
-    locations."= /background.jpeg" = lib.mkMerge [
-      {
-        alias = "${xelib.media}/homepage/background.jpeg";
-      }
-      cfg
-    ];
   };
 }
