@@ -28,7 +28,7 @@ jobs:
       - name: Build System
         run: |
           nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel \
-            --option accept-flake-config true
+            --print-build-logs --option accept-flake-config true
 
       - name: Push to Attic
         run: |
