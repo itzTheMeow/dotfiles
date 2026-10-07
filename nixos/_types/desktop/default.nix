@@ -6,12 +6,9 @@
   ...
 }:
 {
-  imports = [
-    ./1password.nix
-  ]
-  ++ lib.optional (!(builtins.elem "console" host.type)) ./not-console.nix;
-
-  home-manager.importUser = [ ./kitty.hm.nix ];
+  imports =
+    (xelib.umport { path = ./programs; })
+    ++ lib.optional (!(builtins.elem "console" host.type)) ./not-console.nix;
 
   environment.systemPackages = with pkgs; [
     # desktop themeing
@@ -20,23 +17,10 @@
 
     # base gui apps
     qalculate-qt
-    vlc
 
     # earbuds
     galaxy-buds-client
     librepods
-  ];
-
-  # disable VLC metadata prompt on startup
-  home-manager.importAll = [
-    (_: {
-      xdg.configFile."vlc/vlcrc".text = ''
-        [qt]
-        qt-privacy-ask=0
-        [core]
-        metadata-network-access=1
-      '';
-    })
   ];
 
   services.xserver = {
