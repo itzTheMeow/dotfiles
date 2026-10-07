@@ -21,6 +21,10 @@
     # base gui apps
     qalculate-qt
     vlc
+
+    # earbuds
+    galaxy-buds-client
+    librepods
   ];
 
   # disable VLC metadata prompt on startup
