@@ -17,10 +17,6 @@
 
     # base gui apps
     qalculate-qt
-
-    # earbuds
-    galaxy-buds-client
-    librepods
   ];
 
   services.xserver = {
