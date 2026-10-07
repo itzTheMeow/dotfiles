@@ -19,7 +19,6 @@
 
     packages = with pkgs; [
       # nix-related
-      nh
       nix-your-shell
 
       # more complex tools
