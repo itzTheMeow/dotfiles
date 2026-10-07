@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -9,6 +10,10 @@ import (
 	"fmt"
 	"hash/fnv"
 	"html/template"
+	stdimage "image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"log"
 	"net/http"
@@ -50,6 +55,8 @@ type image struct {
 	AuthorURL   string `json:"authorUrl,omitempty"`
 	PageURL     string `json:"pageUrl"`
 	Description string `json:"description,omitempty"`
+	Width       int    `json:"width,omitempty"`
+	Height      int    `json:"height,omitempty"`
 }
 
 // holds the current image set and a small cache of proxied bytes
@@ -79,7 +86,6 @@ func newStore(cfg config, state string) (*store, error) {
 		imgBytes: map[string][]byte{},
 	}, nil
 }
-
 
 var (
 	challengeRe = regexp.MustCompile(`(?s)<script[^>]*id="anubis_challenge"[^>]*>(.*?)</script>`)
@@ -282,19 +288,38 @@ func (s *store) scrape(ctx context.Context, rawurl string) (image, error) {
 	// html/template escapes &, but the source may contain raw & in urls.
 	img.ImageURL = strings.ReplaceAll(img.ImageURL, "&amp;", "&")
 	normalizeImageURL(&img)
+	s.fillDimensions(ctx, &img)
 	return img, nil
 }
 
+// fillDimensions downloads the image (warming the proxy cache) and records its
+// pixel dimensions so the landing page can show the served resolution.
+func (s *store) fillDimensions(ctx context.Context, img *image) {
+	data, _, err := s.getImageBytes(ctx, img.ImageURL)
+	if err != nil {
+		log.Printf("dimensions %s: %v", img.ImageURL, err)
+		return
+	}
+	cfg, _, err := stdimage.DecodeConfig(bytes.NewReader(data))
+	if err != nil {
+		log.Printf("decode config %s: %v", img.ImageURL, err)
+		return
+	}
+	img.Width, img.Height = cfg.Width, cfg.Height
+}
+
 // normalizeImageURL bounds the resolution of imgix-backed (Unsplash) images so
-// a full-screen background isn't a 9MB download. Pixabay's JSON-LD already
-// points at a modest _1280 variant.
+// a full-screen background isn't a 9MB download, and pins the format to jpeg so
+// the served image is always decodable by the standard library. Pixabay's
+// JSON-LD already points at a modest _1280 variant.
 func normalizeImageURL(img *image) {
 	u, err := url.Parse(img.ImageURL)
 	if err != nil || !strings.Contains(strings.ToLower(u.Host), "unsplash") {
 		return
 	}
 	q := u.Query()
-	q.Set("auto", "format")
+	q.Del("auto") // don't let imgix pick avif/webp based on Accept
+	q.Set("fm", "jpg")
 	q.Set("fit", "crop")
 	q.Set("w", "2560")
 	q.Set("q", "70")
@@ -336,7 +361,6 @@ func firstNonEmpty(vals ...string) string {
 	}
 	return ""
 }
-
 
 func (s *store) scrapeAll(ctx context.Context) []image {
 	out := make([]image, 0, len(s.cfg.URLs))
@@ -429,7 +453,6 @@ func (s *store) run(ctx context.Context) {
 	}
 }
 
-
 func (s *store) pick(bucket int64, seed string) (image, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -512,7 +535,6 @@ func contentTypeFor(imageURL string) string {
 	}
 }
 
-
 var gridTmpl = template.Must(template.New("grid").Parse(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -543,7 +565,7 @@ var gridTmpl = template.Must(template.New("grid").Parse(`<!DOCTYPE html>
 {{range .Images}}
   <figure>
     <a href="{{.PageURL}}" target="_blank" rel="noopener"><img src="{{.ImageURL}}" loading="lazy" alt="{{.Description}}"></a>
-    <figcaption>Photo by <a href="{{.PageURL}}" target="_blank" rel="noopener">{{.Author}}</a> on {{.Host}}</figcaption>
+    <figcaption>Photo by <a href="{{.PageURL}}" target="_blank" rel="noopener">{{.Author}}</a> on {{.Host}}{{if .Width}} &middot; {{.Width}}&times;{{.Height}}{{end}}</figcaption>
   </figure>
 {{end}}
 </div>
@@ -572,6 +594,10 @@ func (s *store) handleCurrent(w http.ResponseWriter, r *http.Request) {
 	if decoded, err := url.PathUnescape(seed); err == nil {
 		seed = decoded
 	}
+	asJSON := strings.HasSuffix(seed, ".json")
+	if asJSON {
+		seed = strings.TrimSuffix(seed, ".json")
+	}
 	if seed == "" {
 		seed = "0"
 	}
@@ -579,9 +605,25 @@ func (s *store) handleCurrent(w http.ResponseWriter, r *http.Request) {
 	bucket := time.Now().Unix() / int64(s.cfg.refresh().Seconds())
 	img, ok := s.pick(bucket, seed)
 	if !ok {
-		http.Error(w, "no images available yet", http.StatusServiceUnavailable)
+		if asJSON {
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			_, _ = io.WriteString(w, `{"error":"no images available yet"}`)
+		} else {
+			http.Error(w, "no images available yet", http.StatusServiceUnavailable)
+		}
 		return
 	}
+
+	if asJSON {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", s.remaining()))
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		_ = json.NewEncoder(w).Encode(img)
+		return
+	}
+
 	data, ctype, err := s.getImageBytes(r.Context(), img.ImageURL)
 	if err != nil {
 		log.Printf("proxy %s: %v", img.ImageURL, err)
@@ -629,6 +671,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", st.handleGrid)
 	mux.HandleFunc("/current", st.handleCurrent)
+	mux.HandleFunc("/current.json", st.handleCurrent)
 	mux.HandleFunc("/current/", st.handleCurrent)
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

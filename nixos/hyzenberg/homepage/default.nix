@@ -7,6 +7,8 @@ let
   app = config.apps.homepage;
 in
 {
+  imports = [ ./background.nix ];
+
   apps.homepage = {
     domain = "xela.internal";
     port = 50983;
@@ -20,11 +22,7 @@ in
     settings = {
       title = app.domain;
       base = app.url;
-      background = {
-        image = "${xelib.apps.backgrounds.url}/current/1827398123";
-        #  blur = "xs";
-      };
-      cardBlur = "sm";
+      cardBlur = "md";
       headerStyle = "clean";
       target = "_top";
       theme = "dark";
