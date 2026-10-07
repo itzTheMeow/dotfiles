@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -8,7 +9,11 @@ let
   server = pkgs.callPackage ./package.nix { };
 
   refreshSeconds = 4 * 60 * 60; # reshuffle every 4 hours
-  urls = import ./urls.nix;
+
+  # one url per line, ignoring blank lines and # comments
+  urls = builtins.filter (line: line != "" && !(lib.hasPrefix "#" line)) (
+    map lib.trim (lib.splitString "\n" (builtins.readFile ./urls.txt))
+  );
 
   configFile = (pkgs.formats.json { }).generate "backgrounds.json" {
     inherit urls refreshSeconds;
