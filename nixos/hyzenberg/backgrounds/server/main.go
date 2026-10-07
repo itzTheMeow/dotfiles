@@ -538,7 +538,7 @@ var gridTmpl = template.Must(template.New("grid").Parse(`<!DOCTYPE html>
 </head>
 <body>
 <h1>Backgrounds</h1>
-<p class="sub">{{len .Images}} images &middot; shuffles every {{.Refresh}} &middot; <a href="/current">/current</a> &middot; <a href="/current/&lt;seed&gt;">/current/&lt;seed&gt;</a></p>
+<p class="sub">{{len .Images}} images &middot; shuffles every {{.Refresh}} &middot; <a href="/current">/current</a></p>
 <div class="grid">
 {{range .Images}}
   <figure>
