@@ -18,6 +18,8 @@ in
         TIMEFINDER_SERVER_HOST = host.ip;
         TIMEFINDER_SERVER_PORT = app.portString;
         TIMEFINDER_WEBHOOK_BASE = app.url;
+        TIMEFINDER_SCHEDULE_START = "09:00";
+        TIMEFINDER_SCHEDULE_END = "06:00";
       };
     })
   ];
