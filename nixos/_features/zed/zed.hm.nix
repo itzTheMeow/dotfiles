@@ -18,11 +18,9 @@ in
     package = zed-editor.fhs;
     extensions = [
       # languages
-      "deno"
       "git-firefly"
       "java"
       "svelte"
-      "nix"
       "toml"
       "xml"
       "sql"

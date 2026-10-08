@@ -2,7 +2,6 @@
   programs.vscode = {
     enable = true;
     extensions = with pkgs.vscode-stores; [
-      nixpkgs."1Password".op-vscode # 1Password
       nixpkgs.aaron-bond.better-comments # Better Comments #TODO: look into alternatives
       nixpkgs.docker.docker # Docker DX
       nixpkgs.editorconfig.editorconfig # EditorConfig
@@ -36,11 +35,6 @@
       nixpkgs.ms-python.debugpy # Python Debugger
       nixpkgs.ms-python.python # Python
       nixpkgs.ms-python.vscode-pylance # Pylance
-      # deno
-      nixpkgs.denoland.vscode-deno # Deno
-      # js
-      nixpkgs.dbaeumer.vscode-eslint # ESLint
-      nixpkgs.yoavbls.pretty-ts-errors # Pretty TypeScript Errors
       # java
       nixpkgs.redhat.java # Language Support for Java
       # html/css
@@ -57,9 +51,6 @@
       nixpkgs.bierner.markdown-mermaid # Markdown Preview Mermaid Support
       nixpkgs.bierner.markdown-preview-github-styles # Markdown Preview Github Styling
       marketplace.yahyabatulu.vscode-markdown-alert # Markdown Preview for Github Alerts
-      # js
-      openvsx.oouo-diogo-perdigao.docthis # Document This
-      openvsx.orta.vscode-jest # Jest
       # html/css
       openvsx.csstools.postcss # PostCSS Language Support
       openvsx.sysoev.language-stylus # stylus
@@ -67,9 +58,6 @@
       openvsx.ms-python.vscode-python-envs # Python Environments
       # html/css
       marketplace.george-alisson.html-preview-vscode # HTML Preview
-      # js
-      marketplace.zengxingxin.sort-js-object-keys # Sort JS Object Keys
-      marketplace.typescriptteam.native-preview # TypeScript 7
       # themes
       marketplace.garytyler.darcula-pycharm # Darcula PyCharm Theme
       marketplace.squarelogic.theme-bright-day # Bright Day Theme

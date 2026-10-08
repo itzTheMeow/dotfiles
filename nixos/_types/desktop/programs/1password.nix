@@ -2,6 +2,7 @@
   config,
   host,
   lib,
+  pkgs,
   ...
 }:
 {
@@ -39,6 +40,13 @@
       };
     })
   ];
+
+  programs.vscode = {
+    extensions = [
+      pkgs.vscode-stores.nixpkgs."1Password".op-vscode # 1Password
+    ];
+    profiles.default.userSettings."1password.editor.suggestStorage" = false;
+  };
 
   persist.ed.home.userDirectories = [ ".config/1Password" ];
 }

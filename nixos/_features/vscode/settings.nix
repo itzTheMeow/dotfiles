@@ -66,13 +66,9 @@
   python.defaultInterpreterPath = "python3";
 
   # languages
-  "1password.editor.suggestStorage" = false;
   css.lint.unknownAtRules = "ignore";
   docker.extension.enableComposeLanguageServer = false;
-  eslint.useFlatConfig = true;
   iconify.inplace = false;
-  "js/ts.updateImportsOnFileMove.enabled" = "always";
-  jest.runMode = "on-demand";
   lldb.suppressUpdateNotifications = true;
   liveshare.connectionMode = "relay";
   liveshare.focusBehavior = "prompt";
