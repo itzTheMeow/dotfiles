@@ -38,15 +38,14 @@
           "github:"
         ];
       };
+
+      programs.vscode.profiles.default.userSettings."1password.editor.suggestStorage" = false;
     })
   ];
 
-  programs.vscode = {
-    extensions = [
-      pkgs.vscode-stores.nixpkgs."1Password".op-vscode # 1Password
-    ];
-    profiles.default.userSettings."1password.editor.suggestStorage" = false;
-  };
+  programs.vscode.extensions = [
+    pkgs.vscode-stores.nixpkgs."1Password".op-vscode # 1Password
+  ];
 
   persist.ed.home.userDirectories = [ ".config/1Password" ];
 }
