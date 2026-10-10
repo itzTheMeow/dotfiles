@@ -24,6 +24,8 @@ let
     "curl"
     "tar"
     "ca-certificates"
+    "golang-1.27"
+    "ffmpeg"
 
     # everyday tooling inside the test VM
     "build-essential"
