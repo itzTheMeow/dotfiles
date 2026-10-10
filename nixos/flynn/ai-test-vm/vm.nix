@@ -252,7 +252,7 @@ let
           -drive "file=$1,if=virtio,format=qcow2,cache=writeback" \
           -drive "file=$seed,if=virtio,format=raw,readonly=on" \
           -device virtio-rng-pci \
-          -chardev socket,id=vfs0,path=$vfsd_sock \
+          -chardev "socket,id=vfs0,path=$vfsd_sock" \
           -device vhost-user-fs-pci,chardev=vfs0,tag=${shareTag} \
           -pidfile "$pidfile" -daemonize
       }
