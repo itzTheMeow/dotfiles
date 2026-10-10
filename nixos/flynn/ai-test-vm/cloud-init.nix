@@ -7,7 +7,7 @@
   mountUnit,
   username,
   authorizedKey,
-  instanceId ? "ai-test-vm",
+  instanceId ? "debian",
   guestWorkspace ? "/home/${username}/workspace",
   shareTag ? "aiworkspace",
 }:
@@ -49,17 +49,16 @@ in
 {
   metaData = {
     instance-id = instanceId;
-    "local-hostname" = "ai-test-vm";
+    "local-hostname" = "debian";
   };
 
   userData = {
-    hostname = "ai-test-vm";
+    hostname = "debian";
     manage_etc_hosts = true;
 
     users = [
       {
         name = username;
-        gecos = "AI Test VM";
         groups = [ "sudo" ];
         shell = "/bin/bash";
         lock_passwd = true;
@@ -74,10 +73,6 @@ in
 
     write_files = [
       {
-        path = "/etc/modules-load.d/ai-test-vm-9p.conf";
-        content = "9pnet_virtio\n";
-      }
-      {
         path = "/etc/ssh/sshd_config.d/ai-test-vm.conf";
         content = ''
           PasswordAuthentication no
@@ -91,15 +86,13 @@ in
         path = "/etc/systemd/system/${mountUnit}.mount";
         content = ''
           [Unit]
-          Description=AI test VM workspace (9p share from the host)
-          After=systemd-modules-load.service network-online.target
-          Wants=network-online.target
+          Description=workspace share from the host
 
           [Mount]
           What=${shareTag}
           Where=${guestWorkspace}
-          Type=9p
-          Options=trans=virtio,version=9p2000.L,cache=loose,msize=131072,nosuid,nodev
+          Type=virtiofs
+          Options=nosuid,nodev
           TimeoutSec=30
 
           [Install]
@@ -161,19 +154,11 @@ in
           WantedBy=timers.target
         '';
       }
-      {
-        path = "/etc/profile.d/ai-test-vm.sh";
-        content = ''
-          printf '\n  AI test VM -- throwaway guest, nothing here survives a shutdown.\n  Workspace: ~/workspace (shared with the host, survives)\n  Type exit to shut down and throw this VM away.\n\n'
-        '';
-      }
     ];
 
     runcmd = [
       "systemctl daemon-reload"
       "systemctl enable ${mountUnit}.mount"
-      # the 9p device may show up after cloud-init starts; mounting is retried
-      # by the launcher, so a failure here must not abort provisioning
       "systemctl start ${mountUnit}.mount || true"
       # sentinel the launcher waits for before the base image counts as ready
       "install -d /var/lib/ai-vm"
@@ -182,6 +167,6 @@ in
       "systemctl enable --now ai-vm-watchdog.timer"
     ];
 
-    final_message = "ai-test-vm: provisioned in $UPTIME seconds";
+    final_message = "provisioned in $UPTIME seconds";
   };
 }

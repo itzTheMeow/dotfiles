@@ -1,5 +1,5 @@
 # Throwaway Debian VM for running AI coding-agent test harnesses in a disposable
-# guest. Only the host workspace folder (shared over 9p) survives a session; the
+# guest. Only the host workspace folder (shared over virtiofs) survives a session; the
 # guest's home directory and anything installed in it are discarded with the
 # per-session disk overlay.
 {
@@ -67,7 +67,7 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = [ vm.script ];
 
-    # the folder the 9p share exposes has to exist before qemu is started
+    # the folder the share exposes has to exist before qemu is started
     systemd.tmpfiles.rules = [ "d ${cfg.workspaceDir} 0755 ${host.username} users - -" ];
 
     # application menu entry that boots a session in a terminal

@@ -9,7 +9,7 @@
 #
 # The per-session image is a qcow2 overlay that is deleted on shutdown, so the
 # guest's home directory and anything the agent installs are thrown away while
-# the host workspace folder (9p) survives.
+# the host workspace folder survives.
 {
   username,
   workspaceDir ? "/home/${username}/ai-workspace",
@@ -20,7 +20,6 @@
   guestWorkspace ? "/home/${username}/workspace",
   shareTag ? "aiworkspace",
   # the generic (not genericcloud) image on purpose: Debian's cloud kernel is
-  # built with CONFIG_NET_9P disabled, so 9p shares cannot work on it
   baseImageUrl ? "https://cloud.debian.org/images/cloud/trixie/20261001-2618/debian-13-generic-amd64-20261001-2618.qcow2",
   baseImageHash ? "sha256-B/n+Bf58sXAgRwNIMBULrd1myL4G4jO7ImyEqoonUmM=",
   pkgs,
@@ -87,6 +86,7 @@ let
       pkgs.gnutar
       pkgs.openssh
       pkgs.qemu_kvm # qemu-system-x86_64 + qemu-img
+      pkgs.virtiofsd
     ];
     text = ''
       state=''${AI_VM_STATE_DIR:-$HOME/.local/state}/ai-test-vm
@@ -99,6 +99,8 @@ let
       base=$state/base-${configHash}.qcow2
       session=$state/session.qcow2
       pidfile=$state/qemu.pid
+      vfsd_sock=$state/virtiofsd.sock
+      vfsd_pid=
       console=$state/console.log
 
       # pid of this launcher; the heartbeat loop below lives on only while it
@@ -131,7 +133,7 @@ let
 
       vm_running() { [ -s "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; }
 
-      # graceful poweroff: the guest flushes the 9p share before systemd tears
+      # graceful poweroff: the guest flushes the share before systemd tears
       # it down, then qemu goes away on its own
       stop_vm() {
         if vm_running; then
@@ -141,7 +143,11 @@ let
           while vm_running && [ $i -lt 300 ]; do sleep 0.2; i=$((i + 1)); done
           vm_running && kill "$(cat "$pidfile")" 2>/dev/null || true
         fi
-        rm -f "$pidfile" "$session"
+        if [ -n "''${vfsd_pid:-}" ]; then
+          kill "$vfsd_pid" 2>/dev/null || true
+          vfsd_pid=
+        fi
+        rm -f "$pidfile" "$session" "$vfsd_sock"
       }
 
       # The guest powers itself off once the heartbeat file goes stale for
@@ -229,6 +235,15 @@ let
       }
 
       start_vm() { # disk log
+        rm -f "$vfsd_sock"
+        ${pkgs.virtiofsd}/bin/virtiofsd --xattr --socket-path "$vfsd_sock" --sandbox none --seccomp none --cache auto --shared-dir "$workspace" &
+        vfsd_pid=$!
+        local i=0
+        while [ $i -lt 100 ] && [ ! -S "$vfsd_sock" ]; do
+          sleep 0.1
+          i=$((i + 1))
+        done
+        [ -S "$vfsd_sock" ] || die "virtiofsd failed to create $vfsd_sock"
         qemu-system-x86_64 \
           -name ai-test-vm \
           -machine q35,accel=kvm -cpu host \
@@ -238,7 +253,8 @@ let
           -drive "file=$1,if=virtio,format=qcow2,cache=writeback" \
           -drive "file=$seed,if=virtio,format=raw,readonly=on" \
           -device virtio-rng-pci \
-          -virtfs "local,path=$workspace,mount_tag=${shareTag},security_model=none,multidevs=remap" \
+          -chardev socket,id=vfs0,path=$vfsd_sock \
+          -device vhost-user-fs-pci,chardev=vfs0,tag=${shareTag} \
           -pidfile "$pidfile" -daemonize
       }
 
@@ -310,7 +326,7 @@ let
 
         cat <<EOF
 
-      Workspace   ${guestWorkspace}  <-  $workspace   (9p share, persists)
+      Workspace   ${guestWorkspace}  <-  $workspace   (virtiofs share, persists)
 
       Everything else - including \$HOME and installed packages - is discarded
       when you exit this shell.
@@ -348,7 +364,7 @@ let
 
       bench() {
         vm_running || die "no VM running - start one with: ai-test-vm run"
-        msg "20k file creates + stats: guest disk vs the 9p share"
+        msg "20k file creates + stats: guest disk vs the virtiofs share"
         vm_ssh python3 - "${guestWorkspace}/bench" /var/tmp/bench <<'PY'
       import os, shutil, sys, time
 
