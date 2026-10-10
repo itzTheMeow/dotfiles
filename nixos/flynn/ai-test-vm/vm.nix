@@ -205,7 +205,6 @@ let
         shell       attach a shell to an already running VM
         provision   rebuild the base image (apt packages)
         status      show images, workspace and VM state
-        bench       compare the 9p workspace against the guest's own disk
         nuke        delete the base image and all VM state
 
       environment:
@@ -335,9 +334,18 @@ let
 
         local rc=0
         ssh -t "''${ssh_args[@]}" || rc=$?
-        trap - EXIT INT TERM HUP
-        stop_heartbeat
-        stop_vm
+        # If another shell is still connected, keep the VM running
+        local conns
+        conns=$(vm_ssh 'who | wc -l' 2>/dev/null || echo 0)
+        if [ "$conns" -le 0 ]; then
+          trap - EXIT INT TERM HUP
+          stop_heartbeat
+          stop_vm
+        else
+          trap - EXIT INT TERM HUP
+          stop_heartbeat
+          msg "Another shell is still connected; keeping the VM running"
+        fi
         msg "VM stopped and thrown away"
         if [ $rc -ne 0 ]; then
           printf '\nssh exited with %s, press enter to close this window' "$rc"
@@ -362,29 +370,7 @@ let
         fi
       }
 
-      bench() {
-        vm_running || die "no VM running - start one with: ai-test-vm run"
-        msg "20k file creates + stats: guest disk vs the virtiofs share"
-        vm_ssh python3 - "${guestWorkspace}/bench" /var/tmp/bench <<'PY'
-      import os, shutil, sys, time
 
-      n = 20000
-      for root in sys.argv[1:]:
-          shutil.rmtree(root, ignore_errors=True)
-          os.makedirs(root)
-          start = time.time()
-          for i in range(n):
-              with open(f"{root}/f{i}", "w") as f:
-                  f.write("x" * 4096)
-          create = time.time() - start
-          start = time.time()
-          for i in range(n):
-              os.stat(f"{root}/f{i}")
-          stat = time.time() - start
-          shutil.rmtree(root, ignore_errors=True)
-          print(f"{root:32} create {n / create:8.0f}/s   stat {n / stat:8.0f}/s")
-      PY
-      }
 
       nuke() {
         vm_running && die "stop the running VM first (exit its shell, or: ai-test-vm shell)"
