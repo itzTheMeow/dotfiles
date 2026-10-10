@@ -43,8 +43,7 @@ rec {
       inputs.home-manager.follows = "home-manager";
     };
     degoog = {
-      #TODO: switch back to master branch once develop is merged in
-      url = "github:degoog-org/degoog/develop";
+      url = "github:degoog-org/degoog";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
