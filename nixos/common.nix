@@ -267,7 +267,7 @@ in
     rclone # used by some core services
     screen
   ];
-  environment.variables = {
+  environment.sessionVariables = {
     DOTFILES = xelib.location;
     HOSTNAME = hostname;
     NIXPKGS_ALLOW_UNFREE = "1";

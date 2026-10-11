@@ -20,7 +20,7 @@ in
   # keep atuin data dir persisted
   persist.ed.persist.directories = [ dataDir ];
   # set the data dir and create it
-  environment.variables.ATUIN_DATA_DIR = dataDir;
+  environment.sessionVariables.ATUIN_DATA_DIR = dataDir;
   systemd.tmpfiles.rules = [ "d ${dataDir} 0755 ${host.username} users - -" ];
 
   sops.groups.atuin.key = {

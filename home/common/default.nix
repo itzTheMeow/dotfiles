@@ -13,14 +13,7 @@
   news.display = "silent";
 
   home = {
-    stateVersion = "25.11"; # not to be changed
-    # i insist
-    enableNixpkgsReleaseCheck = false;
-
     packages = with pkgs; [
-      # nix-related
-      nix-your-shell
-
       # more complex tools
       speedtest-cli
 
@@ -49,8 +42,6 @@
       xelpkgs.download-organizer
       xelpkgs.nx
     ];
-
-    sessionVariables = xelib.globals.environment;
 
     shellAliases = {
       # basic

@@ -7,7 +7,10 @@
 }:
 {
   environment.systemPackages = with pkgs; [ ntfy-sh ];
-  environment.sessionVariables.NTFY_TAGS = hostname;
+  environment.sessionVariables = {
+    NTFY_TOPIC = "ntfy.xela.codes/meow";
+    NTFY_TAGS = hostname;
+  };
 
   sops.secrets.ntfy_cli = {
     sopsFile = config.sops.opSecrets.ntfy_cli.fullPath;

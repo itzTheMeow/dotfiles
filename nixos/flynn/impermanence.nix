@@ -92,7 +92,7 @@
   ];
 
   # set custom store paths for tools
-  environment.variables = {
+  environment.sessionVariables = {
     # bun
     BUN_INSTALL = "${config.persist.ed.cache.path}/bun"; # this isnt documented but its in the bun source code
     # pnpm

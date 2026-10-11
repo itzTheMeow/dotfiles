@@ -7,7 +7,7 @@
   environment.systemPackages = [ pkgs.siyuan ];
 
   # 1Password unlock plugin
-  environment.variables.SIYUAN_MASTER_PASSWORD_OP = "op://Private/65oqfbkcvggpgjuufzn44pj5ei/password";
+  environment.sessionVariables.SIYUAN_MASTER_PASSWORD_OP = "op://Private/65oqfbkcvggpgjuufzn44pj5ei/password";
   home-manager.importUser = [
     (hm: {
       xdg.dataFile."siyuan-data/data/plugins/siyuan-op-unlock" = {

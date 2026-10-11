@@ -22,15 +22,15 @@
   # custom hostname for this device
   networking.hostName = lib.mkForce "meow-pc";
 
-  environment.sessionVariables = xelib.globals.environment // {
+  environment.sessionVariables = {
     # this is for node-canvas...
     LD_LIBRARY_PATH = with pkgs; [
       (lib.makeLibraryPath [
         libuuid
       ])
     ];
-    # set the 1password ssh auth socket
-    SSH_AUTH_SOCK = "/home/${host.username}/.1password/agent.sock";
+    GSK_RENDERER = "cairo"; # force software rendering for GTK4 (fixes graphical issues)
+    PLASMA_USE_QT_SCALING = "1";
   };
 
   # enable docker

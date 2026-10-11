@@ -67,7 +67,7 @@ lib.mkMerge [
           Environment = [
             "HOME=${home}"
             "NTFY_CONFIG=${home}/.config/ntfy/client.yml"
-            "NTFY_TOPIC=${xelib.globals.environment.NTFY_TOPIC}"
+            "NTFY_TOPIC=${config.environment.sessionVariables.NTFY_TOPIC}"
             "NTFY_TAGS=mail"
           ];
         };

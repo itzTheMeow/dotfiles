@@ -93,6 +93,6 @@ in
   };
 
   systemd.user.services.atuin-daemon.Service.Environment = [
-    "ATUIN_DATA_DIR=${config.environment.variables.ATUIN_DATA_DIR}"
+    "ATUIN_DATA_DIR=${config.environment.sessionVariables.ATUIN_DATA_DIR}"
   ];
 }

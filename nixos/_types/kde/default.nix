@@ -44,6 +44,9 @@
         winDecStyles = [ "classic" ];
       })
     ]);
+  environment.sessionVariables = {
+    GTK_USE_PORTAL = "1";
+  };
 
   # VNC server on Tailscale
   systemd.user.services.krfb = {

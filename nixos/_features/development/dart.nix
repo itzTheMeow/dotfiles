@@ -16,7 +16,7 @@ in
   ];
 
   # set cache path to persisted directory
-  environment.variables.PUB_CACHE = dir;
+  environment.sessionVariables.PUB_CACHE = dir;
   systemd.tmpfiles.rules = [
     "d ${dir} 0755 ${host.username} users -"
   ];

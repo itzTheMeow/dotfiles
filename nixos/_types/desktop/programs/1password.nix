@@ -11,6 +11,11 @@
     polkitPolicyOwners = [ host.username ];
   };
 
+  environment.sessionVariables = {
+    # set the 1password ssh auth socket
+    SSH_AUTH_SOCK = "/home/${host.username}/.1password/agent.sock";
+  };
+
   home-manager.importUser = [
     (_: {
       # ssh agent vaults

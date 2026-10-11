@@ -17,7 +17,7 @@ in
   ];
 
   # set data paths to persisted directory
-  environment.variables = {
+  environment.sessionVariables = {
     GOCACHE = "${dir}/build";
     GOPATH = "${dir}/path";
   };

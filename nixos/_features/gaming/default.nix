@@ -74,7 +74,7 @@ in
     };
   };
   # set global wineprefix for clarity
-  environment.variables.WINEPREFIX = wineprefixAbsolute;
+  environment.sessionVariables.WINEPREFIX = wineprefixAbsolute;
   # create user folder
   #systemd.tmpfiles.rules = [
   #  "d ${wineprefixAbsolute}/user 0755 ${host.username} users -"
