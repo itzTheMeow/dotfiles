@@ -64,21 +64,6 @@
     };
   };
 
-  programs = {
-    git = {
-      enable = true;
-      settings = {
-        user = {
-          name = "Meow";
-          email = "github@xela.codes";
-        };
-
-        pull.rebase = false;
-        init.defaultBranch = "master";
-      };
-    };
-  };
-
   sops.age =
     if ((osConfig.sops.groupPaths ? system) && (osConfig.sops.groupPaths.system ? user-key)) then
       { sshKeyPaths = [ osConfig.sops.groupPaths.system.user-key ]; }

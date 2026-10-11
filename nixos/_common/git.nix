@@ -39,9 +39,22 @@ in
 {
   config = lib.mkMerge [
     gitSecrets
-
     {
       home-manager.importUser = [
+        (_: {
+          programs.git = {
+            enable = true;
+            settings = {
+              user = {
+                name = "Meow";
+                email = "github@${xelib.domain}";
+              };
+
+              pull.rebase = false;
+              init.defaultBranch = "master";
+            };
+          };
+        })
         (hm: {
           programs.ssh.settings = lib.optionalAttrs xelib.isDesktop (
             lib.genAttrs codeHostNames (
