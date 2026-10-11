@@ -63,7 +63,6 @@
   ];
   java.jdt.ls.java.home = "${pkgs.jdk21.home}";
   makefile.configureOnOpen = false;
-  python.defaultInterpreterPath = "python3";
 
   # languages
   css.lint.unknownAtRules = "ignore";
@@ -74,7 +73,6 @@
   liveshare.focusBehavior = "prompt";
   liveshare.shareExternalFiles = false;
   prettier.printWidth = 100;
-  python.analysis.autoImportCompletions = true;
   scss.lint.unknownAtRules = "ignore";
   svelte.enable-ts-plugin = true;
   tailwindCSS.classAttributes = [
@@ -107,7 +105,6 @@
     defaultFormatter = "redhat.java";
   };
   "[just]".editor.defaultFormatter = "nefrob.vscode-just-syntax";
-  "[python]".editor.defaultFormatter = "ms-python.black-formatter";
   "[shellscript]".editor.defaultFormatter = "mkhl.shfmt";
   "[svelte]".editor.defaultFormatter = "svelte.svelte-vscode";
   "[svg]".editor.defaultFormatter = "jock.svg";

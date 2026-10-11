@@ -20,7 +20,6 @@ in
 {
   imports = [
     ./common
-    ./common/desktop-workstation.nix
   ];
 
   home = {

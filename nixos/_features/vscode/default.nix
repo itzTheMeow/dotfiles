@@ -29,12 +29,6 @@
       #marketplace.local-smart.excel-live-server # XVBA - Live Server VBA
       marketplace.plibither8.remove-comments # Remove Comments
       marketplace.pwabuilder.pwa-studio # PWABuilder Studio #TODO: deprecate
-      # python
-      nixpkgs.ms-python.black-formatter # Black Formatter
-      nixpkgs.ms-python.isort # isort
-      nixpkgs.ms-python.debugpy # Python Debugger
-      nixpkgs.ms-python.python # Python
-      nixpkgs.ms-python.vscode-pylance # Pylance
       # java
       nixpkgs.redhat.java # Language Support for Java
       # html/css
@@ -54,8 +48,6 @@
       # html/css
       openvsx.csstools.postcss # PostCSS Language Support
       openvsx.sysoev.language-stylus # stylus
-      # python
-      openvsx.ms-python.vscode-python-envs # Python Environments
       # html/css
       marketplace.george-alisson.html-preview-vscode # HTML Preview
       # themes

@@ -59,8 +59,6 @@
       ll = "ls -alF";
       grep = "grep --color=auto";
       txz = "tar -cJf";
-      python = "python3";
-      pip = "python3 -m pip";
       qmv = "qmv -ospaces"; # use spaces for qmv
       cdtemp = "cd $(mktemp -d) && pwd";
 
