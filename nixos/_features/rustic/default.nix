@@ -1,8 +1,8 @@
 {
+  config,
   host,
   hostname,
   pkgs,
-  xelib,
   ...
 }:
 {
@@ -21,7 +21,7 @@
     in
     {
       description = "Rustic backup";
-      inherit (xelib.globals) environment;
+      environment = config.environment.sessionVariables;
       serviceConfig = {
         Type = "oneshot";
         ExecStart = "${pkgs.zsh}/bin/zsh -c 'export ${builtins.concatStringsSep " " env} && ${pkgs.rustic}/bin/rustic -P ${hostname} backup'";
