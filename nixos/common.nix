@@ -176,7 +176,14 @@ in
   boot.tmp.cleanOnBoot = true;
 
   # enable zram
-  zramSwap.enable = true;
+  zramSwap = {
+    enable = true;
+    memoryPercent = 100; # ~100% of RAM as compressed-in-RAM swap (zstd, ~4:1)
+  };
+  boot.kernel.sysctl = {
+    "vm.swappiness" = 10; # keep working set in RAM, spill only cold pages
+    "vm.page-cluster" = 0; # 1 page per swap fault
+  };
 
   # networking settings
   networking = {

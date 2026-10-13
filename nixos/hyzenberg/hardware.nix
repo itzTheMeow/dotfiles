@@ -29,10 +29,6 @@
     "nomodeset" # Disable kernel modesetting for better compatibility in VMs
   ];
   powerManagement.cpuFreqGovernor = "performance";
-  # For dedicated AMD power management:
-  boot.kernel.sysctl = {
-    "vm.swappiness" = 1; # Prioritize RAM over slow disk swap
-  };
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/f9e9c22e-5945-40b9-816e-34ce6d434995";
