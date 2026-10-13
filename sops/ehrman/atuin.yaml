@@ -1,16 +1,16 @@
 key: ENC[AES256_GCM,data:JJWSG6AyujlQBV6rsGQNz8CFbIConNM0Z06iYhUT55j+GUZX6xTvFV7qy66tY/TLPW8i0MhInHMH2RfN6i7uqJIJIOCU8SGt,iv:Z96+cW1xC+kgD4Lsz3/7Is6NI2gEgm9aDFVLwp7LPpo=,tag:Sy23GGNK7VRHlOjZxUjM2A==,type:str]
 sops:
-    age:
-        - recipient: age1uj2dljx8vhkh3ueap9lw0km536tnrkn2h50vk0j0ud0hmvhl7sdqrp3a0h
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2d0tnWGUrM2s1c0h2bWI4
-            QW5oV0J5WFI4bXNYcnNNVDNHZDNsV0FiTVVvCnBlSndtOGZrSkQ5akVJNXpxWThG
-            YVpBZUt2VVlGb1FiNlA4M21qNGlZM3cKLS0tIGc3SjhuTSs4ZVIxb1pXeHNjR1dB
-            bFVBaEsxZUVDUzZlMzdiWXMyYmkxYlEKiH8xRBFSlcsiFO2ZTP/o/T+nmjiWa9OB
-            gsyZC4MYiCopT6fMv2qLcI1+YuzVOc+pv/L2YV6PKpmcPX7gfcgn8w==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-10-13T13:27:06Z"
-    mac: ENC[AES256_GCM,data:cYgTQaA2DklbEhaYZiKxO5iLkRL6LLl4sFlzHyjAXJRZ7oDGPa3+PoTEAEoko4N6CMXcoq2Kr3kmAJVRjx2qT7Liz3VR4EzW7hCINcHjtanOHbV0UVhjeN8LEJrJkl0X8N9ta98u+1Iuy1kyS1IfyUh6A2fF6P4NmimwFcZrPNA=,iv:FvMxW7kjRllFHJDfehbfoe9RUxBcoAr/ikEbcKV489M=,tag:XJsMi63oG8D41Ymb+kbyMg==,type:str]
-    unencrypted_suffix: _unencrypted
-    version: 3.12.1
+  age:
+    - recipient: age1uj2dljx8vhkh3ueap9lw0km536tnrkn2h50vk0j0ud0hmvhl7sdqrp3a0h
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2d0tnWGUrM2s1c0h2bWI4
+        QW5oV0J5WFI4bXNYcnNNVDNHZDNsV0FiTVVvCnBlSndtOGZrSkQ5akVJNXpxWThG
+        YVpBZUt2VVlGb1FiNlA4M21qNGlZM3cKLS0tIGc3SjhuTSs4ZVIxb1pXeHNjR1dB
+        bFVBaEsxZUVDUzZlMzdiWXMyYmkxYlEKiH8xRBFSlcsiFO2ZTP/o/T+nmjiWa9OB
+        gsyZC4MYiCopT6fMv2qLcI1+YuzVOc+pv/L2YV6PKpmcPX7gfcgn8w==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-10-13T13:27:06Z"
+  mac: ENC[AES256_GCM,data:cYgTQaA2DklbEhaYZiKxO5iLkRL6LLl4sFlzHyjAXJRZ7oDGPa3+PoTEAEoko4N6CMXcoq2Kr3kmAJVRjx2qT7Liz3VR4EzW7hCINcHjtanOHbV0UVhjeN8LEJrJkl0X8N9ta98u+1Iuy1kyS1IfyUh6A2fF6P4NmimwFcZrPNA=,iv:FvMxW7kjRllFHJDfehbfoe9RUxBcoAr/ikEbcKV489M=,tag:XJsMi63oG8D41Ymb+kbyMg==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1
