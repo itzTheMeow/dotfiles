@@ -136,5 +136,26 @@ in
 
   # languages
   prettier.allowed = true;
-  languages.Java.code_actions_on_format."source.organizeImports" = true;
+  languages =
+    let
+      formatActions = {
+        "source.removeUnusedImports" = true;
+        "source.fixAll.eslint" = true;
+      };
+    in
+    {
+      JavaScript.code_actions_on_format = formatActions;
+      JSX.code_actions_on_format = formatActions;
+      TypeScript.code_actions_on_format = formatActions;
+      TSX.code_actions_on_format = formatActions;
+      Svelte = {
+        language_servers = [
+          "svelte-language-server"
+          "eslint"
+          "..."
+        ];
+        code_actions_on_format = formatActions;
+      };
+      Java.code_actions_on_format."source.organizeImports" = true;
+    };
 }
