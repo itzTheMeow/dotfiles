@@ -20,6 +20,11 @@ let
         value = "op://Private/hgsv724d4jvdaqfljg664v62aq/public key";
         owner = host.username;
       };
+      # scoped read-only deploy key for nvstly dotfiles repo
+      nvstly_deploy = {
+        value = "op://NVSTly/yrzxyhogbfzbaasgginj4j6ria/private key";
+        owner = host.username;
+      };
     };
   };
 
@@ -40,6 +45,17 @@ in
   config = lib.mkMerge [
     gitSecrets
     {
+      # system-wide so both user and root (nix daemon) git fetches can resolve the repo URL
+      programs.ssh.extraConfig = ''
+        Host nvstly-dotfiles
+          HostName github.com
+          User git
+          HostKeyAlias github.com
+          IdentityFile ${config.sops.groupPaths.git_ssh.nvstly_deploy}
+          IdentitiesOnly yes
+          StrictHostKeyChecking accept-new
+      '';
+
       home-manager.importUser = [
         (_: {
           programs.git = {

@@ -25,6 +25,14 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v30
 
+      # the CI needs access to the NVSTly repo for builds
+      - name: Set Up NVSTly Deploy Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.NVSTLY_DEPLOY_KEY }}" > ~/.ssh/nvstly_deploy
+          chmod 600 ~/.ssh/nvstly_deploy
+          printf 'Host nvstly-dotfiles\n  HostName github.com\n  User git\n  HostKeyAlias github.com\n  IdentityFile ~/.ssh/nvstly_deploy\n  IdentitiesOnly yes\n  StrictHostKeyChecking accept-new\n' >> ~/.ssh/config
+
       - name: Build System
         run: |
           nix build .#nixosConfigurations.${{ matrix.hostname }}.config.system.build.toplevel \
