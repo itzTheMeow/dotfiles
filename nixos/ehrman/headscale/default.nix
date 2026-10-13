@@ -35,58 +35,35 @@ in
         magic_dns = true;
         base_domain = xelib.apps.homepage.domain; # base domain is the home page
         override_local_dns = false;
-        extra_records = [
-          {
-            name = "nvstly.internal";
-            type = "A";
-            value = "100.64.0.5";
-          }
-          {
-            name = "nginx.nvstly.internal";
-            type = "A";
-            value = "100.64.0.5";
-          }
-          {
-            name = "portainer.nvstly.internal";
-            type = "A";
-            value = "100.64.0.5";
-          }
-          {
-            name = "kuma.nvstly.internal";
-            type = "A";
-            value = "100.64.0.5";
-          }
-          {
-            name = "postiz.nvstly.internal";
-            type = "A";
-            value = "100.64.0.5";
-          }
-          {
-            name = "redis.nvstly.internal";
-            type = "A";
-            value = "100.64.0.5";
-          }
-          {
-            name = "beszel.nvstly.internal";
-            type = "A";
-            value = "100.64.0.5";
-          }
-        ]
-        ++ (
-          # dynamic records from aggregated nginx proxy configs
-          let
-            allProxies = lib.foldAttrs lib.recursiveUpdate { } (
-              map (host: self.nixosConfigurations.${host}.config.nginx.proxy) (
-                builtins.attrNames self.nixosConfigurations
-              )
-            );
-          in
-          lib.mapAttrsToList (domain: opts: {
-            name = domain;
-            type = "A";
-            value = opts.target.host;
-          }) (lib.filterAttrs (_: opts: opts.local) allProxies)
-        );
+        # records from satellite dotfiles repos (nvstly):
+        # explicit extras + one A record per app with a domain, pointing at its host
+        extra_records =
+          (map (record: { type = "A"; } // record) xelib.externalRecords)
+          ++ lib.flatten (
+            lib.mapAttrsToList (
+              hn: apps:
+              lib.mapAttrsToList (_: app: {
+                name = app.domain;
+                type = "A";
+                value = xelib.hosts.${hn}.ip;
+              }) (lib.filterAttrs (_: app: app ? domain && app.domain != null) apps)
+            ) xelib.externalApps
+          )
+          ++ (
+            # dynamic records from aggregated nginx proxy configs
+            let
+              allProxies = lib.foldAttrs lib.recursiveUpdate { } (
+                map (host: self.nixosConfigurations.${host}.config.nginx.proxy) (
+                  builtins.attrNames self.nixosConfigurations
+                )
+              );
+            in
+            lib.mapAttrsToList (domain: opts: {
+              name = domain;
+              type = "A";
+              value = opts.target.host;
+            }) (lib.filterAttrs (_: opts: opts.local) allProxies)
+          );
       };
     };
   };

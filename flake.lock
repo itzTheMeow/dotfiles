@@ -436,6 +436,22 @@
         "type": "github"
       }
     },
+    "nvstly": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791896962,
+        "narHash": "sha256-05KVf4ZprJ2XDAHndxNuNUZTQ/MD2YROKYoHA7RAur0=",
+        "ref": "refs/heads/master",
+        "rev": "eede3d4a7981640f7a562b8e816e8b6e236c3785",
+        "revCount": 4,
+        "type": "git",
+        "url": "ssh://nvstly-dotfiles/nvstly/dotfiles.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://nvstly-dotfiles/nvstly/dotfiles.git"
+      }
+    },
     "nypkgs": {
       "inputs": {
         "nixpkgs": [
@@ -494,6 +510,7 @@
         "nixpkgs": "nixpkgs_3",
         "nixpkgs-bind916": "nixpkgs-bind916",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "nvstly": "nvstly",
         "nypkgs": "nypkgs",
         "plasma-manager": "plasma-manager",
         "sops-nix": "sops-nix",

@@ -37,32 +37,9 @@ let
       args = "meow@macintosh.xela.internal";
       publicKey = "op://Private/Macintosh SSH Key/public key";
     }
-    {
-      name = "Jade";
-      host = "jade.nvst.ly";
-      args = "root@jade.nvst.ly";
-      publicKey = "op://NVSTly/Jade SSH Key/public key";
-      extraOptions = {
-        ForwardAgent = true;
-      };
-    }
-    {
-      name = "ODROID";
-      host = "odroid.xela.internal";
-      args = "odroid@odroid.xela.internal";
-      publicKey = "op://NVSTly/Odroid SSH Key/public key";
-      extraOptions = {
-        Port = 2222;
-        ForwardAgent = true;
-      };
-    }
-    {
-      name = "Raspberry PI";
-      host = "raspberrypi.xela.internal";
-      args = "th@raspberrypi.xela.internal";
-      publicKey = "op://NVSTly/Raspberry PI SSH Key/public key";
-    }
-  ];
+  ]
+  # machines from satellite dotfiles repos (nvstly), defined in its hosts.nix
+  ++ map (id: mkHostSSHItem id { }) (builtins.attrNames xelib.externalHosts);
 in
 lib.mkMerge [
   (xelib.mkSSHSecrets machines)

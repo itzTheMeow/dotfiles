@@ -1,10 +1,13 @@
 {
   attic,
+  attics,
   config,
   host,
   hostname,
+  impureOverlays,
   inputs,
   lib,
+  localDir,
   pkgs,
   self,
   xelib,
@@ -21,9 +24,10 @@ in
 
   home-manager.importAll = [
     ./common.hm.nix
-    # import local config
-    ../local/home-manager.nix
-  ];
+  ]
+  # local config is a committed stub (skip-worktree hides local edits);
+  # import unconditionally - pure-eval pathExists cant see untracked files
+  ++ lib.optionals (localDir != null) [ (localDir + "/home-manager.nix") ];
   home-manager.importUser = [ ./common.user.hm.nix ];
 
   # back up files that would be clobbered by home-manager
@@ -56,35 +60,37 @@ in
   nix.nixPath = [
     "nixpkgs=${inputs.nixpkgs}"
     "nixpkgs-unstable=${inputs.nixpkgs-unstable}"
-    "nixpkgs-overlays=/etc/${impureOverlaysDir}"
-  ];
+  ]
+  ++ lib.optionals impureOverlays [ "nixpkgs-overlays=/etc/${impureOverlaysDir}" ];
   nix.channel.enable = false;
 
   # adds custom overlays to system nixpkgs
-  environment.etc = {
-    "${impureOverlaysDir}/zz-unstable.nix".text = ''
-      final: prev: {
-        unstable = import <nixpkgs-unstable> {
-          system = final.stdenv.hostPlatform.system;
-          config.allowUnfree = true;
-          # required, else nixpkgs re-applies these overlays inside the unstable instance
-          # and `unstable.*` recurses forever
-          overlays = [ ];
-        };
-      }
-    '';
-  }
-  // lib.listToAttrs (
-    map
-      (name: {
-        name = "${impureOverlaysDir}/${name}";
-        value.text = ''import "${xelib.location}/overlays/${name}"'';
-      })
-      (
-        builtins.filter (name: lib.hasSuffix ".nix" name) (
-          builtins.attrNames (builtins.readDir ../overlays)
+  environment.etc = lib.optionalAttrs impureOverlays (
+    {
+      "${impureOverlaysDir}/zz-unstable.nix".text = ''
+        final: prev: {
+          unstable = import <nixpkgs-unstable> {
+            system = final.stdenv.hostPlatform.system;
+            config.allowUnfree = true;
+            # required, else nixpkgs re-applies these overlays inside the unstable instance
+            # and `unstable.*` recurses forever
+            overlays = [ ];
+          };
+        }
+      '';
+    }
+    // lib.listToAttrs (
+      map
+        (name: {
+          name = "${impureOverlaysDir}/${name}";
+          value.text = ''import "${xelib.location}/overlays/${name}"'';
+        })
+        (
+          builtins.filter (name: lib.hasSuffix ".nix" name) (
+            builtins.attrNames (builtins.readDir ../overlays)
+          )
         )
-      )
+    )
   );
 
   # garbage collection for derivations
@@ -302,12 +308,12 @@ in
   nix.settings = {
     substituters = [
       "https://cache.nixos.org/"
-      "https://${attic.domain}/${attic.cacheName}"
-    ];
+    ]
+    ++ map (a: "https://${a.domain}/${a.cacheName}") attics;
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      attic.publicKey
-    ];
+    ]
+    ++ map (a: a.publicKey) attics;
   };
 
   # catppuccin settings

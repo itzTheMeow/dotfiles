@@ -65,6 +65,12 @@ rec {
       inputs.flake-utils.follows = "flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # external nvstly repo that we read config from
+    nvstly = {
+      url = "git+ssh://nvstly-dotfiles/nvstly/dotfiles.git";
+      flake = false;
+    };
   };
 
   # this HAS to be static for the flake, so its the source of truth for the atticd config
@@ -74,227 +80,28 @@ rec {
   };
 
   outputs =
-    {
-      catppuccin,
-      dns,
-      flake-utils,
-      home-manager,
-      nixpkgs-unstable,
-      nixpkgs,
-      plasma-manager,
-      self,
-      sops-nix,
-      ...
-    }@inputs:
+    { self, ... }@inputs:
     let
-      # parse the attic settings from the nixConfig
-      # this'll need changed if we ever have more than one substituter
-      attic =
-        let
-          match = builtins.match "https://([^/]+)/?(.+)" (builtins.head nixConfig.extra-substituters);
-        in
-        {
-          domain = builtins.elemAt match 0;
-          cacheName = builtins.elemAt match 1;
-          publicKey = builtins.head nixConfig.extra-trusted-public-keys;
-        };
-
-      nixpkgs_args = system: {
-        inherit system;
-        config.allowUnfree = true;
-        overlays = [
-          # overlays from inputs
-          inputs.copyparty.overlays.default
-          inputs.nix-vscode-extensions.overlays.default
-          inputs.timefinder-electron.overlays.default
-          # expose nixpkgs-unstable so overlays can use `final.unstable`
-          (final: prev: {
-            unstable = import nixpkgs-unstable {
-              inherit system;
-              config.allowUnfree = true;
-            };
-          })
-        ]
-        # custom overlays
-        ++ (map (file: import ./overlays/${file}) (builtins.attrNames (builtins.readDir ./overlays)));
-      };
-
-      home-manager-modules = [
-        catppuccin.homeModules.catppuccin
-        plasma-manager.homeModules.plasma-manager
-        sops-nix.homeManagerModules.sops
-        (import ./xelib/opsecrets.nix).homeManagerModule
-      ];
-
-      mkNixosConfiguration =
-        system: hostname:
-        let
-          #TODO:26.11 pete has to use custom bigscreen branch
-          nixpkgs = if hostname == "pete" then inputs.nixpkgs-unstable else inputs.nixpkgs;
-
-          pkgs = import nixpkgs (nixpkgs_args system);
-          xelpkgs = import ./pkgs { inherit pkgs; };
-
-          extras = {
-            inherit
-              attic
-              dns
-              home-manager
-              hostname
-              inputs
-              self
-              system
-              xelib
-              xelpkgs
-              ;
-            host = xelib.hosts.${hostname};
-          };
-
-          xelib =
-            (import ./xelib (extras // { inherit pkgs; }))
-            # tack on umport library
-            // {
-              umport = inputs.nypkgs.lib.${system}.umport;
-            };
-
-          moduleFiles = xelib.umport { path = ./modules; };
-          hmModuleFile = file: nixpkgs.lib.hasSuffix ".hm.nix" (toString file);
-          nixosModules = builtins.filter (file: !hmModuleFile file) moduleFiles;
-          hmModules = builtins.filter hmModuleFile moduleFiles;
-        in
-        nixpkgs.lib.nixosSystem {
-          inherit system;
-
-          modules = [
-            # custom nixpkgs instance with overlays/config
-            { nixpkgs.pkgs = pkgs; }
-
-            # sops
-            sops-nix.nixosModules.sops
-            (import ./xelib/opsecrets.nix).nixosModule
-
-            # misc
-            catppuccin.nixosModules.catppuccin
-            inputs.copyparty.nixosModules.default
-            inputs.degoog.nixosModules.default
-            inputs.impermanence.nixosModules.impermanence
-            inputs.vscode-server-fix.nixosModules.default
-          ]
-          # custom forgejo-runner module from unstable (stable doesn't have it yet)
-          # TODO:26.11 remove this import once the upstream module reaches stable
-          ++ nixpkgs.lib.optionals (hostname != "pete") [
-            (nixpkgs-unstable + "/nixos/modules/services/continuous-integration/forgejo-runner.nix")
-          ]
-          ++ [
-            # main config
-            (import ./nixos hostname)
-
-            # home-manager
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = extras // {
-                inherit xelib;
-              };
-              home-manager.sharedModules = home-manager-modules ++ hmModules;
-              home-manager.users.root = import ./home/common;
-              home-manager.users.${extras.host.username} = import ./home/${hostname}.nix;
-            }
-          ]
-          ++ nixosModules;
-          specialArgs = extras // {
-            inherit xelib;
-          };
-        };
-
-      # hosts with x86_64-linux
-      x86Hosts = [
-        "flynn"
-        "pete"
-        "hyzenberg"
-        "ehrman"
-        "huell"
-      ];
-      allHosts = x86Hosts;
+      nvstlyHosts = import (inputs.nvstly + "/hosts.nix");
+      nvstlyApps = import (inputs.nvstly + "/apps.nix");
     in
     {
-      # re-export for CI
-      inherit attic;
+      # shared factory for other repos to consume
+      lib.mkDotfiles = import ./xelib/mkDotfiles.nix;
 
-      homeConfigurations = {
-        # non-nixos
-        #macintosh = mkHomeConfiguration "x86_64-darwin" "macintosh";
-      };
-
-      nixosConfigurations = nixpkgs.lib.genAttrs x86Hosts (
-        name: mkNixosConfiguration "x86_64-linux" name
-      );
+      # re-exports for other repos
+      flakeInputs = inputs;
+      hostsTable = import ./xelib/hosts.nix;
     }
-    // flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs (nixpkgs_args system);
-        lib = pkgs.lib;
-
-        formatScript = pkgs.writeShellApplication {
-          name = "format";
-          runtimeInputs = with pkgs; [
-            findutils
-            nixfmt
-            go
-            prettier
-          ];
-          text = ''
-            echo "Formatting Nix..."
-            find . -name "*.nix" -exec nixfmt {} +
-            echo "Formatting Go..."
-            gofmt -w ./go
-            echo "Formatting Prettier..."
-            prettier --write .
-          '';
-        };
-
-        # maps all *.package.nix files to their directory name
-        # appends the * part if it exists
-        hostPackages =
-          hostDir:
-          let
-            findPackages =
-              dir: relParts:
-              lib.pipe (builtins.readDir dir) [
-                (lib.mapAttrsToList (
-                  name: type:
-                  let
-                    path = dir + "/${name}";
-                  in
-                  if type == "directory" then
-                    findPackages path (relParts ++ [ name ])
-                  else if type == "regular" && lib.hasSuffix "package.nix" name then
-                    let
-                      prefix = lib.removeSuffix "." (lib.removeSuffix "package.nix" name);
-                      attrName = lib.concatStringsSep "-" (relParts ++ lib.optional (prefix != "") prefix);
-                    in
-                    [ (lib.nameValuePair attrName (pkgs.callPackage path { })) ]
-                  else
-                    [ ]
-                ))
-                lib.flatten
-              ];
-          in
-          builtins.listToAttrs (findPackages hostDir [ ]);
-
-        allPackages = lib.mergeAttrsList (
-          map (host: hostPackages (./nixos + "/${host}")) (allHosts ++ [ "_features" ])
-        );
-      in
-      {
-        packages = allPackages;
-
-        apps.format = {
-          type = "app";
-          program = "${formatScript}/bin/format";
-        };
-      }
-    );
+    # actual dotfiles config
+    // (import ./xelib/mkDotfiles.nix {
+      inherit self inputs nixConfig;
+      nixosDir = ./nixos;
+      hosts = (import ./xelib/hosts.nix).hosts // nvstlyHosts.hosts;
+      trustedHosts = (import ./xelib/hosts.nix).trustedHosts;
+      externalHosts = nvstlyHosts.hosts;
+      externalApps = nvstlyApps.hosts;
+      externalRecords = nvstlyApps.extraRecords or [ ];
+      unstableHosts = [ "pete" ];
+    });
 }

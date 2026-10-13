@@ -1,5 +1,12 @@
 {
   hostname,
+  # merged hosts table + trust list, passed in by mkDotfiles
+  hosts,
+  trustedHosts,
+  # hosts/apps/records from satellite dotfiles repos (nvstly)
+  externalHosts ? { },
+  externalApps ? { },
+  externalRecords ? [ ],
   pkgs,
   self,
   ...
@@ -11,12 +18,20 @@ rec {
   # import globals
   globals = import ./globals.nix inputs;
 
-  # import hosts and ports
-  inherit (import ./hosts.nix) hosts trustedHosts;
+  # merged hosts table and trust list
+  inherit hosts trustedHosts;
+
+  # satellite repo data - hosts get ssh entries, apps get converted to
+  # headscale magicdns records by ehrman
+  inherit externalHosts externalApps externalRecords;
 
   # location of the dotfiles repo
   locationDir = ".dotfiles";
-  location = "/home/${hosts.${hostname}.username}/${locationDir}";
+  location =
+    let
+      user = hosts.${hostname}.username;
+    in
+    if user == "root" then "/root/${locationDir}" else "/home/${user}/${locationDir}";
 
   # if the current host is a desktop
   isDesktop = builtins.elem "desktop" (hosts.${hostname}.type or [ ]);
