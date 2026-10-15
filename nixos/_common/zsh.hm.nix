@@ -56,7 +56,11 @@ in
     atuin = {
       enable = true;
       daemon.enable = atuinEnableDaemon;
-      #TODO:pr https://github.com/atuinsh/atuin/pull/2945
+      #TODO:pr https://github.com/atuinsh/atuin/pull/4380
+      #?       the change is now ATUIN_HOME as an env var
+      #?       which once this pr reaches main and nixpkgs unstable
+      #?       we can drop the patch and use that var instead
+      #?       or eventually we can use the config options
       # apply patch to add ATUIN_DATA_DIR support so we can relocate it
       #TODO:26.11 this needs fixed since atuin's source changed somewhere and the patch wont apply on unstable
       package =
