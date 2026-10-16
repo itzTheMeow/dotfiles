@@ -23,8 +23,6 @@ in
 
   home = {
     packages = with pkgs; [
-      jdk21
-
       # desktop apps
       pcloud
       remmina
@@ -51,7 +49,6 @@ in
       mayo
       pinta
       obs-studio
-      simplescreenrecorder
 
       # chat
       element-desktop
