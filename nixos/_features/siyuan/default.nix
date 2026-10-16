@@ -1,8 +1,4 @@
-{
-  pkgs,
-  xelpkgs,
-  ...
-}:
+{ pkgs, ... }:
 {
   environment.systemPackages = [ pkgs.siyuan ];
 
@@ -11,7 +7,7 @@
   home-manager.importUser = [
     (hm: {
       xdg.dataFile."siyuan-data/data/plugins/siyuan-op-unlock" = {
-        source = xelpkgs.siyuan-op-unlock;
+        source = pkgs.siyuan-op-unlock;
         recursive = true;
       };
     })
