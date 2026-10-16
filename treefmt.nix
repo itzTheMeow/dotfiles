@@ -5,8 +5,5 @@
   programs.nixfmt.enable = true;
   programs.gofmt.enable = true;
   programs.prettier.enable = true;
-  programs.shfmt = {
-    enable = true;
-    indent_size = 0;
-  };
+  programs.shfmt.enable = true;
 }

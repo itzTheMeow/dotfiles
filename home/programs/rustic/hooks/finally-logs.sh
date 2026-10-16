@@ -2,11 +2,11 @@
 # Log latest snapshot information to ntfy from rustic.
 
 format_int() {
-	printf "%'d" "$1"
+  printf "%'d" "$1"
 }
 
 format_bytes() {
-	numfmt --to=iec-i --suffix=B "$1"
+  numfmt --to=iec-i --suffix=B "$1"
 }
 
 # get snapshot json data
@@ -14,11 +14,11 @@ SNAPSHOT_JSON=$(rustic -P "$1" snapshots latest --json)
 
 # extract all values in 1 pass
 read -r FILES_NEW FILES_CHANGED FILES_UNMODIFIED \
-	DIRS_NEW DIRS_CHANGED DIRS_UNMODIFIED \
-	DATA_ADDED DATA_ADDED_PACKED \
-	TOTAL_FILES_PROCESSED TOTAL_BYTES_PROCESSED \
-	TOTAL_DURATION SNAPSHOT_TIME SNAPSHOT_ID <<<"$(
-		jq -r '
+  DIRS_NEW DIRS_CHANGED DIRS_UNMODIFIED \
+  DATA_ADDED DATA_ADDED_PACKED \
+  TOTAL_FILES_PROCESSED TOTAL_BYTES_PROCESSED \
+  TOTAL_DURATION SNAPSHOT_TIME SNAPSHOT_ID <<<"$(
+    jq -r '
 			.[0].snapshots[0] as $s
 			| $s.summary as $sum
 			| [
@@ -42,7 +42,7 @@ read -r FILES_NEW FILES_CHANGED FILES_UNMODIFIED \
 				]
 			| @tsv
 		' <<<"$SNAPSHOT_JSON"
-	)"
+  )"
 
 # format times
 TIMESTAMP=$(date -d "$SNAPSHOT_TIME" '+%b %-d, %Y %-I:%M%P')

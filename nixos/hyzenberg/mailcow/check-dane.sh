@@ -8,9 +8,9 @@ set -uo pipefail
 domain="${1:?usage: check-dane <domain>}"
 
 fail() {
-	echo "DANE PIN MISMATCH for ${domain}: $*" >&2
-	ntfy publish -t "DANE PIN MISMATCH: ${domain}" "$*" || true
-	exit 1
+  echo "DANE PIN MISMATCH for ${domain}: $*" >&2
+  ntfy publish -t "DANE PIN MISMATCH: ${domain}" "$*" || true
+  exit 1
 }
 
 # published record: "usage selector matching HASH" (dig may wrap the long hash)
@@ -24,7 +24,7 @@ tmp="$(mktemp -d)" || exit 1
 trap 'rm -rf "$tmp"' EXIT
 
 timeout 15 openssl s_client -connect 127.0.0.1:443 -servername "${domain}" -showcerts </dev/null 2>/dev/null |
-	awk -v dir="$tmp" '
+  awk -v dir="$tmp" '
     /BEGIN CERTIFICATE/ { n++; in_cert = 1 }
     in_cert { print > (dir "/cert-" n ".pem") }
     /END CERTIFICATE/ { in_cert = 0 }
@@ -38,13 +38,13 @@ certs=("$tmp"/cert-*.pem)
 match=0
 i=0
 for cert in "${certs[@]}"; do
-	i=$((i + 1))
-	[ "$i" -eq 1 ] && continue
-	spki="$(openssl x509 -in "${cert}" -pubkey -noout 2>/dev/null | openssl pkey -pubin -outform DER 2>/dev/null | openssl dgst -sha256 2>/dev/null | awk -F'=' '{print $NF}' | tr -dc '[:alnum:]')"
-	if [ -n "${spki}" ] && [ "${spki,,}" = "${hash,,}" ]; then
-		match=1
-		break
-	fi
+  i=$((i + 1))
+  [ "$i" -eq 1 ] && continue
+  spki="$(openssl x509 -in "${cert}" -pubkey -noout 2>/dev/null | openssl pkey -pubin -outform DER 2>/dev/null | openssl dgst -sha256 2>/dev/null | awk -F'=' '{print $NF}' | tr -dc '[:alnum:]')"
+  if [ -n "${spki}" ] && [ "${spki,,}" = "${hash,,}" ]; then
+    match=1
+    break
+  fi
 done
 
 [ "$match" -eq 1 ] || fail "pinned SPKI ${hash} not found in served chain"
