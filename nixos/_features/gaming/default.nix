@@ -4,7 +4,6 @@
   lib,
   pkgs,
   xelib,
-  xelpkgs,
   ...
 }@inputs:
 let
@@ -98,7 +97,7 @@ in
       home.file = {
         # C drive is all linked from the store
         "${wineprefix}/drive_c" = {
-          source = "${xelpkgs.wine-prefix}/drive_c";
+          source = "${pkgs.xela-wine-prefix}/drive_c";
           recursive = true;
         };
         # except for the user folder for appdata
@@ -113,7 +112,7 @@ in
       # this updates wine with the new prefix only when it changes
       home.activation.updateWinePrefix = hm.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         stateFile="${wineprefixAbsolute}/.wine-state"
-        currentState="${xelpkgs.wine-prefix}"
+        currentState="${pkgs.xela-wine-prefix}"
         savedState=""
 
         if [ -f "$stateFile" ]; then
@@ -140,7 +139,7 @@ in
 
               [HKEY_LOCAL_MACHINE\Software\dotnet\Setup\InstalledVersions\x64\sharedhost]
               "Path"="C:\\Program Files\\dotnet\\"
-              "Version"="${builtins.head (builtins.attrNames (builtins.readDir "${xelpkgs.wine-prefix}/drive_c/Program Files/dotnet/shared/Microsoft.NETCore.App"))}"
+              "Version"="${builtins.head (builtins.attrNames (builtins.readDir "${pkgs.xela-wine-prefix}/drive_c/Program Files/dotnet/shared/Microsoft.NETCore.App"))}"
             ''}
             ${winebin}server -w
           ''}
