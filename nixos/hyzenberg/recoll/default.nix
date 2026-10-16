@@ -115,7 +115,7 @@ in
   };
 
   # gate the search index behind pocket-id; snippets reveal file contents
-  nginx.proxy."recoll.xela".oidcGroups = [ "recoll" ];
+  #nginx.proxy."recoll.xela".oidcGroups = [ "recoll" ];
 
   environment.etc."recoll/recoll.conf".text = ''
     topdirs = ${mountPoint}
