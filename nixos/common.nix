@@ -225,6 +225,7 @@ in
     ripgrep
     wev
     wget
+    xela-utils
 
     ## build tools
     check
@@ -265,7 +266,7 @@ in
     typst
     pandoc
     texliveSmall
-    unstable.yt-dlp
+    unstable.yt-dlp # this pretty much stays unstable because it needs to update quickly
 
     ## networking
     dig
