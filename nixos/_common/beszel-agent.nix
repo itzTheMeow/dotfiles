@@ -1,11 +1,12 @@
 {
   config,
   host,
+  lib,
   pkgs,
   xelib,
   ...
 }:
-{
+lib.mkIf ((xelib.apps ? beszel) && (host.ports ? beszel-agent)) {
   services.beszel.agent = {
     enable = true;
     package = pkgs.beszel;

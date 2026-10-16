@@ -16,13 +16,15 @@ let
         value = "op://Private/brpzxia4pb2uk7ujbyf3nj7qci/public key";
         owner = host.username;
       };
-      forgejo = {
-        value = "op://Private/hgsv724d4jvdaqfljg664v62aq/public key";
-        owner = host.username;
-      };
       # scoped read-only deploy key for nvstly dotfiles repo
       nvstly_deploy = {
         value = "op://NVSTly/yrzxyhogbfzbaasgginj4j6ria/private key";
+        owner = host.username;
+      };
+    }
+    // lib.optionalAttrs (xelib.apps ? forgejo) {
+      forgejo = {
+        value = "op://Private/hgsv724d4jvdaqfljg664v62aq/public key";
         owner = host.username;
       };
     };
@@ -33,6 +35,8 @@ let
       config.sops.groupPaths.git_ssh.github_auth
       config.sops.groupPaths.git_ssh.github_signing
     ];
+  }
+  // lib.optionalAttrs (xelib.apps ? forgejo) {
     ${xelib.apps.forgejo.domain} = [
       config.sops.groupPaths.git_ssh.forgejo
       config.sops.groupPaths.git_ssh.github_signing

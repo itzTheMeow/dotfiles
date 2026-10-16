@@ -3,6 +3,7 @@
   hm,
   host,
   hostname,
+  lib,
   pkgs,
   xelib,
   ...
@@ -77,9 +78,7 @@ in
           });
       settings = {
         key_path = config.sops.groupPaths.atuin.key;
-        auto_sync = true;
         update_check = false;
-        sync_address = xelib.apps.atuin-server.url;
         sync_frequency = "10s";
         search_mode = "daemon-fuzzy";
         filter_mode_shell_up_key_binding = "host"; # default to current host history
@@ -91,6 +90,10 @@ in
           enabled = true;
           socket_path = "/run/user/1000/atuin.sock";
         };
+      }
+      // lib.optionalAttrs (xelib.apps ? atuin-server) {
+        auto_sync = true;
+        sync_address = xelib.apps.atuin-server.url;
       };
       forceOverwriteSettings = true;
     };
