@@ -95,7 +95,11 @@ let
       sleep 1
     done
 
+    echo "indexing..."
+
     systemctl start "${indexUnit}"
+
+    echo "done."
 
     systemctl stop "${mountUnit}"
 
