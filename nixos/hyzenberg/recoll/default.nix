@@ -72,10 +72,23 @@ let
     set -euo pipefail
     export ${lib.concatStringsSep " " serviceEnv}
 
+    # ntfy notification on any failure (recoll-index/rclone/rustic included);
+    # set -e auto-exits after the trap runs, keeping the failure rc
+    _fail() {
+      local rc=$?
+      ${pkgs.ntfy-sh}/bin/ntfy publish \
+        -t "Archive failed (downloads)" \
+        "downloads-archive.service failed (rc $rc): $BASH_COMMAND"
+    }
+    trap _fail ERR
+
     # the mount must not hold a repo lock while backing up
     systemctl stop "${mountUnit}" || true
 
     rclone move "pcloud:Downloads" "${tmpDir}" --exclude .directory
+    # rclone's move prunes nothing: empty dirs pile up on pcloud. rmdirs
+    # only removes truly empty ones, so dirs that gained late files stay
+    rclone rmdirs "pcloud:Downloads" --leave-root || true
 
     # nothing to archive this month
     if [ -z "$(ls -A "${tmpDir}")" ]; then
@@ -86,8 +99,9 @@ let
     rustic -P downloads backup "${tmpDir}"
     rustic -P downloads check
 
-    # files are in the repo now
-    find "${tmpDir}" -mindepth 1 -delete
+    # files live in the repo now; nuke the staging dir wholesale (systemd
+    # StateDirectory recreates it on the next start)
+    rm -rf -- "${tmpDir}"
 
     # bring the mount up so recoll sees the new snapshot, re-index, unmount
     systemctl start "${mountUnit}"
@@ -127,9 +141,11 @@ in
   # gate the search index behind pocket-id; snippets reveal file contents
   #nginx.proxy."recoll.xela".oidcGroups = [ "recoll" ];
 
+  # dbdir (not indexdir): the xapian db location, else it lands next to the
+  # conf files
   environment.etc."recoll/recoll.conf".text = ''
     topdirs = ${mountPoint}
-    indexdir = ${indexDir}
+    dbdir = ${indexDir}
     skippedPaths = ${mountPoint}/latest
   '';
 
