@@ -236,10 +236,8 @@ let
         text = ''
           echo "Formatting Nix..."
           find . -name "*.nix" -exec nixfmt {} +
-          if [ -d ./go ]; then
-            echo "Formatting Go..."
-            gofmt -w ./go
-          fi
+          echo "Formatting Go..."
+          gofmt -w .
           echo "Formatting Prettier..."
           prettier --write .
         '';
