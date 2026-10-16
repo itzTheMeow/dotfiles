@@ -6,8 +6,6 @@
   ...
 }:
 let
-  gtk2rcPath = "gtk-2.0/gtkrc"; # custom path for gtk 2 rc file
-
   # shorthand to create a remote view for a specific defined host
   mkHostRemoteView =
     name:
@@ -63,8 +61,6 @@ in
         force = true;
         source = ./plasma/user-places.xbel;
       };
-      # force overwriting the gtk2rc file
-      "/home/${host.username}/.config/${gtk2rcPath}".force = pkgs.lib.mkForce true;
     }
     # remote views
     // mkHostRemoteView "pete"
@@ -80,7 +76,7 @@ in
   # GTK theme configuration
   gtk = {
     enable = true;
-    gtk2.configLocation = "${config.xdg.configHome}/${gtk2rcPath}";
+    gtk2.enable = false;
 
     theme = {
       name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
