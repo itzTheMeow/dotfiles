@@ -43,10 +43,10 @@ let
     # refactored initPandoc) with a 3.8.4-compatible one; keep the OCR sidecar as
     # the only custom feature.
     patches = [
-      (unstable.replaceVars ../patches/siyuan-set-pandoc-path.patch {
+      (unstable.replaceVars ./set-pandoc-path.patch {
         pandoc_path = lib.getExe unstable.pandoc;
       })
-      ../patches/siyuan-encrypted-notebook-ocr.patch
+      ./encrypted-notebook-ocr.patch
     ];
     # 3.8.4's gulu copyFileWithOptions sets destMode from sourceinfo.Mode();
     # normalize it so files copied out of the store don't keep read-only perms.

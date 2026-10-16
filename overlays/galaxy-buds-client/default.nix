@@ -16,7 +16,7 @@ let
       prev.buildDotnetModule (
         attrs
         // {
-          nugetDeps = ../patches/galaxy-buds-client-deps.json;
+          nugetDeps = ./deps.json;
         }
       );
   };
