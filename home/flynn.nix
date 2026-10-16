@@ -23,7 +23,6 @@ in
     packages = with pkgs; [
       # desktop apps
       pcloud
-      remmina
       qdiskinfo
 
       # development
