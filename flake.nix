@@ -23,6 +23,10 @@ rec {
       inputs.nixpkgs.follows = "";
       inputs.home-manager.follows = "";
     };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     catppuccin = {
       url = "github:catppuccin/nix";
