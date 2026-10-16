@@ -79,16 +79,10 @@ in
       '';
     }
     // lib.listToAttrs (
-      map
-        (name: {
-          name = "${impureOverlaysDir}/${name}";
-          value.text = ''import "${xelib.location}/overlays/${name}"'';
-        })
-        (
-          builtins.filter (name: lib.hasSuffix ".nix" name) (
-            builtins.attrNames (builtins.readDir ../overlays)
-          )
-        )
+      map (name: {
+        name = "${impureOverlaysDir}/${name}";
+        value.text = ''import "${xelib.location}/overlays/${name}"'';
+      }) (builtins.attrNames (builtins.readDir ../overlays))
     )
   );
 

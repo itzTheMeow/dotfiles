@@ -3,7 +3,7 @@ final: prev: {
     { buildGoModule }:
     buildGoModule {
       name = "download-organizer";
-      src = ../go/download-organizer;
+      src = ./.;
       vendorHash = null;
       meta.mainProgram = "download-organizer";
     }
