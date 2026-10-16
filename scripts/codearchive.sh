@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 dir="${1:-.}"
-if [[ ! -d "$dir" ]]; then
+if [[ ! -d $dir ]]; then
 	dir="."
 fi
 cd "$dir" || exit
@@ -37,7 +37,7 @@ for ext in "${extensions_text[@]}"; do
 	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
 		# skip files in .archive directory
-		[[ "$file" == ./.archive/* ]] && continue
+		[[ $file == ./.archive/* ]] && continue
 
 		# get relative path without leading ./
 		relative_path="${file#./}"
@@ -66,7 +66,7 @@ for ext in "${extensions_img[@]}"; do
 	while IFS= read -r -d '' file; do
 		shopt -u nocaseglob
 		# skip files in .archive directory
-		[[ "$file" == ./.archive/* ]] && continue
+		[[ $file == ./.archive/* ]] && continue
 
 		# get relative path without leading ./
 		relative_path="${file#./}"
@@ -114,8 +114,8 @@ EOF
 
 # extract and combine all CSS styles from pygmentize-generated files
 for file in .archive/*.html; do
-	[[ "$file" == ".archive/combined.html" ]] && continue
-	[[ -e "$file" ]] || continue
+	[[ $file == ".archive/combined.html" ]] && continue
+	[[ -e $file ]] || continue
 
 	# extract CSS from <style> tags in pygmentize output
 	if grep -q "pygments" "$file" 2>/dev/null || grep -q "\.highlight" "$file" 2>/dev/null; then
@@ -132,8 +132,8 @@ EOF
 
 # append content from each exported file (sorted for consistent ordering)
 for file in .archive/*.html; do
-	[[ "$file" == ".archive/combined.html" ]] && continue
-	[[ -e "$file" ]] || continue
+	[[ $file == ".archive/combined.html" ]] && continue
+	[[ -e $file ]] || continue
 
 	basename="${file##*/}"
 	basename="${basename%.html}"
@@ -142,7 +142,7 @@ for file in .archive/*.html; do
 
 	echo "Adding $display_name to combined file..."
 
-	echo "    <div class=\"file-section\">" >>"$combined_file"
+	echo '    <div class="file-section">' >>"$combined_file"
 	echo "        <h1 class=\"section-title\">$display_name</h1>" >>"$combined_file"
 
 	# extract only body content from export files

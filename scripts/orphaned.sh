@@ -17,20 +17,20 @@ set -euo pipefail
 # Needs read access to /z (run via `sudo`, as nx orphaned does).
 
 full=0
-if [[ "${1:-}" == "--full" ]]; then
+if [[ ${1:-} == "--full" ]]; then
 	full=1
 	shift
 fi
 
 host="${1:-${HOSTNAME:-}}"
-[[ -n "$host" ]] || {
+[[ -n $host ]] || {
 	echo "error: no host given" >&2
 	exit 2
 }
 
 json_file="${2:-}"
 
-if [[ -n "$json_file" ]]; then
+if [[ -n $json_file ]]; then
 	json="$(cat "$json_file")"
 else
 	json="$(nix eval --json ".#nixosConfigurations.${host}.config.persist.linkPaths")"
@@ -51,7 +51,7 @@ declare -A chain=()
 # mark a path and all its ancestors up to /z as scaffolding
 mark_chain() { # path
 	local p="$1"
-	while [[ "$p" != "/z" && "$p" != "/" ]]; do
+	while [[ $p != "/z" && $p != "/" ]]; do
 		chain["$p"]=1
 		p="${p%/*}"
 	done
@@ -59,19 +59,19 @@ mark_chain() { # path
 }
 
 while IFS= read -r p; do
-	[[ -n "$p" ]] || continue
+	[[ -n $p ]] || continue
 	dirroots["$p"]=1
 	mark_chain "$p"
 done < <(jq -r '.dirs[]' <<<"$json")
 
 while IFS= read -r p; do
-	[[ -n "$p" ]] || continue
+	[[ -n $p ]] || continue
 	mark_chain "$p"
 done < <(jq -r '.files[]' <<<"$json")
 
 declare -A ignored=()
 while IFS= read -r p; do
-	[[ -n "$p" ]] || continue
+	[[ -n $p ]] || continue
 	ignored["$p"]=1
 done < <(jq -r '.ignore[]' <<<"$json")
 
@@ -81,18 +81,18 @@ walk() { # dir
 	local d="$1" c
 	while IFS= read -r c; do
 		# bind-mounted dir: everything beneath it is live, skip the whole tree
-		[[ -z "${dirroots[$c]+x}" ]] || continue
+		[[ -z ${dirroots[$c]+x} ]] || continue
 		# explicitly ignored (managed outside of persistence links)
-		[[ -z "${ignored[$c]+x}" ]] || continue
-		if [[ -n "${chain[$c]+x}" ]]; then
-			[[ -d "$c" ]] && walk "$c"
+		[[ -z ${ignored[$c]+x} ]] || continue
+		if [[ -n ${chain[$c]+x} ]]; then
+			[[ -d $c ]] && walk "$c"
 			continue
 		fi
 		# orphaned: report the subtree root once
 		((orphans += 1))
 		if ((full)); then
 			printf '%s\n' "$c"
-			[[ -d "$c" ]] && find "$c" -xdev -mindepth 1 2>/dev/null || true
+			[[ -d $c ]] && find "$c" -xdev -mindepth 1 2>/dev/null || true
 		else
 			du -sh "$c" 2>/dev/null || printf '%s\n' "$c"
 		fi
