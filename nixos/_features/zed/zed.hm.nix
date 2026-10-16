@@ -5,17 +5,10 @@
   xelib,
   ...
 }:
-let
-  #TODO:26.11 flip back to stable
-  zed-editor = pkgs.unstable.zed-editor.overrideAttrs (old: {
-    # ctrl-enter commits untracked files too when nothing is staged
-    patches = (old.patches or [ ]) ++ [ ../../../patches/zed-commit-untracked.patch ];
-  });
-in
 {
   programs.zed-editor = {
     enable = true;
-    package = zed-editor.fhs;
+    package = pkgs.zed-editor.fhs;
     extensions = [
       # languages
       "git-firefly"
