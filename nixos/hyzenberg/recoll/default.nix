@@ -82,8 +82,11 @@ let
     }
     trap _fail ERR
 
-    # the mount must not hold a repo lock while backing up
+    # the mount must not hold a repo lock while backing up; also clear a
+    # stale mount left by a crashed run (inactive unit's ExecStopPost
+    # doesn't run, but the fuse endpoint can linger and break topdirs)
     systemctl stop "${mountUnit}" || true
+    ${unmount}
 
     rclone move "pcloud:Downloads" "${tmpDir}" --exclude .directory
     # rclone's move prunes nothing: empty dirs pile up on pcloud. rmdirs
@@ -178,7 +181,12 @@ in
     serviceConfig = {
       Type = "simple";
       Environment = serviceEnv;
-      ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}";
+      ExecStartPre = [
+        "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}"
+        # clear a stale/broken mount from a previous crashed run, else the
+        # new fuse mount comes up at "transport endpoint not connected"
+        "${unmount}"
+      ];
       ExecStart = "${pkgs.rustic}/bin/rustic -P downloads mount";
       ExecStopPost = "${unmount}";
     };
