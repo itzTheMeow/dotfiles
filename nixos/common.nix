@@ -239,6 +239,7 @@ in
     home-manager
     nix-diff
     nixpkgs-review
+    xela-nx
 
     ## editors
     nano

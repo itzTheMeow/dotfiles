@@ -33,8 +33,6 @@
           nix build ".#$target" -- "$@"
         fi
       '')
-      # custom packages
-      xelpkgs.nx
     ];
 
     shellAliases = {
