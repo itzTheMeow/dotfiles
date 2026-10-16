@@ -94,7 +94,6 @@ let
       nixpkgs = if lib.elem hostname unstableHosts then inputs.nixpkgs-unstable else inputs.nixpkgs;
 
       pkgs = import nixpkgs (nixpkgs_args system);
-      xelpkgs = import ./../pkgs { inherit pkgs; };
 
       extras = {
         inherit
@@ -112,7 +111,6 @@ let
           system
           trustedHosts
           xelib
-          xelpkgs
           ;
         inherit (inputs) dns home-manager;
         host = xelib.hosts.${hostname};

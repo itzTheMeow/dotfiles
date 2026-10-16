@@ -1,11 +1,10 @@
 {
   pkgs,
   utils,
-  xelpkgs,
   ...
 }:
 let
-  pkg = pkgs.callPackage ./package.nix { inherit xelpkgs; };
+  pkg = pkgs.callPackage ./package.nix { };
 in
 {
   slug = "hells-kitchen-the-game";
