@@ -39,6 +39,7 @@ type config struct {
 	URLs           []string `json:"urls"`
 	RefreshSeconds int      `json:"refreshSeconds"`
 }
+
 func (c config) refresh() time.Duration {
 	if c.RefreshSeconds > 0 {
 		return time.Duration(c.RefreshSeconds) * time.Second

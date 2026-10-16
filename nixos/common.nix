@@ -1,5 +1,4 @@
 {
-  attic,
   attics,
   config,
   host,
@@ -259,6 +258,7 @@ in
     ## file management
     renameutils
     tree
+    xela-download-organizer
 
     ## ffmpeg/typesetting/yt-dlp
     ffmpeg-full
