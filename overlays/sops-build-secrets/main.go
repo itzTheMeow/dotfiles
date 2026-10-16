@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/fs"
 	"maps"
@@ -29,28 +30,17 @@ import (
 	sopsVersion "github.com/getsops/sops/v3/version"
 )
 
-const PRIVATE_VAULT = "op://x4455gscttc5p7z42ff3dp2sky"
+// which 1Password items hold a host's age recipients
+type HostConfig struct {
+	// 1Password URI to the host's ssh public key (decrypts system secrets)
+	System string `json:"system"`
+	// 1Password URI to the user's ssh public key (decrypts home-manager secrets)
+	User string `json:"user"`
+}
 
-var HostNames = []string{
-	"ehrman",
-	"flynn",
-	"huell",
-	"hyzenberg",
-	"pete",
-}
-var ServerPublicKeyURIs = []string{
-	PRIVATE_VAULT + "/l6owjdx7thnp52tuwmd4j5muda/public key", // ehrman
-	PRIVATE_VAULT + "/rcbgglqbacsvmzwwygtpx73774/public key", // flynn
-	PRIVATE_VAULT + "/e7f2qjlblpji4clfozgfddgit4/public key", // huell
-	PRIVATE_VAULT + "/ptvgkvjl5ugrylkpausc3misma/public key", // hyzenberg
-	PRIVATE_VAULT + "/xroaipl44ipp5vtpqxvtczbnoa/public key", // pete
-}
-var UserPublicKeyURIs = []string{
-	PRIVATE_VAULT + "/zfo56rnxe3rtoigohaemc7lx6i/public key", // ehrman
-	PRIVATE_VAULT + "/3qhsyka4n4ivngmjow5tysb3da/public key", // flynn
-	PRIVATE_VAULT + "/mimvtzkpohm5bbbm5d6kpwp4aa/public key", // huell
-	PRIVATE_VAULT + "/vqhxrcxgookq6e6vu3etmjev2e/public key", // hyzenberg
-	PRIVATE_VAULT + "/wd7y5xz4qgp5loohnmc4wrj3t4/public key", // pete
+// the entire config file (just hosts for now)
+type Config struct {
+	Hosts map[string]HostConfig `json:"hosts"`
 }
 
 type NixConfig =
@@ -74,21 +64,54 @@ func log(format string, args ...any) {
 	startTime = now
 }
 
+func expandHome(p string) string {
+	if p == "~" || strings.HasPrefix(p, "~/") {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			panic(err)
+		}
+		return filepath.Join(home, strings.TrimPrefix(p, "~"))
+	}
+	return p
+}
+
 func main() {
 	OP_SHARED_LIBRARY := os.Getenv("OP_SHARED_LIBRARY")
 	if OP_SHARED_LIBRARY == "" {
 		panic("OP_SHARED_LIBRARY is required")
 	}
 
-	homedir, err := os.UserHomeDir()
+	// (required) the flake to eval for the sops options
+	repoFlag := flag.String("repo", "", "path to the dotfiles repo (its sops/ dir is written)")
+	// optional path to the config for the hosts
+	configFlag := flag.String("config", "", "path to sops.json (default: <repo>/sops.json)")
+	flag.Parse()
+
+	if *repoFlag == "" {
+		flag.Usage()
+		panic("--repo is required")
+	}
+	repo := expandHome(*repoFlag)
+
+	configPath := *configFlag
+	if configPath == "" {
+		configPath = filepath.Join(repo, "sops.json")
+	}
+	configPath = expandHome(configPath)
+	log("using repo %s", repo)
+	log("using config %s", configPath)
+
+	rawConfig, err := os.ReadFile(configPath)
 	if err != nil {
 		panic(err)
 	}
-	dotfiles := path.Join(homedir, ".dotfiles")
-	if _, err := os.Stat(homedir); os.IsNotExist(err) {
+	var cfg Config
+	if err := json.Unmarshal(rawConfig, &cfg); err != nil {
 		panic(err)
 	}
-	log("using %s", dotfiles)
+	if len(cfg.Hosts) == 0 {
+		panic("config has no hosts")
+	}
 
 	// init 1password client with desktop integration
 	client, err := onepassword.NewClient(
@@ -101,57 +124,44 @@ func main() {
 		panic(err)
 	}
 
-	// create maps for the fetched keys
-	ServerPublicKeys := make(map[string]string)
-	UserPublicKeys := make(map[string]string)
-
+	// fetch and convert every host's pubkeys into age recipients
 	log("fetching pubkeys...")
-	fetchedKeys, err := client.Secrets().ResolveAll(context.Background(), append(ServerPublicKeyURIs, UserPublicKeyURIs...))
+	ServerPublicKeys, UserPublicKeys, err := fetchPubkeys(client, cfg)
 	if err != nil {
 		panic(err)
 	}
-	log("converting pubkeys...")
-	// we can process both at once for simplicity
-	for i, uri := range append(ServerPublicKeyURIs, UserPublicKeyURIs...) {
-		if resp := fetchedKeys.IndividualResponses[uri]; resp.Error == nil {
-			// convert the ssh key to an age key
-			if age, err := agessh.SSHPublicKeyToAge([]byte(resp.Content.Secret)); err == nil {
-				// add to either user/server keys based on index
-				if i >= len(HostNames) {
-					UserPublicKeys[HostNames[i%len(HostNames)]] = *age
-				} else {
-					ServerPublicKeys[HostNames[i]] = *age
-				}
-			} else {
-				panic(err)
-			}
-		} else {
-			panic(string(resp.Error.Type))
-		}
-	}
 
+	// evaluate the repo's nixosConfigurations and collect the opSecrets
 	log("parsing configs...")
-	var configs NixConfig
-	if err := shellJSON(&configs, "nix", "eval", dotfiles+"#nixosConfigurations", "--json", "--apply", `
+	var evaluated NixConfig
+	if err := shellJSON(&evaluated, "nix", "eval", repo+"#nixosConfigurations", "--json", "--apply", `
 builtins.mapAttrs (name: conf: {
 	nixos = conf.config.sops.opSecrets or {};
-	
+
 	# flattens the home manager config for each user into a single block
-	home-manager = builtins.foldl' (acc: user: 
+	home-manager = builtins.foldl' (acc: user:
 		acc // (user.sops.opSecrets or {})
 	) {} (builtins.attrValues (conf.config.home-manager.users or {}));
 })`); err != nil {
-		panic(fmt.Errorf("failed to get config list: %w", err))
+		panic(fmt.Errorf("failed to evaluate %s: %w", repo, err))
 	}
 
-	for hostname := range configs {
-		if !slices.Contains(HostNames, hostname) {
-			log("no pubkeys for %s", hostname)
-			delete(configs, hostname)
+	// keep only the hosts listed in the config
+	configs := make(NixConfig)
+	for hostname, hostConfig := range evaluated {
+		if _, ok := cfg.Hosts[hostname]; ok {
+			configs[hostname] = hostConfig
+		} else {
+			log("skipping %s (not configured)", hostname)
+		}
+	}
+	// warn about configured hosts missing from the eval
+	for name := range cfg.Hosts {
+		if _, ok := evaluated[name]; !ok {
+			log("warning: %s not found in %s#nixosConfigurations", name, repo)
 		}
 	}
 
-	// create a list of all the secrets to be fetched
 	secretURIList := make(map[string]struct{})
 	for hostname, config := range configs {
 		start := len(secretURIList)
@@ -169,40 +179,85 @@ builtins.mapAttrs (name: conf: {
 	// we can fetch all the secrets in a single call
 	log("fetching secrets...")
 	fetchedSecrets, err := client.Secrets().ResolveAll(context.Background(), allSecretURIs)
-
+	if err != nil {
+		panic(err)
+	}
 	// make sure none of them failed
 	for uri, res := range fetchedSecrets.IndividualResponses {
 		if res.Error != nil {
 			panic(fmt.Errorf("failed to fetch secret '%s': %s", uri, string(res.Error.Type)))
 		}
 	}
-	if err != nil {
-		panic(err)
-	}
 
 	for hostname, config := range configs {
 		log("encrypting secrets for %s...", hostname)
 
 		if masterKey, err := sopsAge.MasterKeyFromRecipient(ServerPublicKeys[hostname]); err == nil {
-			encryptSecrets("NixOS", dotfiles, config.NixOS, masterKey, fetchedSecrets)
+			encryptSecrets("NixOS", repo, config.NixOS, masterKey, fetchedSecrets)
 		} else {
 			panic(err)
 		}
 		if masterKey, err := sopsAge.MasterKeyFromRecipient(UserPublicKeys[hostname]); err == nil {
-			encryptSecrets("Home Manager", dotfiles, config.HomeManager, masterKey, fetchedSecrets)
+			encryptSecrets("Home Manager", repo, config.HomeManager, masterKey, fetchedSecrets)
 		} else {
 			panic(err)
 		}
 	}
 
 	log("cleaning up unused secrets...")
-	cleanupSecrets(dotfiles, configs)
+	cleanupSecrets(repo, configs)
 
 	log("done.")
 }
 
+// fetchPubkeys resolves each host's server/user public keys and converts them
+// from ssh to age recipients.
+func fetchPubkeys(client *onepassword.Client, cfg Config) (map[string]string, map[string]string, error) {
+	names := slices.Collect(maps.Keys(cfg.Hosts))
+	slices.Sort(names)
+
+	var uris []string
+	for _, name := range names {
+		uris = append(uris, cfg.Hosts[name].System, cfg.Hosts[name].User)
+	}
+
+	fetched, err := client.Secrets().ResolveAll(context.Background(), uris)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	ServerPublicKeys := make(map[string]string)
+	UserPublicKeys := make(map[string]string)
+	for _, name := range names {
+		hostConfig := cfg.Hosts[name]
+		for _, entry := range []struct {
+			uri    string
+			target map[string]string
+			label  string
+		}{
+			{hostConfig.System, ServerPublicKeys, "server"},
+			{hostConfig.User, UserPublicKeys, "user"},
+		} {
+			resp := fetched.IndividualResponses[entry.uri]
+			if resp.Error != nil {
+				return nil, nil, fmt.Errorf("%s pubkey for %s: %s", entry.label, name, string(resp.Error.Type))
+			}
+			age, err := agessh.SSHPublicKeyToAge([]byte(resp.Content.Secret))
+			if err != nil {
+				return nil, nil, err
+			}
+			entry.target[name] = *age
+		}
+	}
+	return ServerPublicKeys, UserPublicKeys, nil
+}
+
 func cleanupSecrets(dotfiles string, configs NixConfig) {
 	root := path.Join(dotfiles, "sops")
+	if _, err := os.Stat(root); os.IsNotExist(err) {
+		log("no sops dir in %s, skipping cleanup", dotfiles)
+		return
+	}
 
 	expectedFiles := make(map[string]struct{})
 	expectedDirs := make(map[string]struct{})

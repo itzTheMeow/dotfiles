@@ -17,6 +17,24 @@ let
 
   # impure nixpkgs overlays, relative to /etc; see the nixpkgs-overlays NIX_PATH entry
   impureOverlaysDir = "nix/nixpkgs-overlays";
+
+  mkSopsWrapper =
+    name: dir:
+    pkgs.writeShellScriptBin name ''
+      set -e
+      repo=${lib.escapeShellArg dir}
+      prev=""
+      for arg in "$@"; do
+        case "$prev" in --repo) repo="$arg" ;; esac
+        case "$arg" in --repo=*) repo="''${arg#--repo=}" ;; esac
+        prev="$arg"
+      done
+      case "$repo" in ~) repo="$HOME" ;; "~"/*) repo="$HOME/''${repo#\~/}" ;; esac
+      ${lib.getExe pkgs.sops-build-secrets} --repo "$repo" --config "$repo/sops.json" "$@"
+      if [ -d "$repo/sops" ]; then
+        (cd "$repo" && ${lib.getExe pkgs.nix} fmt sops)
+      fi
+    '';
 in
 {
   system.stateVersion = "25.11";
@@ -241,11 +259,9 @@ in
     nix-diff
     nixpkgs-review
     xela-nx
-    # sops-build-secrets wrapper to add formatting
-    (writeShellScriptBin "sops-build-secrets" ''
-      ${lib.getExe sops-build-secrets}
-      ${lib.getExe prettier} --write --log-level silent ${xelib.location}
-    '')
+    # sops-build-secrets wrappers (personal + nvstly) that add formatting
+    (mkSopsWrapper "sops-build-secrets" xelib.location)
+    (mkSopsWrapper "sops-build-secrets-nvstly" "~/Documents/nvstly-dotfiles")
 
     ## editors
     nano

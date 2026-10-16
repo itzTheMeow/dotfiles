@@ -1,0 +1,24 @@
+{
+  "hosts": {
+    "ehrman": {
+      "system": "op://x4455gscttc5p7z42ff3dp2sky/l6owjdx7thnp52tuwmd4j5muda/public key",
+      "user": "op://x4455gscttc5p7z42ff3dp2sky/zfo56rnxe3rtoigohaemc7lx6i/public key"
+    },
+    "flynn": {
+      "system": "op://x4455gscttc5p7z42ff3dp2sky/rcbgglqbacsvmzwwygtpx73774/public key",
+      "user": "op://x4455gscttc5p7z42ff3dp2sky/3qhsyka4n4ivngmjow5tysb3da/public key"
+    },
+    "huell": {
+      "system": "op://x4455gscttc5p7z42ff3dp2sky/e7f2qjlblpji4clfozgfddgit4/public key",
+      "user": "op://x4455gscttc5p7z42ff3dp2sky/mimvtzkpohm5bbbm5d6kpwp4aa/public key"
+    },
+    "hyzenberg": {
+      "system": "op://x4455gscttc5p7z42ff3dp2sky/ptvgkvjl5ugrylkpausc3misma/public key",
+      "user": "op://x4455gscttc5p7z42ff3dp2sky/vqhxrcxgookq6e6vu3etmjev2e/public key"
+    },
+    "pete": {
+      "system": "op://x4455gscttc5p7z42ff3dp2sky/xroaipl44ipp5vtpqxvtczbnoa/public key",
+      "user": "op://x4455gscttc5p7z42ff3dp2sky/wd7y5xz4qgp5loohnmc4wrj3t4/public key"
+    }
+  }
+}
