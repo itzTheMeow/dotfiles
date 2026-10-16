@@ -7,5 +7,5 @@ final: prev: {
       vendorHash = null;
       meta.mainProgram = "download-organizer";
     }
-  );
+  ) { };
 }
