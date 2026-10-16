@@ -1,0 +1,16 @@
+downloads: ENC[AES256_GCM,data:qKIFmfTzIzIz/+sgqGmp5amEVd+bV1VPKFlN1SoeHaNcC4NR+byu4OpAsVGtM8MykSRkGZztYydt+PNkACI2jvrNOepqcDNTUMyJGyfvbJnAY2l3SfcQBH/NNCNIlSDgpCweiw==,iv:laSFPS94Qz4D1co3jV5eQSigfMBFKGAtuiDER1KZb0s=,tag:LPUu1Y9VNy13bel8U9upaA==,type:str]
+sops:
+  age:
+    - recipient: age1x7657rjjpczh76w8wlx3s2jawvat3x8avxlvvskugyhysj00qekq0ykx55
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzVzV5eXJqZjJwam5Da1Nk
+        emJ1OHl6aTFpeHRYc1ZDWWZjSGVVZ2hoekVVCms5VllDYlFVUXp6aUhuT2w5MTJQ
+        MXFsQ0lYNDd1QWhuZHczOWtWVzZScDQKLS0tIDllemlFS2FveGt1MTU4eTFPbnVn
+        RGhRRG0rT0w3VWhrcUZIbFJGTk9WcGMKpHanANcL8S9DFPcrB//goqjxYyNKTRMa
+        gw8hOZOYPdoUUrsiWVMHatE7xMgS8oBq0FFAKbccgN1bZfoCUNk73Q==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-10-16T08:21:59Z"
+  mac: ENC[AES256_GCM,data:fxNOrUFgTY8mAwwHJMk7Oy4OU4GmpRlZ14GVXNja6Z9jUCr0ZX3RUwYxM5JPHqD1gxIiVw3L38Nh72/5dcaB5WwFMLxaA77Cad44BHvfDXxan7e+2V+Z0qPxZEyCBzzPYWFJZ0El5JIQOQj5zseUesp2MTjlc/DOJlkM1Hh8CZg=,iv:oYALSeqWe6hn82jIz9JkYN1dDFL9ojZxCYX8cf4A1dw=,tag:Z1kd0iyi1w0wnMZm8aOR9Q==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1
