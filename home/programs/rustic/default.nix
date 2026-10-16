@@ -26,8 +26,8 @@ let
       hasRclone = rclone != null;
     in
     {
-      xdg.configFile."rustic/${name}.toml".source =
-        xelib.toTOMLFile "${name}.toml" {
+      xdg.configFile."rustic/${name}.toml".source = xelib.toTOMLFile "${name}.toml" (
+        lib.recursiveUpdate {
           global = {
             use-profiles = [ "default" ];
           };
@@ -87,8 +87,8 @@ let
               };
           }
           // (lib.optionalAttrs hasRclone { set-xattrs = "no"; });
-        }
-        // additionalConfig;
+        } additionalConfig
+      );
 
       home.shellAliases."rustic-${name}" =
         # if no access then keys will be derived from 1p
