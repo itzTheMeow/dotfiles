@@ -18,6 +18,8 @@ let
       additionalConfig ? { },
       # if the backup password should be saved in sops secrets
       hasAccess ? name == hostname,
+      # path to use for `as-path` in the snapshot
+      asPath ? null,
       # backup from an rclone remote instead
       rclone ? null,
       ...
@@ -53,6 +55,7 @@ let
                   sources = [ source ];
                 }
                 // (lib.optionalAttrs hasRclone { as-path = "/"; })
+                // (lib.optionalAttrs (asPath != null) { as-path = asPath; })
               )
             ];
             hooks =
@@ -233,8 +236,8 @@ lib.mkMerge [
     "/var/lib/downloads-archive"
     {
       hasAccess = true;
+      asPath = "/";
       additionalConfig = {
-        as-path = "/";
         mount = {
           path-template = "[{id}]";
           mount-point = "/mnt/rustic-downloads";
