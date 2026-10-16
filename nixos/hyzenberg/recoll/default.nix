@@ -99,7 +99,7 @@ let
 
     systemctl stop "${mountUnit}"
 
-    ${pkgs.ntfy}/bin/ntfy publish -t "Archive Indexed (downloads)" \
+    ${pkgs.ntfy-sh}/bin/ntfy publish -t "Archive Indexed (downloads)" \
       "Recoll index updated with the latest Downloads snapshot"
   '';
 in
