@@ -268,7 +268,11 @@ in
 
     ## archiving
     p7zip
+    unrar
     unzip
+
+    ## performance
+    speedtest-cli
 
     kitty # needed so ssh will work from kitty
     rclone # used by some core services

@@ -12,9 +12,6 @@
 
   home = {
     packages = with pkgs; [
-      # more complex tools
-      speedtest-cli
-
       # custom scripts
       (writeShellScriptBin "0x0" ''curl -A "xela.codes/1.0.0" -F "file=@$1" https://0x0.st'')
       (writeShellScriptBin "ffconcat" (builtins.readFile ../../scripts/ffconcat.sh))
