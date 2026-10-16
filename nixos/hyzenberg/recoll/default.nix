@@ -182,10 +182,10 @@ in
       Type = "simple";
       Environment = serviceEnv;
       ExecStartPre = [
-        "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}"
         # clear a stale/broken mount from a previous crashed run, else the
         # new fuse mount comes up at "transport endpoint not connected"
         "${unmount}"
+        "${pkgs.coreutils}/bin/mkdir -p ${mountPoint}"
       ];
       ExecStart = "${pkgs.rustic}/bin/rustic -P downloads mount";
       ExecStopPost = "${unmount}";
