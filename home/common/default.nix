@@ -1,7 +1,5 @@
 {
-  osConfig,
   pkgs,
-  xelib,
   xelpkgs,
   ...
 }:
@@ -63,11 +61,4 @@
       '';
     };
   };
-
-  sops.age =
-    if ((osConfig.sops.groupPaths ? system) && (osConfig.sops.groupPaths.system ? user-key)) then
-      { sshKeyPaths = [ osConfig.sops.groupPaths.system.user-key ]; }
-    else
-      # effectively disable
-      { keyFile = "/dev/null"; };
 }
