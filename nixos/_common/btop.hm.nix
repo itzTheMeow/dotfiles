@@ -6,6 +6,7 @@ _: {
       proc_aggregate = true;
       proc_sorting = "memory";
       proc_mem_mode = 2;
+      proc_tree_auto_collapse = 1;
       temp_scale = "fahrenheit";
       proc_per_core = false;
       use_fstab = true;
