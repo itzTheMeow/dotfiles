@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   xelib,
   ...
 }:
@@ -55,10 +56,17 @@ in
           appName:
           let
             a = xelib.apps.${appName};
+            # icons pointing at a full image url are used as-is
+            hasImageExt = lib.any (ext: lib.hasSuffix ext a.icon) [
+              ".png"
+              ".svg"
+              ".ico"
+              ".webp"
+            ];
           in
           {
             ${a.name} = {
-              icon = "${a.icon}.png";
+              icon = if hasImageExt then a.icon else "${a.icon}.png";
               inherit (a) description;
               href = a.url;
             };
@@ -71,6 +79,7 @@ in
             (srv "open-webui")
             (srv "freshrss")
             (srv "ntfy")
+            (srv "recoll")
           ];
         }
         {
