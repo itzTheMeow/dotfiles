@@ -33,11 +33,17 @@ let
     "RECOLL_CONFDIR=${confDir}"
   ];
 
-  # recoll shells out to these for text extraction
+  # recoll shells out to these for text extraction; the rcl*.* uncompress
+  # handlers (bare .gz/.xz/.bz2/.zst files) need their decompressors, which
+  # recoll-nox does not ship
   helpersPath = lib.makeBinPath [
     pkgs.unzip
     pkgs.p7zip
     pkgs.unar
+    pkgs.xz
+    pkgs.gzip
+    pkgs.bzip2
+    pkgs.zstd
     pkgs.catdoc
     pkgs.antiword
     pkgs.unrtf
@@ -125,6 +131,22 @@ in
     topdirs = ${mountPoint}
     indexdir = ${indexDir}
     skippedPaths = ${mountPoint}/latest
+  '';
+
+  # mimeconf/mimemap are ConfStacks: entries merge per-key with the shipped
+  # defaults. recoll disables tar member indexing by default (zip is active),
+  # and maps .tar.xz/.txz through the uncompress roundtrip instead of
+  # rcltar's native xz support. .ntb are Notability notes (zip archives
+  # with noteBundle + hashed assets).
+  environment.etc."recoll/mimeconf".text = ''
+    [index]
+    application/x-tar = execm rcltar.py
+  '';
+
+  environment.etc."recoll/mimemap".text = ''
+    .tar.xz = application/x-tar
+    .txz = application/x-tar
+    .ntb = application/zip
   '';
 
   systemd.tmpfiles.rules = [
