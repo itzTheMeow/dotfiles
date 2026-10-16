@@ -87,14 +87,14 @@ rec {
     in
     {
       # shared factory for other repos to consume
-      lib.mkDotfiles = import ./xelib/mkDotfiles.nix;
+      lib.mkEntrypoint = import ./entrypoint.nix;
 
       # re-exports for other repos
       flakeInputs = inputs;
       hostsTable = import ./xelib/hosts.nix;
     }
     # actual dotfiles config
-    // (import ./xelib/mkDotfiles.nix {
+    // (import ./entrypoint.nix {
       inherit self inputs nixConfig;
       nixosDir = ./nixos;
       hosts = (import ./xelib/hosts.nix).hosts // nvstlyHosts.hosts;

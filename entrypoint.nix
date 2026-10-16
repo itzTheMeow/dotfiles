@@ -20,9 +20,9 @@
   # static per-host app declarations injected into `config.apps`
   apps ? { },
   # null = only the shared home/common config is used
-  homeDir ? ./../home,
+  homeDir ? ./home,
   # machine-local skip-worktree overrides; null = none
-  localDir ? ./../local,
+  localDir ? ./local,
   # hosts that build against nixpkgs-unstable
   unstableHosts ? [ ],
   # whether to set up the impure nixpkgs-overlays NIX_PATH machinery.
@@ -69,14 +69,14 @@ let
       })
     ]
     # custom overlays
-    ++ (map (file: import ./../overlays/${file}) (builtins.attrNames (builtins.readDir ./../overlays)));
+    ++ (map (file: import ./overlays/${file}) (builtins.attrNames (builtins.readDir ./overlays)));
   };
 
   home-manager-modules = [
     inputs.catppuccin.homeModules.catppuccin
     inputs.plasma-manager.homeModules.plasma-manager
     inputs.sops-nix.homeManagerModules.sops
-    (import ./opsecrets.nix).homeManagerModule
+    (import ./xelib/opsecrets.nix).homeManagerModule
   ];
 
   # hosts with configs to build: directories in nixosDir that aren't internal
@@ -117,14 +117,14 @@ let
       };
 
       xelib =
-        (import ./default.nix (extras // { inherit pkgs; }))
+        (import ./xelib/default.nix (extras // { inherit pkgs; }))
         # tack on umport library
         // {
           umport = inputs.nypkgs.lib.${system}.umport;
         };
 
       # modules/*.hm.nix are home-manager sharedModules, the rest are NixOS modules
-      moduleFiles = xelib.umport { path = ./../modules; };
+      moduleFiles = xelib.umport { path = ./modules; };
       hmModuleFile = file: lib.hasSuffix ".hm.nix" (toString file);
       nixosModules = builtins.filter (file: !hmModuleFile file) moduleFiles;
       hmModules = builtins.filter hmModuleFile moduleFiles;
@@ -138,7 +138,7 @@ let
         if builtins.pathExists (nixosDir + "/_features/${feature}") then
           nixosDir + "/_features/${feature}"
         else
-          ./../nixos/_features/${feature};
+          ./nixos/_features/${feature};
 
       hostImports =
         # local machine-specific overrides - a committed stub (skip-worktree
@@ -146,7 +146,7 @@ let
         # pathExists cant see untracked files
         lib.optionals (localDir != null) [ (localDir + "/nixos.nix") ]
         # shared common config
-        ++ [ ./../nixos/common.nix ]
+        ++ [ ./nixos/common.nix ]
         # import all .nix files in the host directory
         ++ map (name: hostDir + "/${name}") (
           builtins.filter (
@@ -174,7 +174,7 @@ let
 
         # sops
         inputs.sops-nix.nixosModules.sops
-        (import ./opsecrets.nix).nixosModule
+        (import ./xelib/opsecrets.nix).nixosModule
 
         # misc
         inputs.catppuccin.nixosModules.catppuccin
@@ -206,9 +206,9 @@ let
             inherit xelib;
           };
           home-manager.sharedModules = home-manager-modules ++ hmModules;
-          home-manager.users.root = ./../home/common;
+          home-manager.users.root = ./home/common;
           home-manager.users.${extras.host.username} =
-            if homeDir == null then ./../home/common else homeDir + "/${hostname}.nix";
+            if homeDir == null then ./home/common else homeDir + "/${hostname}.nix";
         }
       ]
       ++ nixosModules;
@@ -224,7 +224,7 @@ let
       lib = pkgs.lib;
 
       # treefmt wrapper + formatting check, configured by the repo's treefmt.nix
-      treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs ./../treefmt.nix;
+      treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
 
       # maps all *.package.nix files to their directory name
       # appends the * part if it exists

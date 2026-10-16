@@ -1,6 +1,6 @@
 {
   hostname,
-  # merged hosts table + trust list, passed in by mkDotfiles
+  # merged hosts table + trust list, passed in by mkEntrypoint
   hosts,
   trustedHosts,
   # hosts/apps/records from satellite dotfiles repos (nvstly)
