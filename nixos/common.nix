@@ -277,6 +277,7 @@ in
     p7zip
     unrar
     unzip
+    xela-codearchive
 
     ## performance
     speedtest-cli

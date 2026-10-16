@@ -56,13 +56,6 @@ in
         # check fails on github CI, ts will be removed soon anyway
         doInstallCheck = false;
       }))
-
-      ### the rest of these are in nixos programs
-
-      # codearchive requires these to be available
-      python3Packages.pygments
-      wkhtmltopdf
-      (writeShellScriptBin "codearchive" (builtins.readFile ../scripts/codearchive.sh))
     ];
 
     file = {
