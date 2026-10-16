@@ -240,6 +240,11 @@ in
     nix-diff
     nixpkgs-review
     xela-nx
+    # sops-build-secrets wrapper to add formatting
+    (writeShellScriptBin "sops-build-secrets" ''
+      ${lib.getExe sops-build-secrets}
+      ${lib.getExe prettier} --write --log-level silent ${xelib.location}
+    '')
 
     ## editors
     nano

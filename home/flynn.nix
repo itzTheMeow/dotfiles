@@ -3,7 +3,6 @@
   host,
   pkgs,
   xelib,
-  xelpkgs,
   ...
 }:
 let
@@ -62,12 +61,6 @@ in
       }))
 
       ### the rest of these are in nixos programs
-
-      # sops-build-secrets wrapper to add formatting
-      (writeShellScriptBin "sops-build-secrets" ''
-        ${xelpkgs.sops-build-secrets}/bin/sops-build-secrets
-        ${prettier}/bin/prettier --write --log-level silent ${xelib.location}
-      '')
 
       # codearchive requires these to be available
       python3Packages.pygments

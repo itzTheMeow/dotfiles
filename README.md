@@ -16,4 +16,4 @@ A lot of stuff was inspired from [AlexNabokikh's Nix Config](https://github.com/
   as a read-only deploy key on nvstly/dotfiles):
   - `#? op read "op://NVSTly/yrzxyhogbfzbaasgginj4j6ria/private key" > ~/.ssh/nvstly_deploy && chmod 600 ~/.ssh/nvstly_deploy`
   - `#? printf 'Host nvstly-dotfiles\n  HostName github.com\n  User git\n  HostKeyAlias github.com\n  IdentityFile ~/.ssh/nvstly_deploy\n  IdentitiesOnly yes\n  StrictHostKeyChecking accept-new\n' >> ~/.ssh/config`
-  - `#? run: go run ./go/sops-build-secrets` (regenerates `sops/` for the new key)
+  - `#? run: sops-build-secrets` (regenerates `sops/` for the new key)
