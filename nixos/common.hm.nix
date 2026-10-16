@@ -12,6 +12,21 @@
       # effectively disable
       { keyFile = "/dev/null"; };
 
+  home.shellAliases = {
+    # basic
+    ls = "ls --color=auto";
+    la = "ls -A";
+    ll = "ls -alF";
+    grep = "grep --color=auto";
+    txz = "tar -cJf";
+    qmv = "qmv -ospaces"; # use spaces for qmv
+    cdtemp = "cd $(mktemp -d) && pwd";
+
+    # shortcuts
+    sc = "sudo systemctl";
+    scu = "systemctl --user";
+  };
+
   # catppuccin settings
   catppuccin = {
     enable = true;

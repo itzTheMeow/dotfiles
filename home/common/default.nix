@@ -35,19 +35,6 @@
     ];
 
     shellAliases = {
-      # basic
-      ls = "ls --color=auto";
-      la = "ls -A";
-      ll = "ls -alF";
-      grep = "grep --color=auto";
-      txz = "tar -cJf";
-      qmv = "qmv -ospaces"; # use spaces for qmv
-      cdtemp = "cd $(mktemp -d) && pwd";
-
-      # shortcuts
-      sc = "sudo systemctl";
-      scu = "systemctl --user";
-
       # short custom commands
       git-clear = ''
         git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done
