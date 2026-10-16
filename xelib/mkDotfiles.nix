@@ -223,23 +223,8 @@ let
       pkgs = import inputs.nixpkgs (nixpkgs_args system);
       lib = pkgs.lib;
 
-      formatScript = pkgs.writeShellApplication {
-        name = "format";
-        runtimeInputs = with pkgs; [
-          findutils
-          nixfmt
-          go
-          prettier
-        ];
-        text = ''
-          echo "Formatting Nix..."
-          find . -name "*.nix" -exec nixfmt {} +
-          echo "Formatting Go..."
-          gofmt -w .
-          echo "Formatting Prettier..."
-          prettier --write .
-        '';
-      };
+      # treefmt wrapper + formatting check, configured by the repo's treefmt.nix
+      treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs ./../treefmt.nix;
 
       # maps all *.package.nix files to their directory name
       # appends the * part if it exists
@@ -282,10 +267,10 @@ let
     {
       packages = allPackages;
 
-      apps.format = {
-        type = "app";
-        program = "${formatScript}/bin/format";
-      };
+      # for `nix fmt`
+      formatter = treefmtEval.config.build.wrapper;
+      # for `nix flake check` - fails if anything is unformatted
+      checks.formatting = treefmtEval.config.build.check self;
     };
 in
 {
