@@ -229,6 +229,20 @@ lib.mkMerge [
   (mkConfig "hyzenberg" "op://Private/o3c3kzrri5dlyphag2smig3vpa/password" "/" { })
   (mkConfig "ehrman" "op://Private/4bs7irl4o4rkmzv7dp25zufsxu/password" "/" { })
 
+  (mkConfig "downloads" "op://Private/al7fqilf35fjhnas4t2ix6zrxy/password"
+    "/var/lib/downloads-archive"
+    {
+      hasAccess = true;
+      additionalConfig = {
+        as-path = "/";
+        mount = {
+          path-template = "[{id}]";
+          mount-point = "/mnt/rustic-downloads";
+        };
+      };
+    }
+  )
+
   (mkConfig "ipadpro" "op://Private/7kaur74rgd5da4kfcabgy3ahb4/password" "/mnt/ipad" {
     /*
       rclone = {
