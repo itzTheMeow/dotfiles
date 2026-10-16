@@ -53,9 +53,7 @@ let
   ];
 
   unmount = pkgs.writeShellScript "rustic-downloads-unmount" ''
-    if mountpoint -q "${mountPoint}"; then
-      fusermount3 -uz "${mountPoint}" || umount -l "${mountPoint}" || true
-    fi
+    fusermount3 -uz "${mountPoint}" || umount -l "${mountPoint}" || true
     exit 0
   '';
 
