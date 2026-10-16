@@ -37,7 +37,7 @@
         fi
       '')
       # custom packages
-      xelpkgs.download-organizer
+      xela-download-organizer
       xelpkgs.nx
     ];
 

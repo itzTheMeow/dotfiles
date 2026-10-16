@@ -1,6 +1,6 @@
 {
   host,
-  xelpkgs,
+  pkgs,
   ...
 }:
 let
@@ -27,7 +27,7 @@ in
     serviceConfig = {
       Type = "oneshot";
       ExecStart = ''
-        ${xelpkgs.download-organizer}/bin/download-organizer "${mountPoint}"
+        ${pkgs.lib.getExe pkgs.xela-download-organizer} "${mountPoint}"
       '';
     };
   };
