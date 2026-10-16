@@ -154,7 +154,7 @@ in
         #TODO:26.11 flip back to stable
         package = pkgs.unstable.pegasus-frontend;
         theme = {
-          package = xelpkgs.pegasus-theme-gameos-fire-skye;
+          package = pkgs.pegasus-theme-gameos-fire-skye;
           settings = {
             "Allow video thumbnails" = "No";
             "Always show titles" = "No";

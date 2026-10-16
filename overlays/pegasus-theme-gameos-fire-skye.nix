@@ -1,0 +1,42 @@
+final: prev: {
+  pegasus-theme-gameos-fire-skye = final.callPackage (
+    {
+      fetchFromGitHub,
+      fetchurl,
+      stdenv,
+      ...
+    }:
+    stdenv.mkDerivation {
+      pname = "pegasus-theme-gameos-fire-skye";
+      version = "1.5.0";
+
+      src = fetchFromGitHub {
+        owner = "itzTheMeow";
+        repo = "gameOS-fire-sKye";
+        rev = "3f293297468680320ece41c4cf8f04097e6bf80a";
+        sha256 = "sha256-gmR6BQt0dASankAJj7FluyojpCiG6KHF1xmefI42bSA=";
+      };
+
+      # replace the default logo with the pegasus one
+      postPatch = ''
+        cp ${
+          fetchurl {
+            url = "https://raw.githubusercontent.com/mmatyas/pegasus-frontend/7d08fdc5578c4cd499d696ea734809185c05a9c1/src/frontend/assets/logo.png";
+            sha256 = "sha256-ydUUdyhJOm4jLUZS8hi/xHLQSLfO3J4c+60owQdJrtQ=";
+          }
+        } assets/images/gameOS-logo.png
+        cp ${
+          fetchurl {
+            url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/9d2cdedd73d64a068214482902adea3d02783ba8/logo/nixos-white.png";
+            sha256 = "sha256-2bY//ppmTwtovkdaRIj20tKcxOQPrP2Z2zbjQ+9FWtI=";
+          }
+        } assets/images/logospng/nix.png
+      '';
+
+      installPhase = ''
+        mkdir -p $out
+        cp -r . $out/
+      '';
+    }
+  ) { };
+}
