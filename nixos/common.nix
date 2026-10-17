@@ -291,6 +291,7 @@ in
 
     ## archiving
     p7zip
+    unar
     unrar
     unzip
     xela-codearchive
