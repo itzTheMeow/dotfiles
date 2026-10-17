@@ -16,20 +16,21 @@ let
 
   # paths / names
   stateDir = "/var/lib/ipad4-gateway";
-  # world-traversable dir for the generated profile; kept out of stateDir so
+  # world-traversable dir for the generated profiles; kept out of stateDir so
   # nginx can read it without exposing the private keys/tailscale state
   publicDir = "/var/lib/ipad4-gateway-public";
   runDir = "/run/ipad4-gateway";
-  strongswanContainer = "ipad4-gateway-strongswan";
+  vpnContainer = "ipad4-gateway-vpn";
   tailscaleContainer = "ipad4-gateway-tailscale";
-  eapSecret = "ipad4-gateway";
+  secretName = "ipad4-gateway";
   tailscaleImage = "tailscale/tailscale:v1.98.4";
 
   # derived values
   publicIp = xelib.dns.addr.ehrman;
   serverFqdn = app.domain;
-  serverId = publicIp;
   baseDomain = config.services.headscale.settings.dns.base_domain;
+  serverCertCn = "ipad4-gateway.${baseDomain}";
+  caCn = "xela iPad 4 Gateway CA";
 
   # DNS server handed to the iPad: the ipad4 node's own tailnet address, which
   # always exists inside the gateway netns (tailscale0). MagicDNS
@@ -74,54 +75,90 @@ let
     )
   );
 
-  strongswan = pkgs.strongswan;
+  libreswan = pkgs.libreswan;
 
   # dnsmasq tries to resolve its --user name, which needs a passwd entry; the
   # minimal image has none
   etcPasswd = pkgs.writeTextDir "etc/passwd" "root:x:0:0:root:/root:/bin/sh\n";
 
-  # swanctl.conf list values are comma-separated, not bracketed
-  swanctlStatic = pkgs.writeText "ipad4-swanctl.conf" ''
-    connections {
-      ipad4 {
-        version = 2
-        local_addrs = %any
-        remote_addrs = %any
-        encap = yes
-        local {
-          auth = pubkey
-          id = ${serverId}
-          certs = ipad4-server.crt
-        }
-        remote {
-          auth = eap-mschapv2
-          eap_id = %any
-        }
-        pools = ipad4
-        proposals = aes256-sha256-modp2048, aes256-sha256-ecp256, aes128-sha256-modp2048, aes128-sha1-modp1024, 3des-sha1-modp1024
-        send_cert = always
-        children {
-          ipad4 {
-            local_ts = ${tailnetPrefix}
-            remote_ts = dynamic
-            esp_proposals = aes256-sha256-modp2048, aes256-sha256-ecp256, aes128-sha256-modp2048, aes128-sha1, 3des-sha1
-            start_action = none
-            dpd_action = clear
-          }
-        }
-      }
-    }
-    pools {
-      ipad4 {
-        addrs = ${vpnPoolIp}/32
-        dns = ${gatewayDns}
-      }
-    }
+  ipsecConf = pkgs.writeText "ipad4-ipsec.conf" ''
+    # ikev1-policy: libreswan 5 drops IKEv1 by default; these conns are IKEv1
+    config setup
+      ikev1-policy=accept
+
+    conn ipad4-psk
+      keyexchange=ikev1
+      authby=secret
+      left=%defaultroute
+      leftsubnet=${tailnetPrefix}
+      right=%any
+      rightaddresspool=${vpnPoolIp}
+      leftxauthserver=yes
+      rightxauthclient=yes
+      leftmodecfgserver=yes
+      rightmodecfgclient=yes
+      modecfgpull=yes
+      xauthby=file
+      cisco-unity=yes
+      cisco-split=yes
+      # IKEv1 modecfg only pushes one search domain; iOS gets both from the
+      # profile's DNS dict
+      modecfgdomains=xela.internal
+      modecfgdns=${gatewayDns}
+      fragmentation=yes
+      pfs=no
+      rekey=no
+      ikelifetime=8h
+      keylife=8h
+      # dpdaction was removed in libreswan 5: a dead peer always clears the SA
+      dpddelay=30
+      dpdtimeout=120
+      ike=aes256-sha2-modp2048,aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1536,3des-sha1-modp1536
+      esp=aes256-sha1,aes128-sha1,3des-sha1
+      auto=add
+
+    # xauthby=alwaysok is only acceptable with real machine auth (the cert):
+    # iOS always runs the XAUTH round even for cert connections, and there is
+    # no second secret to check here
+    conn ipad4-cert
+      keyexchange=ikev1
+      authby=rsasig
+      leftcert=ipad4-gateway
+      leftsendcert=always
+      left=%defaultroute
+      leftsubnet=${tailnetPrefix}
+      right=%any
+      rightaddresspool=${vpnPoolIp}
+      leftxauthserver=yes
+      rightxauthclient=yes
+      leftmodecfgserver=yes
+      rightmodecfgclient=yes
+      modecfgpull=yes
+      xauthby=alwaysok
+      cisco-unity=yes
+      cisco-split=yes
+      modecfgdomains=xela.internal
+      modecfgdns=${gatewayDns}
+      fragmentation=yes
+      pfs=no
+      rekey=no
+      ikelifetime=8h
+      keylife=8h
+      dpddelay=30
+      dpdtimeout=120
+      ike=aes256-sha2-modp2048,aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1536,3des-sha1-modp1536
+      esp=aes256-sha1,aes128-sha1,3des-sha1
+      auto=add
   '';
 
-  profileTemplate = pkgs.replaceVars ./profile.mobileconfig.in {
+  profileIos6 = pkgs.replaceVars ./profile.mobileconfig.in {
     SERVER_ADDRESS = publicIp;
-    SERVER_ID = serverId;
+    BASE_DOMAIN = baseDomain;
+    DNS_SERVER = gatewayDns;
+  };
+
+  profileIos10 = pkgs.replaceVars ./profile-ios10.mobileconfig.in {
+    SERVER_ADDRESS = publicIp;
     BASE_DOMAIN = baseDomain;
     DNS_SERVER = gatewayDns;
   };
@@ -131,7 +168,7 @@ let
 
     export PATH=${
       lib.makeBinPath [
-        strongswan
+        libreswan
         pkgs.bash
         pkgs.coreutils
         pkgs.dnsmasq
@@ -139,48 +176,84 @@ let
         pkgs.gnused
         pkgs.iproute2
         pkgs.iptables
+        pkgs.openssl
       ]
     }:$PATH
 
     CONFIG=/config
-    SSDIR=$CONFIG/swanctl
-    export SWANCTL_DIR=$SSDIR
-    export STRONGSWAN_CONF=$CONFIG/strongswan.conf
+    export IPSEC_CONF=$CONFIG/ipsec.conf
+    export IPSEC_CONFDDIR=$CONFIG/ipsec.d
+    export IPSEC_NSSDIR=$CONFIG/nss
+    export IPSEC_RUNDIR=/run/pluto
 
-    # charon's compiled defaults put its pidfile and vici/stroke sockets under
-    # /var/run, which doesn't exist in the minimal image
-    mkdir -p /var/run
-    mkdir -p "$SSDIR"/x509 "$SSDIR"/x509ca "$SSDIR"/x509crl "$SSDIR"/x509ocsp \
-      "$SSDIR"/x509aa "$SSDIR"/x509ac "$SSDIR"/pubkey "$SSDIR"/private \
-      "$SSDIR"/rsa "$SSDIR"/ecdsa "$SSDIR"/pkcs8 "$SSDIR"/pkcs12
+    mkdir -p /var/run /tmp "$IPSEC_RUNDIR" "$IPSEC_NSSDIR" \
+      "$IPSEC_CONFDDIR"/private "$IPSEC_CONFDDIR"/certs
+    # pluto's xauth file helper defaults to /etc/ipsec.d/passwd; --ipsecdir
+    # below covers pluto itself, the symlink covers any compiled-in default
+    ln -sfn "$IPSEC_CONFDDIR" /etc/ipsec.d
 
-    # an empty config makes charon load its full default plugin set
-    : > "$STRONGSWAN_CONF"
-
-    if [ ! -f "$SSDIR"/private/ipad4-server.key.pem ]; then
-      echo "generating CA and server certificate..."
-      pki --gen --type rsa --size 3072 --outform pem > "$SSDIR"/private/ca.key.pem
-      pki --self --ca --lifetime 3650 --in "$SSDIR"/private/ca.key.pem \
-        --dn "CN=xela iPad 4 Gateway CA" --outform pem > "$SSDIR"/x509ca/ca.crt
-      pki --gen --type rsa --size 3072 --outform pem > "$SSDIR"/private/ipad4-server.key.pem
-      pki --pub --in "$SSDIR"/private/ipad4-server.key.pem --outform pem > "$CONFIG"/server.pub.pem
-      pki --issue --lifetime 3650 --cacert "$SSDIR"/x509ca/ca.crt --cakey "$SSDIR"/private/ca.key.pem \
-        --in "$CONFIG"/server.pub.pem --type pub \
-        --dn "CN=ipad4-gateway.${baseDomain}" \
-        --san "${publicIp}" --san "${serverFqdn}" \
-        --flag serverAuth --outform pem > "$SSDIR"/x509/ipad4-server.crt
-      chmod 600 "$SSDIR"/private/*.pem
+    if [ ! -f "$IPSEC_CONFDDIR"/private/ca.key.pem ]; then
+      echo "generating CA, server and client certificates..."
+      ipsec initnss
+      openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 \
+        -out "$IPSEC_CONFDDIR"/private/ca.key.pem
+      openssl req -x509 -new -sha256 -days 3650 \
+        -key "$IPSEC_CONFDDIR"/private/ca.key.pem \
+        -subj "/CN=${caCn}" \
+        -addext "basicConstraints=critical,CA:TRUE" \
+        -addext "keyUsage=critical,keyCertSign,cRLSign" \
+        -out "$IPSEC_CONFDDIR"/certs/ca.crt
+      openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+        -out "$IPSEC_CONFDDIR"/private/server.key.pem
+      openssl req -new -key "$IPSEC_CONFDDIR"/private/server.key.pem \
+        -subj "/CN=${serverCertCn}" -out /tmp/server.csr
+      printf '%s\n%s\n%s\n%s\n' \
+        "basicConstraints=CA:FALSE" \
+        "keyUsage=digitalSignature,keyEncipherment" \
+        "extendedKeyUsage=serverAuth" \
+        "subjectAltName=IP:${publicIp},DNS:${serverFqdn}" > /tmp/server.ext
+      openssl x509 -req -sha256 -days 3650 -in /tmp/server.csr \
+        -CA "$IPSEC_CONFDDIR"/certs/ca.crt \
+        -CAkey "$IPSEC_CONFDDIR"/private/ca.key.pem \
+        -CAcreateserial -extfile /tmp/server.ext \
+        -out "$IPSEC_CONFDDIR"/certs/server.crt
+      openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+        -out "$IPSEC_CONFDDIR"/private/client.key.pem
+      openssl req -new -key "$IPSEC_CONFDDIR"/private/client.key.pem \
+        -subj "/CN=ipad4" -out /tmp/client.csr
+      printf '%s\n%s\n%s\n' \
+        "basicConstraints=CA:FALSE" \
+        "keyUsage=digitalSignature,keyEncipherment" \
+        "extendedKeyUsage=clientAuth" > /tmp/client.ext
+      openssl x509 -req -sha256 -days 3650 -in /tmp/client.csr \
+        -CA "$IPSEC_CONFDDIR"/certs/ca.crt \
+        -CAkey "$IPSEC_CONFDDIR"/private/ca.key.pem \
+        -CAcreateserial -extfile /tmp/client.ext \
+        -out "$IPSEC_CONFDDIR"/certs/client.crt
+      # the server p12 is only a transport into the NSS db, so its password is
+      # a throwaway; the client p12 stays passwordless for the iOS identity
+      # payload (if an old iOS ever refuses the modern AES p12 format, regenerate
+      # both with -legacy)
+      openssl pkcs12 -export -name ipad4-gateway \
+        -inkey "$IPSEC_CONFDDIR"/private/server.key.pem \
+        -in "$IPSEC_CONFDDIR"/certs/server.crt \
+        -certfile "$IPSEC_CONFDDIR"/certs/ca.crt \
+        -passout pass:ipad4srvp12 -out /tmp/server.p12
+      openssl pkcs12 -export -name ipad4 \
+        -inkey "$IPSEC_CONFDDIR"/private/client.key.pem \
+        -in "$IPSEC_CONFDDIR"/certs/client.crt \
+        -certfile "$IPSEC_CONFDDIR"/certs/ca.crt \
+        -passout pass: -out "$IPSEC_CONFDDIR"/private/ipad4-client.p12
+      chmod 600 "$IPSEC_CONFDDIR"/private/*
+      ipsec pk12util -i /tmp/server.p12 -W ipad4srvp12
+      ipsec certutil -M -n "${caCn}" -t "CT,,"
     fi
 
-    cp ${swanctlStatic} "$SSDIR"/swanctl.conf
-    cat >> "$SSDIR"/swanctl.conf <<EOF
-
-    secrets {
-      eap-$EAP_USERNAME {
-        secret = "$EAP_PASSWORD"
-      }
-    }
-    EOF
+    cp ${ipsecConf} "$IPSEC_CONF"
+    printf ': PSK "%s"\n' "$IPSEC_PSK" > "$CONFIG"/ipsec.secrets
+    printf '%s:%s:%s\n' \
+      "$XAUTH_USERNAME" "$(openssl passwd -6 "$XAUTH_PASSWORD")" ipad4-psk \
+      > "$IPSEC_CONFDDIR"/passwd
 
     iptables -t nat -C POSTROUTING -o tailscale0 -s ${vpnPoolIp} -j MASQUERADE 2>/dev/null \
       || iptables -t nat -A POSTROUTING -o tailscale0 -s ${vpnPoolIp} -j MASQUERADE
@@ -191,46 +264,79 @@ let
       || iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
     # local DNS for tunnel clients: serves tailnet records generated above and
-    # forwards everything else upstream
+    # forwards everything else upstream; bind-dynamic because listen-address
+    # (the ipad4 tailnet IP) only exists once the tailscale sidecar has joined
     cp ${dnsmasqConf} "$CONFIG"/dnsmasq.conf
-    dnsmasq --conf-file="$CONFIG"/dnsmasq.conf --user=root
+    dnsmasq --conf-file="$CONFIG"/dnsmasq.conf --user=root --bind-dynamic
 
-    CA_B64=$(base64 -w0 "$SSDIR"/x509ca/ca.crt)
+    # profiles embed all credentials (PSK as <data> base64, XAUTH user/pass),
+    # so nothing is prompted on the device; sed delimiters are | and base64
+    # blobs need no escaping, only the user-supplied text goes through esc()
+    CA_B64=$(base64 -w0 "$IPSEC_CONFDDIR"/certs/ca.crt)
+    PSK_B64=$(printf '%s' "$IPSEC_PSK" | base64 -w0)
+    P12_B64=$(base64 -w0 "$IPSEC_CONFDDIR"/private/ipad4-client.p12)
+    esc() {
+      printf '%s' "$1" \
+        | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' \
+              -e 's/[\\|]/\\&/g'
+    }
     mkdir -p /public
-    cp ${profileTemplate} /public/ipad4.mobileconfig
-    sed -i "s/{{EAP_USERNAME}}/$EAP_USERNAME/g; s/{{CA_B64}}/$CA_B64/g" \
-      /public/ipad4.mobileconfig
-    chmod 644 /public/ipad4.mobileconfig
+    cp ${profileIos6} /public/ipad4-ios6.mobileconfig
+    sed -i \
+      -e "s|{{PSK_B64}}|$PSK_B64|g" \
+      -e "s|{{XAUTH_USERNAME}}|$(esc "$XAUTH_USERNAME")|g" \
+      -e "s|{{XAUTH_PASSWORD}}|$(esc "$XAUTH_PASSWORD")|g" \
+      /public/ipad4-ios6.mobileconfig
+    cp ${profileIos10} /public/ipad4-ios10.mobileconfig
+    sed -i \
+      -e "s|{{PSK_B64}}|$PSK_B64|g" \
+      -e "s|{{XAUTH_USERNAME}}|$(esc "$XAUTH_USERNAME")|g" \
+      -e "s|{{XAUTH_PASSWORD}}|$(esc "$XAUTH_PASSWORD")|g" \
+      -e "s|{{CA_B64}}|$CA_B64|g" \
+      -e "s|{{P12_B64}}|$P12_B64|g" \
+      /public/ipad4-ios10.mobileconfig
+    chmod 644 /public/ipad4-ios6.mobileconfig /public/ipad4-ios10.mobileconfig
 
-    "${strongswan}/libexec/ipsec/charon" &
-    CHARON_PID=$!
+    "${libreswan}/libexec/ipsec/pluto" --nofork \
+      --config "$IPSEC_CONF" \
+      --secretsfile "$CONFIG"/ipsec.secrets \
+      --ipsecdir "$IPSEC_CONFDDIR" \
+      --nssdir "$IPSEC_NSSDIR" \
+      --rundir "$IPSEC_RUNDIR" \
+      --logfile /dev/stderr &
+    PLUTO_PID=$!
     for i in $(seq 1 30); do
-      if [ -S /var/run/charon.vici ]; then
+      if [ -S "$IPSEC_RUNDIR"/pluto.ctl ]; then
         break
       fi
       sleep 1
     done
     for i in $(seq 1 10); do
-      if swanctl --load-all --noprompt; then
+      # bare addconn is a no-op in libreswan 5; --autoall loads the auto= conns
+      if ${libreswan}/libexec/ipsec/addconn \
+        --ctlsocket "$IPSEC_RUNDIR"/pluto.ctl \
+        --config "$IPSEC_CONF" \
+        --autoall; then
         break
       fi
       sleep 1
     done
-    wait "$CHARON_PID"
+    wait "$PLUTO_PID"
   '';
 
-  strongswanImage = pkgs.dockerTools.buildImage {
-    name = "ipad4-gateway-strongswan";
+  vpnImage = pkgs.dockerTools.buildImage {
+    name = "ipad4-gateway-vpn";
     tag = "latest";
     copyToRoot = pkgs.buildEnv {
       name = "ipad4-gateway-root";
       paths = [
-        strongswan
+        libreswan
         pkgs.bash
         pkgs.coreutils
         pkgs.dnsmasq
         pkgs.iproute2
         pkgs.iptables
+        pkgs.openssl
         pkgs.gnused
         pkgs.gnugrep
         etcPasswd
@@ -249,9 +355,9 @@ let
 in
 {
   virtualisation.oci-containers.containers = {
-    ${strongswanContainer} = {
-      image = "ipad4-gateway-strongswan:latest";
-      imageFile = strongswanImage;
+    ${vpnContainer} = {
+      image = "ipad4-gateway-vpn:latest";
+      imageFile = vpnImage;
       autoStart = true;
       capabilities.NET_ADMIN = true;
       extraOptions = [
@@ -262,8 +368,8 @@ in
         "500:500/udp"
         "4500:4500/udp"
       ];
-      environment.EAP_USERNAME = "ipad4";
-      environmentFiles = [ config.sops.secrets.${eapSecret}.path ];
+      environment.XAUTH_USERNAME = "ipad4";
+      environmentFiles = [ config.sops.secrets.${secretName}.path ];
       volumes = [
         "${stateDir}:/config"
         "${publicDir}:/public"
@@ -273,13 +379,13 @@ in
     ${tailscaleContainer} = {
       image = "${tailscaleImage}";
       autoStart = true;
-      dependsOn = [ strongswanContainer ];
+      dependsOn = [ vpnContainer ];
       capabilities = {
         NET_ADMIN = true;
         NET_RAW = true;
       };
       privileged = true;
-      networks = [ "container:${strongswanContainer}" ];
+      networks = [ "container:${vpnContainer}" ];
       environment = {
         TS_EXTRA_ARGS = "--login-server=${app.url} --accept-dns=true";
         TS_STATE_DIR = "/var/lib/tailscale";
@@ -303,8 +409,12 @@ in
     "f+ ${runDir}/ipad4.env 0600 root root - TS_AUTHKEY="
   ];
 
-  sops.envFiles.${eapSecret} = {
-    EAP_PASSWORD = "op://Private/gcphielng2sczc67xizuw3wlcm/password";
+  # both secrets live in the existing 1Password item: "password" (already
+  # provisioned) is the XAUTH password, "psk" (added when converting to
+  # IKEv1) is the IPsec pre-shared key
+  sops.envFiles.${secretName} = {
+    XAUTH_PASSWORD = "op://Private/gcphielng2sczc67xizuw3wlcm/password";
+    IPSEC_PSK = "op://Private/gcphielng2sczc67xizuw3wlcm/psk";
   };
 
   networking.firewall.allowedUDPPorts = [
@@ -313,8 +423,12 @@ in
   ];
 
   nginx.proxy.${serverFqdn}.extraConfig = _: {
-    locations."= /ipad4.mobileconfig" = {
-      alias = "${publicDir}/ipad4.mobileconfig";
+    locations."= /ipad4-ios6.mobileconfig" = {
+      alias = "${publicDir}/ipad4-ios6.mobileconfig";
+      extraConfig = "default_type application/x-apple-aspen-config;";
+    };
+    locations."= /ipad4-ios10.mobileconfig" = {
+      alias = "${publicDir}/ipad4-ios10.mobileconfig";
       extraConfig = "default_type application/x-apple-aspen-config;";
     };
   };

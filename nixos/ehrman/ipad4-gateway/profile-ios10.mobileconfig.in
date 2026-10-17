@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key><string>com.apple.vpn.managed</string>
+      <key>PayloadIdentifier</key><string>codes.xela.ipad4.vpn</string>
+      <key>PayloadUUID</key><string>a1b2c3d4-0001-4000-8000-000000000001</string>
+      <key>PayloadDisplayName</key><string>iPad 4 Tailnet VPN</string>
+      <key>PayloadDescription</key><string>Cisco IPsec (IKEv1) split tunnel with On-Demand to the xela tailnet</string>
+      <key>PayloadVersion</key><integer>1</integer>
+      <key>UserDefinedName</key><string>Tailnet (iPad 4)</string>
+      <key>VPNType</key><string>IPSec</string>
+      <key>DNS</key>
+      <dict>
+        <key>ServerAddresses</key><array><string>@DNS_SERVER@</string></array>
+        <key>SearchDomains</key><array><string>@BASE_DOMAIN@</string><string>xela</string></array>
+      </dict>
+      <key>IPSec</key>
+      <dict>
+        <key>RemoteAddress</key><string>@SERVER_ADDRESS@</string>
+        <key>AuthenticationMethod</key><string>Certificate</string>
+        <key>PayloadCertificateUUID</key><string>a1b2c3d4-0002-4000-8000-000000000002</string>
+        <key>XAuthEnabled</key><integer>1</integer>
+        <key>XAuthName</key><string>{{XAUTH_USERNAME}}</string>
+        <key>XAuthPassword</key><string>{{XAUTH_PASSWORD}}</string>
+      </dict>
+      <key>OnDemandEnabled</key><integer>1</integer>
+      <key>OnDemandRules</key>
+      <array>
+        <dict>
+          <key>Action</key><string>Connect</string>
+          <key>InterfaceTypeMatch</key><string>Any</string>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>PayloadType</key><string>com.apple.security.pkcs12</string>
+      <key>PayloadIdentifier</key><string>codes.xela.ipad4.identity</string>
+      <key>PayloadUUID</key><string>a1b2c3d4-0002-4000-8000-000000000002</string>
+      <key>PayloadDisplayName</key><string>iPad 4 Tailnet Client</string>
+      <key>PayloadDescription</key><string>Client certificate for the iPad 4 tailnet VPN</string>
+      <key>PayloadVersion</key><integer>1</integer>
+      <key>PayloadContent</key><data>{{P12_B64}}</data>
+    </dict>
+    <dict>
+      <key>PayloadType</key><string>com.apple.security.root</string>
+      <key>PayloadIdentifier</key><string>codes.xela.ipad4.ca</string>
+      <key>PayloadUUID</key><string>a1b2c3d4-0003-4000-8000-000000000003</string>
+      <key>PayloadDisplayName</key><string>xela iPad 4 Gateway CA</string>
+      <key>PayloadVersion</key><integer>1</integer>
+      <key>PayloadCertificateFileName</key><string>ipad4-ca.crt</string>
+      <key>PayloadContent</key><data>{{CA_B64}}</data>
+    </dict>
+  </array>
+  <key>PayloadType</key><string>Configuration</string>
+  <key>PayloadIdentifier</key><string>codes.xela.ipad4</string>
+  <key>PayloadUUID</key><string>a1b2c3d4-0000-4000-8000-000000000000</string>
+  <key>PayloadDisplayName</key><string>iPad 4 Tailnet</string>
+  <key>PayloadVersion</key><integer>1</integer>
+</dict>
+</plist>

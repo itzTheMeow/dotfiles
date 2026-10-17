@@ -9,44 +9,24 @@
       <key>PayloadIdentifier</key><string>codes.xela.ipad4.vpn</string>
       <key>PayloadUUID</key><string>a1b2c3d4-0001-4000-8000-000000000001</string>
       <key>PayloadDisplayName</key><string>iPad 4 Tailnet VPN</string>
-      <key>PayloadDescription</key><string>IKEv2 split tunnel to the xela tailnet</string>
+      <key>PayloadDescription</key><string>Cisco IPsec (IKEv1 XAUTH) split tunnel to the xela tailnet</string>
       <key>PayloadVersion</key><integer>1</integer>
       <key>UserDefinedName</key><string>Tailnet (iPad 4)</string>
-      <key>VPNType</key><string>IKEv2</string>
+      <key>VPNType</key><string>IPSec</string>
       <key>DNS</key>
       <dict>
         <key>ServerAddresses</key><array><string>@DNS_SERVER@</string></array>
-        <key>SearchDomains</key><array><string>@BASE_DOMAIN@</string></array>
+        <key>SearchDomains</key><array><string>@BASE_DOMAIN@</string><string>xela</string></array>
       </dict>
-       <key>IKEv2</key>
-       <dict>
-         <key>RemoteAddress</key><string>@SERVER_ADDRESS@</string>
-         <key>RemoteIdentifier</key><string>@SERVER_ID@</string>
-         <key>LocalIdentifier</key><string>ipad4</string>
-         <key>AuthenticationMethod</key><string>None</string>
-         <key>ExtendedAuthEnabled</key><integer>1</integer>
-         <key>AuthName</key><string>{{EAP_USERNAME}}</string>
-         <key>ServerCertificateIssuerCommonName</key><string>xela iPad 4 Gateway CA</string>
-         <key>ServerCertificateCommonName</key><string>ipad4-gateway.xela.internal</string>
-         <key>DeadPeerDetectionRate</key><string>Medium</string>
-       </dict>
-       <key>OnDemandEnabled</key><integer>1</integer>
-       <key>OnDemandRules</key>
-       <array>
-         <dict>
-           <key>Action</key><string>Connect</string>
-           <key>InterfaceTypeMatch</key><string>Any</string>
-         </dict>
-       </array>
-    </dict>
-    <dict>
-      <key>PayloadType</key><string>com.apple.security.root</string>
-      <key>PayloadIdentifier</key><string>codes.xela.ipad4.ca</string>
-      <key>PayloadUUID</key><string>a1b2c3d4-0002-4000-8000-000000000002</string>
-      <key>PayloadDisplayName</key><string>xela iPad 4 Gateway CA</string>
-      <key>PayloadVersion</key><integer>1</integer>
-      <key>PayloadCertificateFileName</key><string>ipad4-ca.crt</string>
-      <key>PayloadContent</key><data>{{CA_B64}}</data>
+      <key>IPSec</key>
+      <dict>
+        <key>RemoteAddress</key><string>@SERVER_ADDRESS@</string>
+        <key>AuthenticationMethod</key><string>SharedSecret</string>
+        <key>SharedSecret</key><data>{{PSK_B64}}</data>
+        <key>XAuthEnabled</key><integer>1</integer>
+        <key>XAuthName</key><string>{{XAUTH_USERNAME}}</string>
+        <key>XAuthPassword</key><string>{{XAUTH_PASSWORD}}</string>
+      </dict>
     </dict>
   </array>
   <key>PayloadType</key><string>Configuration</string>
