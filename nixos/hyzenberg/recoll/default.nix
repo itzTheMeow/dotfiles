@@ -148,6 +148,7 @@ in
     topdirs = ${mountPoint}
     dbdir = ${indexDir}
     skippedPaths = ${mountPoint}/latest
+    excludedmimetypes = image/* video/* audio/*
   '';
 
   # mimeconf/mimemap are ConfStacks: entries merge per-key with the shipped
