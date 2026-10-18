@@ -10,7 +10,7 @@ let
 in
 {
   services.nginx.virtualHosts."${subdomain}.${xelib.domain}" = {
-    forceSSL = true;
+    addSSL = true;
     enableACME = true;
     root = "${ios-apt}";
     # enable file index and 404 page
