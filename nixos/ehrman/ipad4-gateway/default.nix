@@ -123,7 +123,10 @@ let
       keyexchange=ikev1
       authby=secret
       left=%defaultroute
-      leftsubnet=${tailnetPrefix}
+      # iOS 6 force-tunnels everything (proposes 0.0.0.0/0 regardless of any
+      # pushed split), so this conn must be a full tunnel or the client's
+      # non-tailnet packets die on the inbound xfrm policy check
+      leftsubnet=0.0.0.0/0
       right=%any
       rightaddresspool=${vpnPoolIp}
       leftxauthserver=yes
@@ -132,8 +135,8 @@ let
       rightmodecfgclient=yes
       modecfgpull=yes
       xauthby=file
+      # full-tunnel conn: no split to push
       cisco-unity=yes
-      cisco-split=yes
       modecfgdns=${gatewayDns}
       fragmentation=yes
       pfs=no
@@ -296,6 +299,22 @@ let
     iptables -C FORWARD -j ACCEPT 2>/dev/null || iptables -A FORWARD -j ACCEPT
     iptables -t mangle -C FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu 2>/dev/null \
       || iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
+    # the exit-node routing hijacks every unmarked packet into tailscale0
+    # (rule 5270 -> table 52 -> default via tailscale0), which would send
+    # pluto's own IKE replies and ESP return traffic into the tailnet instead
+    # of back to the client. Tailscale's escape rule 5210 sends fwmark
+    # 0x80000 traffic to the main table (eth0); mark our IKE/ESP packets there
+    osend() {
+      iptables -t mangle -C "$@" 2>/dev/null || iptables -t mangle -A "$@"
+    }
+    osend OUTPUT -p udp --sport 500 -j MARK --set-xmark 0x80000
+    osend OUTPUT -p udp --sport 4500 -j MARK --set-xmark 0x80000
+    osend OUTPUT -p esp -j MARK --set-xmark 0x80000
+    # return path for traffic arriving from the tailnet towards the client's
+    # VIP: marking the (pre-encapsulation) inner packet carries over to the
+    # outer ESP packet's route lookup
+    osend FORWARD -d ${vpnPoolIp} -j MARK --set-xmark 0x80000
 
     # local DNS for tunnel clients: serves tailnet records generated above and
     # forwards everything else upstream; bind-dynamic because listen-address
