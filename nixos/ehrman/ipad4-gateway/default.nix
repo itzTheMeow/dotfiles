@@ -75,7 +75,11 @@ let
     )
   );
 
-  libreswan = pkgs.libreswan;
+  # libreswan compiles out DH2/modp1024 by default, but iOS 6 only negotiates
+  # DH2 (confirmed from live connect logs), so a USE_DH2 rebuild is required
+  libreswan = pkgs.libreswan.overrideAttrs (old: {
+    makeFlags = old.makeFlags ++ [ "USE_DH2=true" ];
+  });
 
   # dnsmasq tries to resolve its --user name, which needs a passwd entry; the
   # minimal image has none
