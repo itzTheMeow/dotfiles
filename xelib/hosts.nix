@@ -167,5 +167,6 @@ in
     "pete"
     "iphone"
     "ipadpro"
+    "ipad4"
   ];
 }
