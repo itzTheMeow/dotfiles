@@ -15,6 +15,7 @@ in
     allowedHosts = [
       "brayden"
       "brayden-cousin"
+      "ipad4"
     ];
 
     name = "YTMusic";

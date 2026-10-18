@@ -14,6 +14,8 @@ in
     domain = "xela.internal";
     port = 50983;
     enableProxy = true;
+
+    allowedHosts = [ "ipad4" ];
   };
 
   services.homepage-dashboard = {
