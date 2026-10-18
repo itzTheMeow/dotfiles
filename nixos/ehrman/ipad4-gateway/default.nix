@@ -97,6 +97,14 @@ let
   # machine auth for iOS 10 (VPN On-Demand is certificate-only per Apple).
   # Secrets (PSK line, xauth passwd file) are appended at runtime from sops env.
   #
+  # Tunnel shape: iOS 10 honours the pushed split (only the tailnet prefix goes
+  # through the tunnel). iOS 6 has no send-all-traffic toggle for this profile
+  # type and routes EVERYTHING in, so its world-bound traffic must be handled
+  # here: the tailscale sidecar runs as an exit-node user (--exit-node=
+  # mullvad-ashburn), so the client's world traffic and the dnsmasq upstream
+  # queries leave at the Mullvad relay instead of this host's IP (the eth0
+  # MASQUERADE below is only a fallback for when the exit node is unavailable).
+  #
   # Contingencies / watch-outs:
   # - iOS 6 only negotiates DH2/modp1024 (confirmed from live connect logs), so
   #   libreswan is rebuilt with USE_DH2=true above; the modp1024 proposals in
@@ -126,9 +134,6 @@ let
       xauthby=file
       cisco-unity=yes
       cisco-split=yes
-      # IKEv1 modecfg only pushes one search domain; iOS gets both from the
-      # profile's DNS dict
-      modecfgdomains=xela.internal
       modecfgdns=${gatewayDns}
       fragmentation=yes
       pfs=no
@@ -162,7 +167,6 @@ let
       xauthby=alwaysok
       cisco-unity=yes
       cisco-split=yes
-      modecfgdomains=xela.internal
       modecfgdns=${gatewayDns}
       fragmentation=yes
       pfs=no
@@ -282,6 +286,11 @@ let
 
     iptables -t nat -C POSTROUTING -o tailscale0 -s ${vpnPoolIp} -j MASQUERADE 2>/dev/null \
       || iptables -t nat -A POSTROUTING -o tailscale0 -s ${vpnPoolIp} -j MASQUERADE
+    # iOS 6 has no send-all-traffic toggle for this profile type, so it routes
+    # ALL traffic into the tunnel: world-bound packets fall out on eth0
+    # (exit-node-less fallback) and die as un-NATed RFC1918 without this rule
+    iptables -t nat -C POSTROUTING -o eth0 -s ${vpnPoolIp} -j MASQUERADE 2>/dev/null \
+      || iptables -t nat -A POSTROUTING -o eth0 -s ${vpnPoolIp} -j MASQUERADE
     iptables -t nat -C PREROUTING -i tailscale0 -p tcp -j DNAT --to-destination ${vpnPoolIp} 2>/dev/null \
       || iptables -t nat -A PREROUTING -i tailscale0 -p tcp -j DNAT --to-destination ${vpnPoolIp}
     iptables -C FORWARD -j ACCEPT 2>/dev/null || iptables -A FORWARD -j ACCEPT
@@ -409,7 +418,8 @@ in
       privileged = true;
       networks = [ "container:${vpnContainer}" ];
       environment = {
-        TS_EXTRA_ARGS = "--login-server=${app.url} --accept-dns=true";
+        # use the mullvad-ashburn exit node
+        TS_EXTRA_ARGS = "--login-server=${app.url} --accept-dns=true --exit-node=mullvad-ashburn";
         TS_STATE_DIR = "/var/lib/tailscale";
         TS_HOSTNAME = "ipad4";
         # containerboot defaults to userspace networking, which has no
