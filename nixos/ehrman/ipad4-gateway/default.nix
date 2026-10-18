@@ -16,10 +16,8 @@ let
 
   # paths / names
   stateDir = "/var/lib/ipad4-gateway";
-  # world-traversable dir for the generated profiles; kept out of stateDir so
-  # nginx can read it without exposing the private keys/tailscale state
-  publicDir = "/var/lib/ipad4-gateway-public";
   runDir = "/run/ipad4-gateway";
+  profilesDir = "${runDir}/profiles";
   vpnContainer = "ipad4-gateway-vpn";
   tailscaleContainer = "ipad4-gateway-tailscale";
   secretName = "ipad4-gateway";
@@ -85,6 +83,29 @@ let
   # minimal image has none
   etcPasswd = pkgs.writeTextDir "etc/passwd" "root:x:0:0:root:/root:/bin/sh\n";
 
+  # Why Cisco IPsec (IKEv1 XAUTH) and not IKEv2 or L2TP:
+  # - the target iPad runs iOS 6-10; IKEv2 only exists from iOS 8 and would not
+  #   serve iOS 6, and modern strongSwan has no IKEv1 at all, so this is a
+  #   libreswan-based replacement
+  # - L2TP was rejected because iOS's L2TP client cannot do split tunneling
+  #   (no route push at all; "Send All Traffic" is all-or-nothing), while the
+  #   Cisco client installs server-pushed split networks (CISCO_SPLIT_INCLUDE)
+  # - PPTP was removed from iOS 10, so it can't serve both generations
+  #
+  # Two conns serve the same tunnel: PSK+XAUTH for iOS 6 (whose client has a
+  # UDP-fragmentation bug that breaks cert-based handshakes), and certificate
+  # machine auth for iOS 10 (VPN On-Demand is certificate-only per Apple).
+  # Secrets (PSK line, xauth passwd file) are appended at runtime from sops env.
+  #
+  # Contingencies / watch-outs:
+  # - iOS 6 only negotiates DH2/modp1024 (confirmed from live connect logs), so
+  #   libreswan is rebuilt with USE_DH2=true above; the modp1024 proposals in
+  #   ike= depend on that rebuild. DES-CBC offers from iOS 6 are simply not
+  #   matched (DES is gone from libreswan entirely); AES/3DES over DH2 win.
+  # - both conns match right=%any; pluto picks by the SA's auth method. If a
+  #   client lands on the wrong conn, check `ipsec status`/the pluto log.
+  # - iOS does not rekey IKEv1 reliably, hence rekey=no and equal SA lifetimes:
+  #   the tunnel is dropped after 8h and the client reconnects via DPD.
   ipsecConf = pkgs.writeText "ipad4-ipsec.conf" ''
     # ikev1-policy: libreswan 5 drops IKEv1 by default; these conns are IKEv1
     config setup
@@ -117,7 +138,7 @@ let
       # dpdaction was removed in libreswan 5: a dead peer always clears the SA
       dpddelay=30
       dpdtimeout=120
-      ike=aes256-sha2-modp2048,aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1536,3des-sha1-modp1536
+      ike=aes256-sha2-modp2048,aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1536,3des-sha1-modp1536,aes256-sha1-modp1024,aes128-sha1-modp1024,3des-sha1-modp1024
       esp=aes256-sha1,aes128-sha1,3des-sha1
       auto=add
 
@@ -150,7 +171,7 @@ let
       keylife=8h
       dpddelay=30
       dpdtimeout=120
-      ike=aes256-sha2-modp2048,aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1536,3des-sha1-modp1536
+      ike=aes256-sha2-modp2048,aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1536,3des-sha1-modp1536,aes256-sha1-modp1024,aes128-sha1-modp1024,3des-sha1-modp1024
       esp=aes256-sha1,aes128-sha1,3des-sha1
       auto=add
   '';
@@ -273,9 +294,6 @@ let
     cp ${dnsmasqConf} "$CONFIG"/dnsmasq.conf
     dnsmasq --conf-file="$CONFIG"/dnsmasq.conf --user=root --bind-dynamic
 
-    # profiles embed all credentials (PSK as <data> base64, XAUTH user/pass),
-    # so nothing is prompted on the device; sed delimiters are | and base64
-    # blobs need no escaping, only the user-supplied text goes through esc()
     CA_B64=$(base64 -w0 "$IPSEC_CONFDDIR"/certs/ca.crt)
     PSK_B64=$(printf '%s' "$IPSEC_PSK" | base64 -w0)
     P12_B64=$(base64 -w0 "$IPSEC_CONFDDIR"/private/ipad4-client.p12)
@@ -376,7 +394,7 @@ in
       environmentFiles = [ config.sops.secrets.${secretName}.path ];
       volumes = [
         "${stateDir}:/config"
-        "${publicDir}:/public"
+        "${profilesDir}:/public"
       ];
     };
 
@@ -406,7 +424,7 @@ in
 
   systemd.tmpfiles.rules = [
     "d ${stateDir} 0700 root root - -"
-    "d ${publicDir} 0755 root root - -"
+    "d ${profilesDir} 0700 root root - -"
     "d ${runDir} 0700 root root - -"
     #?INIT: paste a headscale pre-auth key here before first boot
     #? echo 'TS_AUTHKEY=<key>' > ${runDir}/ipad4.env
@@ -425,15 +443,4 @@ in
     500
     4500
   ];
-
-  nginx.proxy.${serverFqdn}.extraConfig = _: {
-    locations."= /ipad4-ios6.mobileconfig" = {
-      alias = "${publicDir}/ipad4-ios6.mobileconfig";
-      extraConfig = "default_type application/x-apple-aspen-config;";
-    };
-    locations."= /ipad4-ios10.mobileconfig" = {
-      alias = "${publicDir}/ipad4-ios10.mobileconfig";
-      extraConfig = "default_type application/x-apple-aspen-config;";
-    };
-  };
 }
