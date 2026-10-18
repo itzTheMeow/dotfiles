@@ -192,18 +192,21 @@ rec {
       name = "ashburn";
       city = "Ashburn VA";
       index = 0;
+      ip = "100.64.0.2";
       # 51640 53480 61230
     }
     {
       name = "atlanta";
       city = "Atlanta GA";
       index = 1;
+      ip = "100.64.0.18";
       # 51641 53481 61231
     }
     {
       name = "chicago";
       city = "Chicago IL";
       index = 2;
+      ip = "100.64.0.21";
       # 51642 53482 61232
     }
   ];

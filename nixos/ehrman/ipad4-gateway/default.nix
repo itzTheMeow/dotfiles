@@ -419,7 +419,9 @@ in
       networks = [ "container:${vpnContainer}" ];
       environment = {
         # use the mullvad-ashburn exit node
-        TS_EXTRA_ARGS = "--login-server=${app.url} --accept-dns=true --exit-node=mullvad-ashburn.${baseDomain}";
+        TS_EXTRA_ARGS = "--login-server=${app.url} --accept-dns=true --exit-node=${
+          (builtins.head (builtins.filter (n: n.name == "ashburn") xelib.exitNodes)).ip
+        }";
         TS_STATE_DIR = "/var/lib/tailscale";
         TS_HOSTNAME = "ipad4";
         # containerboot defaults to userspace networking, which has no
