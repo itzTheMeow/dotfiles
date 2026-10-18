@@ -83,6 +83,24 @@ let
   # minimal image has none
   etcPasswd = pkgs.writeTextDir "etc/passwd" "root:x:0:0:root:/root:/bin/sh\n";
 
+  # libreswan updown hook: the exit-node routing (tailscale rule 5270 ->
+  # table 52 default via tailscale0) makes the xfrm outer route for
+  # server->client traffic point at tailscale0 (dropped by Mullvad), because
+  # skb marks don't survive into the encapsulated packet's route lookup.
+  # Routing the SA peer's public IP into the main table via a pre-5270 rule
+  # guarantees the outer ESP/IKE replies always egress eth0.
+  updown = pkgs.writeShellScript "ipad4-ipsec-updown" ''
+    case "$PLUTO_VERB" in
+      up-client | route-client)
+        ip rule show | grep -qF "to $PLUTO_PEER lookup main" \
+          || ip rule add to "$PLUTO_PEER" lookup main priority 5195
+        ;;
+      down-client | unroute-client)
+        ip rule del to "$PLUTO_PEER" lookup main priority 5195 2>/dev/null || true
+        ;;
+    esac
+  '';
+
   # Why Cisco IPsec (IKEv1 XAUTH) and not IKEv2 or L2TP:
   # - the target iPad runs iOS 6-10; IKEv2 only exists from iOS 8 and would not
   #   serve iOS 6, and modern strongSwan has no IKEv1 at all, so this is a
@@ -127,6 +145,7 @@ let
       # pushed split), so this conn must be a full tunnel or the client's
       # non-tailnet packets die on the inbound xfrm policy check
       leftsubnet=0.0.0.0/0
+      leftupdown=${updown}
       right=%any
       rightaddresspool=${vpnPoolIp}
       leftxauthserver=yes
@@ -160,6 +179,7 @@ let
       leftsendcert=always
       left=%defaultroute
       leftsubnet=${tailnetPrefix}
+      leftupdown=${updown}
       right=%any
       rightaddresspool=${vpnPoolIp}
       leftxauthserver=yes
