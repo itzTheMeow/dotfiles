@@ -14,6 +14,7 @@
 
           editor = "nano";
           scrollback_lines = 5000;
+          scrollbar = "scrolled-or-hovered";
           startup_session = toString (
             pkgs.writeText "default.conf" ''
               focus
