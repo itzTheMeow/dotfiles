@@ -7,7 +7,7 @@
     unstable.bun
 
     # package managers
-    pnpm_10
+    pnpm
     yarn
   ];
 
