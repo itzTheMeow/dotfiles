@@ -40,6 +40,7 @@ let
     pkgs.unzip
     pkgs.p7zip
     pkgs.unar
+    pkgs.unrar
     pkgs.xz
     pkgs.gzip
     pkgs.bzip2
@@ -49,8 +50,25 @@ let
     pkgs.unrtf
     pkgs.odt2txt
     pkgs.poppler-utils
+    pkgs.texinfo
+    pkgs.djvulibre
+    pkgs.libreoffice
     pkgs.exiftool
   ];
+
+  # python modules some execm filters import (rclrar/rcl7z/rclics fail
+  # otherwise and break the filter pipe, flooding recollindex with
+  # "Broken pipe"/"next_document error" spam); passed via PYTHONPATH on the
+  # recoll-index unit. rarfile shells out to unrar (preferred backend,
+  # full RAR3/5 support)
+  recollPython = pkgs.python3.withPackages (
+    p: with p; [
+      rarfile
+      py7zr
+      icalendar
+      vobject
+    ]
+  );
 
   unmount = pkgs.writeShellScript "rustic-downloads-unmount" ''
     fusermount3 -uz "${mountPoint}" || umount -l "${mountPoint}" || true
@@ -148,7 +166,10 @@ in
     topdirs = ${mountPoint}
     dbdir = ${indexDir}
     skippedPaths = ${mountPoint}/latest
-    excludedmimetypes = image/* video/* audio/*
+    # no content extraction for media (worthless for search, huge index and
+    # filter spawn cost) or chm (needs the python chm module, not packaged
+    # for py3); names stay searchable via indexallfilenames
+    excludedmimetypes = image/* video/* audio/* application/x-chm
   '';
 
   # mimeconf/mimemap are ConfStacks: entries merge per-key with the shipped
@@ -203,6 +224,7 @@ in
       Environment = [
         "RECOLL_CONFDIR=${confDir}"
         "PATH=${helpersPath}:/run/current-system/sw/bin"
+        "PYTHONPATH=${recollPython}/${recollPython.sitePackages}"
       ];
       ExecStart = "${pkgs.recoll-nox}/bin/recollindex";
     };
