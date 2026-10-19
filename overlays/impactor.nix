@@ -21,7 +21,7 @@ final: prev: {
     in
     rustPlatform.buildRustPackage (finalAttrs: {
       pname = "impactor";
-      version = "2.6.0";
+      version = "2.7.1";
 
       strictDeps = true;
       __structuredAttrs = true;
@@ -30,10 +30,10 @@ final: prev: {
         owner = "claration";
         repo = "Impactor";
         tag = "v${finalAttrs.version}";
-        hash = "sha256-ahKJ3NRZvyLhhEYtH0fB2s7yF3HsD3WrTaA1O1knFsg=";
+        hash = "sha256-GMMtzbnFue+Qk5wvoJWL6xu4vTG06uuARli7Y2ua1Ms=";
       };
 
-      cargoHash = "sha256-W5AKdOjUOtggDnzKno4U40DXbComVUj0mFXRcQ8abqc=";
+      cargoHash = "sha256-sQbpob8ZXDJMSEI+/6juAj1Uhey7CGAP3Fb8EJr/VU8=";
       doCheck = true;
 
       nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
