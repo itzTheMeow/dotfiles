@@ -68,19 +68,20 @@ let
     else
       name;
 
-  # classify where a derivation came from by comparing store paths against
-  # the base instance and the `unstable` overlay; unstable is checked first
-  # so hosts whose base instance *is* unstable (unstableHosts) classify right
+  # classify where a derivation came from by comparing store paths; the base
+  # instance is checked first so hosts whose base *is* the unstable input
+  # (unstableHosts) read as stable, and only genuine `pkgs.unstable` pins
+  # classify as unstable
   classify =
     attr: out:
     let
       unstableOut = probe pkgs.unstable attr;
       baseOut = probe pkgs attr;
     in
-    if unstableOut != null && unstableOut == out then
-      "unstable"
-    else if baseOut != null && baseOut == out then
+    if baseOut != null && baseOut == out then
       "stable"
+    else if unstableOut != null && unstableOut == out then
+      "unstable"
     else
       "other";
 

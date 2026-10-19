@@ -1,5 +1,5 @@
-# stage 2: looks up the four version columns for every tracked attr and
-# assembles the final rows - run with:
+# stage 2: looks up the version columns for every tracked attr and assembles
+# the final rows - run with:
 #   nix eval --impure --json --expr \
 #     'import ./outdated.nix { dir = "/path/to/flake"; data = "/path/merged.json"; }'
 # data: { system, hosts, entries = [{ host, name, attr, source, version }] }
@@ -90,35 +90,32 @@ let
     attr:
     let
       t = grouped.${attr};
-      stableOurs = verOf stablePkgs attr;
-      stableTip = verOf tipStable attr;
-      unstableOurs = verOf unstablePkgs attr;
-      unstableTip = verOf tipUnstable attr;
-      # outdated = the live instance lags the upstream tip of its own branch
-      outdated = lib.any (
-        l:
-        let
-          tip =
-            if l.source == "unstable" then
-              unstableTip
-            else if l.source == "stable" then
-              stableTip
-            else
-              null;
-        in
-        tip != null && l.version != null && lib.versionOlder l.version tip
-      ) t.live;
+      # one branch per package: unstable only when explicitly pinned from
+      # pkgs.unstable (on any host), stable otherwise
+      branch =
+        if lib.any (l: l.source == "unstable") t.live then
+          "unstable"
+        else if lib.any (l: l.source == "stable") t.live then
+          "stable"
+        else
+          "other";
+      oursPkgs = if branch == "unstable" then unstablePkgs else stablePkgs;
+      tipPkgs = if branch == "unstable" then tipUnstable else tipStable;
+      liveVer = (builtins.head t.live).version;
+      ours = if branch == "other" then liveVer else verOf oursPkgs attr;
+      tip = if branch == "other" then null else verOf tipPkgs attr;
+      outdated = ours != null && tip != null && lib.versionOlder ours tip;
     in
     {
       name = t.name;
-      inherit attr outdated;
       inherit
-        stableOurs
-        stableTip
-        unstableOurs
-        unstableTip
+        attr
+        branch
+        ours
+        tip
+        outdated
         ;
-      live = t.live;
+      live = map (l: l.host) t.live;
     }
   ) (lib.naturalSort (builtins.attrNames grouped));
 in

@@ -110,18 +110,16 @@ final: prev: {
 
         jq -r --arg all "$showAll" '
           def vs($v): if $v == null then "n/a" else $v end;
-          (.stableRef | sub("^nixos-"; "")) as $sr
-          | (.unstableRef | sub("^nixos-"; "")) as $ur
-          | (if $all == "true" then .packages else [ .packages[] | select(.outdated) ] end)
-          | (["PACKAGE", "OURS-" + $sr, "TIP-" + $sr, "OURS-" + $ur, "TIP-" + $ur, "LIVE"]),
+          (if $all == "true" then .packages else [ .packages[] | select(.outdated) ] end)
+          | (["PACKAGE", "OURS", "TIP", "LIVE"]),
             (.[]
               | [
-                  (if $all == "true" and .outdated then .name + " *" else .name end),
-                  vs(.stableOurs),
-                  vs(.stableTip),
-                  vs(.unstableOurs),
-                  vs(.unstableTip),
-                  ([ .live[] | "\(.host):\(.source)" ] | sort | join(" "))
+                  (if .branch == "unstable" then .name + " ~"
+                   elif $all == "true" and .outdated then .name + " *"
+                   else .name end),
+                  vs(.ours),
+                  vs(.tip),
+                  (.live | sort | join(" "))
                 ])
           | @tsv
         ' <<<"$data" | gawk -F'\t' '
