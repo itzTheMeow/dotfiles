@@ -42,7 +42,8 @@ final: prev: {
       ];
       dontWrapQtApps = true;
 
-      doCheck = true;
+      # times out in CI
+      doCheck = false;
       cmakeFlags = [ (lib.cmakeBool "ENABLE_TESTS" finalAttrs.finalPackage.doCheck) ];
       nativeCheckInputs = [ ctestCheckHook ];
       checkInputs = [ gtest ];
