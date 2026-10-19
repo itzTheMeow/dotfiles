@@ -16,7 +16,7 @@ buildPnpmPackage {
     hash = "sha256-9KXxQxURTKk2a42ndcXP1+ifIiUEiN+erhg//fpbLmA=";
   };
 
-  pnpmDepsHash = "sha256-NycW2NS5MJ8geLUUHaKwlXM/WEjwRxOPRsCVF7+vJ7o=";
+  pnpmDepsHash = "sha256-jiJmsVpcaRTt/jBHZkABxlR7z+U83fiuZSv1kL50srU=";
   pnpmBuildScript = "build";
 
   nativeBuildInputs = [ makeWrapper ];
