@@ -117,7 +117,10 @@ lib.mkMerge [
             (mkMailSRV "submission" 587)
           ];
           subdomains = {
-            mail = pointHost hostname;
+            mail = (pointHost hostname) // {
+              # needed for email bounce notifications sent from the subdomain and not the apex
+              TXT = [ (spf.strict [ "a" ]) ];
+            };
             "_25._tcp.mail".TLSA = [
               {
                 certUsage = "dane-ta";
