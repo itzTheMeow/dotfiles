@@ -11,7 +11,7 @@ final: prev: {
     postInstall = (old.postInstall or "") + ''
       substituteInPlace $out/share/recoll/filters/rcl7z.py \
         --replace-fail "self.sevenzdic = self.sevenzip.readall()" \
-        "                from py7zr.io import BytesIOFactory\n                _f7z = BytesIOFactory(self.em.maxmembersize)\n                self.sevenzip.extract(factory=_f7z)\n                self.sevenzdic = _f7z.products"
+        "import py7zr.io as _pio; _f7z = _pio.BytesIOFactory(self.em.maxmembersize); self.sevenzip.extract(factory=_f7z); self.sevenzdic = _f7z.products"
     '';
   });
 }
