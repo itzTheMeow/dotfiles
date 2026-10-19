@@ -3,7 +3,7 @@ final: prev: {
   buildPnpmPackage =
     pkg:
     let
-      chosenPNPM = pkg.pnpm or final.pnpm_10;
+      chosenPNPM = pkg.pnpm or final.pnpm;
     in
     final.stdenv.mkDerivation (
       {
