@@ -17,7 +17,7 @@ let
     version = "0.0.0";
     inherit src;
 
-    pnpmDepsHash = "sha256-CR2ccqqiQq7d++9yiZnv026nzaVV/RGxP+E5lEeaPtY=";
+    pnpmDepsHash = "sha256-xVwmfU5r1Fh20RpgXhnqzlojmqfhICThqNjGOY6F7D4=";
     pnpmBuildScript = "start";
 
     # we only want the dist folder
