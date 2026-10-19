@@ -62,6 +62,10 @@ hostname := env('HOSTNAME')
 @hm:
     home-manager switch --flake .#{{ hostname }}
 
+# check used packages against upstream nixpkgs channels
+@outdated *args:
+    xela-outdated {{ args }}
+
 # list /z files/dirs not linked by the current impermanence config
 @orphaned:
     f=$(mktemp) && \

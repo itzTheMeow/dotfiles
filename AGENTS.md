@@ -90,6 +90,9 @@ NixOS configuration for personal machines.
 - Keep `nixConfig` in sync with the NixOS `nix.settings.substituters` on each host (both point to the binary cache).
 - Some configs intentionally target the `nixos-unstable`/custom branches per-host (see the `unstableHosts` param in `entrypoint.nix`) — don't assume all hosts use the same nixpkgs.
 - `.gitignore`: exclude `result` symlinks and qcow2 images.
+- Renamed options (nixpkgs `mkRenamedOptionModule`, e.g. `services.frp.enable` → `services.frp.instances."".enable`) **abort** when their config is read — `tryEval` can't catch it. Anything walking `config.services`/`config.programs` must gate on the options tree first and skip invisible (rename-shim) options — see `enabledPackages` in `modules/track-packages.nix`.
+- `nix eval --expr` does **not** bind `--arg`/`--argstr` — interpolate values into the expr string instead.
+- Package update tracking: `trackPackages` options (`modules/track-packages.nix`, auto-derives the tracked list, lazily — zero rebuild cost) + `xela-outdated` (`overlays/xela-outdated/`, `nx outdated`) compare our locked stable/unstable revs against both upstream channel tips. It runs one `nix eval` process per host because a single full-fleet eval OOMs 11GB machines.
 
 ## Self-documentation
 

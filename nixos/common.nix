@@ -259,6 +259,7 @@ in
     nix-diff
     nixpkgs-review
     xela-nx
+    xela-outdated
     # sops-build-secrets wrappers (personal + nvstly) that add formatting
     (mkSopsWrapper "sops-build-secrets" xelib.location)
     (mkSopsWrapper "sops-build-secrets-nvstly" "~/Documents/nvstly-dotfiles")
@@ -303,6 +304,19 @@ in
     rclone # used by some core services
     screen
   ];
+  # pname => nixpkgs attr fixes for the outdated tracker
+  trackPackages.aliases = {
+    "1password" = "_1password-gui";
+    "1password-cli" = "_1password-cli";
+    Pinta = "pinta";
+    attic = "attic-client";
+    "bash-interactive" = "bashInteractive";
+    "gcc-wrapper" = "gcc";
+    garage = "garage_2";
+    libreoffice = "libreoffice-qt";
+    "pkg-config-wrapper" = "pkg-config";
+  };
+
   environment.sessionVariables = {
     DOTFILES = xelib.location;
     HOSTNAME = hostname;
