@@ -162,9 +162,12 @@ let
       rekey=no
       ikelifetime=8h
       keylife=8h
-      # dpdaction was removed in libreswan 5: a dead peer always clears the SA
-      dpddelay=30
-      dpdtimeout=120
+      # server-side DPD stays off (defaults are 0/off). In libreswan 5 a DPD
+      # hold is connection-instance-wide and uniqueids is ignored for
+      # xauthserver+authby=secret group-PSK clients, so a stale SA's DPD timer
+      # was killing the client's just-re-established tunnel on wake-up
+      # reconnects. iOS runs its own DPD/auto-retry anyway; unclean vanish
+      # leaves a stale SA that self-expires with the negotiated SA lifetime.
       ike=aes256-sha2-modp2048,aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1536,3des-sha1-modp1536,aes256-sha1-modp1024,aes128-sha1-modp1024,3des-sha1-modp1024
       esp=aes256-sha1,aes128-sha1,3des-sha1
       auto=add
@@ -196,8 +199,7 @@ let
       rekey=no
       ikelifetime=8h
       keylife=8h
-      dpddelay=30
-      dpdtimeout=120
+
       ike=aes256-sha2-modp2048,aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1536,3des-sha1-modp1536,aes256-sha1-modp1024,aes128-sha1-modp1024,3des-sha1-modp1024
       esp=aes256-sha1,aes128-sha1,3des-sha1
       auto=add
