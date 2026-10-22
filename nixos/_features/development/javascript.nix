@@ -9,6 +9,9 @@
     # package managers
     pnpm
     yarn
+
+    # formatters
+    prettier
   ];
 
   programs.vscode.extensions = with pkgs.vscode-stores; [

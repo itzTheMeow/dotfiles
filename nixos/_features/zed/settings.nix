@@ -37,7 +37,6 @@ in
   middle_click_paste = false;
   multi_cursor_modifier = "cmd_or_ctrl";
   drag_and_drop_selection.delay = 500;
-  autoscroll_on_clicks = true;
   hide_mouse = "never";
   completion_menu_item_kind = "symbol";
   search.search_on_type = true;
