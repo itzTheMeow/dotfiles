@@ -9,6 +9,8 @@ let
   subdomain = "apt";
 in
 {
+  imports = [ ./apt-mirror.nix ];
+
   services.nginx.virtualHosts."${subdomain}.${xelib.domain}" = {
     addSSL = true;
     enableACME = true;
