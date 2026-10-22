@@ -54,6 +54,11 @@
   # enable usbmuxd service
   services.usbmuxd.enable = true;
 
+  # allow access to apple devices
+  services.udev.extraRules = ''
+    SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", MODE:="0666", TAG+="uaccess"
+  '';
+
   # fonts
   fonts = {
     fontconfig.enable = true;
