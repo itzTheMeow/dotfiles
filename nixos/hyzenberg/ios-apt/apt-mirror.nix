@@ -58,12 +58,21 @@ let
       name = "zestlabs"; # ReformX
       url = "https://zestlabs.github.io";
     }
+    {
+      name = "kittymaxine";
+      url = "https://kittymaxine.com/repo";
+    }
+    {
+      name = "julioverne";
+      url = "https://julioverne.github.io";
+    }
+    {
+      name = "preloading";
+      url = "https://cydia.preloading.dev";
+    }
     # https://apt.thebigboss.com/repofiles/cydia
     # https://repo.chariz.com
     # https://havoc.app
-    # https://julioverne.github.io
-    # https://kittymaxine.com/repo
-    # https://cydia.preloading.dev
   ];
 
   mirrorConfig = pkgs.writeText "apt-mirror-config.json" (
