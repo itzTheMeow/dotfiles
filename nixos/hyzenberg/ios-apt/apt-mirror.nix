@@ -12,6 +12,10 @@ let
   # master repo list
   repos = [
     {
+      name = "cydia";
+      url = "http://apt.saurik.com";
+    }
+    {
       name = "victorlobe";
       url = "https://repo.victorlobe.me/";
     }
@@ -27,7 +31,7 @@ let
       name = "zodttd";
       url = "http://zodttd.saurik.com/repo/cydia";
     }
-    # http://apt.saurik.com
+    #
     # http://modmyi.saurik.com
   ];
 
