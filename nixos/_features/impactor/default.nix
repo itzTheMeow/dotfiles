@@ -1,3 +1,4 @@
 { pkgs, ... }: {
-  environment.systemPackages = [ pkgs.impactor ];
+  #TODO:26.11 stable
+  environment.systemPackages = [ pkgs.unstable.impactor ];
 }
