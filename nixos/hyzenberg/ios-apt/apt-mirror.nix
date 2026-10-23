@@ -59,6 +59,14 @@ in
 
   dnszones.list.${xelib.domain}.subdomains.${subdomain} = with xelib.dns; pointHost hostname;
 
+  # needs a dedicated /var/lib directory/user
+  # we cant use DynamicUser because it needs to be readable for nginx
+  users.users.apt-mirror = {
+    isSystemUser = true;
+    group = "apt-mirror";
+  };
+  users.groups.apt-mirror = { };
+
   systemd.services.apt-mirror = {
     description = "Mirror legacy iOS apt repositories";
     after = [ "network-online.target" ];
@@ -66,8 +74,10 @@ in
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${mirror}/bin/xela-apt-mirror --config ${mirrorConfig}";
-      DynamicUser = true;
+      User = "apt-mirror";
+      Group = "apt-mirror";
       StateDirectory = "apt-mirrors";
+      StateDirectoryMode = "0755";
       UMask = "0022";
       TimeoutStartSec = "2h";
 
