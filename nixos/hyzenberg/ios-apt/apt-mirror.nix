@@ -23,9 +23,12 @@ let
       name = "invoxiplaygames-beta";
       url = "https://cydia.invoxiplaygames.uk/beta";
     }
+    {
+      name = "zodttd";
+      url = "http://zodttd.saurik.com/repo/cydia";
+    }
     # http://apt.saurik.com
     # http://modmyi.saurik.com
-    # http://zodttd.saurik.com/repo/cydia
   ];
 
   mirrorConfig = pkgs.writeText "apt-mirror-config.json" (
