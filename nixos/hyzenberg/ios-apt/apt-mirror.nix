@@ -105,6 +105,31 @@ let
       }) repos;
     }
   );
+
+  # static package-manager app icons
+  appIcons = pkgs.linkFarm "apt-mirror-app-icons" [
+    {
+      name = "cydia.png";
+      path = pkgs.fetchurl {
+        url = "https://web.archive.org/web/20110826042342im_/http://cydia.saurik.com/icon.png";
+        hash = "sha256-STJa0dO86A5/tmSM271qAydycn8IaZOBKXUV91iXbqw=";
+      };
+    }
+    {
+      name = "sileo.png";
+      path = pkgs.fetchurl {
+        url = "https://web.archive.org/web/20261003142242im_/https://getsileo.app/img/icon.png";
+        hash = "sha256-zUqseciAkV9iDWkgbHbIKwqV1vZbJUH2RRImaKZey8Q=";
+      };
+    }
+    {
+      name = "zebra.png";
+      path = pkgs.fetchurl {
+        url = "https://web.archive.org/web/20220105021954im_/https://getzbra.com/apple-touch-icon.png";
+        hash = "sha256-EqIVyGmFkYfPQLsXH9a2ZgAcnIE2/0k5w4T4IsyTy4w=";
+      };
+    }
+  ];
 in
 {
   services.nginx.virtualHosts."${subdomain}.${xelib.domain}" = {
@@ -133,6 +158,10 @@ in
     wants = [ "network-online.target" ];
     serviceConfig = {
       Type = "oneshot";
+      ExecStartPre = [
+        "${pkgs.coreutils}/bin/mkdir -p ${dataDir}/assets/apps"
+        "${pkgs.coreutils}/bin/cp -f ${appIcons}/cydia.png ${appIcons}/sileo.png ${appIcons}/zebra.png ${dataDir}/assets/apps/"
+      ];
       ExecStart = "${mirror}/bin/xela-apt-mirror --config ${mirrorConfig}";
       User = "apt-mirror";
       Group = "apt-mirror";
