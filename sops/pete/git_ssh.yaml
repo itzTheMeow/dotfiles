@@ -3,17 +3,17 @@ github_auth: ENC[AES256_GCM,data:XTItNB6VAGvKoWzKU7paWCBoHcxMDagWD3Emdbk9CvGSNla
 github_signing: ENC[AES256_GCM,data:hcOnuIMtzFpwK8o8CwOYuFYGv+1YPoAAbXaKQlTJuKlrs4SPDgjiRULgmftwZs72ULxGG5q2Z/SqYUqNvNg2OLy2x+9e4/ImiqSdZbuixfE=,iv:6SRtdKEq4eiEAk+x4nU7s/9Xzs+YODAvCmtcjrZND9E=,tag:KwmedivNnTpiM7jmjhy94w==,type:str]
 nvstly_deploy: ENC[AES256_GCM,data:DK1gcqtA5+m7zuobj5ktaQTZ9q9mkw863WeDDo8b06pzW+H9dQecf1gzcGoOvEF7IUD5cfTpHnF+QgzdbXgR/EAgLtpU3yu9s6rjbfPlcpEiq31+Dv+Ykiqw3yiYYC+brBPao6hz06Lq9ndxZvbHHoSz2/YaqSkJFVHCAg/PLwWYHrklvyEtOTP24y6tafaj5R0BDaXTi0BGDFnfHZUPOv/MRLlnkcbI,iv:290ldmjGrzjjcsJ1vHr1+W6xZAr/8Xtr56FtJmoVlxA=,tag:vBvXKcByXXp7AD53rIra6A==,type:str]
 sops:
-    age:
-        - recipient: age1er4227v3c5vjewwljsl6gg2lsm37vywvaflnxqfelf24rx4yw5fqup7dt8
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSByMmdpTVozVzQyOTNLMFl5
-            TktSUk1PV1FQa3NkalEyTWdPQ1owREhJaGpVCnFxOVhIM0YwQ0lsNXUrQkZtNVZY
-            NjFhbU1uaVBEdTdwVHhqSmJkZVdDeWcKLS0tIHRQd3J1ZXVRUisxZ3RHZVMrL3c5
-            NS9HcENIekZiY3FvSWNUUE9LKzlwS0UKNvzVImDISBsC6I/vogA5UKa/pdd3tX07
-            kuCYEO5WuTHxlsAJOU/FzuIzg4ENsP3pRu48ptstPLxf4uMuiIr9ag==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-10-23T07:01:47Z"
-    mac: ENC[AES256_GCM,data:GYv9K+co2oGEuwhg60vT6Jwel7LnzQJZSQwHi5X8HIe7CVZYZ1Ll8ANwNoN9LRdo8v6OX0DwXXkFb3mmZZ5JWaADNK02Ryykajz1dR46pmLcF1c+850Vmy586AP3/fwgK3INrZN3indDP+dureJMGPDSSqezOptUXowf5qcUeEA=,iv:enVlxJrWsclY1XD4us4qyPdrGyf28Oth8E5nDI5KKsc=,tag:gpQZKzVaOEtoFFuQj/lDSw==,type:str]
-    unencrypted_suffix: _unencrypted
-    version: 3.12.1
+  age:
+    - recipient: age1er4227v3c5vjewwljsl6gg2lsm37vywvaflnxqfelf24rx4yw5fqup7dt8
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSByMmdpTVozVzQyOTNLMFl5
+        TktSUk1PV1FQa3NkalEyTWdPQ1owREhJaGpVCnFxOVhIM0YwQ0lsNXUrQkZtNVZY
+        NjFhbU1uaVBEdTdwVHhqSmJkZVdDeWcKLS0tIHRQd3J1ZXVRUisxZ3RHZVMrL3c5
+        NS9HcENIekZiY3FvSWNUUE9LKzlwS0UKNvzVImDISBsC6I/vogA5UKa/pdd3tX07
+        kuCYEO5WuTHxlsAJOU/FzuIzg4ENsP3pRu48ptstPLxf4uMuiIr9ag==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-10-23T07:01:47Z"
+  mac: ENC[AES256_GCM,data:GYv9K+co2oGEuwhg60vT6Jwel7LnzQJZSQwHi5X8HIe7CVZYZ1Ll8ANwNoN9LRdo8v6OX0DwXXkFb3mmZZ5JWaADNK02Ryykajz1dR46pmLcF1c+850Vmy586AP3/fwgK3INrZN3indDP+dureJMGPDSSqezOptUXowf5qcUeEA=,iv:enVlxJrWsclY1XD4us4qyPdrGyf28Oth8E5nDI5KKsc=,tag:gpQZKzVaOEtoFFuQj/lDSw==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1

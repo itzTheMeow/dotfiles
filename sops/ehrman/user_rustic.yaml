@@ -1,17 +1,17 @@
 downloads: ENC[AES256_GCM,data:2Xg0jTzqLMm6ANjufN5IohrSUTs5DTwaj/+FITt8vi9UskgqEaTGoA15KlslbCAgE9jKjAyIauZVUlPE7LDzxyNf8g1861zXt+XH3cfom4K//JSzCQoCIFgSZHwL7axZG+hURA==,iv:ZIAGCGIzsVQ5QJPoYaFCOq4jHEZGzmS4VCWK1hQjgyY=,tag:col+g96E7JAN6DPUtdL8aw==,type:str]
 ehrman: ENC[AES256_GCM,data:Oe12Kz0EARpa9ArQIS/t8RsUjFzVocss1bijqUR2sdT36SZcB+TrBsfLeJgqD/oikfYXV3aABD+I4h72zkHIKI8objcim1RtihDKhOgMC8uECHNGrKbdRKjLx6VAOt97e3rUWg==,iv:Zbha1kioVbjPNSkCEh4DU2rYb1eG6lzHOrwzDkT/LsE=,tag:LBaEBhXyZjbA23zLz4OpqA==,type:str]
 sops:
-    age:
-        - recipient: age1rxcfmv2y3nsjs2gyy4vegeaazlpsensttjkhn0ue96z2edduf37q0kcdfw
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRYTV0Mlg4NGR5NEZndWdk
-            MHZQTVBIVllWZTJxNDBJdUp5RThLSEY5djE0CmdDZHdNSWpkQXRpeFM2NWNWRnBC
-            UC9XTXF6elZMZUFKZTErMlF5NUZGeGcKLS0tIEh2RnZMMk52S2doWFdFRkVYb2w0
-            akJSbUZxT0ZNNzBiV0RMdnpHNzNUMzAK8fwzBZO/VfFWxks8IMHjSkhYQceUIJsZ
-            bTQXkPba7/6Ool98RRlX0zxz6EZZbFakE5wbHmyQ5NwbrnBr16/7sA==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-10-23T07:01:47Z"
-    mac: ENC[AES256_GCM,data:OLe1InL8ynY2DIJhwMM7c05IPuJczm+szQaTFs+a1R9tiwOqJsC1NWsIN5+RBGorOwAEMpcl9CmjKx4l7cDeoluITA0NhvUJt9KEp23dtS7vKaLmW1U7riwOS45n7zwYPqvl6RH9oXB5lqQZC6XUCN4tBiomvnLpPvsLquRVDwU=,iv:TsTwtuinmOpK2GW08c1g29IeO1iYjsKUrBEE14eed8w=,tag:Zr5VNPRVhfJkAENjdQ0t0A==,type:str]
-    unencrypted_suffix: _unencrypted
-    version: 3.12.1
+  age:
+    - recipient: age1rxcfmv2y3nsjs2gyy4vegeaazlpsensttjkhn0ue96z2edduf37q0kcdfw
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRYTV0Mlg4NGR5NEZndWdk
+        MHZQTVBIVllWZTJxNDBJdUp5RThLSEY5djE0CmdDZHdNSWpkQXRpeFM2NWNWRnBC
+        UC9XTXF6elZMZUFKZTErMlF5NUZGeGcKLS0tIEh2RnZMMk52S2doWFdFRkVYb2w0
+        akJSbUZxT0ZNNzBiV0RMdnpHNzNUMzAK8fwzBZO/VfFWxks8IMHjSkhYQceUIJsZ
+        bTQXkPba7/6Ool98RRlX0zxz6EZZbFakE5wbHmyQ5NwbrnBr16/7sA==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-10-23T07:01:47Z"
+  mac: ENC[AES256_GCM,data:OLe1InL8ynY2DIJhwMM7c05IPuJczm+szQaTFs+a1R9tiwOqJsC1NWsIN5+RBGorOwAEMpcl9CmjKx4l7cDeoluITA0NhvUJt9KEp23dtS7vKaLmW1U7riwOS45n7zwYPqvl6RH9oXB5lqQZC6XUCN4tBiomvnLpPvsLquRVDwU=,iv:TsTwtuinmOpK2GW08c1g29IeO1iYjsKUrBEE14eed8w=,tag:Zr5VNPRVhfJkAENjdQ0t0A==,type:str]
+  unencrypted_suffix: _unencrypted
+  version: 3.12.1
