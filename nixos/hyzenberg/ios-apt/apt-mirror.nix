@@ -31,6 +31,10 @@ let
       distribution = "stable";
     }
     {
+      name = "chariz";
+      url = "https://repo.chariz.com";
+    }
+    {
       name = "victorlobe";
       url = "https://repo.victorlobe.me/";
     }
@@ -74,10 +78,12 @@ let
       name = "preloading";
       url = "https://cydia.preloading.dev";
     }
-    # https://repo.chariz.com
+    {
+      name = "lenglengyu";
+      url = "https://lenglengyu.com";
+    }
     # https://havoc.app
 
-    # https://lenglengyu.com
     # https://dxcool223-repo.github.io/repo
     # https://ellekit.space
     # https://build.frida.re
