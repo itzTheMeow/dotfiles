@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/url"
@@ -23,6 +24,26 @@ var (
 var (
 	errShortBody = errors.New("empty body")
 )
+
+// depictJsonShadows: known generated-repo JSON bootstrap conventions,
+// "<id>" is replaced with the depiction's id query param
+var depictJsonShadows = []string{
+	"data/<id>/<id>.json",
+	"data/<id>.json",
+	"<id>.json",
+}
+
+// pageJSONRe detects inline-script JSON bootstrap pages worth probing
+var pageJSONRe = regexp.MustCompile(`(?i)\.json`)
+
+// json asset refs: page-relative image paths inside the depiction JSON
+var jsonAssetRe = regexp.MustCompile(`"(?:[^"{}\\]*)\.(?:png|jpg|jpeg|gif|webp|svg|ico)"`)
+
+// jsonLiteralRe finds literal *.json path refs (page-relative or absolute)
+var jsonLiteralRe = regexp.MustCompile("(?i)['\"]([^'\"\\s]+\\.json)['\"]")
+
+// assetLiteralRe finds literal relative image refs inside a page body
+var assetLiteralRe = regexp.MustCompile("(?i)['\"]([^'\"\\s]+\\.(?:png|jpe?g|gif|webp|svg|ico))['\"]")
 
 func sameHost(u1, u2 string) bool {
 	h1, h2 := hostOf(u1), hostOf(u2)
@@ -266,6 +287,278 @@ type archiver struct {
 	baseURL   string
 	repoDir   string
 	assetsDir string
+
+	jsonMu     sync.Mutex
+	jsonTpl    string
+	jsonProbed bool
+	jsonSaved  int
+	jsonDone   map[string]bool
+	mirrDone   map[string]bool
+	mirrBad    map[string]bool
+}
+
+// newArchiver initializes the depiction-JSON learning state
+func (a *archiver) initJSON() {
+	a.jsonDone = map[string]bool{}
+	a.mirrDone = map[string]bool{}
+	a.mirrBad = map[string]bool{}
+}
+
+// depictID extracts the id query param from a depiction URL
+func depictID(raw string) string {
+	uu, err := url.Parse(raw)
+	if err != nil {
+		return ""
+	}
+	return uu.Query().Get("id")
+}
+
+// relToDir renders absurl's clean path relative to dirPath, or "" when it
+// would escape the dir (traversal) or is unusable
+func relToDir(dirPath, absurl string) string {
+	uu, err := url.Parse(absurl)
+	if err != nil {
+		return ""
+	}
+	rel, err := filepath.Rel(path.Clean(dirPath), path.Clean(uu.Path))
+	if err != nil || rel == "" || rel == "." || strings.HasPrefix(rel, "../") {
+		return ""
+	}
+	return filepath.ToSlash(rel)
+}
+
+// relToPageDir wraps relToDir with the dir of a depiction page URL
+func relToPageDir(pageURL, absurl string) string {
+	uu, err := url.Parse(pageURL)
+	if err != nil {
+		return ""
+	}
+	return relToDir(path.Dir(uu.Path), absurl)
+}
+
+// jsonAssetVals walks a JSON document and returns page-relative image-path
+// string values worth mirroring
+func jsonAssetVals(body []byte) []string {
+	var root interface{}
+	if json.Unmarshal(body, &root) != nil {
+		return nil
+	}
+	vals := []string{}
+	var walk func(v interface{})
+	walk = func(v interface{}) {
+		switch tv := v.(type) {
+		case string:
+			if len(tv) > 4 && len(tv) < 300 && !strings.ContainsAny(tv, ":\\?{}") &&
+				jsonAssetRe.MatchString(`"`+tv+`"`) {
+				vals = append(vals, tv)
+			}
+		case []interface{}:
+			for _, item := range tv {
+				walk(item)
+			}
+		case map[string]interface{}:
+			keys := make([]string, 0, len(tv))
+			for k := range tv {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				walk(tv[k])
+			}
+		}
+	}
+	walk(root)
+	return sortedSet(vals)
+}
+
+// learnJSONTpl probes the known JSON bootstrap conventions once and remembers
+// the working pattern ("data/<id>/<id>.json" etc) for the rest of the run;
+// returns "" when no convention matches this repo
+func (a *archiver) learnJSONTpl(pageURL, id string) string {
+	a.jsonMu.Lock()
+	tpl, probed := a.jsonTpl, a.jsonProbed
+	a.jsonMu.Unlock()
+	if probed && tpl == "" {
+		return ""
+	}
+	if tpl != "" || probed {
+		return tpl
+	}
+	for _, cand := range depictJsonShadows {
+		candidate := strings.ReplaceAll(cand, "<id>", id)
+		resolved, ok := resolveRef(pageURL, candidate)
+		if !ok {
+			continue
+		}
+		body, _, err := a.f.Fetch(resolved)
+		if err != nil || !json.Valid(body) || !bytes.Contains(body, []byte(`"id"`)) {
+			continue
+		}
+		a.jsonMu.Lock()
+		a.jsonTpl = cand
+		a.jsonMu.Unlock()
+		return cand
+	}
+	a.jsonMu.Lock()
+	a.jsonProbed = true
+	a.jsonMu.Unlock()
+	return ""
+}
+
+// mirrorJSON archives a JSON-bootstrapped depiction's data file at its
+// upstream-relative path (so the page's own JS URL keeps resolving) plus
+// literal page-relative refs from the page and the data; image refs fall
+// back to repo-root resolution because generated depictions mix page-relative
+// literals with repo-root JSON fields
+func (a *archiver) mirrorJSON(pageURL, tpl, id string, pageBody []byte) {
+	// literal refs inside the page inline JS (helper .json + resources/*.png|ico)
+	for _, re := range []*regexp.Regexp{jsonLiteralRe, assetLiteralRe} {
+		for _, ref := range pageLiteralRefs(pageBody, re) {
+			if rURL, ok := resolveRef(pageURL, ref); ok {
+				a.mirrorOne(rURL, ref)
+			}
+		}
+	}
+	candidate := strings.ReplaceAll(tpl, "<id>", id)
+	resolved, ok := resolveRef(pageURL, candidate)
+	if !ok {
+		return
+	}
+	a.jsonMu.Lock()
+	done := a.jsonDone[resolved]
+	a.jsonDone[resolved] = true
+	a.jsonMu.Unlock()
+	if done {
+		return
+	}
+	body, _, err := a.f.Fetch(resolved)
+	if err != nil || !json.Valid(body) || !bytes.Contains(body, []byte(`"id"`)) {
+		if err == nil {
+			err = errors.New("not a depiction json")
+		}
+		a.eg.add("depiction-json", resolved, err)
+		return
+	}
+	if rel := relToPageDir(pageURL, resolved); rel != "" {
+		if err := writeAtomic(filepath.Join(a.repoDir, "_archive", "depictions", rel), body); err != nil {
+			a.eg.add("depiction-json", resolved, err)
+			return
+		}
+	}
+	a.jsonMu.Lock()
+	a.jsonSaved++
+	a.jsonMu.Unlock()
+
+	// image-ish refs inside the data: page-relative first, repo-root fallback
+	for _, ref := range jsonAssetVals(body) {
+		if strings.HasPrefix(ref, "../") {
+			continue
+		}
+		a.jsonMu.Lock()
+		done := a.mirrDone[ref]
+		bad := a.mirrBad[ref]
+		a.mirrDone[ref] = true
+		a.jsonMu.Unlock()
+		if done || bad {
+			continue
+		}
+		var body2 []byte
+		if rURL, ok := resolveRef(pageURL, ref); ok {
+			body2, _, err = a.f.Fetch(rURL)
+		}
+		if err != nil || len(body2) == 0 {
+			if rURL, ok := resolveRef(a.baseURL, ref); ok {
+				body2, _, err = a.f.Fetch(rURL)
+			} else {
+				err = errors.New("not resolvable")
+			}
+		}
+		if err != nil || len(body2) == 0 {
+			if err == nil {
+				err = errShortBody
+			}
+			a.jsonMu.Lock()
+			a.mirrBad[ref] = true
+			a.jsonMu.Unlock()
+			a.eg.add("asset", ref, err)
+			continue
+		}
+		if err := writeAtomic(filepath.Join(a.repoDir, "_archive", "depictions", ref), body2); err != nil {
+			a.jsonMu.Lock()
+			a.mirrBad[ref] = true
+			a.jsonMu.Unlock()
+			a.eg.add("asset", ref, err)
+			continue
+		}
+		a.jsonMu.Lock()
+		a.jsonSaved++
+		a.jsonMu.Unlock()
+	}
+}
+
+// mirrorOne fetches rURL and mirrors it at fileRel under _archive/depictions;
+// deduped per run (including failures)
+func (a *archiver) mirrorOne(rURL, fileRel string) {
+	if fileRel == "" || strings.HasPrefix(fileRel, "../") {
+		return
+	}
+	a.jsonMu.Lock()
+	done := a.mirrDone[rURL]
+	bad := a.mirrBad[rURL]
+	a.mirrDone[rURL] = true
+	a.jsonMu.Unlock()
+	if done || bad {
+		return
+	}
+	body, _, err := a.f.Fetch(rURL)
+	if err != nil || len(body) == 0 {
+		if err == nil {
+			err = errShortBody
+		}
+		a.jsonMu.Lock()
+		a.mirrBad[rURL] = true
+		a.jsonMu.Unlock()
+		a.eg.add("asset", rURL, err)
+		return
+	}
+	if err := writeAtomic(filepath.Join(a.repoDir, "_archive", "depictions", fileRel), body); err != nil {
+		a.jsonMu.Lock()
+		a.mirrBad[rURL] = true
+		a.jsonMu.Unlock()
+		a.eg.add("asset", rURL, err)
+		return
+	}
+	a.jsonMu.Lock()
+	a.jsonSaved++
+	a.jsonMu.Unlock()
+}
+
+// pageLiteralRefs extracts literal path strings matching re from a page body,
+// keeping only recoverable page-relative ones
+func pageLiteralRefs(body []byte, re *regexp.Regexp) []string {
+	vals := []string{}
+	for _, m := range re.FindAllStringSubmatch(string(body), -1) {
+		ref := m[1]
+		if strings.HasPrefix(ref, "../") || strings.Contains(ref, "//") {
+			continue
+		}
+		vals = append(vals, ref)
+	}
+	return sortedSet(vals)
+}
+
+// depictJSON archives the JSON data + assets behind a JS-bootstrapped
+// depiction page, learning the repo's template convention on the first hit
+func (a *archiver) depictJSON(pageURL string, pageBody []byte) {
+	id := depictID(pageURL)
+	if id == "" {
+		return
+	}
+	tpl := a.learnJSONTpl(pageURL, id)
+	if tpl == "" {
+		return
+	}
+	a.mirrorJSON(pageURL, tpl, id, pageBody)
 }
 
 // fetchAssets archives a batch of same-host assets (recursing into CSS),
@@ -433,6 +726,9 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 			}
 			a.eg.add("depiction", j.url, err)
 			return nil
+		}
+		if pageJSONRe.Match(body) {
+			a.depictJSON(j.url, body)
 		}
 		assets := a.fetchAssets(extractAssetCands(body, j.url), 0)
 		rewritten := rewriteRefs(body, j.url, assets, "../assets/")

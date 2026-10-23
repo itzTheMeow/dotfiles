@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"html"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -231,7 +232,11 @@ func renderRepoHTML(pkg *BrowserData) string {
 			dep := ""
 			for _, r := range v.Depictions {
 				if r.Archived != "" {
-					dep += ` · <a href="` + esc(r.Archived) + `">description</a>`
+					linkArchived := r.Archived
+					if id := depictID(r.Original); id != "" {
+						linkArchived += "?id=" + url.QueryEscape(id)
+					}
+					dep += ` · <a href="` + esc(linkArchived) + `">description</a>`
 				}
 				dep += ` · <a href="` + esc(r.Original) + `">upstream page</a>`
 			}

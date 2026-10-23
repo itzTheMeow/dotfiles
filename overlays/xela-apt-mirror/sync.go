@@ -511,12 +511,13 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 		repoDir:   repoDir,
 		assetsDir: filepath.Join(repoDir, "_archive", "assets"),
 	}
+	arch.initJSON()
 	iconByPkg, iconsSaved := arch.icons(pkgEntries)
 	depArchived, depCount := arch.depictions(pkgEntries)
 	man.Icons = iconsSaved
 	man.Depictions = depCount
-	logger.Printf("archive: %d icons, %d depictions, %d assets, %d fetch errors",
-		iconsSaved, depCount, arch.cache.archived(), arch.eg.count())
+	logger.Printf("archive: %d icons, %d depictions, %d depiction data files, %d assets, %d fetch errors",
+		iconsSaved, depCount, arch.jsonSaved, arch.cache.archived(), arch.eg.count())
 	arch.eg.flush(logger)
 
 	pkgData := buildBrowser(pkgEntries, fileStates, iconByPkg, depArchived, baseURL)
