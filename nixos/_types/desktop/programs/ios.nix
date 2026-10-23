@@ -1,5 +1,5 @@
 # various tools for ios devices
-{ pkgs, ... }: {
+{ host, pkgs, ... }: {
   environment.systemPackages =
     with pkgs;
     [
