@@ -33,7 +33,25 @@ func NewFetcher(insecure bool) *Fetcher {
 		clone.InsecureSkipVerify = true
 		t.TLSClientConfig = clone
 	}
-	return &Fetcher{client: &http.Client{Transport: t, Timeout: 120 * time.Second}, ua: "xela-apt-mirror/1.0"}
+	return &Fetcher{
+		client: &http.Client{
+			Transport: t,
+			Timeout:   120 * time.Second,
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				if len(via) >= 10 {
+					return fmt.Errorf("too many redirects")
+				}
+				if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
+					return fmt.Errorf("redirect to non-http scheme %q", req.URL.Scheme)
+				}
+				if isInternalHost(req.URL.Host) {
+					return fmt.Errorf("redirect to internal host %q", req.URL.Host)
+				}
+				return nil
+			},
+		},
+		ua: "xela-apt-mirror/1.0",
+	}
 }
 
 func (f *Fetcher) do(method, rawurl, accept string, retries int) (*http.Response, error) {
@@ -83,9 +101,12 @@ func (f *Fetcher) Fetch(rawurl string) ([]byte, string, error) {
 		return nil, "", err
 	}
 	defer resp.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(resp.Body, maxFetchBytes))
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxFetchBytes+1))
 	if err != nil {
 		return nil, "", fmt.Errorf("read %s: %w", rawurl, err)
+	}
+	if int64(len(body)) > maxFetchBytes {
+		return nil, "", fmt.Errorf("read %s: response exceeds %d bytes", rawurl, maxFetchBytes)
 	}
 	return body, resp.Header.Get("Content-Type"), nil
 }
@@ -108,7 +129,7 @@ func (f *Fetcher) Download(rawurl, dest, size, sha256Hex, md5Hex string) (int64,
 		return 0, fmt.Errorf("open tmp: %w", err)
 	}
 	tmp := fh.Name()
-	n, readErr := io.Copy(fh, resp.Body)
+	n, readErr := io.Copy(fh, io.LimitReader(resp.Body, maxDebBytes+1))
 	closeErr := fh.Close()
 	if err2 := os.Chmod(tmp, 0o644); err2 != nil && closeErr == nil {
 		closeErr = err2
@@ -116,6 +137,10 @@ func (f *Fetcher) Download(rawurl, dest, size, sha256Hex, md5Hex string) (int64,
 	if readErr != nil {
 		os.Remove(tmp)
 		return 0, fmt.Errorf("download body: %w", readErr)
+	}
+	if n > maxDebBytes {
+		os.Remove(tmp)
+		return 0, fmt.Errorf("%s: download exceeds %d bytes", rawurl, maxDebBytes)
 	}
 	if closeErr != nil {
 		os.Remove(tmp)
@@ -137,15 +162,6 @@ func (f *Fetcher) Download(rawurl, dest, size, sha256Hex, md5Hex string) (int64,
 		return n, fmt.Errorf("rename: %w", err)
 	}
 	return n, nil
-}
-
-func ensureDirs(base string, sub ...string) error {
-	for _, s := range sub {
-		if err := os.MkdirAll(filepath.Join(base, s), 0o755); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func writeAtomic(dest string, data []byte) error {

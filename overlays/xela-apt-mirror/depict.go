@@ -181,14 +181,6 @@ func rewriteRefs(body []byte, baseURL string, refMap map[string]string, prefix s
 	return []byte(out)
 }
 
-func resolveRefOK(raw string, baseURL string, refMap map[string]string) (string, bool) {
-	v, ok := resolveRef(baseURL, raw)
-	if ok && refMap[v] != "" {
-		return v, true
-	}
-	return "", false
-}
-
 // fetchAssets...
 func fetchAssets(f *Fetcher, assetsDir string, cands []string, depth int) map[string]string {
 	res := map[string]string{}
@@ -247,7 +239,6 @@ func collectIcons(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) (map[
 	}
 	errs := runPool(3, len(jobs), func(i int) error {
 		j := jobs[i]
-		name := sanitizeName(assetBaseName(j.url)) + "_" + guessImageExt(j.url)
 		body, _, err := f.Fetch(j.url)
 		if err != nil {
 			return err
@@ -255,7 +246,7 @@ func collectIcons(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) (map[
 		if len(body) == 0 {
 			return errShortBody
 		}
-		name = sanitizeName(assetBaseName(j.url)) + "_" + sha256Hex(body)[:8] + guessImageExt(j.url)
+		name := sanitizeName(assetBaseName(j.url)) + "_" + sha256Hex(body)[:8] + guessImageExt(j.url)
 		dest := filepath.Join(repoDir, "_archive", "icons", name)
 		if err := writeAtomic(dest, body); err != nil {
 			return err
@@ -346,9 +337,10 @@ func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) 
 		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
 			return err
 		}
-		if err := os.WriteFile(dest, rewritten, 0o644); err != nil {
+		if err := writeAtomic(dest, rewritten); err != nil {
 			return err
 		}
+
 		depMu.Lock()
 		archived[j.url] = rel
 		depMu.Unlock()

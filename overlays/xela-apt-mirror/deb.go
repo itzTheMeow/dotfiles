@@ -14,12 +14,21 @@ import (
 	"strings"
 )
 
-func parseSize(s string) int64 {
+const (
+	statusOK      = "ok"
+	statusMissing = "missing"
+	statusLocked  = "locked"
+	statusSynced  = "synced"
+	statusFailed  = "failed"
+	statusStale   = "stale"
+)
+
+func parseSize(s string) (int64, bool) {
 	n, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64)
 	if err != nil || n < 0 {
-		return 0
+		return 0, false
 	}
-	return n
+	return n, true
 }
 
 func symlinkDepth(rel string) int {
@@ -61,25 +70,28 @@ func applyFetchError(st *debStatus, reqURL string, err error) {
 	}
 	switch {
 	case notFound:
-		st.state, st.reason = "missing", "404"
+		st.state, st.reason = statusMissing, "404"
 	case locked:
-		st.state, st.reason = "locked", "paid or auth-required"
+		st.state, st.reason = statusLocked, "paid or auth-required"
 	default:
-		st.state, st.reason = "missing", strings.TrimSpace(strings.TrimPrefix(err.Error(), reqURL+": "))
+		st.state, st.reason = statusMissing, strings.TrimSpace(strings.TrimPrefix(err.Error(), reqURL+": "))
 	}
 }
 
 // pullVerifiedIntoPool moves a freshly-verified local copy into the shared
-// pool and converts dest into a symlink pointing there
-func pullVerifiedIntoPool(dest, poolFile, key string, depth int) {
+// pool and converts dest into a symlink pointing there. Returns true on
+// success, false if the symlink could not be created.
+func pullVerifiedIntoPool(dest, poolFile, key string, depth int) bool {
 	if _, err := os.Stat(poolFile); err == nil {
 		os.Remove(dest)
 	} else if err := os.Rename(dest, poolFile); err != nil {
-		return
+		return false
 	}
 	if err := makeSymlink(dest, poolLinkTarget(depth, key)); err != nil {
 		log.Printf("pool symlink %s: %v", dest, err)
+		return false
 	}
+	return true
 }
 
 // ensureDeb mirrors one referenced .deb: shared-pool storage when the index
@@ -87,7 +99,7 @@ func pullVerifiedIntoPool(dest, poolFile, key string, depth int) {
 // "ok", "missing" (retry next run) or "locked" (paid package).
 func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 	t := st.task
-	st.state, st.reason = "missing", ""
+	st.state, st.reason = statusMissing, ""
 	if t.file == "" {
 		return
 	}
@@ -98,14 +110,16 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 	if key != "" {
 		poolFile = filepath.Join(poolPath, key+".deb")
 	}
+	expectedLink := poolLinkTarget(depth, key)
 
 	if key != "" {
 		if fi, err := os.Stat(poolFile); err == nil {
 			if sizeFits(fi.Size(), t.size) {
-				if err := makeSymlink(dest, poolLinkTarget(depth, key)); err == nil {
-					st.state = "ok"
+				if err := makeSymlink(dest, expectedLink); err == nil {
+					st.state = statusOK
 					return
 				}
+				log.Printf("pool %s: symlink failed, refetching: %v", key, err)
 			} else {
 				log.Printf("pool %s: cached size %d unexpected, refetching", key, fi.Size())
 			}
@@ -114,11 +128,11 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 
 	if fi, err := os.Lstat(dest); err == nil {
 		if fi.Mode()&os.ModeSymlink != 0 {
-			if link, err2 := os.Readlink(dest); err2 == nil && key != "" && strings.HasSuffix(link, "/_pool/"+key+".deb") {
+			if link, err2 := os.Readlink(dest); err2 == nil && key != "" && link == expectedLink {
 				// stat through the link: Lstat on the symlink itself only
 				// yields the target string length
 				if pf, errP := os.Stat(poolFile); errP == nil && sizeFits(pf.Size(), t.size) {
-					st.state = "ok"
+					st.state = statusOK
 					return
 				}
 			}
@@ -126,12 +140,13 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 		} else if fi.Mode().IsRegular() && sizeFits(fi.Size(), t.size) {
 			if err := verifyFileHash(dest, t.sha, t.md5); err == nil {
 				if key == "" {
-					st.state = "ok"
+					st.state = statusOK
 					return
 				}
-				pullVerifiedIntoPool(dest, poolFile, key, depth)
-				st.state = "ok"
-				return
+				if pullVerifiedIntoPool(dest, poolFile, key, depth) {
+					st.state = statusOK
+					return
+				}
 			}
 			os.Remove(dest)
 		} else {
@@ -146,10 +161,12 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 			applyFetchError(st, reqURL, err)
 			return
 		}
-		if err := makeSymlink(dest, poolLinkTarget(depth, key)); err != nil {
+		if err := makeSymlink(dest, expectedLink); err != nil {
 			log.Printf("%s: symlink: %v", t.file, err)
+			st.state, st.reason = statusMissing, err.Error()
+			return
 		}
-		st.state = "ok"
+		st.state = statusOK
 		return
 	}
 
@@ -168,11 +185,16 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 	if normalizeHex(t.md5) != "" {
 		writers = append(writers, md5.New())
 	}
-	n, readErr := io.Copy(io.MultiWriter(writers...), resp.Body)
+	n, readErr := io.Copy(io.MultiWriter(writers...), io.LimitReader(resp.Body, maxDebBytes+1))
 	closeErr := fh.Close()
 	if readErr != nil || closeErr != nil {
 		os.Remove(dest + ".tmp")
 		st.reason = fmt.Sprintf("download: %v", firstErr(readErr, closeErr))
+		return
+	}
+	if n > maxDebBytes {
+		os.Remove(dest + ".tmp")
+		st.reason = fmt.Sprintf("download exceeds %d bytes", maxDebBytes)
 		return
 	}
 	if !sizeFits(n, t.size) {
@@ -185,7 +207,7 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 		st.reason = err.Error()
 		return
 	}
-	st.state = "ok"
+	st.state = statusOK
 }
 
 func firstErr(errs ...error) error {

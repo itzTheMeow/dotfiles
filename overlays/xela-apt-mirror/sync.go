@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -147,8 +148,49 @@ func poolKeyOf(t debTask) string {
 }
 
 func sizeFits(got int64, want string) bool {
-	w := parseSize(want)
+	w, ok := parseSize(want)
+	if !ok {
+		return false
+	}
 	return w == 0 || got == w
+}
+
+func mustParseSize(s string) int64 {
+	n, _ := parseSize(s)
+	return n
+}
+
+func verifyIndex(body []byte, entry ReleaseEntry) error {
+	if entry.Path == "" {
+		return nil
+	}
+	if want, ok := parseSize(entry.Size); ok && want > 0 && int64(len(body)) != want {
+		return fmt.Errorf("size mismatch: got %d want %d", len(body), want)
+	}
+	if entry.Sha != "" {
+		want := normalizeHex(entry.Sha)
+		if want != "" {
+			switch len(want) {
+			case 64:
+				if sha256Hex(body) != want {
+					return fmt.Errorf("sha256 mismatch")
+				}
+			case 128:
+				if sha512Hex(body) != want {
+					return fmt.Errorf("sha512 mismatch")
+				}
+			default:
+				return fmt.Errorf("unsupported sha length %d", len(want))
+			}
+		}
+	}
+	if entry.Md5 != "" {
+		want := normalizeHex(entry.Md5)
+		if want != "" && md5Hex(body) != want {
+			return fmt.Errorf("md5 mismatch")
+		}
+	}
+	return nil
 }
 
 func mirrorURL(publicURL, name string) string {
@@ -159,25 +201,32 @@ func mirrorURL(publicURL, name string) string {
 // being served when an upstream dies
 func keepServing(dataDir string, old *RepoManifest, now time.Time) *RepoManifest {
 	old.LastAttempt = formatTime(now)
-	if old.Status == "synced" || old.Status == "" {
-		old.Status = "stale"
+	if old.Status == statusSynced || old.Status == "" {
+		old.Status = statusStale
 	}
 	writeManifest(dataDir, old)
 	return old
 }
 
 func runPool(n, count int, fn func(i int) error) []error {
+	if n <= 0 {
+		n = 1
+	}
 	errs := make([]error, count)
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, n)
+	jobs := make(chan int, count)
 	for i := 0; i < count; i++ {
+		jobs <- i
+	}
+	close(jobs)
+	for w := 0; w < n; w++ {
 		wg.Add(1)
-		go func(i int) {
+		go func() {
 			defer wg.Done()
-			sem <- struct{}{}
-			defer func() { <-sem }()
-			errs[i] = fn(i)
-		}(i)
+			for i := range jobs {
+				errs[i] = fn(i)
+			}
+		}()
 	}
 	wg.Wait()
 	return errs
@@ -202,6 +251,15 @@ func safeRel(p string) (string, bool) {
 	if c == "." || c == ".." || strings.HasPrefix(c, "../") || strings.HasPrefix(c, "/") {
 		return "", false
 	}
+	base := c
+	if i := strings.IndexAny(c, `/\`); i >= 0 {
+		base = c[:i]
+	}
+	for _, reserved := range []string{"_archive", "_meta", "_pool"} {
+		if base == reserved {
+			return "", false
+		}
+	}
 	return c, true
 }
 
@@ -221,9 +279,6 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 		LastAttempt: formatTime(now),
 	}
 	old := loadManifest(dataDir, name)
-	if old != nil {
-		man.Missing, man.Locked = old.Missing, old.Locked
-	}
 
 	f := NewFetcher(repo.Insecure)
 	finish := func(status string) {
@@ -235,7 +290,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	if relErr != nil {
 		if old == nil {
 			man.Error = relErr.Error()
-			finish("failed")
+			finish(statusFailed)
 			return man
 		}
 		logger.Printf("metadata unreachable, keeping last state: %v", relErr)
@@ -280,7 +335,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	if len(fetched) == 0 {
 		if old == nil {
 			man.Error = "no Packages indexes found"
-			finish("failed")
+			finish(statusFailed)
 			return man
 		}
 		logger.Printf("no indexes reachable, keeping last state")
@@ -292,8 +347,14 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	seenContent := map[string]bool{}
 	seenEntry := map[string]bool{}
 	for _, p := range sortedKeys(fetched) {
+		if ri != nil && ri.HasChecksums {
+			if err := verifyIndex(fetched[p], ri.Entries[p]); err != nil {
+				logger.Printf("index %s failed verification: %v", p, err)
+				continue
+			}
+		}
 		indexPaths = append(indexPaths, p)
-		decoded, err := decodeIndex(fetched[p], "")
+		decoded, err := decodeIndex(fetched[p])
 		if err != nil {
 			logger.Printf("decode %s: %v", p, err)
 			continue
@@ -315,7 +376,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	if len(pkgEntries) == 0 {
 		if old == nil {
 			man.Error = "no package entries parsed from indexes"
-			finish("failed")
+			finish(statusFailed)
 			return man
 		}
 		logger.Printf("no package entries parsed, keeping last state")
@@ -365,7 +426,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 
 	statuses := make([]debStatus, len(order))
 	for i := range order {
-		statuses[i] = debStatus{task: plan[order[i]], state: "ok"}
+		statuses[i] = debStatus{task: plan[order[i]], state: statusOK}
 	}
 	runPool(4, len(order), func(i int) error {
 		ensureDeb(f, baseURL, repoDir, poolDir(dataDir), &statuses[i])
@@ -378,9 +439,9 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 		s := statuses[i]
 		fileStates[s.task.file] = s
 		switch s.state {
-		case "missing":
+		case statusMissing:
 			man.Missing = append(man.Missing, MissingDeb{File: s.task.file, Reason: s.reason, Sha: s.task.sha, Md5: s.task.md5})
-		case "locked":
+		case statusLocked:
 			man.Locked = append(man.Locked, MissingDeb{File: s.task.file, Reason: s.reason, Sha: s.task.sha, Md5: s.task.md5})
 		default:
 			man.OK++
@@ -388,7 +449,9 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	}
 	gotLogic := int64(0)
 	for _, c := range order {
-		gotLogic += parseSize(plan[c].size)
+		if sz, ok := parseSize(plan[c].size); ok {
+			gotLogic += sz
+		}
 	}
 	man.Debs = len(order)
 	man.LogicalSize = gotLogic
@@ -406,22 +469,42 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	pkgData.Synced = man.LastAttempt
 	pkgData.Unique = len(pkgData.Packages)
 	man.Unique = len(pkgData.Packages)
-	writeBrowserArtifacts(dataDir, pkgData)
+	if err := writeBrowserArtifacts(dataDir, pkgData); err != nil {
+		logger.Printf("browser artifacts: %v", err)
+		man.Error = err.Error()
+		finish(statusFailed)
+		return man
+	}
 
 	for p, body := range extras {
 		if c, ok := safeRel(p); ok {
-			writeAtomic(filepath.Join(repoDir, c), body)
+			if err := writeAtomic(filepath.Join(repoDir, c), body); err != nil {
+				logger.Printf("write extra %s: %v", p, err)
+				man.Error = err.Error()
+				finish(statusFailed)
+				return man
+			}
 		}
 	}
 	for _, p := range sortedKeys(fetched) {
 		if c, ok := safeRel(p); ok {
-			writeAtomic(filepath.Join(repoDir, c), fetched[p])
+			if err := writeAtomic(filepath.Join(repoDir, c), fetched[p]); err != nil {
+				logger.Printf("write index %s: %v", p, err)
+				man.Error = err.Error()
+				finish(statusFailed)
+				return man
+			}
 		}
 	}
-	writeAtomic(filepath.Join(repoDir, "Release"), relBody)
+	if err := writeAtomic(filepath.Join(repoDir, "Release"), relBody); err != nil {
+		logger.Printf("write Release: %v", err)
+		man.Error = err.Error()
+		finish(statusFailed)
+		return man
+	}
 
 	man.Updated = formatTime(now)
-	finish("synced")
+	finish(statusSynced)
 	logger.Printf("synced: %d packages / %d versions, %d debs ok / %d missing / %d locked, %s referenced",
 		man.Unique, man.Versions, man.OK, len(man.Missing), len(man.Locked), humanSize(man.LogicalSize))
 	return man
@@ -457,8 +540,8 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 			bp.Section = v
 		}
 		if v := e.Get("homepage"); v != "" {
-			if _, okH := resolveRef(baseURL, v); okH {
-				bp.Homepage = v
+			if resolved, okH := resolveRef(baseURL, v); okH {
+				bp.Homepage = resolved
 			}
 		}
 		if bp.Description == "" {
@@ -466,8 +549,8 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 		}
 		row := BrowserVersion{
 			Version: e.Version(),
-			Status:  "ok",
-			Size:    parseSize(e.Get("size")),
+			Status:  statusOK,
+			Size:    mustParseSize(e.Get("size")),
 			Shasum:  e.Get("sha256"),
 			Author:  e.Get("author"),
 			Compat:  firstLine(e.Get("compatibility")),
@@ -475,7 +558,7 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 		if fn := e.Filename(); fn != "" {
 			c, okS := safeRel(fn)
 			if !okS {
-				row.Status, row.Reason = "missing", "invalid path"
+				row.Status, row.Reason = statusMissing, "invalid path"
 			} else {
 				row.Deb = c
 				if s, okS2 := fileStates[c]; okS2 {
@@ -484,7 +567,7 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 				}
 			}
 		} else {
-			row.Status = "missing"
+			row.Status = statusMissing
 			row.Reason = "no file listed"
 		}
 		refs := []DepictRef{}
@@ -512,9 +595,7 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 	out := make([]BrowserPackage, 0, len(ids))
 	for _, id := range ids {
 		bp := groups[id]
-		if iconByPkg != nil {
-			bp.Icon = iconByPkg[id]
-		}
+		bp.Icon = iconByPkg[id]
 		out = append(out, *bp)
 	}
 	return &BrowserData{Packages: out}

@@ -43,15 +43,15 @@ func poolStats(dataDir string) PoolStats {
 }
 
 func statusBadge(status, reason string) string {
-	class := map[string]string{"ok": "b-ok", "missing": "b-missing", "locked": "b-locked"}[status]
-	if status == "locked" {
+	class := map[string]string{statusOK: "b-ok", statusMissing: "b-missing", statusLocked: "b-locked"}[status]
+	if status == statusLocked {
 		return `<span class="badge b-locked" title="` + esc(reason) + `">paid</span>`
 	}
 	if class == "" {
 		return ""
 	}
-	label := map[string]string{"ok": "ok", "missing": "unavailable"}[status]
-	if reason != "" && status != "ok" {
+	label := map[string]string{statusOK: "ok", statusMissing: "unavailable"}[status]
+	if reason != "" && status != statusOK {
 		label += " · " + esc(reason)
 	}
 	return `<span class="badge ` + class + `">` + label + `</span>`
@@ -122,9 +122,9 @@ func renderLandingHTML(data LandingData) string {
 		}
 		b.WriteString(`<div class="repo">`)
 		status := `<span class="badge b-ok">` + esc(m.Status) + `</span>`
-		if m.Status == "stale" {
+		if m.Status == statusStale {
 			status = `<span class="badge b-locked">stale - upstream unreachable, serving last copy</span>`
-		} else if m.Status == "failed" {
+		} else if m.Status == statusFailed {
 			status = `<span class="badge b-missing">failed - ` + esc(m.Error) + `</span>`
 		}
 		b.WriteString(`<h2><a href="` + esc(m.Mirror) + `/">` + esc(m.Name) + `</a> ` + status + `</h2>`)

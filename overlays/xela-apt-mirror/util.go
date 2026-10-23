@@ -3,20 +3,35 @@ package main
 import (
 	"crypto/md5"
 	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
 	"hash"
 	"io"
+	"net"
 	"net/url"
 	"os"
 	"strings"
 	"time"
 )
 
-const maxFetchBytes = 512 << 20
+const (
+	maxFetchBytes = 512 << 20
+	maxDebBytes   = 2 << 30
+)
 
 func sha256Hex(b []byte) string {
 	s := sha256.Sum256(b)
+	return hex.EncodeToString(s[:])
+}
+
+func md5Hex(b []byte) string {
+	s := md5.Sum(b)
+	return hex.EncodeToString(s[:])
+}
+
+func sha512Hex(b []byte) string {
+	s := sha512.Sum512(b)
 	return hex.EncodeToString(s[:])
 }
 
@@ -141,4 +156,19 @@ func formatTime(t time.Time) string {
 		return "never"
 	}
 	return t.UTC().Format("2006-01-02 15:04 UTC")
+}
+
+func isInternalHost(host string) bool {
+	h, _, err := net.SplitHostPort(host)
+	if err != nil {
+		h = host
+	}
+	if h == "localhost" || strings.HasSuffix(h, ".localhost") {
+		return true
+	}
+	ip := net.ParseIP(h)
+	if ip == nil {
+		return false
+	}
+	return ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast()
 }

@@ -74,7 +74,7 @@ func parsePackages(data []byte) []PkgEntry {
 
 // byMagic handles upstreams serving gzip/bzip2/xz content without a
 // well-matched file extension
-func decodeIndex(content []byte, ct string) ([]byte, error) {
+func decodeIndex(content []byte) ([]byte, error) {
 	if len(content) < 4 {
 		return content, nil
 	}

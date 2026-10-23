@@ -34,7 +34,7 @@ func main() {
 	}
 	failed := 0
 	for _, m := range manifests {
-		if m == nil || m.Status == "failed" {
+		if m == nil || m.Status == statusFailed {
 			failed++
 		}
 	}

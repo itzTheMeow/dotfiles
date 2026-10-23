@@ -51,6 +51,9 @@ in
       autoindex on;
       index index.html;
     '';
+    locations."~* /_archive/depictions/.*\\.html$".extraConfig = ''
+      add_header Content-Security-Policy "default-src 'none'; script-src 'none'; img-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none';" always;
+    '';
   };
 
   dnszones.list.${xelib.domain}.subdomains.${subdomain} = with xelib.dns; pointHost hostname;
