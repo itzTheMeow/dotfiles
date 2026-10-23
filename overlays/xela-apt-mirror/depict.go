@@ -359,5 +359,5 @@ func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) 
 			log.Printf("depiction %s: %v", jobs[i].url, err)
 		}
 	}
-	return archived, len(jobs)
+	return archived, len(archived)
 }

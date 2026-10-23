@@ -110,7 +110,7 @@ func renderLandingHTML(data LandingData) string {
 		if m == nil {
 			continue
 		}
-		versions += m.Versions + 0
+		versions += m.Versions
 		logical += m.LogicalSize
 	}
 	b.WriteString(`<p class="muted">` + esc(itoa(int64(len(data.Repos)))) + ` repos · ` + esc(itoa(int64(versions))) + ` package versions · ` +

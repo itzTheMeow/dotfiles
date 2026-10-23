@@ -102,13 +102,17 @@ func (f *Fetcher) Download(rawurl, dest, size, sha256Hex, md5Hex string) (int64,
 			return 0, fmt.Errorf("%s: content-length %d != expected %s", rawurl, resp.ContentLength, size)
 		}
 	}
-	tmp := dest + ".tmp"
-	fh, err := os.OpenFile(tmp, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	dir := filepath.Dir(dest)
+	fh, err := os.CreateTemp(dir, filepath.Base(dest)+".*.tmp")
 	if err != nil {
 		return 0, fmt.Errorf("open tmp: %w", err)
 	}
+	tmp := fh.Name()
 	n, readErr := io.Copy(fh, resp.Body)
 	closeErr := fh.Close()
+	if err2 := os.Chmod(tmp, 0o644); err2 != nil && closeErr == nil {
+		closeErr = err2
+	}
 	if readErr != nil {
 		os.Remove(tmp)
 		return 0, fmt.Errorf("download body: %w", readErr)

@@ -112,9 +112,11 @@ func writeManifest(dataDir string, man *RepoManifest) {
 	}
 	raw, err := json.MarshalIndent(man, "", "  ")
 	if err != nil {
+		log.Printf("[%s] manifest marshal: %v", man.Name, err)
 		return
 	}
 	if err := os.MkdirAll(filepath.Join(dataDir, man.Name, "_meta"), 0o755); err != nil {
+		log.Printf("[%s] manifest dir: %v", man.Name, err)
 		return
 	}
 	if err := writeAtomic(man.manifestPath(dataDir), raw); err != nil {
@@ -209,8 +211,8 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	repoDir := filepath.Join(dataDir, name)
 	baseURL := strings.TrimRight(repo.URL, "/") + "/"
 	logger := log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
-	_ = os.MkdirAll(repoDir, 0o755)
-	_ = os.MkdirAll(poolDir(dataDir), 0o755)
+	os.MkdirAll(repoDir, 0o755)
+	os.MkdirAll(poolDir(dataDir), 0o755)
 
 	man := &RepoManifest{
 		Name:        name,
@@ -262,15 +264,13 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	listed, probes := discovery(ri)
 	paths := append(append([]string{}, listed...), probes...)
 	bodies := make([][]byte, len(paths))
-	for _, err := range runPool(4, len(paths), func(i int) error {
+	runPool(4, len(paths), func(i int) error {
 		body, _, err := f.Fetch(joinRawURL(baseURL, paths[i]))
 		if err == nil {
 			bodies[i] = body
 		}
 		return nil
-	}) {
-		_ = err
-	}
+	})
 	fetched := map[string][]byte{}
 	for i, p := range paths {
 		if bodies[i] != nil {
@@ -457,7 +457,9 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 			bp.Section = v
 		}
 		if v := e.Get("homepage"); v != "" {
-			bp.Homepage = v
+			if _, okH := resolveRef(baseURL, v); okH {
+				bp.Homepage = v
+			}
 		}
 		if bp.Description == "" {
 			bp.Description = firstLine(e.Get("description"))

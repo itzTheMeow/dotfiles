@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"hash"
 	"io"
 	"log"
 	"net/http"
@@ -66,7 +65,7 @@ func applyFetchError(st *debStatus, reqURL string, err error) {
 	case locked:
 		st.state, st.reason = "locked", "paid or auth-required"
 	default:
-		st.state, st.reason = "missing", strings.TrimSpace(strings.TrimPrefix(err.Error(), reqURL))
+		st.state, st.reason = "missing", strings.TrimSpace(strings.TrimPrefix(err.Error(), reqURL+": "))
 	}
 }
 
@@ -74,7 +73,7 @@ func applyFetchError(st *debStatus, reqURL string, err error) {
 // pool and converts dest into a symlink pointing there
 func pullVerifiedIntoPool(dest, poolFile, key string, depth int) {
 	if _, err := os.Stat(poolFile); err == nil {
-		_ = os.Remove(dest)
+		os.Remove(dest)
 	} else if err := os.Rename(dest, poolFile); err != nil {
 		return
 	}
@@ -123,7 +122,7 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 					return
 				}
 			}
-			_ = os.Remove(dest)
+			os.Remove(dest)
 		} else if fi.Mode().IsRegular() && sizeFits(fi.Size(), t.size) {
 			if err := verifyFileHash(dest, t.sha, t.md5); err == nil {
 				if key == "" {
@@ -133,17 +132,11 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 				pullVerifiedIntoPool(dest, poolFile, key, depth)
 				st.state = "ok"
 				return
-			} else {
-				_ = os.Remove(dest)
 			}
-		} else if key != "" {
-			if link, err2 := os.Readlink(dest); err2 == nil && strings.HasSuffix(link, "/_pool/"+key+".deb") {
-				if pf, errP := os.Stat(poolFile); errP == nil && sizeFits(pf.Size(), t.size) {
-					st.state = "ok"
-					return
-				}
-			}
-			_ = os.Remove(dest)
+			os.Remove(dest)
+		} else {
+			// unknown file type under the deb path: start over
+			os.Remove(dest)
 		}
 	}
 
@@ -171,23 +164,24 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 		st.reason = err.Error()
 		return
 	}
-	shaH, md5H := hash.Hash(sha256.New()), hash.Hash(md5.New())
-	n, readErr := io.Copy(io.MultiWriter(fh, shaH, md5H), resp.Body)
+	writers := []io.Writer{fh, sha256.New()}
+	if normalizeHex(t.md5) != "" {
+		writers = append(writers, md5.New())
+	}
+	n, readErr := io.Copy(io.MultiWriter(writers...), resp.Body)
 	closeErr := fh.Close()
 	if readErr != nil || closeErr != nil {
-		_ = os.Remove(dest + ".tmp")
-		_ = resp.Body.Close()
+		os.Remove(dest + ".tmp")
 		st.reason = fmt.Sprintf("download: %v", firstErr(readErr, closeErr))
 		return
 	}
-	_ = resp.Body.Close()
 	if !sizeFits(n, t.size) {
-		_ = os.Remove(dest + ".tmp")
+		os.Remove(dest + ".tmp")
 		st.reason = fmt.Sprintf("size mismatch: got %d want %s", n, t.size)
 		return
 	}
 	if err := os.Rename(dest+".tmp", dest); err != nil {
-		_ = os.Remove(dest + ".tmp")
+		os.Remove(dest + ".tmp")
 		st.reason = err.Error()
 		return
 	}
