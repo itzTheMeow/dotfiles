@@ -116,7 +116,9 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 	if fi, err := os.Lstat(dest); err == nil {
 		if fi.Mode()&os.ModeSymlink != 0 {
 			if link, err2 := os.Readlink(dest); err2 == nil && key != "" && strings.HasSuffix(link, "/_pool/"+key+".deb") {
-				if sizeFits(fi.Size(), t.size) {
+				// stat through the link: Lstat on the symlink itself only
+				// yields the target string length
+				if pf, errP := os.Stat(poolFile); errP == nil && sizeFits(pf.Size(), t.size) {
 					st.state = "ok"
 					return
 				}
@@ -131,6 +133,15 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 				pullVerifiedIntoPool(dest, poolFile, key, depth)
 				st.state = "ok"
 				return
+			} else {
+				_ = os.Remove(dest)
+			}
+		} else if key != "" {
+			if link, err2 := os.Readlink(dest); err2 == nil && strings.HasSuffix(link, "/_pool/"+key+".deb") {
+				if pf, errP := os.Stat(poolFile); errP == nil && sizeFits(pf.Size(), t.size) {
+					st.state = "ok"
+					return
+				}
 			}
 			_ = os.Remove(dest)
 		}

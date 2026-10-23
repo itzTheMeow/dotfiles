@@ -189,11 +189,10 @@ func resolveRefOK(raw string, baseURL string, refMap map[string]string) (string,
 	return "", false
 }
 
-// fetchAssets downloads same-origin assets; nested CSS url() references are
-// fetched recursively and rewritten inside the stored CSS. Returns url->filename.
-func fetchAssets(f *Fetcher, assetsDir string, cands []string) map[string]string {
+// fetchAssets...
+func fetchAssets(f *Fetcher, assetsDir string, cands []string, depth int) map[string]string {
 	res := map[string]string{}
-	if len(cands) == 0 {
+	if len(cands) == 0 || depth > 3 {
 		return res
 	}
 	errs := runPool(3, len(cands), func(i int) error {
@@ -207,7 +206,7 @@ func fetchAssets(f *Fetcher, assetsDir string, cands []string) map[string]string
 		}
 		content := body
 		if looksLikeCSS(raw, ct, body) {
-			inner := fetchAssets(f, assetsDir, extractAssetCands(content, raw))
+			inner := fetchAssets(f, assetsDir, extractAssetCands(content, raw), depth+1)
 			content = rewriteRefs(content, raw, inner, "")
 		}
 		name := safeAssetName(raw)
@@ -308,8 +307,8 @@ func guessImageExt(raw string) string {
 }
 
 // collectDepictions archives every unique Depiction/SileoDepiction page as
-// rendered HTML; returns set of successfully archived URLs
-func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) (map[string]bool, int) {
+// rendered HTML; returns url -> archived rel path for successfully archived URLs
+func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) (map[string]string, int) {
 	type depJob struct {
 		id, raw, url string
 	}
@@ -329,10 +328,11 @@ func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) 
 			jobs = append(jobs, depJob{id: e.ID(), raw: raw, url: resolved})
 		}
 	}
-	archived := map[string]bool{}
+	archived := map[string]string{}
 	errs := runPool(3, len(jobs), func(i int) error {
 		j := jobs[i]
-		dest := filepath.Join(repoDir, "_archive", "depictions", sanitizeName(j.id)+".html")
+		rel := "_archive/depictions/" + sanitizeName(j.id) + "-" + sha256Hex([]byte(j.url))[:8] + ".html"
+		dest := filepath.Join(repoDir, "_archive", "depictions", sanitizeName(j.id)+"-"+sha256Hex([]byte(j.url))[:8]+".html")
 		body, _, err := f.Fetch(j.url)
 		if err != nil {
 			return err
@@ -341,7 +341,7 @@ func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) 
 			return errShortBody
 		}
 		assetsDir := filepath.Join(repoDir, "_archive", "assets")
-		assets := fetchAssets(f, assetsDir, extractAssetCands(body, j.url))
+		assets := fetchAssets(f, assetsDir, extractAssetCands(body, j.url), 0)
 		rewritten := rewriteRefs(body, j.url, assets, "../assets/")
 		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
 			return err
@@ -350,7 +350,7 @@ func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) 
 			return err
 		}
 		depMu.Lock()
-		archived[j.url] = true
+		archived[j.url] = rel
 		depMu.Unlock()
 		return nil
 	})

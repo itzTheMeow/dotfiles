@@ -261,17 +261,21 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 
 	listed, probes := discovery(ri)
 	paths := append(append([]string{}, listed...), probes...)
-	fetched := map[string][]byte{}
+	bodies := make([][]byte, len(paths))
 	for _, err := range runPool(4, len(paths), func(i int) error {
-		p := paths[i]
-		body, _, err := f.Fetch(joinRawURL(baseURL, p))
-		if err != nil {
-			return nil
+		body, _, err := f.Fetch(joinRawURL(baseURL, paths[i]))
+		if err == nil {
+			bodies[i] = body
 		}
-		fetched[p] = body
 		return nil
 	}) {
 		_ = err
+	}
+	fetched := map[string][]byte{}
+	for i, p := range paths {
+		if bodies[i] != nil {
+			fetched[p] = bodies[i]
+		}
 	}
 	if len(fetched) == 0 {
 		if old == nil {
@@ -286,19 +290,27 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	indexPaths := make([]string, 0, len(fetched))
 	var pkgEntries []PkgEntry
 	seenContent := map[string]bool{}
+	seenEntry := map[string]bool{}
 	for _, p := range sortedKeys(fetched) {
 		indexPaths = append(indexPaths, p)
-		key := sha256Hex(fetched[p])
-		if seenContent[key] {
-			continue
-		}
-		seenContent[key] = true
 		decoded, err := decodeIndex(fetched[p], "")
 		if err != nil {
 			logger.Printf("decode %s: %v", p, err)
 			continue
 		}
-		pkgEntries = append(pkgEntries, parsePackages(decoded)...)
+		decodedKey := sha256Hex(decoded)
+		if seenContent[decodedKey] {
+			continue
+		}
+		seenContent[decodedKey] = true
+		for _, e := range parsePackages(decoded) {
+			entryKey := e.ID() + "\x00" + e.Version() + "\x00" + e.Filename()
+			if seenEntry[entryKey] {
+				continue
+			}
+			seenEntry[entryKey] = true
+			pkgEntries = append(pkgEntries, e)
+		}
 	}
 	if len(pkgEntries) == 0 {
 		if old == nil {
@@ -424,7 +436,7 @@ func sortedKeys[V any](m map[string]V) []string {
 	return keys
 }
 
-func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg map[string]string, depArchived map[string]bool, baseURL string) *BrowserData {
+func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg map[string]string, depArchived map[string]string, baseURL string) *BrowserData {
 	groups := map[string]*BrowserPackage{}
 	var ids []string
 	for _, e := range entries {
@@ -458,17 +470,16 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 			Author:  e.Get("author"),
 			Compat:  firstLine(e.Get("compatibility")),
 		}
-		fnKey := ""
 		if fn := e.Filename(); fn != "" {
-			if c, okS := safeRel(fn); okS {
-				row.Deb = c
-				fnKey = c
+			c, okS := safeRel(fn)
+			if !okS {
+				row.Status, row.Reason = "missing", "invalid path"
 			} else {
-				fnKey = fn
-			}
-			if s, okS := fileStates[fnKey]; okS {
-				row.Status = s.state
-				row.Reason = s.reason
+				row.Deb = c
+				if s, okS2 := fileStates[c]; okS2 {
+					row.Status = s.state
+					row.Reason = s.reason
+				}
 			}
 		} else {
 			row.Status = "missing"
@@ -487,8 +498,8 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 			}
 			refSeen[res] = true
 			ref := DepictRef{Original: res}
-			if depArchived[res] {
-				ref.Archived = "_archive/depictions/" + sanitizeName(id) + ".html"
+			if rel := depArchived[res]; rel != "" {
+				ref.Archived = rel
 			}
 			refs = append(refs, ref)
 		}
