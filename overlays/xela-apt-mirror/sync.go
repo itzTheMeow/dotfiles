@@ -22,24 +22,25 @@ type MissingDeb struct {
 }
 
 type RepoManifest struct {
-	Name        string            `json:"name"`
-	URL         string            `json:"url"`
-	Mirror      string            `json:"mirror"`
-	Status      string            `json:"status"`
-	Error       string            `json:"error,omitempty"`
-	Updated     string            `json:"updated"`
-	LastAttempt string            `json:"attempted"`
-	Release     map[string]string `json:"release,omitempty"`
-	Indexes     []string          `json:"indexes,omitempty"`
-	Unique      int               `json:"uniquePackages"`
-	Versions    int               `json:"packageVersions"`
-	Debs        int               `json:"debs"`
-	LogicalSize int64             `json:"logicalBytes"`
-	OK          int               `json:"debsOk"`
-	Missing     []MissingDeb      `json:"missing,omitempty"`
-	Locked      []MissingDeb      `json:"locked,omitempty"`
-	Icons       int               `json:"icons"`
-	Depictions  int               `json:"depictions"`
+	Name         string            `json:"name"`
+	URL          string            `json:"url"`
+	Distribution string            `json:"distribution,omitempty"`
+	Mirror       string            `json:"mirror"`
+	Status       string            `json:"status"`
+	Error        string            `json:"error,omitempty"`
+	Updated      string            `json:"updated"`
+	LastAttempt  string            `json:"attempted"`
+	Release      map[string]string `json:"release,omitempty"`
+	Indexes      []string          `json:"indexes,omitempty"`
+	Unique       int               `json:"uniquePackages"`
+	Versions     int               `json:"packageVersions"`
+	Debs         int               `json:"debs"`
+	LogicalSize  int64             `json:"logicalBytes"`
+	OK           int               `json:"debsOk"`
+	Missing      []MissingDeb      `json:"missing,omitempty"`
+	Locked       []MissingDeb      `json:"locked,omitempty"`
+	Icons        int               `json:"icons"`
+	Depictions   int               `json:"depictions"`
 }
 
 type DepictRef struct {
@@ -298,16 +299,26 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	dataDir := cfg.DataDir
 	repoDir := filepath.Join(dataDir, name)
 	baseURL := strings.TrimRight(repo.URL, "/") + "/"
+	branchBase := baseURL
+	distRel := ""
+	if repo.Distribution != "" {
+		distRel = "dists/" + repo.Distribution + "/"
+		branchBase = baseURL + distRel
+	}
+	// fileRel combines a branch-relative (Packages-referenced) path with the
+	// distribution prefix so it can be fetched/stored repo-root-relative
+	fileRel := func(p string) string { return distRel + p }
 	logger := log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
 	logger.Printf("starting sync")
 	os.MkdirAll(repoDir, 0o755)
 	os.MkdirAll(poolDir(dataDir), 0o755)
 
 	man := &RepoManifest{
-		Name:        name,
-		URL:         repo.URL,
-		Mirror:      mirrorURL(cfg.PublicURL, name),
-		LastAttempt: formatTime(now),
+		Name:         name,
+		URL:          repo.URL,
+		Distribution: repo.Distribution,
+		Mirror:       mirrorURL(cfg.PublicURL, name),
+		LastAttempt:  formatTime(now),
 	}
 	old := loadManifest(dataDir, name)
 
@@ -317,7 +328,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 		writeManifest(dataDir, man)
 	}
 
-	relBody, _, relErr := f.Fetch(baseURL + "Release")
+	relBody, _, relErr := f.Fetch(branchBase + "Release")
 	if relErr != nil {
 		if old == nil {
 			man.Error = relErr.Error()
@@ -342,16 +353,16 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 
 	extras := map[string][]byte{}
 	for _, p := range []string{"InRelease", "Release.gpg", "Release.key", "CydiaIcon.png", "CydiaIcon.svg"} {
-		if body, err := fetchOptional(f, joinRawURL(baseURL, p)); err == nil {
+		if body, err := fetchOptional(f, joinRawURL(branchBase, p)); err == nil {
 			extras[p] = body
 		}
 	}
 
-	listed, probes := discovery(ri)
+	listed, probes := discovery(ri, distRel != "")
 	paths := append(append([]string{}, listed...), probes...)
 	bodies := make([][]byte, len(paths))
 	runPool(4, len(paths), func(i int) error {
-		body, _, err := f.Fetch(joinRawURL(baseURL, paths[i]))
+		body, _, err := f.Fetch(joinRawURL(branchBase, paths[i]))
 		if err == nil {
 			bodies[i] = body
 		}
@@ -524,7 +535,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	}
 
 	for p, body := range extras {
-		if c, ok := safeRel(p); ok {
+		if c, ok := safeRel(fileRel(p)); ok {
 			if err := writeAtomic(filepath.Join(repoDir, c), body); err != nil {
 				logger.Printf("write extra %s: %v", p, err)
 				man.Error = err.Error()
@@ -534,7 +545,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 		}
 	}
 	for _, p := range sortedKeys(fetched) {
-		if c, ok := safeRel(p); ok {
+		if c, ok := safeRel(fileRel(p)); ok {
 			if err := writeAtomic(filepath.Join(repoDir, c), fetched[p]); err != nil {
 				logger.Printf("write index %s: %v", p, err)
 				man.Error = err.Error()
@@ -543,7 +554,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 			}
 		}
 	}
-	if err := writeAtomic(filepath.Join(repoDir, "Release"), relBody); err != nil {
+	if err := writeAtomic(filepath.Join(repoDir, filepath.FromSlash(fileRel("Release"))), relBody); err != nil {
 		logger.Printf("write Release: %v", err)
 		man.Error = err.Error()
 		finish(statusFailed)

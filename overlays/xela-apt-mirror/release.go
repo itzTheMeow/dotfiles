@@ -1,6 +1,7 @@
 package main
 
 import (
+	"path"
 	"sort"
 	"strings"
 )
@@ -122,7 +123,11 @@ var indexExts = []string{"", ".gz", ".bz2", ".xz", ".lzma"}
 
 // discovery returns the paths worth fetching: every explicitly listed index
 // path plus standard probes for root-level and dists-based layouts
-func discovery(ri *ReleaseInfo) (listed, probes []string) {
+// discovery returns candidate index paths relative to the release base
+// (branchBase). In flat mode (inDist=false) that is the repo root, so
+// suite/codename probes prepend "dists/"; in distribution mode we are already
+// inside dists/<x>/ and rely solely on the checksum section.
+func discovery(ri *ReleaseInfo, inDist bool) (listed, probes []string) {
 	seen := map[string]bool{}
 	add := func(p string) {
 		p = strings.TrimPrefix(p, "./")
@@ -145,14 +150,16 @@ func discovery(ri *ReleaseInfo) (listed, probes []string) {
 			add(p)
 		}
 	}
-	for _, e := range indexExts {
-		name := "Packages" + e
-		if !seen[name] {
-			seen[name] = true
-			probes = append(probes, name)
+	if !inDist {
+		for _, e := range indexExts {
+			name := "Packages" + e
+			if !seen[name] {
+				seen[name] = true
+				probes = append(probes, name)
+			}
 		}
 	}
-	if ri != nil {
+	if ri != nil && !inDist {
 		for _, suite := range ri.Suites() {
 			for _, comp := range ri.Components() {
 				for _, arch := range ri.Architectures() {
@@ -173,11 +180,12 @@ func discovery(ri *ReleaseInfo) (listed, probes []string) {
 }
 
 func isIndexPath(p string) bool {
-	if p == "Packages" {
+	base := path.Base(p)
+	if base == "Packages" {
 		return true
 	}
-	if strings.HasSuffix(p, ".diff") {
+	if strings.HasSuffix(base, ".diff") {
 		return false
 	}
-	return strings.HasPrefix(p, "Packages.")
+	return strings.HasPrefix(base, "Packages.")
 }

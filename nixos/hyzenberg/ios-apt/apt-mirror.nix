@@ -14,6 +14,7 @@ let
     {
       name = "cydia";
       url = "https://apt.saurik.com";
+      distribution = "tangelo";
     }
     {
       name = "zodttd";
@@ -45,6 +46,7 @@ let
       repos = map (r: {
         url = r.url;
         name = r.name or "";
+        distribution = r.distribution or "";
         insecure = r.insecure or false;
       }) repos;
     }

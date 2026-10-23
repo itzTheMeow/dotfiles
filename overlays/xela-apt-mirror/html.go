@@ -87,9 +87,11 @@ h1{color:#f5c2e7;font-size:22px}
 
 func clientLinksTable(mirror string) string {
 	m := esc(mirror)
+	src := mirror + "/"
+	cydia := "https://cydia.saurik.com/api/share#?source=" + src
 	var b strings.Builder
 	b.WriteString(`<table class="links">`)
-	b.WriteString(`<tr><th>Cydia</th><td><a href="cydia://url/` + m + `">cydia://url/` + m + `</a></td></tr>`)
+	b.WriteString(`<tr><th>Cydia</th><td><a href="` + esc(cydia) + `">` + esc(cydia) + `</a></td></tr>`)
 	b.WriteString(`<tr><th>Sileo</th><td><a href="sileo://source/` + m + `">sileo://source/` + m + `</a></td></tr>`)
 	b.WriteString(`<tr><th>Zebra</th><td><a href="zebra://` + m + `">zebra://` + m + `</a></td></tr>`)
 	b.WriteString(`</table>`)

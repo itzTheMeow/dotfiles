@@ -95,6 +95,8 @@ func pullVerifiedIntoPool(dest, poolFile, key string, depth int) bool {
 // ensureDeb mirrors one referenced .deb: shared-pool storage when the index
 // provides a checksum, plain local copy otherwise. st.state becomes
 // "ok", "missing" (retry next run) or "locked" (paid package).
+// deb paths are rooted at the repository root (APT resolves Filename against
+// the sources-list base), even for dists-style repos.
 func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 	t := st.task
 	st.state, st.reason = statusMissing, ""

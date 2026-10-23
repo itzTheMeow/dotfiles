@@ -12,9 +12,13 @@ import (
 )
 
 type RepoConfig struct {
-	URL      string `json:"url"`
-	Name     string `json:"name,omitempty"`
-	Insecure bool   `json:"insecure,omitempty"`
+	URL  string `json:"url"`
+	Name string `json:"name,omitempty"`
+	// Distribution selects dists-style layout: Release and all index paths
+	// resolve against <url>/dists/<distribution>/ and files are stored under
+	// <repo>/dists/<distribution>/ so suite-based sources keep working.
+	Distribution string `json:"distribution,omitempty"`
+	Insecure     bool   `json:"insecure,omitempty"`
 }
 
 type Config struct {
@@ -67,6 +71,12 @@ func loadConfig(cfgPath string) (*Config, error) {
 		}
 		if u.Scheme != "http" && u.Scheme != "https" {
 			return nil, fmt.Errorf("config: repo %q must be http(s)", repo.URL)
+		}
+		if repo.Distribution != "" {
+			repo.Distribution = path.Clean(repo.Distribution)
+			if strings.Contains(repo.Distribution, "..") || strings.ContainsAny(repo.Distribution, "/ \\") {
+				return nil, fmt.Errorf("config: repo %q invalid distribution %q", repo.URL, repo.Distribution)
+			}
 		}
 		if repo.Name == "" {
 			repo.Name = deriveRepoName(u)
