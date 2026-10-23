@@ -73,6 +73,21 @@ let
     # https://apt.thebigboss.com/repofiles/cydia
     # https://repo.chariz.com
     # https://havoc.app
+
+    # https://lenglengyu.com
+    # https://dxcool223-repo.github.io/repo
+    # https://ellekit.space
+    # https://build.frida.re
+    # https://cydia.ichitaso.com
+    # https://ios.jjolano.me
+    # https://opa334.github.io
+    # https://paisseon.github.io
+    # https://repo.palera.in
+    # https://poomsmart.github.io/repo
+    # https://apt.procurs.us
+    # https://sparkdev.me
+    # https://0xilis.github.io/rootless
+    # https://cydia.getutm.app
   ];
 
   mirrorConfig = pkgs.writeText "apt-mirror-config.json" (
