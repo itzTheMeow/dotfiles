@@ -20,11 +20,11 @@ let
       url = "https://apt.saurik.com";
       distribution = "tangelo";
     }
-    #{
-    #  name = "modmyi";
-    #  url = "http://modmyi.saurik.com";
-    #  distribution = "stable";
-    #}
+    {
+      name = "modmyi";
+      url = "http://modmyi.saurik.com";
+      distribution = "stable";
+    }
     {
       name = "zodttd";
       url = "http://zodttd.saurik.com/repo/cydia";
