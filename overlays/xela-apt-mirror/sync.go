@@ -16,6 +16,7 @@ import (
 type MissingDeb struct {
 	File   string `json:"file"`
 	Reason string `json:"reason"`
+	Size   string `json:"size,omitempty"`
 	Sha    string `json:"sha,omitempty"`
 	Md5    string `json:"md5,omitempty"`
 }
@@ -413,7 +414,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 				if !present[md.File] {
 					present[md.File] = true
 					if _, ok := safeRel(md.File); ok {
-						plan[md.File] = debTask{file: md.File, sha: md.Sha, md5: md.Md5}
+						plan[md.File] = debTask{file: md.File, size: md.Size, sha: md.Sha, md5: md.Md5}
 						order = append(order, md.File)
 					}
 				}
@@ -440,9 +441,9 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 		fileStates[s.task.file] = s
 		switch s.state {
 		case statusMissing:
-			man.Missing = append(man.Missing, MissingDeb{File: s.task.file, Reason: s.reason, Sha: s.task.sha, Md5: s.task.md5})
+			man.Missing = append(man.Missing, MissingDeb{File: s.task.file, Reason: s.reason, Size: s.task.size, Sha: s.task.sha, Md5: s.task.md5})
 		case statusLocked:
-			man.Locked = append(man.Locked, MissingDeb{File: s.task.file, Reason: s.reason, Sha: s.task.sha, Md5: s.task.md5})
+			man.Locked = append(man.Locked, MissingDeb{File: s.task.file, Reason: s.reason, Size: s.task.size, Sha: s.task.sha, Md5: s.task.md5})
 		default:
 			man.OK++
 		}

@@ -42,7 +42,7 @@ func parseRelease(data []byte) *ReleaseInfo {
 			if len(parts) < 3 {
 				continue
 			}
-			path := parts[2]
+			path := strings.TrimPrefix(parts[2], "./")
 			e := ri.Entries[path]
 			e.Path = path
 			e.Size = parts[1]

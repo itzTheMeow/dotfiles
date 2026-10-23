@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/md5"
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
@@ -176,16 +174,16 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 		return
 	}
 	defer resp.Body.Close()
+	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+		st.reason = err.Error()
+		return
+	}
 	fh, err := os.OpenFile(dest+".tmp", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
 		st.reason = err.Error()
 		return
 	}
-	writers := []io.Writer{fh, sha256.New()}
-	if normalizeHex(t.md5) != "" {
-		writers = append(writers, md5.New())
-	}
-	n, readErr := io.Copy(io.MultiWriter(writers...), io.LimitReader(resp.Body, maxDebBytes+1))
+	n, readErr := io.Copy(fh, io.LimitReader(resp.Body, maxDebBytes+1))
 	closeErr := fh.Close()
 	if readErr != nil || closeErr != nil {
 		os.Remove(dest + ".tmp")
