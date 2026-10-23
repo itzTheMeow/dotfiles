@@ -45,8 +45,8 @@ in
               shift
               ;;
           esac
-          exec "${final.copyparty}/bin/u2c" -u "''${url:-''${U2C_URL:-$base/drop-200m}}" "$@"
-        '';
+          exec "{final.copyparty}/bin/u2c" -u "''${url:-''${U2C_URL:-$base/drop-200m}}" "$@"
+        ''; # TODO:26.11 add the $ back up here to enable this - build fails on unstable currently
       })
       (writeShellApplication {
         name = "ffconcat";
