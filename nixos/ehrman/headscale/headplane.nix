@@ -37,7 +37,10 @@ in
     };
   };
   systemd.services.headplane.after = [ "tailscale-online.service" ];
-  sops.groups.headplane.headscale-key = "op://Private/qkb3ll6yvln7nuds2nwuqhutse/password";
+  sops.groups.headplane.headscale-key = {
+    value = "op://Private/qkb3ll6yvln7nuds2nwuqhutse/password";
+    owner = config.services.headscale.user;
+  };
 
   # systemd service to create the cookie secret
   systemd.services.headplane-secret-generator = {
