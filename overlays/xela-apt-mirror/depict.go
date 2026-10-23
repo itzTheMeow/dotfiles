@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log"
 	"net/url"
-	"os"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -23,9 +22,6 @@ var (
 
 var (
 	errShortBody = errors.New("empty body")
-	resMu        sync.Mutex
-	depMu        sync.Mutex
-	iconMu       sync.Mutex
 )
 
 func sameHost(u1, u2 string) bool {
@@ -181,48 +177,150 @@ func rewriteRefs(body []byte, baseURL string, refMap map[string]string, prefix s
 	return []byte(out)
 }
 
-// fetchAssets...
-func fetchAssets(f *Fetcher, assetsDir string, cands []string, depth int) map[string]string {
+// assetCache dedupes asset fetches across every depiction of one repo run:
+// ok remembers archived urls for name reuse (no refetch), bad skips
+// re-requesting urls that already failed during this run
+type assetCache struct {
+	mu  sync.Mutex
+	ok  map[string]string
+	bad map[string]string
+}
+
+func newAssetCache() *assetCache {
+	return &assetCache{ok: map[string]string{}, bad: map[string]string{}}
+}
+
+func (c *assetCache) lookup(rawurl string) (name, failed string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.ok[rawurl], c.bad[rawurl]
+}
+
+func (c *assetCache) remember(rawurl, name string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.ok[rawurl] = name
+}
+
+func (c *assetCache) fail(rawurl, msg string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.bad[rawurl] = msg
+}
+
+// archived returns the number of unique assets archived so far this run
+func (c *assetCache) archived() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return len(c.ok)
+}
+
+// errGroup dedupes fetch errors for one repo sync run; identical
+// kind+url+error messages are flushed once with a repeat count
+type errGroup struct {
+	mu   sync.Mutex
+	seen map[string]int
+}
+
+func (eg *errGroup) add(kind, rawurl string, err error) {
+	eg.mu.Lock()
+	eg.seen[kind+" "+rawurl+": "+err.Error()]++
+	eg.mu.Unlock()
+}
+
+func (eg *errGroup) count() int {
+	eg.mu.Lock()
+	defer eg.mu.Unlock()
+	n := 0
+	for _, c := range eg.seen {
+		n += c
+	}
+	return n
+}
+
+func (eg *errGroup) flush(lg *log.Logger) {
+	eg.mu.Lock()
+	defer eg.mu.Unlock()
+	keys := make([]string, 0, len(eg.seen))
+	for k := range eg.seen {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		if n := eg.seen[k]; n > 1 {
+			lg.Printf("%s (repeated %dx)", k, n)
+		} else {
+			lg.Printf("%s", k)
+		}
+	}
+	eg.seen = map[string]int{}
+}
+
+// archiver bundles the per-run context for the icon/depiction/asset
+// collection phases; every render/provider line carries the repo prefix
+type archiver struct {
+	f         *Fetcher
+	lg        *log.Logger
+	cache     *assetCache
+	eg        *errGroup
+	baseURL   string
+	repoDir   string
+	assetsDir string
+}
+
+// fetchAssets archives a batch of same-host assets (recursing into CSS),
+// deduped via the run-wide asset cache
+func (a *archiver) fetchAssets(cands []string, depth int) map[string]string {
 	res := map[string]string{}
 	if len(cands) == 0 || depth > 3 {
 		return res
 	}
-	errs := runPool(3, len(cands), func(i int) error {
+	var resMu sync.Mutex
+	runPool(3, len(cands), func(i int) error {
 		raw := cands[i]
-		body, ct, err := f.Fetch(raw)
+		if name, failed := a.cache.lookup(raw); name != "" || failed != "" {
+			if name == "" {
+				// already failed earlier this run; keep its error counted
+				a.eg.add("asset", raw, errors.New(failed))
+				return nil
+			}
+			resMu.Lock()
+			res[raw] = name
+			resMu.Unlock()
+			return nil
+		}
+		body, ct, err := a.f.Fetch(raw)
 		if err != nil || len(body) == 0 {
 			if err == nil {
-				return errShortBody
+				err = errShortBody
 			}
-			return err
+			a.cache.fail(raw, err.Error())
+			a.eg.add("asset", raw, err)
+			return nil
 		}
 		content := body
 		if looksLikeCSS(raw, ct, body) {
-			inner := fetchAssets(f, assetsDir, extractAssetCands(content, raw), depth+1)
+			inner := a.fetchAssets(extractAssetCands(content, raw), depth+1)
 			content = rewriteRefs(content, raw, inner, "")
 		}
 		name := safeAssetName(raw)
-		if err := writeAtomic(filepath.Join(assetsDir, name), content); err != nil {
-			return err
+		if err := writeAtomic(filepath.Join(a.assetsDir, name), content); err != nil {
+			a.eg.add("asset", raw, err)
+			return nil
 		}
+		a.cache.remember(raw, name)
 		resMu.Lock()
 		res[raw] = name
 		resMu.Unlock()
 		return nil
 	})
-	for i, err := range errs {
-		if err != nil {
-			log.Printf("asset %s: %v", cands[i], err)
-		}
-	}
 	return res
 }
 
-// collectIcons archives package icons, returning pkg-id -> local rel path
-func collectIcons(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) (map[string]string, int) {
+// icons archives package icons, returning pkg-id -> local rel path
+func (a *archiver) icons(entries []PkgEntry) (map[string]string, int) {
 	urlKit := map[string]string{}
-	type iconJob struct{ raw, url string }
-	var jobs []iconJob
+	var jobs []string
 	seen := map[string]bool{}
 	for _, e := range entries {
 		id := e.ID()
@@ -230,44 +328,45 @@ func collectIcons(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) (map[
 		if id == "" || req == "" {
 			continue
 		}
-		resolved, ok := resolveRef(baseURL, req)
+		resolved, ok := resolveRef(a.baseURL, req)
 		if !ok || seen[resolved] {
 			continue
 		}
 		seen[resolved] = true
-		jobs = append(jobs, iconJob{raw: req, url: resolved})
+		jobs = append(jobs, resolved)
 	}
-	errs := runPool(3, len(jobs), func(i int) error {
-		j := jobs[i]
-		body, _, err := f.Fetch(j.url)
-		if err != nil {
-			return err
+	if len(jobs) != 0 {
+		a.lg.Printf("archiving %d icons", len(jobs))
+	}
+	var mu sync.Mutex
+	runPool(3, len(jobs), func(i int) error {
+		url := jobs[i]
+		body, _, err := a.f.Fetch(url)
+		if err != nil || len(body) == 0 {
+			if err == nil {
+				err = errShortBody
+			}
+			a.eg.add("icon", url, err)
+			return nil
 		}
-		if len(body) == 0 {
-			return errShortBody
-		}
-		name := sanitizeName(assetBaseName(j.url)) + "_" + sha256Hex(body)[:8] + guessImageExt(j.url)
-		dest := filepath.Join(repoDir, "_archive", "icons", name)
+		name := sanitizeName(assetBaseName(url)) + "_" + sha256Hex(body)[:8] + guessImageExt(url)
+		dest := filepath.Join(a.repoDir, "_archive", "icons", name)
 		if err := writeAtomic(dest, body); err != nil {
-			return err
+			a.eg.add("icon", url, err)
+			return nil
 		}
-		iconMu.Lock()
-		urlKit[j.url] = name
-		iconMu.Unlock()
+		mu.Lock()
+		urlKit[url] = name
+		mu.Unlock()
 		return nil
 	})
-	for i, err := range errs {
-		if err != nil {
-			log.Printf("icon %s: %v", jobs[i].url, err)
-		}
-	}
 	iconByPkg := map[string]string{}
 	for _, e := range entries {
 		id := e.ID()
 		if id == "" || iconByPkg[id] != "" {
 			continue
 		}
-		resolved, ok := resolveRef(baseURL, strings.TrimSpace(e.Get("icon")))
+		resolved, ok := resolveRef(a.baseURL, strings.TrimSpace(e.Get("icon")))
 		if !ok {
 			continue
 		}
@@ -297,13 +396,12 @@ func guessImageExt(raw string) string {
 	return ".png"
 }
 
-// collectDepictions archives every unique Depiction/SileoDepiction page as
-// rendered HTML; returns url -> archived rel path for successfully archived URLs
-func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) (map[string]string, int) {
-	type depJob struct {
-		id, raw, url string
+// depictions archives every unique Depiction/SileoDepiction page as rendered
+// HTML; returns url -> archived rel path for successfully archived URLs
+func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
+	var jobs []struct {
+		id, url string
 	}
-	var jobs []depJob
 	seen := map[string]bool{}
 	for _, e := range entries {
 		for _, key := range []string{"depiction", "sileodepiction"} {
@@ -311,45 +409,41 @@ func collectDepictions(f *Fetcher, baseURL, repoDir string, entries []PkgEntry) 
 			if raw == "" || e.ID() == "" {
 				continue
 			}
-			resolved, ok := resolveRef(baseURL, raw)
+			resolved, ok := resolveRef(a.baseURL, raw)
 			if !ok || seen[resolved] {
 				continue
 			}
 			seen[resolved] = true
-			jobs = append(jobs, depJob{id: e.ID(), raw: raw, url: resolved})
+			jobs = append(jobs, struct{ id, url string }{id: e.ID(), url: resolved})
 		}
+	}
+	if len(jobs) != 0 {
+		a.lg.Printf("archiving %d depictions", len(jobs))
 	}
 	archived := map[string]string{}
-	errs := runPool(3, len(jobs), func(i int) error {
+	var mu sync.Mutex
+	runPool(3, len(jobs), func(i int) error {
 		j := jobs[i]
 		rel := "_archive/depictions/" + sanitizeName(j.id) + "-" + sha256Hex([]byte(j.url))[:8] + ".html"
-		dest := filepath.Join(repoDir, "_archive", "depictions", sanitizeName(j.id)+"-"+sha256Hex([]byte(j.url))[:8]+".html")
-		body, _, err := f.Fetch(j.url)
-		if err != nil {
-			return err
+		dest := filepath.Join(a.repoDir, "_archive", "depictions", sanitizeName(j.id)+"-"+sha256Hex([]byte(j.url))[:8]+".html")
+		body, _, err := a.f.Fetch(j.url)
+		if err != nil || len(body) == 0 {
+			if err == nil {
+				err = errShortBody
+			}
+			a.eg.add("depiction", j.url, err)
+			return nil
 		}
-		if len(body) == 0 {
-			return errShortBody
-		}
-		assetsDir := filepath.Join(repoDir, "_archive", "assets")
-		assets := fetchAssets(f, assetsDir, extractAssetCands(body, j.url), 0)
+		assets := a.fetchAssets(extractAssetCands(body, j.url), 0)
 		rewritten := rewriteRefs(body, j.url, assets, "../assets/")
-		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
-			return err
-		}
 		if err := writeAtomic(dest, rewritten); err != nil {
-			return err
+			a.eg.add("depiction", j.url, err)
+			return nil
 		}
-
-		depMu.Lock()
+		mu.Lock()
 		archived[j.url] = rel
-		depMu.Unlock()
+		mu.Unlock()
 		return nil
 	})
-	for i, err := range errs {
-		if err != nil {
-			log.Printf("depiction %s: %v", jobs[i].url, err)
-		}
-	}
 	return archived, len(archived)
 }

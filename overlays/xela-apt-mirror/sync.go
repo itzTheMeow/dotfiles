@@ -233,6 +233,35 @@ func runPool(n, count int, fn func(i int) error) []error {
 	return errs
 }
 
+// progress logs time-gated completion counts for a countable phase
+const progressInterval = 15 * time.Second
+
+type progress struct {
+	lg    *log.Logger
+	label string
+	total int
+	mu    sync.Mutex
+	done  int
+	last  time.Time
+}
+
+func newProgress(lg *log.Logger, label string, total int) *progress {
+	return &progress{lg: lg, label: label, total: total, last: time.Now()}
+}
+
+// tick records one completed item, logging the running count at most once
+// per progressInterval
+func (p *progress) tick() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.done++
+	if time.Since(p.last) < progressInterval {
+		return
+	}
+	p.lg.Printf("%s %d/%d", p.label, p.done, p.total)
+	p.last = time.Now()
+}
+
 func joinRawURL(base, rel string) string {
 	segs := strings.Split(strings.TrimPrefix(rel, "./"), "/")
 	esc := make([]string, len(segs))
@@ -270,6 +299,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	repoDir := filepath.Join(dataDir, name)
 	baseURL := strings.TrimRight(repo.URL, "/") + "/"
 	logger := log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+	logger.Printf("starting sync")
 	os.MkdirAll(repoDir, 0o755)
 	os.MkdirAll(poolDir(dataDir), 0o755)
 
@@ -385,6 +415,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	}
 	man.Versions = len(pkgEntries)
 	man.Indexes = indexPaths
+	logger.Printf("release ok: %d indexes, %d package versions", len(indexPaths), len(pkgEntries))
 
 	plan := map[string]debTask{}
 	var order []string
@@ -429,8 +460,11 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	for i := range order {
 		statuses[i] = debStatus{task: plan[order[i]], state: statusOK}
 	}
+	logger.Printf("downloading %d debs", len(order))
+	dp := newProgress(logger, "debs", len(order))
 	runPool(4, len(order), func(i int) error {
 		ensureDeb(f, baseURL, repoDir, poolDir(dataDir), &statuses[i])
+		dp.tick()
 		return nil
 	})
 
@@ -457,10 +491,22 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	man.Debs = len(order)
 	man.LogicalSize = gotLogic
 
-	iconByPkg, iconsSaved := collectIcons(f, baseURL, repoDir, pkgEntries)
-	depArchived, depCount := collectDepictions(f, baseURL, repoDir, pkgEntries)
+	arch := &archiver{
+		f:         f,
+		lg:        logger,
+		cache:     newAssetCache(),
+		eg:        &errGroup{seen: map[string]int{}},
+		baseURL:   baseURL,
+		repoDir:   repoDir,
+		assetsDir: filepath.Join(repoDir, "_archive", "assets"),
+	}
+	iconByPkg, iconsSaved := arch.icons(pkgEntries)
+	depArchived, depCount := arch.depictions(pkgEntries)
 	man.Icons = iconsSaved
 	man.Depictions = depCount
+	logger.Printf("archive: %d icons, %d depictions, %d assets, %d fetch errors",
+		iconsSaved, depCount, arch.cache.archived(), arch.eg.count())
+	arch.eg.flush(logger)
 
 	pkgData := buildBrowser(pkgEntries, fileStates, iconByPkg, depArchived, baseURL)
 	pkgData.Name = name
