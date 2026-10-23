@@ -31,13 +31,13 @@ in
         url = xelib.apps.headscale.url;
         config_path = "${xelib.toYAMLFile "headscale.yml" config.services.headscale.settings}";
         config_strict = false;
+        api_key_path = config.sops.groupPaths.headplane.headscale-key;
       };
-      integration.agent = {
-        enabled = true;
-        pre_authkey_path = "/var/lib/headplane/preauth.txt";
-      };
+      integration.agent.enabled = true;
     };
   };
+  systemd.services.headplane.after = [ "tailscale-online.service" ];
+  sops.groups.headplane.headscale-key = "op://Private/qkb3ll6yvln7nuds2nwuqhutse/password";
 
   # systemd service to create the cookie secret
   systemd.services.headplane-secret-generator = {
