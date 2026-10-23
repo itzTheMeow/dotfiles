@@ -13,7 +13,11 @@ let
   repos = [
     {
       name = "cydia";
-      url = "http://apt.saurik.com";
+      url = "https://apt.saurik.com";
+    }
+    {
+      name = "zodttd";
+      url = "https://zodttd.saurik.com/repo/cydia";
     }
     {
       name = "victorlobe";
@@ -28,10 +32,9 @@ let
       url = "https://cydia.invoxiplaygames.uk/beta";
     }
     {
-      name = "zodttd";
-      url = "http://zodttd.saurik.com/repo/cydia";
+      name = "zebra";
+      url = "https://getzbra.com/repo";
     }
-    #
     # http://modmyi.saurik.com
   ];
 
