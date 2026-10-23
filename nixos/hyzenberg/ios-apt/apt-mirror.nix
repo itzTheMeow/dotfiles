@@ -16,9 +16,15 @@ let
       url = "https://apt.saurik.com";
       distribution = "tangelo";
     }
+    #{
+    #  name = "modmyi";
+    #  url = "http://modmyi.saurik.com";
+    #  distribution = "stable";
+    #}
     {
       name = "zodttd";
-      url = "https://zodttd.saurik.com/repo/cydia";
+      url = "http://zodttd.saurik.com/repo/cydia";
+      distribution = "stable";
     }
     {
       name = "victorlobe";
@@ -33,10 +39,31 @@ let
       url = "https://cydia.invoxiplaygames.uk/beta";
     }
     {
+      name = "igamegod";
+      url = "https://igamegod.app/repo";
+    }
+    {
       name = "zebra";
       url = "https://getzbra.com/repo";
     }
-    # http://modmyi.saurik.com
+    {
+      name = "coolbooter";
+      url = "https://coolbooter.com";
+    }
+    {
+      name = "adrienrl1"; # AppDrop
+      url = "https://adrienrl1.github.io/cydia";
+    }
+    {
+      name = "zestlabs"; # ReformX
+      url = "https://zestlabs.github.io";
+    }
+    # https://apt.thebigboss.com/repofiles/cydia
+    # https://repo.chariz.com
+    # https://havoc.app
+    # https://julioverne.github.io
+    # https://kittymaxine.com/repo
+    # https://cydia.preloading.dev
   ];
 
   mirrorConfig = pkgs.writeText "apt-mirror-config.json" (
