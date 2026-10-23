@@ -12,6 +12,10 @@ let
   # master repo list
   repos = [
     {
+      name = "bigboss";
+      url = "https://apt.thebigboss.com/repofiles/cydia";
+    }
+    {
       name = "cydia";
       url = "https://apt.saurik.com";
       distribution = "tangelo";
@@ -70,7 +74,6 @@ let
       name = "preloading";
       url = "https://cydia.preloading.dev";
     }
-    # https://apt.thebigboss.com/repofiles/cydia
     # https://repo.chariz.com
     # https://havoc.app
 
