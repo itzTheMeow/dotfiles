@@ -99,7 +99,7 @@ in
     // lib.listToAttrs (
       map (name: {
         name = "${impureOverlaysDir}/${name}";
-        value.text = ''import "${xelib.location}/overlays/${name}"'';
+        value.text = ''import "${../overlays}/${name}"'';
       }) (builtins.attrNames (builtins.readDir ../overlays))
     )
   );
