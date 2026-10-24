@@ -35,7 +35,13 @@ in
       dns = {
         magic_dns = true;
         base_domain = xelib.apps.homepage.domain; # base domain is the home page
-        override_local_dns = false;
+        # give clients their own DNS
+        override_local_dns = true;
+        nameservers.global = [
+          "9.9.9.9"
+          "1.1.1.1"
+          "8.8.8.8"
+        ];
         # records from satellite dotfiles repos (nvstly):
         # explicit extras + one A record per app with a domain, pointing at its host
         extra_records =
