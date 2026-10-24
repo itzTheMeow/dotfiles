@@ -632,11 +632,24 @@ func (a *archiver) icons(entries []PkgEntry) (map[string]string, int) {
 	if len(jobs) != 0 {
 		a.lg.Printf("archiving %d icons", len(jobs))
 	}
+	g := a.newDeadGuard("icons")
 	var mu sync.Mutex
 	runPool(3, len(jobs), func(i int) error {
 		url := jobs[i]
+		if g.skip(url) {
+			return nil
+		}
+		host := hostOf(url)
+		if g.hostGone(host) {
+			g.markDead(url)
+			return nil
+		}
 		body, _, err := a.f.Fetch(url)
 		if err != nil || len(body) == 0 {
+			if errors.Is(err, ErrNotFound) {
+				g.markDead(url)
+				g.bump404(host)
+			}
 			if err == nil {
 				err = errShortBody
 			}
@@ -654,6 +667,7 @@ func (a *archiver) icons(entries []PkgEntry) (map[string]string, int) {
 		mu.Unlock()
 		return nil
 	})
+	g.settle()
 	iconByPkg := map[string]string{}
 	for _, e := range entries {
 		id := e.ID()
@@ -690,49 +704,111 @@ func guessImageExt(raw string) string {
 	return ".png"
 }
 
-// depict404Limit is how many hard 404s a single depiction host can answer
-// with in one run before the run gives up on it entirely; guards dead
-// upstreams from being hammered with thousands of guaranteed-404 requests
+// depict404Limit is the per-run breaker threshold below
 const depict404Limit = 15
 
-// deadDepictionsPath is the persistent memo of depiction URLs that upstream
-// answered 404/Gone; re-requesting them every sync would just spam dead hosts
-func (a *archiver) deadDepictionsPath() string {
-	return filepath.Join(a.repoDir, "_meta", "deadDepictions.json")
+// dead404 memoizes per-kind the URLs that upstream answered 404/Gone so
+// later runs skip them; one daily canary re-check still detects recovery.
+// Used for depictions (deadDepictions.json) and icons (deadIcons.json)
+type deadGuard struct {
+	a        *archiver
+	kind     string
+	memoPath string
+	hadMemo  bool
+
+	mu         sync.Mutex
+	dead       map[string]bool
+	hostStreak map[string]int
+	hostDead   map[string]bool
 }
 
-// loadDeadDepictions reads the memo; second return is whether the memo file
-// existed (distinct from "empty")
-func (a *archiver) loadDeadDepictions() (map[string]bool, bool) {
-	raw, err := os.ReadFile(a.deadDepictionsPath())
-	if err != nil {
-		return map[string]bool{}, false
+func (a *archiver) newDeadGuard(kind string) *deadGuard {
+	g := &deadGuard{
+		a:          a,
+		kind:       kind,
+		memoPath:   filepath.Join(a.repoDir, "_meta", "dead"+strings.ToUpper(kind[:1])+kind[1:]+".json"),
+		dead:       map[string]bool{},
+		hostStreak: map[string]int{},
+		hostDead:   map[string]bool{},
 	}
-	var dead map[string]bool
-	if json.Unmarshal(raw, &dead) != nil {
-		return map[string]bool{}, true
+	if raw, err := os.ReadFile(g.memoPath); err == nil {
+		if json.Unmarshal(raw, &g.dead) == nil {
+			g.hadMemo = true
+		}
 	}
-	return dead, true
+	if len(g.dead) != 0 {
+		// canary: one request instead of thousands; upstream recovery
+		// reopens everything for this run and wipes the memo
+		keys := make([]string, 0, len(g.dead))
+		for k := range g.dead {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		canary := keys[0]
+		if _, _, err := a.f.Fetch(canary); err == nil {
+			a.lg.Printf("%s: canary %s recovered upstream, retrying %d known-dead URLs", kind, canary, len(g.dead))
+			g.dead = map[string]bool{}
+		} else {
+			a.lg.Printf("%s: skipping %d known-dead upstream URLs (canary still %v)", kind, len(g.dead), err)
+		}
+	}
+	return g
 }
 
-// saveDeadDepictions persists the memo; URLs keep coming back only via the
-// canary re-check clearing it wholesale
-func (a *archiver) saveDeadDepictions(dead map[string]bool) {
-	if len(dead) == 0 {
-		if err := os.Remove(a.deadDepictionsPath()); err != nil && !os.IsNotExist(err) {
-			a.lg.Printf("depictions: dead memo remove: %v", err)
+// skip reports whether this URL is memoized dead (and skips silently)
+func (g *deadGuard) skip(u string) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	return g.dead[u]
+}
+
+// hostGone reports whether the host above the depict404Limit is dropped
+func (g *deadGuard) hostGone(h string) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	return h != "" && g.hostDead[h]
+}
+
+// markDead records u as dead so later runs skip it silently
+func (g *deadGuard) markDead(u string) {
+	g.mu.Lock()
+	g.dead[u] = true
+	g.mu.Unlock()
+}
+
+// bump404 feeds the per-host breaker; returns whether the host is dropped
+func (g *deadGuard) bump404(host string) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if g.hostDead[host] {
+		return true
+	}
+	g.hostStreak[host]++
+	if g.hostStreak[host] >= depict404Limit {
+		g.hostDead[host] = true
+		g.a.lg.Printf("%s: %s returned 404 on %d of them; skipping the rest this run", g.kind, host, g.hostStreak[host])
+	}
+	return g.hostDead[host]
+}
+
+// settle persists the memo (and drops the file when the guard is empty)
+func (g *deadGuard) settle() {
+	if !g.hadMemo && len(g.dead) == 0 {
+		return
+	}
+	if len(g.dead) == 0 {
+		if err := os.Remove(g.memoPath); err != nil && !os.IsNotExist(err) {
+			g.a.lg.Printf("%s: dead memo remove: %v", g.kind, err)
 		}
 		return
 	}
-	if err := os.MkdirAll(filepath.Join(a.repoDir, "_meta"), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Join(g.a.repoDir, "_meta"), 0o755); err != nil {
 		return
 	}
-	raw, err := json.MarshalIndent(dead, "", "  ")
-	if err != nil {
-		return
-	}
-	if err := writeAtomic(a.deadDepictionsPath(), raw); err != nil {
-		a.lg.Printf("depictions: dead memo write: %v", err)
+	if raw, err := json.MarshalIndent(g.dead, "", "  "); err == nil {
+		if err := writeAtomic(g.memoPath, raw); err != nil {
+			g.a.lg.Printf("%s: dead memo write: %v", g.kind, err)
+		}
 	}
 }
 
@@ -760,52 +836,7 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 			jobs = append(jobs, struct{ id, url string }{id: e.ID(), url: resolved})
 		}
 	}
-	dead, hadMemo := a.loadDeadDepictions()
-	if len(dead) != 0 {
-		// canary: one request instead of thousands; upstream recovery
-		// reopens everything for this run and wipes the memo
-		keys := make([]string, 0, len(dead))
-		for k := range dead {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		canary := keys[0]
-		if _, _, err := a.f.Fetch(canary); err == nil {
-			a.lg.Printf("depictions: canary %s recovered upstream, retrying %d known-dead URLs", canary, len(dead))
-			dead = map[string]bool{}
-		} else if hadMemo {
-			a.lg.Printf("depictions: skipping %d known-dead upstream URLs (canary still %v)", len(dead), err)
-		}
-	}
-	var deadMu sync.Mutex
-	// every access below goes through deadMu-dead/hostDead guards: the
-	// job pool runs concurrently and Go maps fault on read/write races
-	markDead := func(u string) { deadMu.Lock(); dead[u] = true; deadMu.Unlock() }
-	isDead := func(u string) bool {
-		deadMu.Lock()
-		defer deadMu.Unlock()
-		return dead[u]
-	}
-	hostStreak := map[string]int{}
-	hostDead := map[string]bool{}
-	hostGone := func(h string) bool {
-		deadMu.Lock()
-		defer deadMu.Unlock()
-		return h != "" && hostDead[h]
-	}
-	bump404 := func(host string) bool {
-		deadMu.Lock()
-		defer deadMu.Unlock()
-		if hostDead[host] {
-			return true
-		}
-		hostStreak[host]++
-		if hostStreak[host] >= depict404Limit {
-			hostDead[host] = true
-			a.lg.Printf("depictions: %s returned 404 on %d depictions; skipping the rest of them this run", host, hostStreak[host])
-		}
-		return hostDead[host]
-	}
+	g := a.newDeadGuard("depictions")
 	if len(jobs) != 0 {
 		a.lg.Printf("archiving %d depictions", len(jobs))
 	}
@@ -813,12 +844,12 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 	var mu sync.Mutex
 	runPool(3, len(jobs), func(i int) error {
 		j := jobs[i]
-		if isDead(j.url) {
+		if g.skip(j.url) {
 			return nil
 		}
 		host := hostOf(j.url)
-		if hostGone(host) {
-			markDead(j.url)
+		if g.hostGone(host) {
+			g.markDead(j.url)
 			return nil
 		}
 		rel := "_archive/depictions/" + sanitizeName(j.id) + "-" + sha256Hex([]byte(j.url))[:8] + ".html"
@@ -826,8 +857,8 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 		body, _, err := a.f.Fetch(j.url)
 		if err != nil || len(body) == 0 {
 			if errors.Is(err, ErrNotFound) {
-				markDead(j.url)
-				bump404(host)
+				g.markDead(j.url)
+				g.bump404(host)
 			}
 			if err == nil {
 				err = errShortBody
@@ -849,8 +880,6 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 		mu.Unlock()
 		return nil
 	})
-	if hadMemo || len(dead) != 0 {
-		a.saveDeadDepictions(dead)
-	}
+	g.settle()
 	return archived, len(archived)
 }
