@@ -137,23 +137,25 @@ in
   prettier.allowed = true;
   languages =
     let
-      formatActions = {
-        "source.removeUnusedImports" = true;
-        "source.fixAll.eslint" = true;
-      };
+      # ordered on-format pipeline for js/etc
+      savePipeline = [
+        { code_action = "source.organizeImports"; }
+        { code_action = "source.fixAll.eslint"; }
+        "prettier"
+      ];
     in
     {
-      JavaScript.code_actions_on_format = formatActions;
-      JSX.code_actions_on_format = formatActions;
-      TypeScript.code_actions_on_format = formatActions;
-      TSX.code_actions_on_format = formatActions;
+      JavaScript.formatter = savePipeline;
+      JSX.formatter = savePipeline;
+      TypeScript.formatter = savePipeline;
+      TSX.formatter = savePipeline;
       Svelte = {
         language_servers = [
           "svelte-language-server"
           "eslint"
           "..."
         ];
-        code_actions_on_format = formatActions;
+        formatter = savePipeline;
       };
       Java.code_actions_on_format."source.organizeImports" = true;
     };
