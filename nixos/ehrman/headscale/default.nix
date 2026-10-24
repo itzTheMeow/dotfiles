@@ -1,5 +1,6 @@
 {
   config,
+  hostname,
   lib,
   pkgs,
   self,
@@ -65,10 +66,22 @@ in
             }) (lib.filterAttrs (_: opts: opts.local) allProxies)
           );
       };
+
+      # our own embedded DERP relay
+      derp.server = {
+        enabled = true;
+        stun_listen_addr = "0.0.0.0:3478";
+        verify_clients = true;
+        ipv4 = xelib.dns.addr.${hostname};
+        ipv6 = xelib.dns.addr6.${hostname};
+      };
     };
   };
 
   nginx.proxy.${app.domain}.target.host = lib.mkForce "127.0.0.1";
+
+  # STUN port for the DERP server
+  networking.firewall.allowedUDPPorts = [ 3478 ];
 
   # 404 page for base domain
   services.nginx.virtualHosts."whenducksfly.com" = {
