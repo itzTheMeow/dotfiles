@@ -62,7 +62,7 @@ func mergeSearchIndex(dataDir string, manifests []*RepoManifest) error {
 		name := strings.TrimSuffix(s.Name(), ".json")
 		keep, ok := repos[name]
 		if !ok {
-			_ = os.Remove(filepath.Join(shardDir, s.Name()))
+			os.Remove(filepath.Join(shardDir, s.Name()))
 			continue
 		}
 		doc.Repos[name] = keep

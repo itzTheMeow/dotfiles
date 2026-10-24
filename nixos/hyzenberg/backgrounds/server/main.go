@@ -424,7 +424,7 @@ func (s *store) saveState() {
 	if err != nil {
 		return
 	}
-	_ = os.WriteFile(filepath.Join(s.state, "images.json"), b, 0o644)
+	os.WriteFile(filepath.Join(s.state, "images.json"), b, 0o644)
 }
 
 func (s *store) run(ctx context.Context) {
@@ -583,7 +583,7 @@ func (s *store) handleGrid(w http.ResponseWriter, r *http.Request) {
 	imgs := append([]image(nil), s.images...)
 	s.mu.RUnlock()
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = gridTmpl.Execute(w, struct {
+	gridTmpl.Execute(w, struct {
 		Images  []image
 		Refresh string
 	}{imgs, s.cfg.refresh().String()})
@@ -610,7 +610,7 @@ func (s *store) handleCurrent(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.WriteHeader(http.StatusServiceUnavailable)
-			_, _ = io.WriteString(w, `{"error":"no images available yet"}`)
+		io.WriteString(w, `{"error":"no images available yet"}`)
 		} else {
 			http.Error(w, "no images available yet", http.StatusServiceUnavailable)
 		}
@@ -621,7 +621,7 @@ func (s *store) handleCurrent(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", s.remaining()))
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		_ = json.NewEncoder(w).Encode(img)
+		 json.NewEncoder(w).Encode(img)
 		return
 	}
 
@@ -635,7 +635,7 @@ func (s *store) handleCurrent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", s.remaining()))
 	w.Header().Set("X-Image-Author", img.Author)
 	w.Header().Set("X-Image-Source", img.PageURL)
-	_, _ = w.Write(data)
+ w.Write(data)
 }
 
 func main() {
@@ -676,7 +676,7 @@ func main() {
 	mux.HandleFunc("/current/", st.handleCurrent)
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_, _ = io.WriteString(w, "ok\n")
+		io.WriteString(w, "ok\n")
 	})
 
 	srv := &http.Server{
