@@ -83,6 +83,10 @@ func loadConfig(cfgPath string) (*Config, error) {
 		} else {
 			repo.Name = nameInvalid.ReplaceAllString(repo.Name, "_")
 		}
+		if repo.Name == "." || repo.Name == ".." {
+			// path traversal against the dataDir root in sweep/side effects
+			return nil, fmt.Errorf("config: repo name %q invalid", repo.Name)
+		}
 		if seen[repo.Name] {
 			return nil, fmt.Errorf("config: duplicate repo name %q", repo.Name)
 		}

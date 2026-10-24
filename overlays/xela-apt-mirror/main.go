@@ -4,7 +4,9 @@ import (
 	"flag"
 	"log"
 	"os"
+	"path/filepath"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -22,6 +24,17 @@ func main() {
 	if err := os.MkdirAll(cfg.DataDir, 0o755); err != nil {
 		log.Fatalf("data dir: %v", err)
 	}
+	// flock the data dir for the whole run: systemd already serializes the
+	// service, but a manual --sweep-only racing a running sync could sweep
+	// a just-downloaded pool entry whose symlink does not exist yet
+	lock, err := os.OpenFile(filepath.Join(cfg.DataDir, "_lock"), os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		log.Fatalf("lock: %v", err)
+	}
+	if err := syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		log.Fatalf("another apt-mirror run appears active; refusing to start")
+	}
+	defer lock.Close()
 	if *sweepOnly {
 		sweep(cfg)
 		return
@@ -37,10 +50,10 @@ func main() {
 		}(i, repo)
 	}
 	wg.Wait()
-	sweep(cfg)
 	if err := generateLanding(cfg, manifests); err != nil {
 		log.Printf("landing: %v", err)
 	}
+	sweep(cfg)
 	failed := 0
 	for _, m := range manifests {
 		if m == nil || m.Status == statusFailed {

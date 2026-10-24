@@ -2,9 +2,9 @@ package main
 
 // Sweep reclaims disk for repos that left the config: their data dirs and
 // their now-orphaned _pool entries. Runs single-threaded in main after
-// every syncOne has finished (so last-known-good symlinks reflect the
-// current indexes) and after generateLanding (so search shards and
-// repos.json are consistent first).
+// generateLanding (so search shards and repos.json are consistent first)
+// and inside the same data-dir flock as every other run, so it can never
+// race a concurrent sync's downloads.
 //
 // The keep-set is the union of pool keys referenced by the symlinks of
 // every REMAINING repo, so a deb shared by several repos stays in the
@@ -25,7 +25,13 @@ var sweepReserved = []string{"_pool", "_search", "assets", "repos.json", "index.
 // poolKeysOfRepo walks one repo's dir collecting _pool keys referenced by
 // its symlinks; _archive/_meta are skipped (they hold no deb paths)
 func poolKeysOfRepo(repoDir string, dst map[string]bool) {
-	_ = filepath.WalkDir(repoDir, func(p string, d fs.DirEntry, err error) error {
+	if fi, err := os.Stat(repoDir); err != nil || !fi.IsDir() {
+		return // fresh or removed repo dir: nothing to collect
+	}
+	// the outer error would mean a partial walk and a too-small keep-set,
+	// which must log; per-entry errors are skipped above (missing entries
+	// simply fail to contribute)
+	if err := filepath.WalkDir(repoDir, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil // unreadable subtree: leave its poolEntries alone
 		}
@@ -50,7 +56,9 @@ func poolKeysOfRepo(repoDir string, dst map[string]bool) {
 			dst[key] = true
 		}
 		return nil
-	})
+	}); err != nil {
+		log.Printf("sweep: walk %s: %v", repoDir, err)
+	}
 }
 
 // poolKeyFromName strips a pool filename to a keep-set key; both the
@@ -190,7 +198,9 @@ func dirSize(fi fs.FileInfo, root string) (int64, int) {
 	if fi.Mode().IsRegular() {
 		return fi.Size(), 1
 	}
-	_ = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+	// the walk here is display-only for the removal log; an error mid-walk
+	// just reports a smaller total
+	if err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return filepath.SkipDir
 		}
@@ -202,6 +212,8 @@ func dirSize(fi fs.FileInfo, root string) (int64, int) {
 			total += info.Size()
 		}
 		return nil
-	})
+	}); err != nil {
+		log.Printf("sweep: size walk %s: %v", root, err)
+	}
 	return total, count
 }
