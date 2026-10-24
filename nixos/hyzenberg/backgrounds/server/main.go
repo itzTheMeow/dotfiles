@@ -610,7 +610,7 @@ func (s *store) handleCurrent(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.WriteHeader(http.StatusServiceUnavailable)
-		io.WriteString(w, `{"error":"no images available yet"}`)
+			io.WriteString(w, `{"error":"no images available yet"}`)
 		} else {
 			http.Error(w, "no images available yet", http.StatusServiceUnavailable)
 		}
@@ -621,7 +621,7 @@ func (s *store) handleCurrent(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", s.remaining()))
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		 json.NewEncoder(w).Encode(img)
+		json.NewEncoder(w).Encode(img)
 		return
 	}
 
@@ -635,7 +635,7 @@ func (s *store) handleCurrent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", s.remaining()))
 	w.Header().Set("X-Image-Author", img.Author)
 	w.Header().Set("X-Image-Source", img.PageURL)
- w.Write(data)
+	w.Write(data)
 }
 
 func main() {
