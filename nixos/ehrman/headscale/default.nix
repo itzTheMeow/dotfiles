@@ -41,6 +41,9 @@ in
           "9.9.9.9"
           "1.1.1.1"
           "8.8.8.8"
+          "2620:fe::fe" # 9.9.9.9
+          "2606:4700:4700::1111" # 1.1.1.1
+          "2001:4860:4860::8888" # 8.8.8.8
         ];
         # records from satellite dotfiles repos (nvstly):
         # explicit extras + one A record per app with a domain, pointing at its host
