@@ -26,11 +26,6 @@ let
       distribution = "stable";
     }
     {
-      name = "zodttd";
-      url = "http://zodttd.saurik.com/repo/cydia";
-      distribution = "stable";
-    }
-    {
       name = "chariz";
       url = "https://repo.chariz.com";
     }
