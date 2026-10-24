@@ -36,7 +36,7 @@ func NewFetcher(insecure bool) *Fetcher {
 	return &Fetcher{
 		client: &http.Client{
 			Transport: t,
-			Timeout:   120 * time.Second,
+			Timeout:   envDuration("APTM_CLIENT_TIMEOUT", 120*time.Second),
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				if len(via) >= 10 {
 					return fmt.Errorf("too many redirects")

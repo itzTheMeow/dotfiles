@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net"
 	"net/url"
 	"os"
 	"path"
@@ -629,30 +630,27 @@ func (a *archiver) icons(entries []PkgEntry) (map[string]string, int) {
 		seen[resolved] = true
 		jobs = append(jobs, resolved)
 	}
+	g := a.newDeadGuard("icons")
 	if len(jobs) != 0 {
 		a.lg.Printf("archiving %d icons", len(jobs))
 	}
-	g := a.newDeadGuard("icons")
+	dp := newProgress(a.lg, "icons", len(jobs))
 	var mu sync.Mutex
 	runPool(3, len(jobs), func(i int) error {
+		defer dp.tick()
 		url := jobs[i]
 		if g.skip(url) {
 			return nil
 		}
-		host := hostOf(url)
-		if g.hostGone(host) {
-			g.markDead(url)
+		if g.hostGone(hostOf(url)) {
 			return nil
 		}
 		body, _, err := a.f.Fetch(url)
 		if err != nil || len(body) == 0 {
-			if errors.Is(err, ErrNotFound) {
-				g.markDead(url)
-				g.bump404(host)
-			}
 			if err == nil {
 				err = errShortBody
 			}
+			g.fail(url, err)
 			a.eg.add("icon", url, err)
 			return nil
 		}
@@ -707,37 +705,79 @@ func guessImageExt(raw string) string {
 // depict404Limit is the per-run breaker threshold below
 const depict404Limit = 15
 
-// dead404 memoizes per-kind the URLs that upstream answered 404/Gone so
-// later runs skip them; one daily canary re-check still detects recovery.
-// Used for depictions (deadDepictions.json) and icons (deadIcons.json)
+// deadGuard memoizes per-kind what upstream refused to give: URLs answered
+// 404/Gone (persistent URL memo, dead<Kind>.json) and hosts that are
+// unreachable at the network level — connect/latency timeouts, refused,
+// dead DNS (persistent host memo, dead<Kind>Hosts.json). Both canaries
+// re-check one sample per run so upstream recovery reopens everything.
+// Used for depictions and icons
 type deadGuard struct {
 	a        *archiver
 	kind     string
 	memoPath string
+	hostPath string
 	hadMemo  bool
+	hadHosts bool
 
 	mu         sync.Mutex
 	dead       map[string]bool
 	hostStreak map[string]int
+	hostFails  map[string]int
 	hostDead   map[string]bool
+	hostSample map[string]string // host -> a reachable-once URL, for canaries
 }
 
 func (a *archiver) newDeadGuard(kind string) *deadGuard {
+	capKind := func(s string) string { return strings.ToUpper(s[:1]) + s[1:] }
 	g := &deadGuard{
 		a:          a,
 		kind:       kind,
-		memoPath:   filepath.Join(a.repoDir, "_meta", "dead"+strings.ToUpper(kind[:1])+kind[1:]+".json"),
+		memoPath:   filepath.Join(a.repoDir, "_meta", "dead"+capKind(kind)+".json"),
+		hostPath:   filepath.Join(a.repoDir, "_meta", "dead"+capKind(kind)+"Hosts.json"),
 		dead:       map[string]bool{},
 		hostStreak: map[string]int{},
+		hostFails:  map[string]int{},
 		hostDead:   map[string]bool{},
+		hostSample: map[string]string{},
 	}
 	if raw, err := os.ReadFile(g.memoPath); err == nil {
 		if json.Unmarshal(raw, &g.dead) == nil {
 			g.hadMemo = true
 		}
 	}
+	if raw, err := os.ReadFile(g.hostPath); err == nil {
+		if json.Unmarshal(raw, &g.hostSample) == nil {
+			g.hadHosts = true
+			for h := range g.hostSample {
+				g.hostDead[h] = true
+			}
+		}
+	}
+	if len(g.hostDead) != 0 {
+		// host canary: one request per memoized host; recovery reopens
+		// it. Any HTTP-level answer (200, 404, 403, ...) proves the
+		// network path works — only a network-level failure keeps the
+		// host memoized.
+		hits, alive := 0, 0
+		for _, h := range sortedKeys(g.hostSample) {
+			url := g.hostSample[h]
+			if _, _, err := a.f.Fetch(url); err != nil && !errors.Is(err, ErrNotFound) && !errors.Is(err, ErrLocked) {
+				hits++
+				continue
+			}
+			alive++
+			a.lg.Printf("%s: canary %s answered, unmarking host", kind, url)
+			delete(g.hostDead, h)
+			delete(g.hostSample, h)
+			delete(g.hostFails, h)
+			delete(g.dead, url) // let a still-dead URL re-probe next run
+		}
+		if hits != 0 {
+			a.lg.Printf("%s: skipping %d memoized-unreachable hosts; %d recovered", kind, hits, alive)
+		}
+	}
 	if len(g.dead) != 0 {
-		// canary: one request instead of thousands; upstream recovery
+		// url canary: one request instead of thousands; upstream recovery
 		// reopens everything for this run and wipes the memo
 		keys := make([]string, 0, len(g.dead))
 		for k := range g.dead {
@@ -769,47 +809,95 @@ func (g *deadGuard) hostGone(h string) bool {
 	return h != "" && g.hostDead[h]
 }
 
-// markDead records u as dead so later runs skip it silently
-func (g *deadGuard) markDead(u string) {
-	g.mu.Lock()
-	g.dead[u] = true
-	g.mu.Unlock()
-}
-
-// bump404 feeds the per-host breaker; returns whether the host is dropped
-func (g *deadGuard) bump404(host string) bool {
+// fail records one failed fetch inside the guard: 404/Gone memoizes the
+// URL and feeds the per-host 404 breaker; network-level failures
+// (timeouts, refused, dead DNS) feed a second per-host breaker — that
+// class of dead upstream never trips the 404 path, and each poisoned URL
+// would otherwise burn ~6 minutes of retries per worker
+func (g *deadGuard) fail(u string, err error) {
+	if err == nil {
+		return
+	}
+	host := hostOf(u)
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	if g.hostDead[host] {
-		return true
+		return
 	}
-	g.hostStreak[host]++
-	if g.hostStreak[host] >= depict404Limit {
-		g.hostDead[host] = true
-		g.a.lg.Printf("%s: %s returned 404 on %d of them; skipping the rest this run", g.kind, host, g.hostStreak[host])
+	switch {
+	case errors.Is(err, ErrNotFound):
+		// only the per-URL memo needs a 404; the hosts memo is reserved
+		// for network-dead hosts, and a 404 itself proves the network is
+		// alive — memoizing the host here could pin it dead forever on a
+		// permanently-404ed sample
+		g.dead[u] = true
+		g.hostStreak[host]++
+		if g.hostStreak[host] >= depict404Limit {
+			g.hostDead[host] = true
+			g.a.lg.Printf("%s: %s returned 404 on %d of them; skipping the rest this run", g.kind, host, g.hostStreak[host])
+		}
+	case isUnreachable(err):
+		g.hostFails[host]++
+		g.hostSample[host] = u
+		if g.hostFails[host] >= depict404Limit {
+			g.hostDead[host] = true
+			delete(g.hostStreak, host)
+			g.a.lg.Printf("%s: %s unreachable (timeouts/refused) on %d of them; skipping the rest this run and memoizing the host", g.kind, host, g.hostFails[host])
+		}
 	}
-	return g.hostDead[host]
 }
 
-// settle persists the memo (and drops the file when the guard is empty)
+// isUnreachable reports whether a fetch error is a network-level failure
+// (timeout, connection refused, no route, dead DNS) rather than an HTTP
+// response; these signal dead or blackholed infrastructure, not per-URL
+// 404s, and get breaker treatment through deadGuard.fail
+func isUnreachable(err error) bool {
+	var ne net.Error
+	if errors.As(err, &ne) && ne.Timeout() {
+		return true
+	}
+	var oe *net.OpError
+	if errors.As(err, &oe) {
+		return true
+	}
+	var de *net.DNSError
+	if errors.As(err, &de) {
+		return true
+	}
+	return false
+}
+
+// settle persists the memos (dropping files when a store is empty)
 func (g *deadGuard) settle() {
-	if !g.hadMemo && len(g.dead) == 0 {
-		return
-	}
-	if len(g.dead) == 0 {
-		if err := os.Remove(g.memoPath); err != nil && !os.IsNotExist(err) {
-			g.a.lg.Printf("%s: dead memo remove: %v", g.kind, err)
-		}
-		return
-	}
-	if err := os.MkdirAll(filepath.Join(g.a.repoDir, "_meta"), 0o755); err != nil {
-		return
-	}
-	if raw, err := json.MarshalIndent(g.dead, "", "  "); err == nil {
-		if err := writeAtomic(g.memoPath, raw); err != nil {
+	if g.hadMemo || len(g.dead) != 0 {
+		if len(g.dead) == 0 {
+			if err := os.Remove(g.memoPath); err != nil && !os.IsNotExist(err) {
+				g.a.lg.Printf("%s: dead memo remove: %v", g.kind, err)
+			}
+		} else if err := g.writeMemo(g.memoPath, g.dead); err != nil {
 			g.a.lg.Printf("%s: dead memo write: %v", g.kind, err)
 		}
 	}
+	if g.hadHosts || len(g.hostSample) != 0 {
+		if len(g.hostSample) == 0 {
+			if err := os.Remove(g.hostPath); err != nil && !os.IsNotExist(err) {
+				g.a.lg.Printf("%s: dead hosts memo remove: %v", g.kind, err)
+			}
+		} else if err := g.writeMemo(g.hostPath, g.hostSample); err != nil {
+			g.a.lg.Printf("%s: dead hosts memo write: %v", g.kind, err)
+		}
+	}
+}
+
+func (g *deadGuard) writeMemo(path string, val any) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	raw, err := json.MarshalIndent(val, "", "  ")
+	if err != nil {
+		return err
+	}
+	return writeAtomic(path, raw)
 }
 
 // depictions archives every unique Depiction/SileoDepiction page as rendered
@@ -840,29 +928,26 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 	if len(jobs) != 0 {
 		a.lg.Printf("archiving %d depictions", len(jobs))
 	}
+	dp := newProgress(a.lg, "depictions", len(jobs))
 	archived := map[string]string{}
 	var mu sync.Mutex
 	runPool(3, len(jobs), func(i int) error {
+		defer dp.tick()
 		j := jobs[i]
 		if g.skip(j.url) {
 			return nil
 		}
-		host := hostOf(j.url)
-		if g.hostGone(host) {
-			g.markDead(j.url)
+		if g.hostGone(hostOf(j.url)) {
 			return nil
 		}
 		rel := "_archive/depictions/" + sanitizeName(j.id) + "-" + sha256Hex([]byte(j.url))[:8] + ".html"
 		dest := filepath.Join(a.repoDir, "_archive", "depictions", sanitizeName(j.id)+"-"+sha256Hex([]byte(j.url))[:8]+".html")
 		body, _, err := a.f.Fetch(j.url)
 		if err != nil || len(body) == 0 {
-			if errors.Is(err, ErrNotFound) {
-				g.markDead(j.url)
-				g.bump404(host)
-			}
 			if err == nil {
 				err = errShortBody
 			}
+			g.fail(j.url, err)
 			a.eg.add("depiction", j.url, err)
 			return nil
 		}
