@@ -10,6 +10,7 @@ import (
 
 func main() {
 	cfgPath := flag.String("config", "", "path to JSON config")
+	sweepOnly := flag.Bool("sweep-only", false, "run nothing but the repo/pool garbage sweep")
 	flag.Parse()
 	log.SetFlags(log.LstdFlags)
 	log.SetOutput(activityWriter{os.Stderr})
@@ -20,6 +21,10 @@ func main() {
 	}
 	if err := os.MkdirAll(cfg.DataDir, 0o755); err != nil {
 		log.Fatalf("data dir: %v", err)
+	}
+	if *sweepOnly {
+		sweep(cfg)
+		return
 	}
 	now := time.Now()
 	manifests := make([]*RepoManifest, len(cfg.Repos))
@@ -32,6 +37,7 @@ func main() {
 		}(i, repo)
 	}
 	wg.Wait()
+	sweep(cfg)
 	if err := generateLanding(cfg, manifests); err != nil {
 		log.Printf("landing: %v", err)
 	}
