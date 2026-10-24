@@ -82,21 +82,42 @@ let
       name = "lenglengyu";
       url = "https://lenglengyu.com";
     }
+    {
+      name = "frida";
+      url = "https://build.frida.re";
+    }
+    {
+      name = "ellekit";
+      url = "https://ellekit.space";
+    }
+    {
+      name = "opa334";
+      url = "https://opa334.github.io";
+    }
+    {
+      name = "palera1n";
+      url = "https://repo.palera.in";
+    }
+    {
+      name = "getutm";
+      url = "https://cydia.getutm.app";
+    }
+    {
+      name = "dxcool223-repo";
+      url = "https://dxcool223-repo.github.io/repo";
+    }
+    {
+      name = "0xilis";
+      url = "https://0xilis.github.io/rootless";
+    }
     # https://havoc.app
 
-    # https://dxcool223-repo.github.io/repo
-    # https://ellekit.space
-    # https://build.frida.re
     # https://cydia.ichitaso.com
     # https://ios.jjolano.me
-    # https://opa334.github.io
     # https://paisseon.github.io
-    # https://repo.palera.in
     # https://poomsmart.github.io/repo
     # https://apt.procurs.us
     # https://sparkdev.me
-    # https://0xilis.github.io/rootless
-    # https://cydia.getutm.app
   ];
 
   mirrorConfig = pkgs.writeText "apt-mirror-config.json" (
