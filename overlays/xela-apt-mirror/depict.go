@@ -778,9 +778,21 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 		}
 	}
 	var deadMu sync.Mutex
-	notFound404 := func(u string) { deadMu.Lock(); dead[u] = true; deadMu.Unlock() }
+	// every access below goes through deadMu-dead/hostDead guards: the
+	// job pool runs concurrently and Go maps fault on read/write races
+	markDead := func(u string) { deadMu.Lock(); dead[u] = true; deadMu.Unlock() }
+	isDead := func(u string) bool {
+		deadMu.Lock()
+		defer deadMu.Unlock()
+		return dead[u]
+	}
 	hostStreak := map[string]int{}
 	hostDead := map[string]bool{}
+	hostGone := func(h string) bool {
+		deadMu.Lock()
+		defer deadMu.Unlock()
+		return h != "" && hostDead[h]
+	}
 	bump404 := func(host string) bool {
 		deadMu.Lock()
 		defer deadMu.Unlock()
@@ -801,12 +813,12 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 	var mu sync.Mutex
 	runPool(3, len(jobs), func(i int) error {
 		j := jobs[i]
-		if dead[j.url] {
+		if isDead(j.url) {
 			return nil
 		}
 		host := hostOf(j.url)
-		if host != "" && hostDead[host] {
-			notFound404(j.url)
+		if hostGone(host) {
+			markDead(j.url)
 			return nil
 		}
 		rel := "_archive/depictions/" + sanitizeName(j.id) + "-" + sha256Hex([]byte(j.url))[:8] + ".html"
@@ -814,7 +826,7 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 		body, _, err := a.f.Fetch(j.url)
 		if err != nil || len(body) == 0 {
 			if errors.Is(err, ErrNotFound) {
-				notFound404(j.url)
+				markDead(j.url)
 				bump404(host)
 			}
 			if err == nil {
