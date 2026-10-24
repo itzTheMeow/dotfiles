@@ -308,7 +308,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	// fileRel combines a branch-relative (Packages-referenced) path with the
 	// distribution prefix so it can be fetched/stored repo-root-relative
 	fileRel := func(p string) string { return distRel + p }
-	logger := log.New(os.Stderr, "["+name+"] ", log.LstdFlags)
+	logger := log.New(activityWriter{os.Stderr}, "["+name+"] ", log.LstdFlags)
 	logger.Printf("starting sync")
 	os.MkdirAll(repoDir, 0o755)
 	os.MkdirAll(poolDir(dataDir), 0o755)

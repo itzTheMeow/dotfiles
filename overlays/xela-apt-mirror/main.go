@@ -11,6 +11,9 @@ import (
 func main() {
 	cfgPath := flag.String("config", "", "path to JSON config")
 	flag.Parse()
+	log.SetFlags(log.LstdFlags)
+	log.SetOutput(activityWriter{os.Stderr})
+	startWatchdog(envDuration("APTM_WATCHDOG_MAX", 105*time.Minute))
 	cfg, err := loadConfig(*cfgPath)
 	if err != nil {
 		log.Fatalf("config: %v", err)
