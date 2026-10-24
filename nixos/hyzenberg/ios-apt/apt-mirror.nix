@@ -190,7 +190,7 @@ in
       StateDirectory = "apt-mirrors";
       StateDirectoryMode = "0755";
       UMask = "0022";
-      TimeoutStartSec = "2h";
+      TimeoutStartSec = "6h";
 
       NoNewPrivileges = true;
       PrivateTmp = true;
