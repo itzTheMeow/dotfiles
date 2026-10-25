@@ -30,6 +30,10 @@ let
       url = "https://repo.chariz.com";
     }
     {
+      name = "havoc";
+      url = "https://havoc.app";
+    }
+    {
       name = "victorlobe";
       url = "https://repo.victorlobe.me/";
     }
@@ -105,7 +109,6 @@ let
       name = "0xilis";
       url = "https://0xilis.github.io/rootless";
     }
-    # https://havoc.app
 
     # https://cydia.ichitaso.com
     # https://ios.jjolano.me
