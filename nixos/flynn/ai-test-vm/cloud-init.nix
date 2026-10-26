@@ -9,7 +9,7 @@
   authorizedKey,
   instanceId ? "debian",
   guestWorkspace ? "/home/${username}/workspace",
-  shareTag ? "aiworkspace",
+  shareTag ? "workspace",
 }:
 let
   packages = [
@@ -43,6 +43,9 @@ let
     # ssh and the host share
     "openssh-server"
     "sudo"
+    # terminfo for the host's terminal emulator, so TERM=xterm-kitty
+    # resolves in ssh sessions
+    "kitty-terminfo"
   ];
 in
 {
@@ -84,7 +87,7 @@ in
         # slow, and recommends alone nearly doubled the dependency tree).
         # The image is throwaway and an interrupted provision discards the
         # base, so unsafe IO is acceptable here.
-        path = "/etc/apt/apt.conf.d/90ai-test-vm";
+        path = "/etc/apt/apt.conf.d/90local";
         content = ''
           APT::Install-Recommends "false";
           APT::Install-Suggests "false";
@@ -92,7 +95,7 @@ in
         '';
       }
       {
-        path = "/etc/ssh/sshd_config.d/ai-test-vm.conf";
+        path = "/etc/ssh/sshd_config.d/40-hardening.conf";
         content = ''
           PasswordAuthentication no
           KbdInteractiveAuthentication no
@@ -119,19 +122,18 @@ in
         '';
       }
       {
-        path = "/usr/local/bin/ai-test-vm-shutdown";
+        path = "/usr/local/bin/clean-poweroff";
         # cloud-init 25.x validates write_files against a schema that dropped the old
         # "mode" key in favour of "permissions"
         permissions = "0755";
         content = ''
           #!/bin/sh
-          # The host launcher calls this over ssh and the dead-man's switch
-          # runs it directly. Every fuse-touching step is timeout-guarded:
-          # a dead or wedged share daemon would otherwise block the shutdown
-          # sync forever (the guest never finishes powering off and qemu
-          # lingers on the host, running but unreachable). Aborting the fuse
-          # connection first also makes pending requests fail immediately,
-          # which keeps the umount fast even under memory pressure.
+          # Detach the workspace share, then power off. Every fuse-touching
+          # step is timeout-guarded: a dead or wedged share daemon would
+          # otherwise block the shutdown sync forever and the machine never
+          # finishes powering off. Aborting the fuse connection first makes
+          # pending requests fail immediately, which keeps the umount fast
+          # even under memory pressure.
           timeout 30 sh -c 'for c in /sys/fs/fuse/connections/*; do
             [ -w "$c/abort" ] && echo 1 > "$c/abort" 2>/dev/null
           done' 2>/dev/null || true
@@ -141,43 +143,47 @@ in
         '';
       }
       {
-        # dead-man's switch: the host launcher touches the heartbeat every 10s
-        # while it is attached. If that stops (kitty window closed, launcher
-        # killed, host rebooted) the VM powers itself off instead of idling
-        # forever. No heartbeat file yet means "not armed" (fresh boot).
-        path = "/usr/local/bin/ai-vm-watchdog";
+        # Periodic check: powers the machine off when the host side has not
+        # checked in for over a minute (window closed, host rebooted) and no
+        # interactive logins remain. Missing heartbeat file = not armed
+        # (fresh boot).
+        path = "/usr/local/bin/upkeep";
         permissions = "0755";
         content = ''
           #!/bin/sh
-          hb=/var/lib/ai-vm/heartbeat
+          hb=/var/lib/upkeep/heartbeat
           [ -f "$hb" ] || exit 0
           last=$(stat -c %Y "$hb" 2>/dev/null) || exit 0
-          # interactive shells still attached? keep the VM alive regardless
-          # of the launcher - it powers off once the last shell leaves
+          # a beat that predates this boot (left over inside the image) does
+          # not count as armed - the host side re-arms it shortly after boot
+          boot=$(( $(date +%s) - $(cut -d. -f1 /proc/uptime) ))
+          [ "$last" -lt "$boot" ] && exit 0
+          # interactive logins still attached? stay up - the host side
+          # powers off once the last one leaves
           [ "$(pgrep -fc 'sshd-session: .*@pts' 2>/dev/null)" -gt 0 ] && exit 0
-          [ $(( $(date +%s) - last )) -gt 60 ] && /usr/local/bin/ai-test-vm-shutdown
+          [ $(( $(date +%s) - last )) -gt 60 ] && /usr/local/bin/clean-poweroff
           exit 0
         '';
       }
       {
-        path = "/etc/systemd/system/ai-vm-watchdog.service";
+        path = "/etc/systemd/system/upkeep.service";
         content = ''
           [Unit]
-          Description=AI test VM dead-man's switch
+          Description=Periodic upkeep check
 
           [Service]
           Type=oneshot
-          ExecStart=/usr/local/bin/ai-vm-watchdog
-          # the shutdown helper may legitimately take a while (fuse aborts
-          # under memory pressure); systemd must never kill it mid-poweroff
+          ExecStart=/usr/local/bin/upkeep
+          # powering off may legitimately take a while (fuse aborts under
+          # memory pressure); systemd must never kill it mid-poweroff
           TimeoutStartSec=0
         '';
       }
       {
-        path = "/etc/systemd/system/ai-vm-watchdog.timer";
+        path = "/etc/systemd/system/upkeep.timer";
         content = ''
           [Unit]
-          Description=Run the AI test VM dead-man's switch
+          Description=Run the periodic upkeep check
 
           [Timer]
           OnBootSec=15s
@@ -193,11 +199,16 @@ in
       "systemctl daemon-reload"
       "systemctl enable ${mountUnit}.mount"
       "systemctl start ${mountUnit}.mount || true"
+      # the versioned Debian Go packages only install to /usr/lib/go-X.Y
+      # (/usr/bin/go comes from the "golang" metapackage, which would pull
+      # the older default toolchain) - link 1.27 into /usr/local/bin instead
+      "ln -sf /usr/lib/go-1.27/bin/go /usr/local/bin/go"
+      "ln -sf /usr/lib/go-1.27/bin/gofmt /usr/local/bin/gofmt"
       # sentinel the launcher waits for before the base image counts as ready
-      "install -d /var/lib/ai-vm"
-      "touch /var/lib/ai-vm/provisioned"
-      # dead-man's switch for the throwaway session VMs
-      "systemctl enable --now ai-vm-watchdog.timer"
+      "install -d /var/lib/upkeep"
+      "touch /var/lib/upkeep/ready"
+      # powers the machine off when the host side stops maintaining it
+      "systemctl enable --now upkeep.timer"
     ];
 
     final_message = "provisioned in $UPTIME seconds";

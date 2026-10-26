@@ -18,7 +18,7 @@
   diskSize ? "16G",
   sshPort ? 2222,
   guestWorkspace ? "/home/${username}/workspace",
-  shareTag ? "aiworkspace",
+  shareTag ? "workspace",
   # the generic (not genericcloud) image on purpose: Debian's cloud kernel is
   baseImageUrl ? "https://cloud.debian.org/images/cloud/trixie/20261001-2618/debian-13-generic-amd64-20261001-2618.qcow2",
   baseImageHash ? "sha256-B/n+Bf58sXAgRwNIMBULrd1myL4G4jO7ImyEqoonUmM=",
@@ -52,7 +52,7 @@ let
   # 127.0.0.1 and is discarded after every session, so it protects nothing
   sshKey = pkgs.runCommand "ai-test-vm-ssh-key" { nativeBuildInputs = [ pkgs.openssh ]; } ''
     mkdir -p "$out"
-    ssh-keygen -q -t ed25519 -N "" -C ai-test-vm -f "$out/id_ed25519"
+    ssh-keygen -q -t ed25519 -N "" -C xela@debian -f "$out/id_ed25519"
     chmod 0600 "$out/id_ed25519"
   '';
 
@@ -160,7 +160,7 @@ let
           # powering off; it can block on a wedged connection, so it runs in
           # the background - the grace window and escalation below reap qemu
           # regardless of whether the helper ever finishes
-          vm_ssh "sudo -n /usr/local/bin/ai-test-vm-shutdown" >/dev/null 2>&1 &
+          vm_ssh "sudo -n /usr/local/bin/clean-poweroff" >/dev/null 2>&1 &
           local i=0 pid
           pid=$(cat "$pidfile" 2>/dev/null || true)
           while [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && [ $i -lt $(( $1 * 5 )) ]; do
@@ -213,7 +213,7 @@ let
           # the probe only reports when the mount exists but does not answer,
           # and only after two consecutive failures so a slow moment under
           # heavy guest load does not produce a false alarm
-          if vm_ssh "sudo -n touch /var/lib/ai-vm/heartbeat; if grep -qs ' ${guestWorkspace} virtiofs' /proc/mounts; then timeout 10 ls ${guestWorkspace} >/dev/null || exit 42; fi" 2>/dev/null; then
+          if vm_ssh "sudo -n touch /var/lib/upkeep/heartbeat; if grep -qs ' ${guestWorkspace} virtiofs' /proc/mounts; then timeout 10 ls ${guestWorkspace} >/dev/null || exit 42; fi" 2>/dev/null; then
             share_dead=0
           else
             share_dead=$((share_dead + 1))
@@ -380,17 +380,22 @@ let
         provisioning=1
         local i=0
         while [ $i -lt 3600 ]; do
-          vm_ssh "test -f /var/lib/ai-vm/provisioned" 2>/dev/null && break
+          vm_ssh "test -f /var/lib/upkeep/ready" 2>/dev/null && break
           sleep 5
           i=$((i + 5))
         done
         provisioning=
-        vm_ssh "test -f /var/lib/ai-vm/provisioned" ||
+        vm_ssh "test -f /var/lib/upkeep/ready" ||
           {
             rm -f "$base"
             die "provisioning did not finish - the incomplete base image was discarded, retry: ai-test-vm provision"
           }
         ensure_guest_share
+
+        # do not seal the session heartbeat into the base image: at session
+        # boot it would read as a stale beat from a dead host and the upkeep
+        # timer would power the VM off before the new session arms it
+        vm_ssh "rm -f /var/lib/upkeep/heartbeat" 2>/dev/null || true
 
         # close the guest cleanly so the base image is not left with a dirty fs
         stop_heartbeat
