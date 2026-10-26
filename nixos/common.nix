@@ -300,7 +300,7 @@ in
     ## performance
     speedtest-cli
 
-    kitty # needed so ssh will work from kitty
+    kitty.terminfo # needed so ssh will work from kitty
     rclone # used by some core services
     screen
   ];
