@@ -54,14 +54,23 @@
   # Mount the ESP inside the initrd before any LUKS unlock happens.
   boot.initrd.systemd.services.luks-esp = {
     description = "Mount the ESP inside the initrd to expose the LUKS keyfile";
-    wantedBy = [ "cryptsetup-pre.target" ];
-    before = [ "cryptsetup-pre.target" ];
+    wantedBy = [ "systemd-cryptsetup@luks\x2droot.service" ];
+    before = [
+      "systemd-cryptsetup@luks\x2droot.service"
+      "initrd-switch-root.target"
+      "shutdown.target"
+    ];
+    conflicts = [
+      "initrd-switch-root.target"
+      "shutdown.target"
+    ];
     after = [
       "${utils.escapeSystemdPath "/dev/disk/by-partuuid/F9E6C80B-DF4F-4DAD-BB9D-B8B083D920AC"}.device"
     ];
     requires = [
       "${utils.escapeSystemdPath "/dev/disk/by-partuuid/F9E6C80B-DF4F-4DAD-BB9D-B8B083D920AC"}.device"
     ];
+    unitConfig.DefaultDependencies = "no";
     serviceConfig.Type = "oneshot";
     script = ''
       mkdir -p /run/luks-esp

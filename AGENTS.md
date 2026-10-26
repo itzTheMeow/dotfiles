@@ -105,9 +105,13 @@ NixOS configuration for personal machines.
 - LUKS keyfiles on a separate filesystem: `boot.initrd.luks.devices.<name>.preOpenCommands` /
   `postOpenCommands` are **classic stage-1 only** — nixpkgs asserts them away on systemd stage 1
   (see `nixos/modules/system/boot/luksroot.nix` in nixpkgs). With systemd stage 1, mount the
-  keyfile's filesystem from `boot.initrd.systemd.services.<name>` ordered
-  `before`/`wantedBy = [ "cryptsetup-pre.target" ]` (every `systemd-cryptsetup@.service` is
-  `After=cryptsetup-pre.target`), e.g. see the `luks-esp` service in `nixos/hyzenberg/hardware.nix`.
+  keyfile's filesystem from `boot.initrd.systemd.services.<name>` hooked directly into the
+  cryptsetup instance: `wantedBy = [ "systemd-cryptsetup@${utils.escapeSystemdPath name}.service" ]`
+  + `before` it (same pattern as nixpkgs' clevis services in `luksroot.nix`), e.g. the
+  `luks-esp` service in `nixos/hyzenberg/hardware.nix` (instance names are crypttab names with
+  systemd escapes, dash → `\x2d`). Do NOT use `wantedBy = [ "cryptsetup-pre.target" ]` —
+  nothing wants that target (systemd-cryptsetup@.service only orders `After=`), so the hook
+  never runs and the unlock silently falls back to a passphrase prompt.
   Also: `neededForBoot` alone does **not** order an initrd mount against a cryptsetup unit —
   relying on it for keyfiles races the cryptsetup unit and silently falls back to a passphrase
   prompt. And evaluating `config.swapDevices` (or other typed options) as a raw JSON value can
