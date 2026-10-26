@@ -1,6 +1,7 @@
 {
   lib,
   modulesPath,
+  utils,
   ...
 }:
 {
@@ -17,12 +18,6 @@
   #     Remove the fileSystems."/" and fileSystems."/nix" entries here once
   #     the persist module takes them over. The "root" subvol currently holds
   #     everything except the nix store.
-  #   - vda2: random-encrypted swap (same geometry as before)
-  #   - vda3: ESP, untouched since the migration.
-  #   The LUKS unlock is unattended via a keyfile on the (unencrypted) ESP:
-  #   /boot/luksbootkeyfile (also stored in 1Password, along with the LUKS
-  #   header backup). If the keyfile goes missing, systemd stage 1 falls back
-  #   to the passphrase prompt on the netcup VNC console.
 
   boot.initrd.availableKernelModules = [
     "virtio_pci" # Standard for KVM communication
@@ -36,7 +31,7 @@
     "uhci_hcd"
     "sr_mod"
 
-    # stage-1 must mount the ESP (neededForBoot) to read the LUKS keyfile
+    # the ESP itself gets mounted in the initrd
     "vfat"
     "nls_cp437"
   ];
@@ -53,8 +48,25 @@
   boot.initrd.supportedFilesystems = [ "vfat" ];
   boot.initrd.luks.devices."luks-root" = {
     device = "/dev/disk/by-partlabel/root";
-    keyFile = "/boot/luksbootkeyfile";
+    keyFile = "/run/luks-esp/luksbootkeyfile";
     allowDiscards = true;
+  };
+  # Mount the ESP inside the initrd before any LUKS unlock happens.
+  boot.initrd.systemd.services.luks-esp = {
+    description = "Mount the ESP inside the initrd to expose the LUKS keyfile";
+    wantedBy = [ "cryptsetup-pre.target" ];
+    before = [ "cryptsetup-pre.target" ];
+    after = [
+      "${utils.escapeSystemdPath "/dev/disk/by-partuuid/F9E6C80B-DF4F-4DAD-BB9D-B8B083D920AC"}.device"
+    ];
+    requires = [
+      "${utils.escapeSystemdPath "/dev/disk/by-partuuid/F9E6C80B-DF4F-4DAD-BB9D-B8B083D920AC"}.device"
+    ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      mkdir -p /run/luks-esp
+      mount -t vfat /dev/disk/by-partuuid/F9E6C80B-DF4F-4DAD-BB9D-B8B083D920AC /run/luks-esp
+    '';
   };
 
   fileSystems."/" = {

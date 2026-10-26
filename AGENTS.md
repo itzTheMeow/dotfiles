@@ -102,3 +102,14 @@ NixOS configuration for personal machines.
   concise note to this file so future agents don't have to rediscover it. Keep it short,
   accurate, and tied to the code it describes (path/line). If it's service-specific,
   leave it in the service's own config file instead (per the Conventions section above).
+- LUKS keyfiles on a separate filesystem: `boot.initrd.luks.devices.<name>.preOpenCommands` /
+  `postOpenCommands` are **classic stage-1 only** — nixpkgs asserts them away on systemd stage 1
+  (see `nixos/modules/system/boot/luksroot.nix` in nixpkgs). With systemd stage 1, mount the
+  keyfile's filesystem from `boot.initrd.systemd.services.<name>` ordered
+  `before`/`wantedBy = [ "cryptsetup-pre.target" ]` (every `systemd-cryptsetup@.service` is
+  `After=cryptsetup-pre.target`), e.g. see the `luks-esp` service in `nixos/hyzenberg/hardware.nix`.
+  Also: `neededForBoot` alone does **not** order an initrd mount against a cryptsetup unit —
+  relying on it for keyfiles races the cryptsetup unit and silently falls back to a passphrase
+  prompt. And evaluating `config.swapDevices` (or other typed options) as a raw JSON value can
+  force unrelated lazy consumers (`label` reading) and error even though the toplevel evaluates
+  fine — prefer full toplevel eval (`config.system.build.toplevel.drvPath`) when validating.
