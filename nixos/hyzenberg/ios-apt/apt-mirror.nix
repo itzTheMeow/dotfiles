@@ -109,9 +109,15 @@ let
       name = "0xilis";
       url = "https://0xilis.github.io/rootless";
     }
+    {
+      name = "ichitaso";
+      url = "https://cydia.ichitaso.com";
+    }
+    {
+      name = "jjolano";
+      url = "https://ios.jjolano.me";
+    }
 
-    # https://cydia.ichitaso.com
-    # https://ios.jjolano.me
     # https://paisseon.github.io
     # https://poomsmart.github.io/repo
     # https://apt.procurs.us
