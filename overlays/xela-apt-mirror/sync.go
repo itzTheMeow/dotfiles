@@ -22,25 +22,26 @@ type MissingDeb struct {
 }
 
 type RepoManifest struct {
-	Name         string            `json:"name"`
-	URL          string            `json:"url"`
-	Distribution string            `json:"distribution,omitempty"`
-	Mirror       string            `json:"mirror"`
-	Status       string            `json:"status"`
-	Error        string            `json:"error,omitempty"`
-	Updated      string            `json:"updated"`
-	LastAttempt  string            `json:"attempted"`
-	Release      map[string]string `json:"release,omitempty"`
-	Indexes      []string          `json:"indexes,omitempty"`
-	Unique       int               `json:"uniquePackages"`
-	Versions     int               `json:"packageVersions"`
-	Debs         int               `json:"debs"`
-	LogicalSize  int64             `json:"logicalBytes"`
-	OK           int               `json:"debsOk"`
-	Missing      []MissingDeb      `json:"missing,omitempty"`
-	Locked       []MissingDeb      `json:"locked,omitempty"`
-	Icons        int               `json:"icons"`
-	Depictions   int               `json:"depictions"`
+	Name          string            `json:"name"`
+	URL           string            `json:"url"`
+	Distribution  string            `json:"distribution,omitempty"`
+	Mirror        string            `json:"mirror"`
+	Status        string            `json:"status"`
+	Error         string            `json:"error,omitempty"`
+	Updated       string            `json:"updated"`
+	LastAttempt   string            `json:"attempted"`
+	Release       map[string]string `json:"release,omitempty"`
+	Indexes       []string          `json:"indexes,omitempty"`
+	Unique        int               `json:"uniquePackages"`
+	Versions      int               `json:"packageVersions"`
+	Debs          int               `json:"debs"`
+	LogicalSize   int64             `json:"logicalBytes"`
+	OK            int               `json:"debsOk"`
+	Missing       []MissingDeb      `json:"missing,omitempty"`
+	Locked        []MissingDeb      `json:"locked,omitempty"`
+	Icons         int               `json:"icons"`
+	Depictions    int               `json:"depictions"`
+	ArchivedBytes int64             `json:"archivedBytes,omitempty"` // filled at landing render, not by syncOne
 }
 
 type DepictRef struct {

@@ -79,7 +79,7 @@ func (f *Fetcher) do(method, rawurl, accept string, retries int) (*http.Response
 		case http.StatusNotFound, http.StatusGone:
 			resp.Body.Close()
 			return nil, fmt.Errorf("%s: %w", rawurl, ErrNotFound)
-		case http.StatusUnauthorized, http.StatusForbidden, http.StatusPaymentRequired:
+		case http.StatusUnauthorized, http.StatusForbidden, http.StatusPaymentRequired, http.StatusTeapot:
 			resp.Body.Close()
 			return nil, fmt.Errorf("%s: %w", rawurl, ErrLocked)
 		case http.StatusTooManyRequests, http.StatusServiceUnavailable:

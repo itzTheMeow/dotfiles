@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"html"
+	"io/fs"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -19,11 +21,35 @@ type PoolStats struct {
 type LandingData struct {
 	Generated string          `json:"generated"`
 	Pool      PoolStats       `json:"pool"`
+	Archive   PoolStats       `json:"archive"`
 	Logical   int64           `json:"logicalBytes"`
 	Repos     []*RepoManifest `json:"repos"`
 }
 
 func esc(s string) string { return html.EscapeString(s) }
+
+// dirBytes walks root summing regular-file sizes (symlinks count zero),
+// used for the on-disk pool/archive figures on the landing page
+func dirBytes(root string) (int64, int) {
+	var total int64
+	var n int
+	if err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return filepath.SkipDir // unreadable subtree: undercount only
+		}
+		if d.IsDir() || !d.Type().IsRegular() {
+			return nil
+		}
+		if info, err := d.Info(); err == nil {
+			total += info.Size()
+			n++
+		}
+		return nil
+	}); err != nil {
+		log.Printf("size walk %s: %v", root, err)
+	}
+	return total, n
+}
 
 func poolStats(dataDir string) PoolStats {
 	var ps PoolStats
@@ -151,8 +177,15 @@ func renderLandingHTML(data LandingData) string {
 		versions += m.Versions
 		logical += m.LogicalSize
 	}
+	disk := ""
+	if data.Pool.Bytes > 0 {
+		disk += ` · ` + esc(humanSize(data.Pool.Bytes)) + ` debs on disk`
+	}
+	if data.Archive.Bytes > 0 {
+		disk += ` · ` + esc(humanSize(data.Archive.Bytes)) + ` depictions on disk`
+	}
 	b.WriteString(`<p class="meta center">` + esc(itoa(int64(len(data.Repos)))) + ` repos · ` + esc(itoa(int64(versions))) + ` versions · ` +
-		esc(humanSize(logical)) + ` referenced · generated ` + esc(data.Generated) + `</p>`)
+		esc(humanSize(logical)) + ` referenced` + disk + ` · generated ` + esc(data.Generated) + `</p>`)
 
 	b.WriteString(`<h2>Search</h2>`)
 	b.WriteString(`<div class="box"><div class="row"><a href="/search.html">Search all packages across every repo</a></div></div>`)
@@ -189,7 +222,11 @@ func renderLandingHTML(data LandingData) string {
 			flags += ` <span class="badge b-locked">` + esc(itoa(int64(len(m.Locked)))) + ` paid</span>`
 		}
 		links := ` · <a href="` + esc(m.Mirror) + `/packages.html">package list</a> · <a href="` + esc(m.Mirror) + `/">repo files</a> · <a href="` + esc(m.URL) + `">upstream</a>`
-		b.WriteString(`<div class="row"><div class="meta">` + flags + `<br>` + esc(itoa(int64(m.Unique))) + ` packages · ` + esc(itoa(int64(m.Versions))) + ` versions · ` + esc(humanSize(m.LogicalSize)) + ` · synced ` + esc(m.Updated) + `<br>` + links + `</div></div>`)
+		repoMeta := esc(itoa(int64(m.Unique))) + ` packages · ` + esc(itoa(int64(m.Versions))) + ` versions · ` + esc(humanSize(m.LogicalSize)) + ` · synced ` + esc(m.Updated)
+		if m.ArchivedBytes > 0 {
+			repoMeta += ` · archived ` + esc(humanSize(m.ArchivedBytes))
+		}
+		b.WriteString(`<div class="row"><div class="meta">` + flags + `<br>` + repoMeta + `<br>` + links + `</div></div>`)
 		b.WriteString(`</div>`)
 	}
 	b.WriteString(`<h2>Notes</h2>`)
@@ -307,6 +344,12 @@ func generateLanding(cfg *Config, manifests []*RepoManifest) error {
 		if m == nil {
 			continue
 		}
+		// on-disk depiction/archive storage: measured here rather than at
+		// sync time so nothing stale survives a landing re-render
+		archived, archivedFiles := dirBytes(filepath.Join(cfg.DataDir, m.Name, "_archive"))
+		m.ArchivedBytes = archived
+		data.Archive.Bytes += archived
+		data.Archive.Files += archivedFiles
 		data.Repos = append(data.Repos, m)
 		data.Logical += m.LogicalSize
 	}
