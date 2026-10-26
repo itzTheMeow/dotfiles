@@ -59,7 +59,14 @@ in
     users = [
       {
         name = username;
-        groups = [ "sudo" ];
+        # virtiofsd runs unprivileged (--sandbox none) and switches to the
+        # requesting uid/gid per operation; any guest id the host user does
+        # not have makes its setegid/setgroups fail with EPERM, and then
+        # every create on the share fails (reads are unaffected). So the ids
+        # must be a subset of the host's: uid 1000 matches, "users" is gid
+        # 100 on both sides, and there are no supplementary groups - the
+        # NOPASSWD sudoers entry below does not need the sudo group.
+        primary_group = "users";
         shell = "/bin/bash";
         lock_passwd = true;
         sudo = [ "ALL=(ALL) NOPASSWD:ALL" ];

@@ -243,9 +243,14 @@ let
           i=$((i + 1))
         done
         [ -S "$vfsd_sock" ] || die "virtiofsd failed to create $vfsd_sock"
+        # vhost-user devices have to mmap the guest RAM from the daemon, so
+        # the machine needs a shared memory backend; without it virtiofsd
+        # dies the moment the guest boots with HandleRequest(InvalidParam)
+        # and the share mounts into a black hole
         qemu-system-x86_64 \
           -name ai-test-vm \
-          -machine q35,accel=kvm -cpu host \
+          -object memory-backend-memfd,id=mem,size="''${mem}"M,share=on \
+          -machine q35,accel=kvm,memory-backend=mem -cpu host \
           -m "$mem" -smp "$cores" \
           -display none -monitor none -serial "file:$2" \
           -nic "user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:$port-:22,dns=1.1.1.1" \
@@ -267,11 +272,19 @@ let
         die "the VM did not come up within $1s - see $console"
       }
 
+      # checks /proc/mounts instead of stat'ing the path: stat on a share
+      # whose daemon died blocks forever (and would wedge the launcher),
+      # reading /proc/mounts never does
+      share_mounted() {
+        vm_ssh "grep -qs ' ${guestWorkspace} virtiofs' /proc/mounts"
+      }
+
       ensure_guest_share() {
-        vm_ssh "mountpoint -q ${guestWorkspace}" 2>/dev/null && return
+        share_mounted 2>/dev/null && return
         msg "the workspace share was not mounted at boot, mounting it now"
-        vm_ssh "sudo -n systemctl restart ${guestMountUnit}.mount" >/dev/null 2>&1 || true
-        vm_ssh "mountpoint -q ${guestWorkspace}" ||
+        # remote timeout so a wedged systemd cannot hang the launcher
+        vm_ssh "timeout 30 sudo -n systemctl restart ${guestMountUnit}.mount" >/dev/null 2>&1 || true
+        share_mounted 2>/dev/null ||
           die "could not mount ${guestWorkspace} in the guest - see $console"
       }
 
