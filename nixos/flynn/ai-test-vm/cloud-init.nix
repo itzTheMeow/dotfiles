@@ -25,7 +25,6 @@ let
     "tar"
     "ca-certificates"
     "golang-1.27"
-    "ffmpeg"
 
     # everyday tooling inside the test VM
     "build-essential"
@@ -80,6 +79,19 @@ in
 
     write_files = [
       {
+        # dpkg fsyncs constantly and apt pulls recommends by default; both
+        # dominated provisioning time (fsync through qcow2 on btrfs is very
+        # slow, and recommends alone nearly doubled the dependency tree).
+        # The image is throwaway and an interrupted provision discards the
+        # base, so unsafe IO is acceptable here.
+        path = "/etc/apt/apt.conf.d/90ai-test-vm";
+        content = ''
+          APT::Install-Recommends "false";
+          APT::Install-Suggests "false";
+          Dpkg::Options { "--force-unsafe-io"; };
+        '';
+      }
+      {
         path = "/etc/ssh/sshd_config.d/ai-test-vm.conf";
         content = ''
           PasswordAuthentication no
@@ -113,10 +125,18 @@ in
         permissions = "0755";
         content = ''
           #!/bin/sh
-          # Flushing everything and letting systemd unmount the share before
-          # powering off. The host launcher calls this over ssh when the
-          # interactive shell exits.
-          sync
+          # The host launcher calls this over ssh and the dead-man's switch
+          # runs it directly. Every fuse-touching step is timeout-guarded:
+          # a dead or wedged share daemon would otherwise block the shutdown
+          # sync forever (the guest never finishes powering off and qemu
+          # lingers on the host, running but unreachable). Aborting the fuse
+          # connection first also makes pending requests fail immediately,
+          # which keeps the umount fast even under memory pressure.
+          timeout 30 sh -c 'for c in /sys/fs/fuse/connections/*; do
+            [ -w "$c/abort" ] && echo 1 > "$c/abort" 2>/dev/null
+          done' 2>/dev/null || true
+          timeout 30 umount ${guestWorkspace} 2>/dev/null || true
+          timeout 30 sync || true
           systemctl poweroff
         '';
       }
@@ -132,7 +152,10 @@ in
           hb=/var/lib/ai-vm/heartbeat
           [ -f "$hb" ] || exit 0
           last=$(stat -c %Y "$hb" 2>/dev/null) || exit 0
-          [ $(( $(date +%s) - last )) -gt 60 ] && systemctl poweroff
+          # interactive shells still attached? keep the VM alive regardless
+          # of the launcher - it powers off once the last shell leaves
+          [ "$(pgrep -fc 'sshd-session: .*@pts' 2>/dev/null)" -gt 0 ] && exit 0
+          [ $(( $(date +%s) - last )) -gt 60 ] && /usr/local/bin/ai-test-vm-shutdown
           exit 0
         '';
       }
@@ -145,6 +168,9 @@ in
           [Service]
           Type=oneshot
           ExecStart=/usr/local/bin/ai-vm-watchdog
+          # the shutdown helper may legitimately take a while (fuse aborts
+          # under memory pressure); systemd must never kill it mid-poweroff
+          TimeoutStartSec=0
         '';
       }
       {
