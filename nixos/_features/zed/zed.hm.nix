@@ -13,6 +13,7 @@
       # languages
       "git-firefly"
       "java"
+      "kotlin"
       "svelte"
       "toml"
       "xml"
