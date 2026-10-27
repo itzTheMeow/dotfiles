@@ -107,19 +107,19 @@ NixOS configuration for personal machines.
   (see `nixos/modules/system/boot/luksroot.nix` in nixpkgs). With systemd stage 1, mount the
   keyfile's filesystem from `boot.initrd.systemd.services.<name>` hooked directly into the
   cryptsetup instance: `wantedBy = [ "systemd-cryptsetup@${utils.escapeSystemdPath name}.service" ]`
-  + `before` it (same pattern as nixpkgs' clevis services in `luksroot.nix`), e.g. the
-  `luks-esp` service in `nixos/hyzenberg/hardware.nix` (instance names are crypttab names with
-  systemd escapes, dash → `\x2d`). Do NOT use `wantedBy = [ "cryptsetup-pre.target" ]` —
-  nothing wants that target (systemd-cryptsetup@.service only orders `After=`), so the hook
-  never runs and the unlock silently falls back to a passphrase prompt.
-  Also: `neededForBoot` alone does **not** order an initrd mount against a cryptsetup unit —
-  relying on it for keyfiles races the cryptsetup unit and silently falls back to a passphrase
-  prompt. And evaluating `config.swapDevices` (or other typed options) as a raw JSON value can
-  force unrelated lazy consumers (`label` reading) and error even though the toplevel evaluates
-  fine — prefer full toplevel eval (`config.system.build.toplevel.drvPath`) when validating.
-  Footgun found on hyzenberg: Nix string literals don't support `\xNN` escapes — unknown
-  escapes silently drop the backslash, so `"...\x2d..."` evaluates to `...x2d...`. Never
-  hand-write unit-name escapes in string literals; produce backslashes via
-  `lib.escapeSystemdPath` / `lib.replaceStrings ["-"] ["\\x2d"]`, or (better) keep LUKS
-  device attr names dashless (e.g. `cryptroot`) so `systemd-cryptsetup@<name>.service`
-  instance references need no escaping at all.
+  - `before` it (same pattern as nixpkgs' clevis services in `luksroot.nix`), e.g. the
+    `luks-esp` service in `nixos/hyzenberg/hardware.nix` (instance names are crypttab names with
+    systemd escapes, dash → `\x2d`). Do NOT use `wantedBy = [ "cryptsetup-pre.target" ]` —
+    nothing wants that target (systemd-cryptsetup@.service only orders `After=`), so the hook
+    never runs and the unlock silently falls back to a passphrase prompt.
+    Also: `neededForBoot` alone does **not** order an initrd mount against a cryptsetup unit —
+    relying on it for keyfiles races the cryptsetup unit and silently falls back to a passphrase
+    prompt. And evaluating `config.swapDevices` (or other typed options) as a raw JSON value can
+    force unrelated lazy consumers (`label` reading) and error even though the toplevel evaluates
+    fine — prefer full toplevel eval (`config.system.build.toplevel.drvPath`) when validating.
+    Footgun found on hyzenberg: Nix string literals don't support `\xNN` escapes — unknown
+    escapes silently drop the backslash, so `"...\x2d..."` evaluates to `...x2d...`. Never
+    hand-write unit-name escapes in string literals; produce backslashes via
+    `lib.escapeSystemdPath` / `lib.replaceStrings ["-"] ["\\x2d"]`, or (better) keep LUKS
+    device attr names dashless (e.g. `cryptroot`) so `systemd-cryptsetup@<name>.service`
+    instance references need no escaping at all.
