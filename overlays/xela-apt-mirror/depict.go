@@ -1060,6 +1060,7 @@ func (a *archiver) mirrorImages(g *deadGuard, body []byte, pageURL string) (map[
 		// image waits here and then takes the cache hit, so the image
 		// fetches once and is counted once
 		unlock := a.imgFly.lock(raw)
+		unlock.Lock()
 		defer unlock.Unlock()
 		if name, failed := a.imgCache.lookup(raw); name != "" || failed != "" {
 			if name == "" {
