@@ -2,6 +2,7 @@ package main
 
 import (
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -84,5 +85,37 @@ func TestStaticRendition(t *testing.T) {
 		if !strings.Contains(static, want) {
 			t.Fatalf("static page missing %q:\n%s", want, static)
 		}
+	}
+}
+
+// TestKeyedMutex guards the single-flight primitive against the deployed
+// crash (unlock of unlocked mutex) and lost-wakeup regressions
+func TestKeyedMutex(t *testing.T) {
+	var k keyedMutex
+	for range 3 {
+		mu := k.lock("a")
+		mu.Lock()
+		mu.Unlock()
+	}
+	// the same URL from many callers must serialize without double-unlock
+	const n = 8
+	var ctr int
+	var inner sync.Mutex
+	var wg sync.WaitGroup
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			mu := k.lock("shared")
+			mu.Lock()
+			defer mu.Unlock()
+			inner.Lock()
+			ctr++
+			inner.Unlock()
+		}()
+	}
+	wg.Wait()
+	if ctr != n {
+		t.Fatalf("single-flight lost callers: %d/%d", ctr, n)
 	}
 }
