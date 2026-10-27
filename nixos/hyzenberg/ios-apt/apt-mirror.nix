@@ -17,7 +17,8 @@ let
     }
     {
       name = "bigboss";
-      url = "https://apt.thebigboss.org/repofiles/cydia";
+      url = "http://apt.thebigboss.org/repofiles/cydia";
+      distribution = "stable";
     }
     {
       name = "cydia";
