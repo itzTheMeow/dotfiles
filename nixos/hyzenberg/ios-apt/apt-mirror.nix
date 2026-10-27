@@ -133,11 +133,28 @@ let
       name = "sparkdev";
       url = "https://sparkdev.me";
     }
+  ]
+  # procursus has no toplevel Release a bunch of different dists
+  ++ [
     {
-      name = "procursus";
+      name = "procursus-3000";
       url = "https://apt.procurs.us";
+      distribution = "3000";
     }
-  ];
+  ]
+  ++
+    map
+      (v: {
+        name = "procursus-${v}";
+        url = "https://apt.procurs.us";
+        distribution = "iphoneos-arm64/${v}";
+      })
+      [
+        "1500"
+        "1600"
+        "1700"
+        "1800"
+      ];
 
   mirrorConfig = pkgs.writeText "apt-mirror-config.json" (
     builtins.toJSON {
