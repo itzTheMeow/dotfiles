@@ -17,17 +17,18 @@ import (
 )
 
 var (
-	attrDQRe = regexp.MustCompile(`(?i)\b(src|href|poster|data-src)\s*=\s*"([^"]*)"`)
-	attrSQRe = regexp.MustCompile(`(?i)\b(src|href|poster|data-src)\s*=\s*'([^']*)'`)
-	srcsetRe = regexp.MustCompile(`(?i)\bsrcset\s*=\s*"([^"]*)"`)
-	cssURLRe = regexp.MustCompile(`(?i)url\(\s*((?:'[^']*')|(?:"[^"]*")|(?:[^'")][^)]*))\s*\)`)
-	// group 1 is the attribute name so data-src can be filtered in code
-	// (RE2 has no lookbehind); group 2 is the value
-	imgSrcRe   = regexp.MustCompile(`(?i)<img\s[^>]*?\b([a-z-]*src)\s*=\s*"([^"]*)"`)
-	imgSQRe    = regexp.MustCompile(`(?i)<img\s[^>]*?\b([a-z-]*src)\s*=\s*'([^']*)'`)
+	// attr/srcset/og-content regexes capture the attribute name in
+	// group 1 and the value in group 2 so callers can filter data-src
+	// in code (RE2 has no lookbehind); the `[^-\w]` prefixes keep
+	// lookalikes like data-srcset/data-content from matching
+	attrDQRe   = regexp.MustCompile(`(?i)\b(src|href|poster|data-src)\s*=\s*"([^"]*)"`)
+	attrSQRe   = regexp.MustCompile(`(?i)\b(src|href|poster|data-src)\s*=\s*'([^']*)'`)
+	srcsetRe   = regexp.MustCompile(`(?i)(?:^|[^-\w])(srcset)\s*=\s*"([^"]*)"`)
+	imgTagRe   = regexp.MustCompile(`(?i)<img\s[^>]*>`)
 	ogImgRe    = regexp.MustCompile(`(?i)<meta\s[^>]*(?:property|name)\s*=\s*["']og:image["'][^>]*>`)
-	ogContRe   = regexp.MustCompile(`(?i)\bcontent\s*=\s*"([^"]*)"`)
-	ogContSQRe = regexp.MustCompile(`(?i)\bcontent\s*=\s*'([^']*)'`)
+	cssURLRe   = regexp.MustCompile(`(?i)url\(\s*((?:'[^']*')|(?:"[^"]*")|(?:[^'")][^)]*))\s*\)`)
+	ogContRe   = regexp.MustCompile(`(?i)(?:^|[^-\w])content\s*=\s*"([^"]*)"`)
+	ogContSQRe = regexp.MustCompile(`(?i)(?:^|[^-\w])content\s*=\s*'([^']*)'`)
 	// static-rendition transforms: SPA depictions never boot in a mirror
 	// (build-time JS symbols, absolute publicPath chunk loads, live API
 	// calls), and SSR'd images hide inside <noscript>, invisible whenever
@@ -131,7 +132,7 @@ func extractAssetCands(html []byte, baseURL string) []string {
 		add(m[2], false)
 	}
 	for _, m := range srcsetRe.FindAllStringSubmatch(string(html), -1) {
-		add(m[1], true)
+		add(m[2], true)
 	}
 	for _, m := range cssURLRe.FindAllStringSubmatch(string(html), -1) {
 		add(cssURLValue(m[1]), false)
@@ -165,20 +166,26 @@ func extractImgCands(body []byte, pageURL string) []string {
 		}
 		vals = append(vals, resolved)
 	}
-	// data-src is JS-lazy: staticRendition strips scripts, so data-src
-	// images can never render in the sidecar — mirror only what shows
-	for _, m := range imgSrcRe.FindAllStringSubmatch(string(body), -1) {
-		if !strings.EqualFold(m[1], "data-src") {
-			add(m[2])
+	// per-tag scans: running the attr regexes inside each matched <img>
+	// tag makes every attribute its own match, so a leading data-src
+	// (RE2's leftmost match) can't shadow the real src. data-src is
+	// JS-lazy and staticRendition strips scripts, so data-src images
+	// never render in the sidecar — mirror only what shows
+	for _, t := range imgTagRe.FindAllString(string(body), -1) {
+		for _, a := range attrDQRe.FindAllStringSubmatch(t, -1) {
+			if strings.EqualFold(a[1], "src") {
+				add(a[2])
+			}
+		}
+		for _, a := range attrSQRe.FindAllStringSubmatch(t, -1) {
+			if strings.EqualFold(a[1], "src") {
+				add(a[2])
+			}
 		}
 	}
-	for _, m := range imgSQRe.FindAllStringSubmatch(string(body), -1) {
-		if !strings.EqualFold(m[1], "data-src") {
-			add(m[2])
-		}
-	}
+	// the srcset guard already excludes data-srcset above
 	for _, m := range srcsetRe.FindAllStringSubmatch(string(body), -1) {
-		for _, part := range strings.Split(m[1], ",") {
+		for _, part := range strings.Split(m[2], ",") {
 			add(strings.TrimSpace(strings.SplitN(strings.TrimSpace(part), " ", 2)[0]))
 		}
 	}
@@ -214,17 +221,25 @@ func (k *keyedMutex) lock(key string) *sync.Mutex {
 	return k.locks[key]
 }
 
-// staticRendition strips script elements, unwraps <noscript> so its
-// server-rendered content becomes visible, and points successfully
-// mirrored image refs at the local copies (including og:image meta
-// content). Called on the already asset-rewritten body so stylesheet/img
-// refs inside it stay intact
-func staticRendition(body []byte, pageURL string, imgs map[string]string) []byte {
+// stripDynamic strips script elements and unwraps <noscript> so its
+// server-rendered content becomes visible. Run on the asset-rewritten
+// body before extracting image candidates: script-generated
+// <img>-shaped strings would otherwise spawn pointless mirror fetches
+// for images that never render in the sidecar
+func stripDynamic(body []byte) []byte {
 	out := scriptRe.ReplaceAll(body, nil)
 	out = scriptVoidRe.ReplaceAll(out, nil)
 	out = noscriptRe.ReplaceAll(out, nil)
-	out = rewriteRefs(out, pageURL, imgs, "../")
-	return []byte(out)
+	return out
+}
+
+// staticRendition points successfully mirrored image refs at the local
+// copies (including og:image meta content) over a dynamically-stripped
+// body. Called on the already asset-rewritten (and, for the sidecar,
+// already stripDynamic'd) body so stylesheet/img refs inside it stay
+// intact — stripping is idempotent either way
+func staticRendition(body []byte, pageURL string, imgs map[string]string) []byte {
+	return rewriteRefs(stripDynamic(body), pageURL, imgs, "../")
 }
 
 // swapRef replaces the value slot inside a matched attribute/url() snippet
@@ -269,7 +284,7 @@ func rewriteRefs(body []byte, baseURL string, refMap map[string]string, prefix s
 		g := srcsetRe.FindStringSubmatch(m)
 		var rebuilt []string
 		changed := false
-		for _, part := range strings.Split(g[1], ",") {
+		for _, part := range strings.Split(g[2], ",") {
 			part = strings.TrimSpace(part)
 			urlPart := strings.TrimSpace(strings.SplitN(part, " ", 2)[0])
 			if v, ok := mapOnly(urlPart); ok {
@@ -280,7 +295,7 @@ func rewriteRefs(body []byte, baseURL string, refMap map[string]string, prefix s
 			}
 		}
 		if changed {
-			return swapRef(m, g[1], strings.Join(rebuilt, ", "))
+			return swapRef(m, g[2], strings.Join(rebuilt, ", "))
 		}
 		return m
 	})
@@ -1015,8 +1030,8 @@ func (g *deadGuard) writeMemo(path string, val any) error {
 	return writeAtomic(path, raw)
 }
 
-// depArchived bundles what got archived for one depiction URL
-type depArchived struct {
+// archivedDepiction bundles what got archived for one depiction URL
+type archivedDepiction struct {
 	rel    string // archived depiction engine page, repo-relative
 	static string // script-stripped, image-local sidecar, repo-relative
 }
@@ -1100,7 +1115,7 @@ func (a *archiver) fetchImage(raw string) (string, error) {
 // Hard-404ed URLs are memoized on disk and skipped on later runs (with a
 // one-request daily canary to detect upstream recovery), and a host that
 // racks up depict404Limit 404s during a run is dropped for the rest of it
-func (a *archiver) depictions(entries []PkgEntry) (map[string]depArchived, int, int) {
+func (a *archiver) depictions(entries []PkgEntry) (map[string]archivedDepiction, int, int) {
 	var jobs []struct {
 		id, url string
 	}
@@ -1125,7 +1140,7 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]depArchived, int, 
 		a.lg.Printf("archiving %d depictions", len(jobs))
 	}
 	dp := newProgress(a.lg, "depictions", len(jobs))
-	archived := map[string]depArchived{}
+	archived := map[string]archivedDepiction{}
 	var mu sync.Mutex
 	imgsSaved := 0
 	runPool(3, len(jobs), func(i int) error {
@@ -1158,19 +1173,22 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]depArchived, int, 
 			return nil
 		}
 		// cross-host images + the static view only matter once the page
-		// itself is in the archive
-		imgMap, n := a.mirrorImages(ig, rewritten, j.url)
+		// itself is in the archive; candidates come from the stripped
+		// body (scripts gone, noscript unwrapped) so they're exactly
+		// what the sidecar can render
+		stripped := stripDynamic(rewritten)
+		imgMap, n := a.mirrorImages(ig, stripped, j.url)
 		mu.Lock()
 		imgsSaved += n
 		mu.Unlock()
 		staticRel := strings.TrimSuffix(rel, ".html") + "-static.html"
-		static := staticRendition(rewritten, j.url, imgMap)
+		static := staticRendition(stripped, j.url, imgMap)
 		if err := writeAtomic(filepath.Join(a.repoDir, staticRel), static); err != nil {
 			a.eg.add("static-rendition", j.url, err)
 			staticRel = ""
 		}
 		mu.Lock()
-		archived[j.url] = depArchived{rel: rel, static: staticRel}
+		archived[j.url] = archivedDepiction{rel: rel, static: staticRel}
 		mu.Unlock()
 		return nil
 	})
