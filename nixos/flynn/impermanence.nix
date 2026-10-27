@@ -1,7 +1,6 @@
 {
   config,
   host,
-  xelib,
   ...
 }:
 {
@@ -24,7 +23,6 @@
 
     home = {
       userDirectories = [
-        xelib.locationDir
         ".config/app.yaak.desktop"
         ".config/blender"
         ".config/chromium"

@@ -1,7 +1,4 @@
-{
-  xelib,
-  ...
-}:
+{ ... }:
 {
   persist.ed.lib = {
     directories = [ "var/lib" ];
@@ -11,7 +8,6 @@
   persist.ed.home = {
     directories = [ "/home/meow" ];
     userDirectories = [
-      xelib.locationDir
       ".local"
     ];
   };

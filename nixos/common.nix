@@ -399,6 +399,8 @@ in
         ];
       }
     ];
+    # keep dotfiles repo
+    userDirectories = [ xelib.locationDir ];
   };
   # sops needs direct access to the key if impermanence is enabled
   sops.age.sshKeyPaths = lib.mkIf (config.persist.settings.device != null) [
