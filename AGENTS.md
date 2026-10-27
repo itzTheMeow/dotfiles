@@ -93,6 +93,15 @@ NixOS configuration for personal machines.
 - Renamed options (nixpkgs `mkRenamedOptionModule`, e.g. `services.frp.enable` → `services.frp.instances."".enable`) **abort** when their config is read — `tryEval` can't catch it. Anything walking `config.services`/`config.programs` must gate on the options tree first and skip invisible (rename-shim) options — see `enabledPackages` in `modules/track-packages.nix`.
 - `nix eval --expr` does **not** bind `--arg`/`--argstr` — interpolate values into the expr string instead.
 - **Btrfs compression is fs-wide, not per-mount/subvol.** `compress`/`compress-force` live on the superblock; the first mount of the filesystem wins and every later mount silently adopts its values (while `/proc/mounts` shows every mount with the winning options — per-mount compress settings are illusory). `modules/persist.nix` therefore applies one uniform `compress-force=zstd:5` to every btrfs mount. The per-inode `btrfs.compression` xattr (settable via `btrfs property set`/`setfattr`, and via tmpfiles `t` rules) accepts `algo:level` but kernels ≤6.18 honor only the algorithm — the level falls back to the mount option's (verified on 6.18.57); per-subvol levels are a pending patch series (see the `TODO:pr` on `persist.ed.<name>.compression` in `modules/persist.nix`).
+- **Impermanence behavior gotchas**: user
+  entries deduce their storage path from the entry's mount path — entry `home` at `/z/home`
+  puts user data at `/z/home/home/<user>/…` (with the extra `home` segment; don't seed
+  `/z/home/<user>/…`). File-level entries (`files`/`userFiles`) become `persist-z-*.service`
+  bind units rather than `.mount`s, and they **refuse to run when the target already exists**
+  ("A file already exists") — an issue only on hosts without `wipeOnBoot`, where the
+  root-subvol originals shadow the bind. One-time fix: delete the stale target files
+  (`/etc/machine-id`, ssh host keys, `trusted-settings.json`, …) then start the failed
+  units; later boots replay the bind over an empty target on their own.
 - Package update tracking: `trackPackages` options (`modules/track-packages.nix`, auto-derives the tracked list, lazily — zero rebuild cost) + `xela-outdated` (`overlays/xela-outdated/`, `nx outdated`) report each package's OURS/TIP vs its own branch's upstream tip (unstable = explicitly pinned from `pkgs.unstable`; classify checks the base instance first so hosts on the unstable base read as stable). It runs one `nix eval` process per host because a single full-fleet eval OOMs 11GB machines.
 
 ## Self-documentation
