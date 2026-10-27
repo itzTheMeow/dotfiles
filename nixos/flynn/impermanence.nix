@@ -26,7 +26,6 @@
         ".config/app.yaak.desktop"
         ".config/blender"
         ".config/chromium"
-        ".config/Code"
         ".config/Element"
         ".config/figma-linux"
         ".config/gh" # TODO: make declarative
@@ -46,8 +45,6 @@
         ".mozilla"
         ".pcloud"
         ".pki" # chromium certs
-        ".vscode-shared"
-        ".vscode"
         ".wakatime"
         ".wine"
         "Documents"

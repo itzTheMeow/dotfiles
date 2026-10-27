@@ -80,4 +80,10 @@
       };
     })
   ];
+
+  persist.ed.home.userDirectories = [
+    ".config/Code"
+    ".vscode-shared"
+    ".vscode"
+  ];
 }
