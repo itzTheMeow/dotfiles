@@ -82,7 +82,6 @@
         }
       ];
       compression = 5;
-      compressForce = true;
     };
   };
 

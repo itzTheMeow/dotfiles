@@ -82,17 +82,16 @@ let
 
   flattenPaths = value: flattenPathTree "" value;
 
-  mkBtrfsMount = subvolume: compression: compressForce: {
+  mkBtrfsMount = subvolume: {
     device = cfg.settings.device;
     fsType = "btrfs";
     options = [
       "subvol=${subvolume}"
-      "compress${if compressForce then "-force" else ""}=zstd:${toString compression}"
+      "compress-force=zstd:5"
       "noatime"
     ];
     neededForBoot = true;
   };
-  mkMount = subvolume: entry: mkBtrfsMount subvolume entry.compression entry.compressForce;
 
   # sync directories that dont start with a `/` are relative to user
   mkSyncPath = path: if lib.hasPrefix "/" path then path else "/home/${host.username}/${path}";
@@ -213,16 +212,18 @@ in
                 description = "User files to persist.";
               };
 
+              # unused today: btrfs compression opts are fs-wide, and the
+              # per-inode btrfs.compression xattr accepts `algo:level` but the
+              # kernel only honors the algorithm (level falls back to the mount
+              # option's). once per-inode levels land, emit a tmpfiles `t` rule
+              # setting the xattr on the entry's subvol root instead.
+              # TODO:pr https://lwn.net/Articles/1090549
               compression = mkOption {
                 type = types.int;
                 default = 3;
-                description = "Btrfs zstd compression level for this subvolume.";
-              };
-
-              compressForce = mkOption {
-                type = types.bool;
-                default = false;
-                description = "Whether to use compress-force instead of compress.";
+                description = ''
+                  Btrfs zstd compression level for this subvolume. Currently unused.
+                '';
               };
             };
           }
@@ -303,11 +304,11 @@ in
 
     # these volumes always should exist
     fileSystems = {
-      "/" = mkBtrfsMount "root" 1 false;
-      "/nix" = mkBtrfsMount "nix" 5 true;
+      "/" = mkBtrfsMount "root";
+      "/nix" = mkBtrfsMount "nix";
     }
     # mount custom persistent btrfs volumes
-    // listToAttrs (mapAttrsToList (name: entry: nameValuePair entry.path (mkMount name entry)) cfg.ed)
+    // listToAttrs (mapAttrsToList (name: entry: nameValuePair entry.path (mkBtrfsMount name)) cfg.ed)
     # syncthing bind mounts for directories
     // lib.optionalAttrs usingSyncthing (
       listToAttrs (
