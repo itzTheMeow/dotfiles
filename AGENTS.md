@@ -127,4 +127,10 @@ NixOS configuration for personal machines.
     `/sys/.../partuuid`) even though `sfdisk -d` prints uppercase — referencing an uppercase
     partuuid device unit makes `requires` stall into a 90s timeout and a passphrase fallback
     (bit us in `nixos/hyzenberg/hardware.nix`). by-uuid entries keep the case as stored by
-    the fs driver (vfat: uppercase like `AC7A-7F39`).
+    the fs driver (vfat: uppercase like `AC7A-7F39`). Impermanence 7b1d382f `mkRemovedOptionModule`s
+    `allowOther`/`method` — those _abort on read_, so a full `--json` dump of
+    `environment.persistence` (or per-entry submodule attrsets, which read everything) dies even
+    though builds are fine. To inspect persistence wiring, eval string-only views instead:
+    `attrNames config.systemd.units` / `config.systemd.units.<name>.text`, glob `var-lib` /
+    `home-walt`. Also: the flake tree only sees git-tracked files — a fresh `nixos/<host>/*.nix`
+    module silently doesn't load until `git add`ed (bit us with `impermanence.nix`).
