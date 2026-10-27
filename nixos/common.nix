@@ -400,4 +400,8 @@ in
       }
     ];
   };
+  # sops needs direct access to the key if impermanence is enabled
+  sops.age.sshKeyPaths = lib.mkIf (config.persist.settings.device != null) [
+    "${config.persist.ed.persist.path}/etc/ssh/ssh_host_ed25519_key"
+  ];
 }

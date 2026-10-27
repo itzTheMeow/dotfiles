@@ -86,11 +86,6 @@
     };
   };
 
-  # sops needs direct access to the key
-  sops.age.sshKeyPaths = [
-    "${config.persist.ed.persist.path}/etc/ssh/ssh_host_ed25519_key"
-  ];
-
   # set custom store paths for tools
   environment.sessionVariables = {
     # bun
