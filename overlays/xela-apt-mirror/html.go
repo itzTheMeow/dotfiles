@@ -308,7 +308,19 @@ func renderRepoHTML(pkg *BrowserData) string {
 			}
 			dep := ""
 			for _, r := range v.Depictions {
-				if r.Archived != "" {
+				if r.Static != "" {
+					// script-stripped snapshot with mirrored images: works
+					// offline (and in old Safari) for SPA depictions whose
+					// own JS can never boot from a mirror
+					dep += ` · <a href="` + esc(r.Static) + `">description</a>`
+					if r.Archived != "" {
+						linkArchived := r.Archived
+						if id := depictID(r.Original); id != "" {
+							linkArchived += "?id=" + url.QueryEscape(id)
+						}
+						dep += ` · <a href="` + esc(linkArchived) + `">original page</a>`
+					}
+				} else if r.Archived != "" {
 					linkArchived := r.Archived
 					if id := depictID(r.Original); id != "" {
 						linkArchived += "?id=" + url.QueryEscape(id)

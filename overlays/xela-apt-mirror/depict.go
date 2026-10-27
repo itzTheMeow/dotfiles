@@ -21,6 +21,20 @@ var (
 	attrSQRe = regexp.MustCompile(`(?i)\b(src|href|poster|data-src)\s*=\s*'([^']*)'`)
 	srcsetRe = regexp.MustCompile(`(?i)\bsrcset\s*=\s*"([^"]*)"`)
 	cssURLRe = regexp.MustCompile(`(?i)url\(\s*((?:'[^']*')|(?:"[^"]*")|(?:[^'")][^)]*))\s*\)`)
+	// group 1 is the attribute name so data-src can be filtered in code
+	// (RE2 has no lookbehind); group 2 is the value
+	imgSrcRe   = regexp.MustCompile(`(?i)<img\s[^>]*?\b([a-z-]*src)\s*=\s*"([^"]*)"`)
+	imgSQRe    = regexp.MustCompile(`(?i)<img\s[^>]*?\b([a-z-]*src)\s*=\s*'([^']*)'`)
+	ogImgRe    = regexp.MustCompile(`(?i)<meta\s[^>]*(?:property|name)\s*=\s*["']og:image["'][^>]*>`)
+	ogContRe   = regexp.MustCompile(`(?i)\bcontent\s*=\s*"([^"]*)"`)
+	ogContSQRe = regexp.MustCompile(`(?i)\bcontent\s*=\s*'([^']*)'`)
+	// static-rendition transforms: SPA depictions never boot in a mirror
+	// (build-time JS symbols, absolute publicPath chunk loads, live API
+	// calls), and SSR'd images hide inside <noscript>, invisible whenever
+	// scripting is enabled — so the sidecar strips scripts altogether
+	scriptRe     = regexp.MustCompile(`(?is)<script\b[^>]*>.*?</script>`)
+	scriptVoidRe = regexp.MustCompile(`(?i)<script\b[^>]*?/>`)
+	noscriptRe   = regexp.MustCompile(`(?i)</?noscript(?:\s[^>]*)?>`)
 )
 
 var (
@@ -132,6 +146,87 @@ func extractAssetCands(html []byte, baseURL string) []string {
 	return out
 }
 
+// extractImgCands collects cross-host image URLs referenced from a
+// depiction body: <img src/srcset> (<picture>/<source> srcset included)
+// plus og:image meta content. Same-host refs pass through the ordinary
+// asset walk instead. Not collected: cross-host refs inside inline
+// style="...url(...)" (or inline <style> blocks) — those stay hotlinked
+// in the static rendition, same as unmirrored og:images
+func extractImgCands(body []byte, pageURL string) []string {
+	var vals []string
+	add := func(raw string) {
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			return
+		}
+		resolved, ok := resolveRef(pageURL, raw)
+		if !ok || sameHost(resolved, pageURL) {
+			return
+		}
+		vals = append(vals, resolved)
+	}
+	// data-src is JS-lazy: staticRendition strips scripts, so data-src
+	// images can never render in the sidecar — mirror only what shows
+	for _, m := range imgSrcRe.FindAllStringSubmatch(string(body), -1) {
+		if !strings.EqualFold(m[1], "data-src") {
+			add(m[2])
+		}
+	}
+	for _, m := range imgSQRe.FindAllStringSubmatch(string(body), -1) {
+		if !strings.EqualFold(m[1], "data-src") {
+			add(m[2])
+		}
+	}
+	for _, m := range srcsetRe.FindAllStringSubmatch(string(body), -1) {
+		for _, part := range strings.Split(m[1], ",") {
+			add(strings.TrimSpace(strings.SplitN(strings.TrimSpace(part), " ", 2)[0]))
+		}
+	}
+	for _, m := range ogImgRe.FindAllStringSubmatch(string(body), -1) {
+		c := ogContRe.FindStringSubmatch(m[0])
+		if c == nil {
+			c = ogContSQRe.FindStringSubmatch(m[0])
+		}
+		if c != nil {
+			add(c[1])
+		}
+	}
+	return sortedSet(vals)
+}
+
+// keyedMutex is a per-URL lock: two depiction jobs fetching the same image
+// serialize on it, so the second waits for the first's cache write instead
+// of refetching (and double-counting) it
+type keyedMutex struct {
+	mu    sync.Mutex
+	locks map[string]*sync.Mutex
+}
+
+func (k *keyedMutex) lock(key string) *sync.Mutex {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+	if k.locks == nil {
+		k.locks = map[string]*sync.Mutex{}
+	}
+	if k.locks[key] == nil {
+		k.locks[key] = new(sync.Mutex)
+	}
+	return k.locks[key]
+}
+
+// staticRendition strips script elements, unwraps <noscript> so its
+// server-rendered content becomes visible, and points successfully
+// mirrored image refs at the local copies (including og:image meta
+// content). Called on the already asset-rewritten body so stylesheet/img
+// refs inside it stay intact
+func staticRendition(body []byte, pageURL string, imgs map[string]string) []byte {
+	out := scriptRe.ReplaceAll(body, nil)
+	out = scriptVoidRe.ReplaceAll(out, nil)
+	out = noscriptRe.ReplaceAll(out, nil)
+	out = rewriteRefs(out, pageURL, imgs, "../")
+	return []byte(out)
+}
+
 // swapRef replaces the value slot inside a matched attribute/url() snippet
 func swapRef(match, oldVal, newVal string) string {
 	return strings.Replace(match, oldVal, newVal, 1)
@@ -194,6 +289,22 @@ func rewriteRefs(body []byte, baseURL string, refMap map[string]string, prefix s
 		val := cssURLValue(g[1])
 		if v, ok := mapOnly(val); ok {
 			return swapRef(m, val, v)
+		}
+		return m
+	})
+	// og:image meta content: c[1] quotes decide which content regex matched;
+	// cross-host og:images localize through the static-rendition img map,
+	// same-host ones only when already in the ordinary asset map
+	out = ogImgRe.ReplaceAllStringFunc(out, func(m string) string {
+		c := ogContRe.FindStringSubmatch(m)
+		if c == nil {
+			c = ogContSQRe.FindStringSubmatch(m)
+			if c == nil {
+				return m
+			}
+		}
+		if v, ok := mapOnly(c[1]); ok {
+			return swapRef(m, c[1], v)
 		}
 		return m
 	})
@@ -297,13 +408,17 @@ type archiver struct {
 	jsonDone   map[string]bool
 	mirrDone   map[string]bool
 	mirrBad    map[string]bool
+
+	imgCache *assetCache // cross-host depiction images, deduped run-wide
+	imgFly   keyedMutex  // serializes first-time fetches of the same image URL
 }
 
-// newArchiver initializes the depiction-JSON learning state
-func (a *archiver) initJSON() {
+// initRun resets the per-run learning/dedup state
+func (a *archiver) initRun() {
 	a.jsonDone = map[string]bool{}
 	a.mirrDone = map[string]bool{}
 	a.mirrBad = map[string]bool{}
+	a.imgCache = newAssetCache()
 }
 
 // depictID extracts the id query param from a depiction URL
@@ -900,12 +1015,92 @@ func (g *deadGuard) writeMemo(path string, val any) error {
 	return writeAtomic(path, raw)
 }
 
+// depArchived bundles what got archived for one depiction URL
+type depArchived struct {
+	rel    string // archived depiction engine page, repo-relative
+	static string // script-stripped, image-local sidecar, repo-relative
+}
+
+// mirrorImages fetches a depiction body's cross-host images into
+// _archive/img (deduped run-wide via imgCache — pages sharing an image
+// fetch it once; failures skip silently and only re-count) and answers the
+// url -> "img/name" ref map used to localize the static rendition
+func (a *archiver) mirrorImages(g *deadGuard, body []byte, pageURL string) (map[string]string, int) {
+	cands := extractImgCands(body, pageURL)
+	saved := 0
+	res := map[string]string{}
+	if len(cands) == 0 {
+		return res, 0
+	}
+	var mu sync.Mutex
+	runPool(3, len(cands), func(i int) error {
+		raw := cands[i]
+		if g.skip(raw) {
+			return nil
+		}
+		if g.hostGone(hostOf(raw)) {
+			return nil
+		}
+		// single-flight on the URL: a concurrent page wanting the same
+		// image waits here and then takes the cache hit, so the image
+		// fetches once and is counted once
+		unlock := a.imgFly.lock(raw)
+		defer unlock.Unlock()
+		if name, failed := a.imgCache.lookup(raw); name != "" || failed != "" {
+			if name == "" {
+				// already failed earlier this run; keep its error counted
+				a.eg.add("image", raw, errors.New(failed))
+				return nil
+			}
+			mu.Lock()
+			res[raw] = name
+			mu.Unlock()
+			return nil
+		}
+		name, err := a.fetchImage(raw)
+		if err != nil {
+			a.imgCache.fail(raw, err.Error())
+			g.fail(raw, err)
+			return nil
+		}
+		ref := "img/" + name
+		a.imgCache.remember(raw, ref)
+		mu.Lock()
+		// first-time saves only: cache hits below don't recount
+		res[raw] = ref
+		saved++
+		mu.Unlock()
+		return nil
+	})
+	return res, saved
+}
+
+// fetchImage archives one image into _archive/img with the icon naming
+// scheme (basename + content hash + guessed ext); empty name on error
+func (a *archiver) fetchImage(raw string) (string, error) {
+	body, _, err := a.f.Fetch(raw)
+	if err != nil || len(body) == 0 {
+		if err == nil {
+			err = errShortBody
+		}
+		a.eg.add("image", raw, err)
+		return "", err
+	}
+	name := sanitizeName(assetBaseName(raw)) + "_" + sha256Hex(body)[:8] + guessImageExt(raw)
+	if err := writeAtomic(filepath.Join(a.repoDir, "_archive", "img", name), body); err != nil {
+		a.eg.add("image", raw, err)
+		return "", err
+	}
+	return name, nil
+}
+
 // depictions archives every unique Depiction/SileoDepiction page as rendered
-// HTML; returns url -> archived rel path for successfully archived URLs.
+// HTML plus a script-stripped static rendition, and mirrors the body's
+// cross-host images into _archive/img. Returns url -> archived info.
 // Hard-404ed URLs are memoized on disk and skipped on later runs (with a
 // one-request daily canary to detect upstream recovery), and a host that
 // racks up depict404Limit 404s during a run is dropped for the rest of it
-func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
+func (a *archiver) depictions(entries []PkgEntry) (map[string]depArchived, int, int) {
 	var jobs []struct {
 		id, url string
 	}
@@ -925,12 +1120,14 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 		}
 	}
 	g := a.newDeadGuard("depictions")
+	ig := a.newDeadGuard("images")
 	if len(jobs) != 0 {
 		a.lg.Printf("archiving %d depictions", len(jobs))
 	}
 	dp := newProgress(a.lg, "depictions", len(jobs))
-	archived := map[string]string{}
+	archived := map[string]depArchived{}
 	var mu sync.Mutex
+	imgsSaved := 0
 	runPool(3, len(jobs), func(i int) error {
 		defer dp.tick()
 		j := jobs[i]
@@ -960,11 +1157,24 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]string, int) {
 			a.eg.add("depiction", j.url, err)
 			return nil
 		}
+		// cross-host images + the static view only matter once the page
+		// itself is in the archive
+		imgMap, n := a.mirrorImages(ig, rewritten, j.url)
 		mu.Lock()
-		archived[j.url] = rel
+		imgsSaved += n
+		mu.Unlock()
+		staticRel := strings.TrimSuffix(rel, ".html") + "-static.html"
+		static := staticRendition(rewritten, j.url, imgMap)
+		if err := writeAtomic(filepath.Join(a.repoDir, staticRel), static); err != nil {
+			a.eg.add("static-rendition", j.url, err)
+			staticRel = ""
+		}
+		mu.Lock()
+		archived[j.url] = depArchived{rel: rel, static: staticRel}
 		mu.Unlock()
 		return nil
 	})
 	g.settle()
-	return archived, len(archived)
+	ig.settle()
+	return archived, len(archived), imgsSaved
 }

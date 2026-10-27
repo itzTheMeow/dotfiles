@@ -47,6 +47,7 @@ type RepoManifest struct {
 type DepictRef struct {
 	Original string `json:"original"`
 	Archived string `json:"archived,omitempty"`
+	Static   string `json:"static,omitempty"`
 }
 
 type BrowserVersion struct {
@@ -512,13 +513,13 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 		repoDir:   repoDir,
 		assetsDir: filepath.Join(repoDir, "_archive", "assets"),
 	}
-	arch.initJSON()
+	arch.initRun()
 	iconByPkg, iconsSaved := arch.icons(pkgEntries)
-	depArchived, depCount := arch.depictions(pkgEntries)
+	depArchived, depCount, imgCount := arch.depictions(pkgEntries)
 	man.Icons = iconsSaved
 	man.Depictions = depCount
-	logger.Printf("archive: %d icons, %d depictions, %d depiction data files, %d assets, %d fetch errors",
-		iconsSaved, depCount, arch.jsonSaved, arch.cache.archived(), arch.eg.count())
+	logger.Printf("archive: %d icons, %d depictions, %d depiction data files, %d assets, %d images, %d fetch errors",
+		iconsSaved, depCount, arch.jsonSaved, arch.cache.archived(), imgCount, arch.eg.count())
 	arch.eg.flush(logger)
 
 	pkgData := buildBrowser(pkgEntries, fileStates, iconByPkg, depArchived, baseURL)
@@ -579,7 +580,7 @@ func sortedKeys[V any](m map[string]V) []string {
 	return keys
 }
 
-func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg map[string]string, depArchived map[string]string, baseURL string) *BrowserData {
+func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg map[string]string, depArchived map[string]depArchived, baseURL string) *BrowserData {
 	groups := map[string]*BrowserPackage{}
 	var ids []string
 	for _, e := range entries {
@@ -643,8 +644,9 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 			}
 			refSeen[res] = true
 			ref := DepictRef{Original: res}
-			if rel := depArchived[res]; rel != "" {
-				ref.Archived = rel
+			if info := depArchived[res]; info.rel != "" {
+				ref.Archived = info.rel
+				ref.Static = info.static
 			}
 			refs = append(refs, ref)
 		}
