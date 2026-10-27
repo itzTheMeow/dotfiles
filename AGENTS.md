@@ -122,4 +122,9 @@ NixOS configuration for personal machines.
     hand-write unit-name escapes in string literals; produce backslashes via
     `lib.escapeSystemdPath` / `lib.replaceStrings ["-"] ["\\x2d"]`, or (better) keep LUKS
     device attr names dashless (e.g. `cryptroot`) so `systemd-cryptsetup@<name>.service`
-    instance references need no escaping at all.
+    instance references need no escaping at all. Matching device-unit naming case is also
+    identifier-type-specific: udev lowercases GPT `by-partuuid` entries (sourced from
+    `/sys/.../partuuid`) even though `sfdisk -d` prints uppercase — referencing an uppercase
+    partuuid device unit makes `requires` stall into a 90s timeout and a passphrase fallback
+    (bit us in `nixos/hyzenberg/hardware.nix`). by-uuid entries keep the case as stored by
+    the fs driver (vfat: uppercase like `AC7A-7F39`).

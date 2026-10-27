@@ -65,16 +65,16 @@
       "shutdown.target"
     ];
     after = [
-      "${utils.escapeSystemdPath "/dev/disk/by-partuuid/F9E6C80B-DF4F-4DAD-BB9D-B8B083D920AC"}.device"
+      "${utils.escapeSystemdPath "/dev/disk/by-partuuid/f9e6c80b-df4f-4dad-bb9d-b8b083d920ac"}.device"
     ];
     requires = [
-      "${utils.escapeSystemdPath "/dev/disk/by-partuuid/F9E6C80B-DF4F-4DAD-BB9D-B8B083D920AC"}.device"
+      "${utils.escapeSystemdPath "/dev/disk/by-partuuid/f9e6c80b-df4f-4dad-bb9d-b8b083d920ac"}.device"
     ];
     unitConfig.DefaultDependencies = "no";
     serviceConfig.Type = "oneshot";
     script = ''
       mkdir -p /run/luks-esp
-      mount -t vfat /dev/disk/by-partuuid/F9E6C80B-DF4F-4DAD-BB9D-B8B083D920AC /run/luks-esp
+      mount -t vfat /dev/disk/by-partuuid/f9e6c80b-df4f-4dad-bb9d-b8b083d920ac /run/luks-esp
     '';
   };
 
