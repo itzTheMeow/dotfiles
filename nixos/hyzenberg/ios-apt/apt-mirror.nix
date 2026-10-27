@@ -17,7 +17,7 @@ let
     }
     {
       name = "bigboss";
-      url = "https://apt.thebigboss.com/repofiles/cydia";
+      url = "https://apt.thebigboss.org/repofiles/cydia";
     }
     {
       name = "cydia";
