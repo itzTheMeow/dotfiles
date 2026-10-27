@@ -9,16 +9,6 @@
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
-  # NOTE: disk migration (ext4 -> LUKS2 + btrfs):
-  #   - vda1: LUKS2 container (partlabel "root", partuuid 130b4cab-c05d-40a1-87a2-2bc63b1a33d3)
-  #     -> btrfs with flynn-style subvol naming ("root" for /, "nix" for /nix),
-  #     so impermanence can be enabled later by setting
-  #     persist.settings.device = "/dev/mapper/cryptroot" (the persist module
-  #     then owns fileSystems for /, /nix, and additional /z/<name> entries).
-  #     Remove the fileSystems."/" and fileSystems."/nix" entries here once
-  #     the persist module takes them over. The "root" subvol currently holds
-  #     everything except the nix store.
-
   boot.initrd.availableKernelModules = [
     "virtio_pci" # Standard for KVM communication
     "virtio_blk" # High-performance block storage driver
@@ -78,26 +68,8 @@
     '';
   };
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/98ddbc3b-a238-4897-97c6-21e06f3d2f44";
-    fsType = "btrfs";
-    options = [
-      "subvol=root"
-      "compress=zstd:1"
-      "noatime"
-    ];
-  };
-  # mirror the persist module's mkBtrfsMount "nix" 5 true, so the handover is seamless
-  fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/98ddbc3b-a238-4897-97c6-21e06f3d2f44";
-    fsType = "btrfs";
-    options = [
-      "subvol=nix"
-      "compress-force=zstd:5"
-      "noatime"
-    ];
-    neededForBoot = true;
-  };
+  persist.settings.device = "/dev/mapper/cryptroot";
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/AC7A-7F39";
     fsType = "vfat";
