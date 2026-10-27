@@ -25,7 +25,6 @@
       userDirectories = [
         ".config/app.yaak.desktop"
         ".config/blender"
-        ".config/chromium"
         ".config/Element"
         ".config/figma-linux"
         ".config/gh" # TODO: make declarative
@@ -44,7 +43,6 @@
         ".local"
         ".mozilla"
         ".pcloud"
-        ".pki" # chromium certs
         ".wakatime"
         ".wine"
         "Documents"
@@ -67,12 +65,10 @@
         ".local/share/Trash"
         {
           ".cache" = [
-            "chromium"
             "mozilla"
             "nix"
             "rustic"
             "typescript"
-            "vscode-cpptools"
           ];
         }
       ];

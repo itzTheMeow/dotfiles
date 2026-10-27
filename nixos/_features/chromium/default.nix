@@ -15,4 +15,12 @@
     ];
     enablePlasmaBrowserIntegration = true;
   };
+
+  persist.ed.home.userDirectories = [
+    ".config/chromium"
+    ".pki" # chromium certs
+  ];
+  persist.ed.cache.userDirectories = [
+    ".cache/chromium"
+  ];
 }

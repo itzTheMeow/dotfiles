@@ -86,4 +86,7 @@
     ".vscode-shared"
     ".vscode"
   ];
+  persist.ed.cache.userDirectories = [
+    ".cache/vscode-cpptools"
+  ];
 }
