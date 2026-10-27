@@ -12,6 +12,10 @@ let
   # master repo list
   repos = [
     {
+      name = "xelacodes";
+      url = "https://apt.${xelib.domain}";
+    }
+    {
       name = "bigboss";
       url = "https://apt.thebigboss.com/repofiles/cydia";
     }
@@ -117,11 +121,22 @@ let
       name = "jjolano";
       url = "https://ios.jjolano.me";
     }
-
-    # https://paisseon.github.io
-    # https://poomsmart.github.io/repo
-    # https://apt.procurs.us
-    # https://sparkdev.me
+    {
+      name = "paisseon";
+      url = "https://paisseon.github.io";
+    }
+    {
+      name = "poomsmart";
+      url = "https://poomsmart.github.io/repo";
+    }
+    {
+      name = "sparkdev";
+      url = "https://sparkdev.me";
+    }
+    {
+      name = "procursus";
+      url = "https://apt.procurs.us";
+    }
   ];
 
   mirrorConfig = pkgs.writeText "apt-mirror-config.json" (
