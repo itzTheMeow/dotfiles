@@ -117,3 +117,9 @@ NixOS configuration for personal machines.
   prompt. And evaluating `config.swapDevices` (or other typed options) as a raw JSON value can
   force unrelated lazy consumers (`label` reading) and error even though the toplevel evaluates
   fine — prefer full toplevel eval (`config.system.build.toplevel.drvPath`) when validating.
+  Footgun found on hyzenberg: Nix string literals don't support `\xNN` escapes — unknown
+  escapes silently drop the backslash, so `"...\x2d..."` evaluates to `...x2d...`. Never
+  hand-write unit-name escapes in string literals; produce backslashes via
+  `lib.escapeSystemdPath` / `lib.replaceStrings ["-"] ["\\x2d"]`, or (better) keep LUKS
+  device attr names dashless (e.g. `cryptroot`) so `systemd-cryptsetup@<name>.service`
+  instance references need no escaping at all.

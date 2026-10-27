@@ -13,7 +13,7 @@
   #   - vda1: LUKS2 container (partlabel "root", partuuid 130b4cab-c05d-40a1-87a2-2bc63b1a33d3)
   #     -> btrfs with flynn-style subvol naming ("root" for /, "nix" for /nix),
   #     so impermanence can be enabled later by setting
-  #     persist.settings.device = "/dev/mapper/luks-root" (the persist module
+  #     persist.settings.device = "/dev/mapper/cryptroot" (the persist module
   #     then owns fileSystems for /, /nix, and additional /z/<name> entries).
   #     Remove the fileSystems."/" and fileSystems."/nix" entries here once
   #     the persist module takes them over. The "root" subvol currently holds
@@ -46,7 +46,7 @@
   powerManagement.cpuFreqGovernor = "performance";
 
   boot.initrd.supportedFilesystems = [ "vfat" ];
-  boot.initrd.luks.devices."luks-root" = {
+  boot.initrd.luks.devices."cryptroot" = {
     device = "/dev/disk/by-partlabel/root";
     keyFile = "/run/luks-esp/luksbootkeyfile";
     allowDiscards = true;
@@ -54,9 +54,9 @@
   # Mount the ESP inside the initrd before any LUKS unlock happens.
   boot.initrd.systemd.services.luks-esp = {
     description = "Mount the ESP inside the initrd to expose the LUKS keyfile";
-    wantedBy = [ "systemd-cryptsetup@luks\x2droot.service" ];
+    wantedBy = [ "systemd-cryptsetup@cryptroot.service" ];
     before = [
-      "systemd-cryptsetup@luks\x2droot.service"
+      "systemd-cryptsetup@cryptroot.service"
       "initrd-switch-root.target"
       "shutdown.target"
     ];
