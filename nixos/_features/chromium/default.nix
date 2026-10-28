@@ -7,6 +7,7 @@
     extensions = [
       "aeblfdkhhhdcdjpifhhbdiojplfjncoa" # 1Password
       "cndibmoanboadcifjkjbdpjgfedanolh" # BetterCanvas
+      "bkkmolkhemgaeaeggcmfbghljjjoofoh" # Catppuccin Mocha
       "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
       "cimiefiiaegbelhefglklhhakcgmhkai" # Plasma Integration
       "clngdbkpkpeebahjckkjfobafhncgmne" # Stylus
