@@ -115,10 +115,7 @@
   home-manager.importUser = [
     (_: {
       # manage autostart
-      xdg.autostart = {
-        enable = true;
-        readOnly = true;
-      };
+      xdg.autostart.enable = true;
     })
   ];
 }
