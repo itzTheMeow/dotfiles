@@ -74,7 +74,12 @@ func loadConfig(cfgPath string) (*Config, error) {
 		}
 		if repo.Distribution != "" {
 			repo.Distribution = path.Clean(repo.Distribution)
-			if strings.Contains(repo.Distribution, "..") || strings.ContainsAny(repo.Distribution, "/ \\") {
+			// nested suites are legitimate (procursus nests its per-iOS
+			// releases under a per-arch parent), but no traversal, backslash
+			// confusion or dataDir-root escapes
+			if strings.Contains(repo.Distribution, "..") ||
+				strings.ContainsAny(repo.Distribution, "\\") ||
+				strings.HasPrefix(repo.Distribution, "/") {
 				return nil, fmt.Errorf("config: repo %q invalid distribution %q", repo.URL, repo.Distribution)
 			}
 		}
