@@ -72,3 +72,10 @@ hostname := env('HOSTNAME')
     nix eval --json '.#nixosConfigurations.{{ hostname }}.config.persist.linkPaths' > "$f" && \
     sudo bash scripts/orphaned.sh "{{ hostname }}" "$f"; \
     r=$?; rm -f "$f"; exit $r
+
+# boot a specific host's config in a vm
+@vm host='{{ hostname }}' *args:
+    vmout=$(nix build --no-link --print-out-paths .#nixosConfigurations.{{ host }}.config.system.build.vmWithBootLoader); \
+    runscr=$(find "$vmout/bin" -maxdepth 1 -name 'run-*-vm' | head -n1); \
+    if [ -z "$runscr" ]; then echo "No VM run script found in $vmout/bin"; exit 1; fi; \
+    exec "$runscr" {{ args }}
