@@ -21,6 +21,7 @@ let
         coreutils
         busybox
         cacert
+        curl
         # copied from here: https://github.com/cachix/install-nix-action/blob/23cf0fec1d55e0b1f2631aedd2a610c21ef8b077/install-nix.sh
         (pkgs.writeTextDir "etc/nix/nix.conf" ''
           show-trace = true
@@ -36,6 +37,7 @@ let
         "/bin"
         "/etc"
         "/share"
+        "/usr/bin"
       ];
     };
 
