@@ -169,11 +169,14 @@ func writeAtomic(dest string, data []byte) error {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
-	tmp := filepath.Join(dir, "."+filepath.Base(dest)+".tmp")
-	fh, err := os.OpenFile(tmp, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	// CreateTemp (in dir — /tmp won't do, rename must stay on one fs) hands
+	// out a unique tmp per call so concurrent same-content writers of a
+	// content-hash dest never share one tmp file
+	fh, err := os.CreateTemp(dir, "."+filepath.Base(dest)+".*.tmp")
 	if err != nil {
 		return err
 	}
+	tmp := fh.Name()
 	if _, err := fh.Write(data); err != nil {
 		fh.Close()
 		os.Remove(tmp)

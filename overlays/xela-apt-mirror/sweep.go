@@ -83,9 +83,47 @@ func isHexKey(s string) bool {
 	return len(s) >= 16 // sha256/md5 are long; stray non-hashes never reach the pool
 }
 
+// sweepTmps removes writeAtomic tmp litter ("<dot><base>.<rand>.tmp" from
+// os.CreateTemp) anywhere in the data tree: _search shards, repo dirs,
+// _archive/_meta, and the data-dir root itself. The flock guarantees no
+// live writer while this runs, and mirrored upstream content never
+// manifests dotfiles, so anything dot-prefixed AND .tmp is our litter.
+// _pool is skipped: Download's CreateTemp tmps there lack the dot and the
+// existing pool loop already sweeps them unconditionally.
+func sweepTmps(root string) {
+	n := 0
+	if err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil // unreadable subtree: its litter waits for the next run
+		}
+		name := d.Name()
+		if d.IsDir() {
+			if name == "_pool" {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if !strings.HasPrefix(name, ".") || !strings.HasSuffix(name, ".tmp") {
+			return nil
+		}
+		if err := os.Remove(p); err != nil {
+			log.Printf("sweep: remove tmp %s: %v", p, err)
+			return nil
+		}
+		n++
+		return nil
+	}); err != nil {
+		log.Printf("sweep: tmp walk %s: %v", root, err)
+	}
+	if n != 0 {
+		log.Printf("sweep: removed %d stale tmp files", n)
+	}
+}
+
 // sweep removes dirs of repos absent from the config and unreferenced
 // _pool files; config lists which repos are meant to exist
 func sweep(cfg *Config) {
+	sweepTmps(cfg.DataDir)
 	keep := map[string]bool{}
 	for _, r := range cfg.Repos {
 		poolKeysOfRepo(filepath.Join(cfg.DataDir, r.Name), keep)
