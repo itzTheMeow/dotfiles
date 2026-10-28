@@ -3,7 +3,6 @@
 
   home-manager.importUser = [
     (_: {
-      xdg.configFile."ncdu/config".text = "--exclude pCloudDrive";
       xdg.dataFile = xelib.mkDolphinContextAction {
         name = "ncdu-open-here";
         action = "openNcduHere";

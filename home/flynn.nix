@@ -1,6 +1,4 @@
 {
-  config,
-  host,
   pkgs,
   xelib,
   ...
@@ -21,9 +19,6 @@ in
 
   home = {
     packages = with pkgs; [
-      # desktop apps
-      pcloud
-
       # development
       figma-linux
       gh
@@ -69,24 +64,12 @@ in
   # GTK theme configuration
   gtk = {
     enable = true;
-    iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
-    };
+    iconTheme = xelib.globals.icons;
     cursorTheme = xelib.globals.cursors;
     font = {
-      name = "Noto Sans";
+      name = xelib.globals.fonts.system.name;
       size = 10;
     };
-  };
-
-  # 1Password autostart
-  xdg.autostart = {
-    enable = true;
-    entries = [
-      "${pkgs._1password-gui}/share/applications/1password.desktop"
-      "${pkgs.pcloud}/share/applications/pcloud.desktop"
-    ];
   };
 
   # KDE Plasma settings
@@ -120,7 +103,7 @@ in
         inherit (xelib.globals.cursors) size;
       };
       #lookAndFeel = "org.kde.breezedark.desktop";
-      iconTheme = "Papirus-Dark";
+      iconTheme = xelib.globals.icons.name;
       theme = "Catppuccin-${xelib.toTitleCase xelib.globals.catppuccin.flavor}-${xelib.toTitleCase xelib.globals.catppuccin.accent}";
       colorScheme = "Catppuccin${xelib.toTitleCase xelib.globals.catppuccin.flavor}${xelib.toTitleCase xelib.globals.catppuccin.accent}";
       windowDecorations = {
@@ -270,8 +253,6 @@ in
     configFile.kwinrc."Effect-overview".BorderActivate = "9";
     # change tab menu to sidebar
     configFile.kwinrc.TabBox.LayoutName = "sidebar";
-    # make baloo ignore pcloud mount
-    configFile."baloofilerc"."General"."exclude folders" = "/home/${host.username}/pCloudDrive";
     # allow unattended access for krfb
     configFile."krfbrc"."Security"."allowUnattendedAccess" = "true";
     # turn on do not disturb (set year to 3000)

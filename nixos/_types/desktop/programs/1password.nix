@@ -1,6 +1,7 @@
 {
   config,
   host,
+  hostname,
   lib,
   pkgs,
   ...
@@ -44,6 +45,30 @@
         ];
       };
 
+      # add the desktop file to autostart
+      xdg.autostart.entries =
+        let
+          f =
+            #TODO:26.11 flip to using the new com.onepassword.OnePassword name
+            if hostname == "pete" then
+              "${pkgs._1password-gui}/share/applications/com.onepassword.OnePassword.desktop"
+            else
+              "${pkgs._1password-gui}/share/applications/1password.desktop";
+        in
+        if (builtins.elem "console" host.type) then
+          [
+            # on consoles, patch the desktop file to start 1password in the background (silently)
+            (pkgs.runCommand "1password.desktop" { } ''
+              substitute \
+                "${f}" \
+                "$out" \
+                --replace-fail 'Exec=1password %U' 'Exec=1password --silent %U'
+            '')
+          ]
+        else
+          [ f ];
+
+      # vscode extension settings
       programs.vscode.profiles.default.userSettings."1password.editor.suggestStorage" = false;
     })
   ];

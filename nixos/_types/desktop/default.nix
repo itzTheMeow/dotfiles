@@ -13,7 +13,7 @@
   environment.systemPackages = with pkgs; [
     # desktop themeing
     xelib.globals.cursors.package
-    papirus-icon-theme
+    xelib.globals.icons.package
 
     # base gui apps
     qalculate-qt
@@ -111,4 +111,14 @@
       "Desktop/.directory" # only keep the fact that it exists. nothing on desktop is kept
     ];
   };
+
+  home-manager.importUser = [
+    (_: {
+      # manage autostart
+      xdg.autostart = {
+        enable = true;
+        readOnly = true;
+      };
+    })
+  ];
 }

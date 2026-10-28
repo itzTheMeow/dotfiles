@@ -45,10 +45,6 @@
     }))
   ];
 
-  systemd.tmpfiles.rules = [
-    "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"
-  ];
-
   sops.groups.system.user-key = {
     value = "op://Private/3qhsyka4n4ivngmjow5tysb3da/private key?ssh-format=openssh";
     owner = host.username;

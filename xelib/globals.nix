@@ -10,6 +10,10 @@
     #TODO:26.11
     package = pkgs.unstable.colloid-cursors;
   };
+  icons = {
+    name = "Papirus-Dark";
+    package = pkgs.papirus-icon-theme;
+  };
   fonts = {
     system = {
       name = "Noto Sans";
