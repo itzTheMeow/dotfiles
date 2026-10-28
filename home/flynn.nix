@@ -36,7 +36,6 @@ in
       # media
       (xelib.injectCursorsFHS plex-desktop)
       plexamp
-      rssguard
 
       # editing
       blender
