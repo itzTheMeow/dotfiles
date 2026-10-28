@@ -73,9 +73,10 @@ hostname := env('HOSTNAME')
     sudo bash scripts/orphaned.sh "{{ hostname }}" "$f"; \
     r=$?; rm -f "$f"; exit $r
 
-# boot a specific host's config in a vm
+# boot a host's config in a vm (nix store shared read-only over 9p, no disk image build;
+# root disk persisted to ~/.local/share/nx/vms/<host>.qcow2)
 @vm host='{{ hostname }}' *args:
-    vmout=$(nix build --no-link --print-out-paths .#nixosConfigurations.{{ host }}.config.system.build.vmWithBootLoader); \
-    runscr=$(find "$vmout/bin" -maxdepth 1 -name 'run-*-vm' | head -n1); \
-    if [ -z "$runscr" ]; then echo "No VM run script found in $vmout/bin"; exit 1; fi; \
-    exec "$runscr" {{ args }}
+    vmout=$(nix build --no-link --print-out-paths .#nixosConfigurations.{{ host }}.config.system.build.vm); \
+    export NIX_DISK_IMAGE="$HOME/.local/state/nx/vms/{{ host }}.qcow2"; \
+    mkdir -p "$(dirname "$NIX_DISK_IMAGE")"; \
+    exec "$vmout/bin/run-{{ host }}-vm" {{ args }}
