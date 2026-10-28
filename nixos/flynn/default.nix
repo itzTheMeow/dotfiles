@@ -38,6 +38,13 @@
   # throwaway Debian VM for AI coding-agent tests
   services.ai-test-vm.enable = true;
 
+  environment.systemPackages = with pkgs; [
+    (teams-for-linux.overrideAttrs (old: {
+      # check fails on github CI, ts will be removed soon anyway
+      doInstallCheck = false;
+    }))
+  ];
+
   systemd.tmpfiles.rules = [
     "L+ /home/pcloud - - - - /home/${host.username}/pCloudDrive"
   ];

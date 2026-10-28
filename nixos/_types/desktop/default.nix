@@ -17,6 +17,7 @@
 
     # base gui apps
     qalculate-qt
+    qdiskinfo
   ];
 
   services.xserver = {

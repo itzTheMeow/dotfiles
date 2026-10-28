@@ -23,7 +23,6 @@ in
     packages = with pkgs; [
       # desktop apps
       pcloud
-      qdiskinfo
 
       # development
       figma-linux
@@ -48,10 +47,6 @@ in
 
       # chat
       element-desktop
-      (teams-for-linux.overrideAttrs (old: {
-        # check fails on github CI, ts will be removed soon anyway
-        doInstallCheck = false;
-      }))
     ];
 
     file = {
