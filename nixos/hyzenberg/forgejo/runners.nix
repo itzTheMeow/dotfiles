@@ -22,6 +22,11 @@ let
         busybox
         cacert
         curl
+        # /usr/bin/env for `#!/usr/bin/env ...` shebangs
+        (pkgs.runCommand "usr-bin-env" { } ''
+          mkdir -p $out/usr/bin
+          ln -s ${pkgs.coreutils}/bin/env $out/usr/bin/env
+        '')
         # copied from here: https://github.com/cachix/install-nix-action/blob/23cf0fec1d55e0b1f2631aedd2a610c21ef8b077/install-nix.sh
         (pkgs.writeTextDir "etc/nix/nix.conf" ''
           show-trace = true
