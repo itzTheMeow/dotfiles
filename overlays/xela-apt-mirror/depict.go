@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -955,6 +956,11 @@ func (g *deadGuard) fail(u string, err error) {
 		return
 	}
 	switch {
+	case errors.Is(err, ErrLocked):
+		// auth/paywalled gating is per-URL and stable, like a 404 —
+		// memoize the URL only, never the host (a 4xx itself proves the
+		// network path is alive, and other URLs there may be reachable)
+		g.dead[u] = true
 	case errors.Is(err, ErrNotFound):
 		// only the per-URL memo needs a 404; the hosts memo is reserved
 		// for network-dead hosts, and a 404 itself proves the network is
@@ -1116,11 +1122,122 @@ func (a *archiver) fetchImage(raw string) (string, error) {
 // Hard-404ed URLs are memoized on disk and skipped on later runs (with a
 // one-request daily canary to detect upstream recovery), and a host that
 // racks up depict404Limit 404s during a run is dropped for the rest of it
-func (a *archiver) depictions(entries []PkgEntry) (map[string]archivedDepiction, int, int) {
-	var jobs []struct {
-		id, url string
+// depictionVersion gates the depiction skip-cache: bump whenever the
+// depiction fetcher/archiver behavior changes (rewriting, image
+// mirroring, stripDynamic, error classification, ...) so every repo
+// re-fetches once and then rebuilds its skip state
+const depictionVersion = 1
+
+// depictVersionsCap bounds how many package versions are remembered per
+// depiction URL (generic shared depictions would otherwise accumulate
+// versions forever); it is generous — every entry is a short string — so
+// real-world version sets never hit it; beyond the cap the oldest entries
+// drop, which costs a re-fetch of that URL
+const depictVersionsCap = 512
+
+// depictState is the repo-persistent depiction skip-cache: per URL, which
+// package versions were already archived. The cached page is trusted
+// only when its artifacts also exist on disk
+type depictState struct {
+	Version int                      `json:"version"`
+	URLs    map[string]*depictVersed `json:"urls,omitempty"`
+}
+
+type depictVersed struct {
+	Versions []string `json:"versions"`
+	Static   bool     `json:"static,omitempty"`
+}
+
+// depictStatePath names the repo's skip-cache file
+func (a *archiver) depictStatePath() string {
+	return filepath.Join(a.repoDir, "_meta", "depictions.state")
+}
+
+// loadDepictState reads the skip-cache, returning an empty one when it is
+// missing, unreadable or produced by a different depictionVersion
+func (a *archiver) loadDepictState() *depictState {
+	st := &depictState{Version: depictionVersion}
+	if raw, err := os.ReadFile(a.depictStatePath()); err == nil {
+		var seen depictState
+		if json.Unmarshal(raw, &seen) == nil && seen.Version == depictionVersion {
+			return &seen
+		}
 	}
-	seen := map[string]bool{}
+	return st
+}
+
+// saveDepictState persists the skip-cache (no-op while it stays empty)
+func (a *archiver) saveDepictState(st *depictState) {
+	if len(st.URLs) == 0 {
+		return
+	}
+	raw, err := json.MarshalIndent(st, "", "  ")
+	if err != nil {
+		a.lg.Printf("depictions: state marshal: %v", err)
+		return
+	}
+	if err := writeAtomic(a.depictStatePath(), raw); err != nil {
+		a.lg.Printf("depictions: state write: %v", err)
+	}
+}
+
+// versCovered reports whether every job version is already recorded and
+// the archived static sidecar was intact when they were (a failed static
+// rendition stays Static=false so the URL refetches instead of serving a
+// stale sidecar)
+func versCovered(st *depictState, url string, versions []string) bool {
+	ent := st.URLs[url]
+	if ent == nil || !ent.Static {
+		return false
+	}
+	for _, v := range versions {
+		if !slices.Contains(ent.Versions, v) {
+			return false
+		}
+	}
+	return true
+}
+
+// versRecord merges one job's versions into the entry, evicting oldest
+// entries beyond depictVersionsCap
+func versRecord(st *depictState, url string, versions []string, static bool) {
+	if st.URLs == nil {
+		st.URLs = map[string]*depictVersed{}
+	}
+	ent := st.URLs[url]
+	if ent == nil {
+		ent = &depictVersed{Static: static}
+		st.URLs[url] = ent
+	} else {
+		ent.Static = static
+	}
+	for _, v := range versions {
+		if slices.Contains(ent.Versions, v) {
+			continue
+		}
+		ent.Versions = append(ent.Versions, v)
+		if len(ent.Versions) > depictVersionsCap {
+			ent.Versions = ent.Versions[1:]
+		}
+	}
+}
+
+// depictions archives every package's depiction page (rewritten archive
+// copy + dynamic-stripped static sidecar + its assets/images). Skip
+// caching avoids re-downloading pages already archived at the current
+// depictionVersion for unchanged package versions; a version bump (or a
+// changed depiction URL) re-fetches
+func (a *archiver) depictions(entries []PkgEntry) (map[string]archivedDepiction, int, int) {
+	// unique URLs in first-seen order, every package version seen per URL
+	// (a package-version bump must re-fetch even with an unchanged URL),
+	// plus the first id, which names the deterministic artifact
+	type depJob struct {
+		id, url  string
+		versions []string
+	}
+	var order []string
+	urlVers := map[string][]string{}
+	firstID := map[string]string{}
 	for _, e := range entries {
 		for _, key := range []string{"depiction", "sileodepiction"} {
 			raw := strings.TrimSpace(e.Get(key))
@@ -1128,15 +1245,25 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]archivedDepiction,
 				continue
 			}
 			resolved, ok := resolveRef(a.baseURL, raw)
-			if !ok || seen[resolved] {
+			if !ok {
 				continue
 			}
-			seen[resolved] = true
-			jobs = append(jobs, struct{ id, url string }{id: e.ID(), url: resolved})
+			if _, fresh := firstID[resolved]; !fresh {
+				firstID[resolved] = e.ID()
+				order = append(order, resolved)
+			}
+			if v := e.Version(); v != "" && !slices.Contains(urlVers[resolved], v) {
+				urlVers[resolved] = append(urlVers[resolved], v)
+			}
 		}
+	}
+	jobs := make([]depJob, 0, len(order))
+	for _, u := range order {
+		jobs = append(jobs, depJob{id: firstID[u], url: u, versions: urlVers[u]})
 	}
 	g := a.newDeadGuard("depictions")
 	ig := a.newDeadGuard("images")
+	skips := a.loadDepictState()
 	if len(jobs) != 0 {
 		a.lg.Printf("archiving %d depictions", len(jobs))
 	}
@@ -1144,17 +1271,40 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]archivedDepiction,
 	archived := map[string]archivedDepiction{}
 	var mu sync.Mutex
 	imgsSaved := 0
+	reused := 0
+	skipped := 0
+	refetched := 0
 	runPool(3, len(jobs), func(i int) error {
 		defer dp.tick()
 		j := jobs[i]
-		if g.skip(j.url) {
-			return nil
-		}
-		if g.hostGone(hostOf(j.url)) {
+		if g.skip(j.url) || g.hostGone(hostOf(j.url)) {
+			mu.Lock()
+			skipped++
+			mu.Unlock()
 			return nil
 		}
 		rel := "_archive/depictions/" + sanitizeName(j.id) + "-" + sha256Hex([]byte(j.url))[:8] + ".html"
-		dest := filepath.Join(a.repoDir, "_archive", "depictions", sanitizeName(j.id)+"-"+sha256Hex([]byte(j.url))[:8]+".html")
+		staticRel := strings.TrimSuffix(rel, ".html") + "-static.html"
+		dest := filepath.Join(a.repoDir, rel)
+		staticDest := filepath.Join(a.repoDir, staticRel)
+		// skip-cache hit at the current depictionVersion: both artifacts
+		// present and non-empty, and no package version is new — serve
+		// straight from disk without touching upstream. mu guards the
+		// shared skip-state against the other workers' versRecord calls.
+		mu.Lock()
+		cacheHit := versCovered(skips, j.url, j.versions) &&
+			diskSize(dest) != 0 && diskSize(staticDest) != 0
+		if cacheHit {
+			reused++
+			archived[j.url] = archivedDepiction{rel: rel, static: staticRel}
+		}
+		mu.Unlock()
+		if cacheHit {
+			return nil
+		}
+		mu.Lock()
+		refetched++
+		mu.Unlock()
 		body, _, err := a.f.Fetch(j.url)
 		if err != nil || len(body) == 0 {
 			if err == nil {
@@ -1182,18 +1332,36 @@ func (a *archiver) depictions(entries []PkgEntry) (map[string]archivedDepiction,
 		mu.Lock()
 		imgsSaved += n
 		mu.Unlock()
-		staticRel := strings.TrimSuffix(rel, ".html") + "-static.html"
 		static := staticRendition(stripped, j.url, imgMap)
-		if err := writeAtomic(filepath.Join(a.repoDir, staticRel), static); err != nil {
+		if err := writeAtomic(staticDest, static); err != nil {
 			a.eg.add("static-rendition", j.url, err)
-			staticRel = ""
+			mu.Lock()
+			versRecord(skips, j.url, j.versions, false)
+			archived[j.url] = archivedDepiction{rel: rel}
+			mu.Unlock()
+			return nil
 		}
 		mu.Lock()
+		versRecord(skips, j.url, j.versions, true)
 		archived[j.url] = archivedDepiction{rel: rel, static: staticRel}
 		mu.Unlock()
 		return nil
 	})
+	if reused != 0 {
+		a.lg.Printf("depictions: %d fetched, %d dead-skipped, %d reused from skip cache",
+			refetched, skipped, reused)
+	}
+	a.saveDepictState(skips)
 	g.settle()
 	ig.settle()
 	return archived, len(archived), imgsSaved
+}
+
+// diskSize reports the size of an existing regular file, else 0
+func diskSize(p string) int64 {
+	fi, err := os.Stat(p)
+	if err != nil || !fi.Mode().IsRegular() {
+		return 0
+	}
+	return fi.Size()
 }
