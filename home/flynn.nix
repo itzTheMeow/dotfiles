@@ -69,27 +69,6 @@ in
   # GTK theme configuration
   gtk = {
     enable = true;
-    gtk2.enable = false;
-
-    theme = {
-      name = "Catppuccin-GTK-Mauve-Dark"; # TODO: this cant be hardcoded
-      package = pkgs.magnetic-catppuccin-gtk.override {
-        accent = [ xelib.globals.catppuccin.accent ];
-        shade = if xelib.globals.catppuccin.flavor == "latte" then "light" else "dark";
-        size = "standard";
-        tweaks = [
-          "macos"
-        ]
-        ++ (
-          if
-            xelib.globals.catppuccin.flavor == "frappe" || xelib.globals.catppuccin.flavor == "macchiato"
-          then
-            [ xelib.globals.catppuccin.flavor ]
-          else
-            [ ]
-        );
-      };
-    };
     iconTheme = {
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
@@ -99,35 +78,6 @@ in
       name = "Noto Sans";
       size = 10;
     };
-    gtk4.theme = config.gtk.theme;
-
-    /*
-      gtk3.extraConfig = {
-        gtk-application-prefer-dark-theme = true;
-        gtk-button-images = true;
-        gtk-cursor-blink = true;
-        gtk-cursor-blink-time = 1000;
-        gtk-decoration-layout = "icon:minimize,maximize,close";
-        gtk-enable-animations = true;
-        gtk-menu-images = true;
-        gtk-modules = "colorreload-gtk-module";
-        gtk-primary-button-warps-slider = true;
-        gtk-sound-theme-name = "ocean";
-        gtk-toolbar-style = 3;
-        gtk-xft-dpi = 98304;
-      };
-
-      gtk4.extraConfig = {
-        gtk-application-prefer-dark-theme = true;
-        gtk-cursor-blink = true;
-        gtk-cursor-blink-time = 1000;
-        gtk-decoration-layout = "icon:minimize,maximize,close";
-        gtk-enable-animations = true;
-        gtk-primary-button-warps-slider = true;
-        gtk-sound-theme-name = "ocean";
-        gtk-xft-dpi = 98304;
-      };
-    */
   };
 
   # 1Password autostart
