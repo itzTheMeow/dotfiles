@@ -15,6 +15,22 @@
       # make baloo ignore pcloud mount
       programs.plasma.configFile."baloofilerc"."General"."exclude folders" =
         "/home/${host.username}/pCloudDrive";
+
+      # auto-maximize window on open
+      programs.plasma.window-rules = [
+        {
+          description = "Always start pCloud maximized";
+          match.window-class = {
+            value = "pcloud";
+            match-whole = false;
+          };
+          match.window-types = [ "normal" ];
+          apply = {
+            maximizehorizontally = true;
+            maximizevertically = true;
+          };
+        }
+      ];
     })
   ];
 }
