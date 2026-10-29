@@ -28,6 +28,7 @@ rec {
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    #TODO:26.11 - bump to the actual release-26.11
     catppuccin = {
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
