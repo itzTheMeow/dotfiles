@@ -4,7 +4,7 @@
       programs.element-desktop = {
         enable = true;
       };
-      catppuccin.element-desktop = true;
+      catppuccin.element-desktop.enable = true;
     })
   ];
 
