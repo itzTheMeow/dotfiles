@@ -365,6 +365,12 @@ in
     enable = true;
     autoEnable = false;
     inherit (xelib.globals.catppuccin) accent flavor;
+    # use whiskers from nixpkgs
+    sources = inputs.catppuccin.packages.${pkgs.stdenv.hostPlatform.system}.overrideScope (
+      _: _: {
+        whiskers = pkgs.catppuccin-whiskers;
+      }
+    );
   };
 
   persist.orphanIgnore = [ "cache" ]; # ignore cache dirs from persistence
