@@ -6,7 +6,7 @@
     enable = true;
     extensions = [
       "aeblfdkhhhdcdjpifhhbdiojplfjncoa" # 1Password
-      "cndibmoanboadcifjkjbdpjgfedanolh" # BetterCanvas
+      #"cndibmoanboadcifjkjbdpjgfedanolh" # BetterCanvas
       "bkkmolkhemgaeaeggcmfbghljjjoofoh" # Catppuccin Mocha
       "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
       "cimiefiiaegbelhefglklhhakcgmhkai" # Plasma Integration
