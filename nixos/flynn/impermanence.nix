@@ -35,7 +35,6 @@
         ".config/MongoDB Compass"
         ".config/obs-studio"
         ".config/Pinta"
-        ".config/Plexamp"
         ".config/teams-for-linux"
         ".config/timefinder-electron"
         ".local"

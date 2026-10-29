@@ -27,10 +27,6 @@ in
       sqlitebrowser
       yaak
 
-      # media
-      (xelib.injectCursorsFHS plex-desktop)
-      plexamp
-
       # editing
       blender
       footage

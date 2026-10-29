@@ -8,6 +8,7 @@
   "impactor"
   "libreoffice"
   "opencode"
+  "plex"
   "plezy"
   "rclone"
   "rustic"

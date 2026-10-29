@@ -1,7 +1,7 @@
 [
   "chromium"
   "gaming"
-  "plex-htpc"
+  "plex"
   "plezy"
   "rclone"
   "rustic"
