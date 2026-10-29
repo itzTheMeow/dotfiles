@@ -35,9 +35,6 @@ in
       mayo
       pinta
       obs-studio
-
-      # chat
-      element-desktop
     ];
 
     file = {

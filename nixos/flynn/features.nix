@@ -2,6 +2,7 @@
   "chromium"
   "development"
   "discordchatexporter"
+  "element"
   "firefox"
   "gaming"
   "immich-cli"

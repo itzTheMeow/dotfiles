@@ -25,7 +25,6 @@
       userDirectories = [
         ".config/app.yaak.desktop"
         ".config/blender"
-        ".config/Element"
         ".config/figma-linux"
         ".config/gh" # TODO: make declarative
         ".config/GIMP"
