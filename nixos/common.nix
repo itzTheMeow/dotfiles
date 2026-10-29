@@ -343,7 +343,7 @@ in
   # install 1password cli
   programs._1password.enable = true;
   # persist CLI config
-  persist.ed.home.userFiles = [ ".config/op/config" ];
+  persist.ed.home.userDirectories = [ ".config/op" ];
 
   # sops doesnt need rsa keys
   sops.gnupg.sshKeyPaths = [ ];
