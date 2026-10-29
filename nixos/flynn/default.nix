@@ -21,8 +21,6 @@
   # custom hostname for this device
   networking.hostName = lib.mkForce "meow-pc";
 
-  home-manager.importUser = [ ./plasma.hm.nix ];
-
   environment.sessionVariables = {
     # this is for node-canvas...
     LD_LIBRARY_PATH = with pkgs; [

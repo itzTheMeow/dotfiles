@@ -71,16 +71,6 @@
       ++ (map (f: f.package) (builtins.attrValues xelib.globals.fonts));
   };
 
-  # GTK theme configuration
-  gtk = {
-    enable = true;
-    iconTheme = xelib.globals.icons;
-    cursorTheme = xelib.globals.cursors;
-    font = {
-      inherit (xelib.globals.fonts.system.name) name size;
-    };
-  };
-
   # keymapper
   services.keyd = {
     enable = true;
@@ -126,6 +116,16 @@
     (_: {
       # manage autostart
       xdg.autostart.enable = true;
+
+      # GTK theme configuration
+      gtk = {
+        enable = true;
+        iconTheme = xelib.globals.icons;
+        cursorTheme = xelib.globals.cursors;
+        font = {
+          inherit (xelib.globals.fonts.system) name size;
+        };
+      };
     })
   ];
 }
