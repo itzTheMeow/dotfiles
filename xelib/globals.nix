@@ -18,6 +18,7 @@
     system = {
       name = "Noto Sans";
       package = pkgs.noto-fonts;
+      size = 10; # just the default for KDE so we use it everywhere
     };
     code = {
       name = "CommitMono";

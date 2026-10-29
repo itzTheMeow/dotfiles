@@ -4,6 +4,8 @@
   ...
 }:
 {
+  home-manager.importUser = [ ./plasma.hm.nix ];
+
   # actually enable kde
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;

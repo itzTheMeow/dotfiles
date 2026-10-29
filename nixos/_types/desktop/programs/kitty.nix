@@ -40,6 +40,12 @@
       };
 
       catppuccin.kitty.enable = true;
+
+      # set default terminal
+      programs.plasma.configFile.kdeglobals.General = {
+        TerminalApplication = "kitty";
+        TerminalService = "kitty.desktop";
+      };
     })
   ];
 }
