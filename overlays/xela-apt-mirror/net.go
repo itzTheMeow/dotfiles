@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -20,6 +21,10 @@ var (
 type Fetcher struct {
 	client *http.Client
 	ua     string
+	// allowed exempts operator-configured upstream hosts from internal-host
+	// screening (requests and redirects); never seed it with URLs derived
+	// from upstream (repo content) — those stay screened
+	allowed map[string]bool
 }
 
 func NewFetcher(insecure bool) *Fetcher {
@@ -33,25 +38,51 @@ func NewFetcher(insecure bool) *Fetcher {
 		clone.InsecureSkipVerify = true
 		t.TLSClientConfig = clone
 	}
-	return &Fetcher{
-		client: &http.Client{
-			Transport: t,
-			Timeout:   envDuration("APTM_CLIENT_TIMEOUT", 120*time.Second),
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				if len(via) >= 10 {
-					return fmt.Errorf("too many redirects")
-				}
-				if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
-					return fmt.Errorf("redirect to non-http scheme %q", req.URL.Scheme)
-				}
-				if isInternalHost(req.URL.Host) {
-					return fmt.Errorf("redirect to internal host %q", req.URL.Host)
-				}
-				return nil
-			},
-		},
-		ua: "xela-apt-mirror/1.0",
+	f := &Fetcher{
+		ua:      "xela-apt-mirror/1.0",
+		allowed: map[string]bool{},
 	}
+	// closed over so CheckRedirect sees later allowHost calls
+	f.client = &http.Client{
+		Transport: t,
+		Timeout:   envDuration("APTM_CLIENT_TIMEOUT", 120*time.Second),
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 10 {
+				return fmt.Errorf("too many redirects")
+			}
+			if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
+				return fmt.Errorf("redirect to non-http scheme %q", req.URL.Scheme)
+			}
+			// same exemption as initial requests: an operator-configured
+			// internal upstream may legitimately redirect to itself
+			// (http->https, trailing slash); content-derived URLs stay
+			// screened
+			if f.blockedHost(req.URL.Host) {
+				return fmt.Errorf("redirect to internal host %q", req.URL.Host)
+			}
+			return nil
+		},
+	}
+	return f
+}
+
+// allowHost exempts one host (with port if present) from internal-host
+// screening on requests and redirects. Call it only for hosts the operator
+// configured as an upstream — a repo legitimately served from a LAN host
+// must keep working. Check with the exact lowercased "host[:port]" form.
+func (f *Fetcher) allowHost(host string) {
+	f.allowed[strings.ToLower(host)] = true
+}
+
+// blockedHost reports whether host must not be contacted: it is internal
+// (literal IP, localhost, or — for names — resolving to internal addresses,
+// best-effort against DNS rebinding) and not the operator-configured
+// upstream. Non-internal hosts return false without any lookup.
+func (f *Fetcher) blockedHost(host string) bool {
+	if !screenInternal(host) {
+		return false
+	}
+	return !f.allowed[strings.ToLower(host)]
 }
 
 func (f *Fetcher) do(method, rawurl, accept string, retries int) (*http.Response, error) {
@@ -63,6 +94,13 @@ func (f *Fetcher) do(method, rawurl, accept string, retries int) (*http.Response
 		req, err := http.NewRequest(method, rawurl, nil)
 		if err != nil {
 			return nil, fmt.Errorf("build request: %w", err)
+		}
+		// mirror the redirect guard: never send an initial request to an
+		// internal/loopback host unless the operator configured it as an
+		// upstream (external-Filename, icon and depiction URLs are
+		// untrusted and stay screened)
+		if f.blockedHost(req.URL.Host) {
+			return nil, fmt.Errorf("%s: internal host %q blocked", rawurl, req.URL.Host)
 		}
 		req.Header.Set("User-Agent", f.ua)
 		if accept != "" {

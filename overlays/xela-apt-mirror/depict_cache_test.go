@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sync/atomic"
@@ -48,8 +49,15 @@ func cacheArchiver(t *testing.T, repoDir, baseURL string) *archiver {
 	if err := os.MkdirAll(filepath.Join(repoDir, "_archive", "depictions"), 0o755); err != nil {
 		t.Fatal(err)
 	}
+	f := (&depictCacheServer{}).fetcher()
+	// mirror syncOne: the repo's own (operator-configured) host is exempt
+	// from initial-request internal-host screening; the httptest server is
+	// a loopback host and would otherwise be blocked outright
+	if u, errP := url.Parse(baseURL); errP == nil {
+		f.allowHost(u.Host)
+	}
 	return &archiver{
-		f:       (&depictCacheServer{}).fetcher(),
+		f:       f,
 		lg:      log.New(io.Discard, "", 0),
 		cache:   newAssetCache(),
 		eg:      &errGroup{seen: map[string]int{}},

@@ -155,7 +155,13 @@ func ensureDeb(f *Fetcher, baseURL, repoDir, poolPath string, st *debStatus) {
 		}
 	}
 
-	reqURL := joinRawURL(baseURL, t.file)
+	reqURL := t.url
+	if reqURL == "" {
+		// deb paths are rooted at the repository root (APT resolves
+		// Filename against the sources-list base), even for dists-style
+		// repos; external-URL Filenames skip this join entirely
+		reqURL = joinRawURL(baseURL, t.file)
+	}
 	if key != "" {
 		if _, err := f.Download(reqURL, poolFile, t.size, t.sha, t.md5); err != nil {
 			applyFetchError(st, reqURL, err)

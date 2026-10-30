@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -15,6 +17,7 @@ import (
 
 type MissingDeb struct {
 	File   string `json:"file"`
+	URL    string `json:"url,omitempty"` // set: Filename is an external absolute URL
 	Reason string `json:"reason"`
 	Size   string `json:"size,omitempty"`
 	Sha    string `json:"sha,omitempty"`
@@ -84,6 +87,7 @@ type BrowserData struct {
 
 type debTask struct {
 	file string
+	url  string // set when Filename is an absolute URL (downloaded directly)
 	size string
 	sha  string
 	md5  string
@@ -133,14 +137,6 @@ func (m *RepoManifest) manifestPath(dataDir string) string {
 	return filepath.Join(dataDir, m.Name, "_meta", "manifest.json")
 }
 
-func fetchOptional(f *Fetcher, rawurl string) ([]byte, error) {
-	body, _, err := f.Fetch(rawurl)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
-}
-
 func poolKeyOf(t debTask) string {
 	if h := normalizeHex(t.sha); h != "" {
 		return h
@@ -152,6 +148,11 @@ func poolKeyOf(t debTask) string {
 }
 
 func sizeFits(got int64, want string) bool {
+	// an absent Size field imposes no constraint; only a *present but*
+	// unparseable size fails closed
+	if strings.TrimSpace(want) == "" {
+		return true
+	}
 	w, ok := parseSize(want)
 	if !ok {
 		return false
@@ -274,7 +275,107 @@ func joinRawURL(base, rel string) string {
 	return base + strings.Join(esc, "/")
 }
 
-func poolDir(dataDir string) string { return filepath.Join(dataDir, "_pool") }
+// externalFilenameURL reports whether a Packages Filename is an absolute
+// http(s) URL (some repos — jjolano, ... — reference GitHub release debs
+// directly instead of a repo-relative pool path). Returns the cleaned URL
+func externalFilenameURL(p string) (string, bool) {
+	raw := strings.TrimSpace(p)
+	if strings.ContainsAny(raw, " \t\r\n") {
+		return "", false
+	}
+	u, err := url.Parse(raw)
+	if err != nil || u.Host == "" || (u.Scheme != "https" && u.Scheme != "http") {
+		return "", false
+	}
+	return u.String(), true
+}
+
+// externalDebPath names the canonical mirror-local deb target for an
+// external-URL filename: checksum-keyed into the shared pool when the
+// entry provides one, else a stable digest of the URL
+func externalDebPath(t debTask) string {
+	if key := poolKeyOf(t); key != "" {
+		return "pool/external/" + key + ".deb"
+	}
+	return "pool/external/url-" + sha256Hex([]byte(t.url))[:12] + ".deb"
+}
+
+// canonicalDebPath resolves one entry's Filename into a repo-relative
+// local path plus, for external URLs, the raw URL to download from
+func canonicalDebPath(e PkgEntry) (localPath, rawURL string, ok bool) {
+	fn := e.Filename()
+	if fn == "" {
+		return "", "", false
+	}
+	if u, isURL := externalFilenameURL(fn); isURL {
+		t := debTask{url: u, sha: e.Get("sha256"), md5: e.Get("md5sum")}
+		return externalDebPath(t), u, true
+	}
+	c, okRel := safeRel(fn)
+	return c, "", okRel
+}
+
+// rewriteExternalFilenames rewrites Filename lines that reference external
+// absolute URLs to their canonical mirror-local paths in an index body.
+// map keys are the upstream Filename field values verbatim
+func rewriteExternalFilenames(body []byte, canon map[string]string) []byte {
+	if len(canon) == 0 {
+		return body
+	}
+	text := string(body)
+	norm := strings.ReplaceAll(text, "\r\n", "\n")
+	if norm != text {
+		text = norm
+	}
+	lines := strings.Split(text, "\n")
+	changed := false
+	for i, line := range lines {
+		if !strings.HasPrefix(strings.ToLower(line), "filename:") {
+			continue
+		}
+		trim := strings.TrimSpace(line[len("filename:"):])
+		// rewrite every Filename line whose upstream value is external
+		if c, ok := canon[trim]; ok {
+			lines[i] = "Filename: " + c
+			changed = true
+		}
+	}
+	if !changed {
+		return body
+	}
+	return []byte(strings.Join(lines, "\n"))
+}
+
+// mirrorIndexBody is the store-time counterpart of the external-Filename
+// rewrite: for one fetched index it decides what is mirrored and whether
+// the Release checksums for its path must be recomputed.
+//
+//   - undecodable, or the rewrite would have to change its bytes and the
+//     stdlib cannot regenerate its format: not mirrored at all (stash
+//     false) — the caller also drops it from the Release checksum lists
+//   - untouched by the rewrite (no external-URL Filenames): the upstream
+//     bytes are stored verbatim (edited false), keeping the upstream
+//     checksum lines in the Release valid. An untouched index must never
+//     be hash-blessed by the mirror, even when its upstream sums failed
+//     verification — that would make a mirror-local rewrite of apt's
+//     fail-closed behavior on internally inconsistent upstream metadata
+//   - otherwise: the rewritten body re-encoded for its path, edited true
+func mirrorIndexBody(p string, raw []byte, canon map[string]string) (out []byte, stash, edited bool) {
+	decoded, err := decodeIndex(raw)
+	if err != nil {
+		return nil, false, false // undecodable: cannot rewrite
+	}
+	editedBody := rewriteExternalFilenames(decoded, canon)
+	if bytes.Equal(editedBody, decoded) {
+		// no external-URL Filenames: upstream bytes verbatim
+		return raw, true, false
+	}
+	enc, editable := indexReencode(p, editedBody)
+	if !editable {
+		return nil, false, false // stdlib cannot regenerate this format
+	}
+	return enc, true, true
+}
 
 func safeRel(p string) (string, bool) {
 	if p == "" {
@@ -294,6 +395,29 @@ func safeRel(p string) (string, bool) {
 		}
 	}
 	return c, true
+}
+
+func poolDir(dataDir string) string { return filepath.Join(dataDir, "_pool") }
+
+// retryTask rebuilds a debTask from a manifest missing/locked record;
+// md.URL (external-Filename support) restores direct-URL downloads, older
+// manifests (missing the field) survive as plain-path attempts. The stored
+// path is re-validated with the same rules fresh-plan entries pass: records
+// are self-written from validated plans, but a corrupt or hand-edited
+// manifest must not plan writes outside the repo root
+func retryTask(md MissingDeb) (debTask, bool) {
+	if _, ok := safeRel(md.File); !ok {
+		return debTask{}, false
+	}
+	task := debTask{file: md.File, size: md.Size, sha: md.Sha, md5: md.Md5}
+	if md.URL != "" {
+		u, isURL := externalFilenameURL(md.URL)
+		if !isURL {
+			return debTask{}, false
+		}
+		task.url = u
+	}
+	return task, true
 }
 
 func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
@@ -325,6 +449,12 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	old := loadManifest(dataDir, name)
 
 	f := NewFetcher(repo.Insecure)
+	// the operator-configured upstream (possibly a LAN host) is exempt from
+	// internal-host screening; everything derived from repo content —
+	// external-Filename debs, icons, depictions — stays screened
+	if u, errP := url.Parse(repo.URL); errP == nil {
+		f.allowHost(u.Host)
+	}
 	finish := func(status string) {
 		man.Status = status
 		writeManifest(dataDir, man)
@@ -354,10 +484,20 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	}
 
 	extras := map[string][]byte{}
+	// sigAbsent marks signed metadata confirmed absent upstream (404/410).
+	// Any other fetch failure reads as "unknown": flipping the Filename
+	// rewrite on based on a transient error would pair rewritten indexes
+	// with a stale signed file still stored from an earlier sync
+	sigAbsent := map[string]bool{}
 	for _, p := range []string{"InRelease", "Release.gpg", "Release.key", "CydiaIcon.png", "CydiaIcon.svg"} {
-		if body, err := fetchOptional(f, joinRawURL(branchBase, p)); err == nil {
-			extras[p] = body
+		body, _, err := f.Fetch(joinRawURL(branchBase, p))
+		if err != nil {
+			if errors.Is(err, ErrNotFound) {
+				sigAbsent[p] = true
+			}
+			continue
 		}
+		extras[p] = body
 	}
 
 	listed, probes := discovery(ri, distRel != "")
@@ -387,6 +527,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 	}
 
 	indexPaths := make([]string, 0, len(fetched))
+	verified := map[string]bool{}
 	var pkgEntries []PkgEntry
 	seenContent := map[string]bool{}
 	seenEntry := map[string]bool{}
@@ -398,6 +539,7 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 			}
 		}
 		indexPaths = append(indexPaths, p)
+		verified[p] = true
 		decoded, err := decodeIndex(fetched[p])
 		if err != nil {
 			logger.Printf("decode %s: %v", p, err)
@@ -432,35 +574,52 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 
 	plan := map[string]debTask{}
 	var order []string
+	// external-URL Filenames rewrite canon: upstream Filename field value
+	// verbatim -> canonical mirror-local path; drives both the deb plan
+	// and the mirrored-index Filename rewrite
+	canon := map[string]string{}
 	for _, e := range pkgEntries {
 		fn := e.Filename()
 		if fn == "" {
 			continue
 		}
-		c, ok := safeRel(fn)
-		if !ok {
+		task := debTask{size: e.Get("size"), sha: e.Get("sha256"), md5: e.Get("md5sum")}
+		if u, isURL := externalFilenameURL(fn); isURL {
+			task.url = u
+			task.file = externalDebPath(task)
+			canon[e.Get("filename")] = task.file
+		} else if c, ok := safeRel(fn); ok {
+			task.file = c
+		} else {
 			logger.Printf("unsafe filename %q skipped", fn)
 			continue
 		}
-		if _, dup := plan[c]; dup {
+		if _, dup := plan[task.file]; dup {
 			continue
 		}
-		plan[c] = debTask{file: c, size: e.Get("size"), sha: e.Get("sha256"), md5: e.Get("md5sum")}
-		order = append(order, c)
+		plan[task.file] = task
+		order = append(order, task.file)
 	}
 	if old != nil {
 		present := map[string]bool{}
 		for _, c := range order {
 			present[c] = true
 		}
+		// replay last run's missing/locked debTasks; manifests written
+		// with external-URL support carry the URL field (retryTask
+		// restores direct-URL downloads), older ones have canonical (or
+		// legacy path) file strings only and fall back to a plain-path
+		// attempt when they are not also in the fresh plan
 		retry := func(list []MissingDeb) {
 			for _, md := range list {
 				if !present[md.File] {
 					present[md.File] = true
-					if _, ok := safeRel(md.File); ok {
-						plan[md.File] = debTask{file: md.File, size: md.Size, sha: md.Sha, md5: md.Md5}
-						order = append(order, md.File)
+					task, ok := retryTask(md)
+					if !ok {
+						continue
 					}
+					plan[task.file] = task
+					order = append(order, task.file)
 				}
 			}
 		}
@@ -488,9 +647,9 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 		fileStates[s.task.file] = s
 		switch s.state {
 		case statusMissing:
-			man.Missing = append(man.Missing, MissingDeb{File: s.task.file, Reason: s.reason, Size: s.task.size, Sha: s.task.sha, Md5: s.task.md5})
+			man.Missing = append(man.Missing, MissingDeb{File: s.task.file, URL: s.task.url, Reason: s.reason, Size: s.task.size, Sha: s.task.sha, Md5: s.task.md5})
 		case statusLocked:
-			man.Locked = append(man.Locked, MissingDeb{File: s.task.file, Reason: s.reason, Size: s.task.size, Sha: s.task.sha, Md5: s.task.md5})
+			man.Locked = append(man.Locked, MissingDeb{File: s.task.file, URL: s.task.url, Reason: s.reason, Size: s.task.size, Sha: s.task.sha, Md5: s.task.md5})
 		default:
 			man.OK++
 		}
@@ -547,17 +706,91 @@ func syncOne(cfg *Config, repo RepoConfig, now time.Time) *RepoManifest {
 			}
 		}
 	}
+	// external-URL Filename support: the mirrored index copies get their
+	// external Filename lines rewritten to canonical pool paths (only for
+	// repos confirmed unsigned — both InRelease and Release.gpg 404'd, see
+	// sigAbsent, AND the Release body itself is not inline-clearsigned,
+	// which pgpSigned catches; a rewritten signed Release would be invalid).
+	// Indexes untouched by the rewrite are stored verbatim, keeping the
+	// upstream checksums in the Release valid; only edited indexes need
+	// recomputed checksums (updated). Indexes the mirror cannot store
+	// (undecodable, or — when the rewrite must change their bytes —
+	// formats the stdlib cannot regenerate like xz/zstd/bz2/lzma) are
+	// dropped from the checksum lists so APT never requests them, and the
+	// same goes for indexes the rewrite must edit whose upstream bytes
+	// failed checksum verification (never bless unverified data)
+	rewrittenEnabled := len(canon) != 0 && sigAbsent["InRelease"] && sigAbsent["Release.gpg"] && !pgpSigned(relBody)
+	// updated/dropped are keyed by the paths as the Release body lists
+	// them (branch-relative: "main/binary-.../Packages"), NOT repo-root
+	// relative — dists-style Release files list paths relative to their
+	// own directory, so fileRel keys would never match a checksum line
+	updated, dropped, mirrored := map[string][]byte{}, map[string]bool{}, map[string]bool{}
 	for _, p := range sortedKeys(fetched) {
-		if c, ok := safeRel(fileRel(p)); ok {
-			if err := writeAtomic(filepath.Join(repoDir, c), fetched[p]); err != nil {
-				logger.Printf("write index %s: %v", p, err)
-				man.Error = err.Error()
-				finish(statusFailed)
-				return man
+		c, ok := safeRel(fileRel(p))
+		if !ok {
+			continue
+		}
+		body := fetched[p]
+		if rewrittenEnabled && isIndexPath(p) {
+			out, okIdx, edited := mirrorIndexBody(p, body, canon)
+			if !okIdx {
+				dropped[p] = true
+				continue // not mirrored: undecodable, or a format the rewrite pass cannot regenerate
+			}
+			if edited && !verified[p] {
+				// the rewrite must change these bytes, but they never
+				// verified against the Release checksums — storing them
+				// (and recomputing the sums) would bless corrupt upstream
+				// data that apt would otherwise fail-closed on. Drop them
+				// from the checksum lists instead; verbatim storage of an
+				// unverified-but-untouched index stays fine above
+				dropped[p] = true
+				continue
+			}
+			body = out
+			if edited {
+				updated[p] = out
+			}
+		}
+		if err := writeAtomic(filepath.Join(repoDir, c), body); err != nil {
+			logger.Printf("write index %s: %v", p, err)
+			man.Error = err.Error()
+			finish(statusFailed)
+			return man
+		}
+		if isIndexPath(p) {
+			mirrored[p] = true
+		}
+	}
+	// indexes Release listed but the mirror does not store (fetch errors,
+	// or formats the rewrite pass cannot regenerate) must leave the
+	// checksum lists too, or APT would request a 404
+	if rewrittenEnabled {
+		for p := range ri.Entries {
+			if !isIndexPath(p) {
+				continue
+			}
+			if !mirrored[p] {
+				dropped[p] = true
 			}
 		}
 	}
-	if err := writeAtomic(filepath.Join(repoDir, filepath.FromSlash(fileRel("Release"))), relBody); err != nil {
+	relFinal := relBody
+	if rewrittenEnabled {
+		relFinal = rewriteReleaseChecksums(relBody, updated, dropped)
+		// a confirmed-unsigned repo may still have a stale signed file on
+		// disk from an earlier sync (upstream since dropped signing); APT
+		// prefers InRelease, so a leftover copy would override the
+		// rewritten Release and fail verification against it
+		for _, p := range []string{"InRelease", "Release.gpg"} {
+			if c, ok := safeRel(fileRel(p)); ok {
+				if err := os.Remove(filepath.Join(repoDir, c)); err != nil && !os.IsNotExist(err) {
+					logger.Printf("remove stale %s: %v", p, err)
+				}
+			}
+		}
+	}
+	if err := writeAtomic(filepath.Join(repoDir, filepath.FromSlash(fileRel("Release"))), relFinal); err != nil {
 		logger.Printf("write Release: %v", err)
 		man.Error = err.Error()
 		finish(statusFailed)
@@ -617,7 +850,7 @@ func buildBrowser(entries []PkgEntry, fileStates map[string]debStatus, iconByPkg
 			Compat:  firstLine(e.Get("compatibility")),
 		}
 		if fn := e.Filename(); fn != "" {
-			c, okS := safeRel(fn)
+			c, _, okS := canonicalDebPath(e)
 			if !okS {
 				row.Status, row.Reason = statusMissing, "invalid path"
 			} else {

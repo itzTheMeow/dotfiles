@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"path"
 	"sort"
 	"strings"
@@ -80,6 +81,15 @@ func parseRelease(data []byte) *ReleaseInfo {
 		}
 	}
 	return ri
+}
+
+// pgpSigned reports whether a Release body is itself PGP-signed (inline
+// clearsigned form with no separate Release.gpg). Editing checksum lines
+// inside such a body would invalidate the signature it carries, so the
+// external-Filename rewrite refuses to touch it.
+func pgpSigned(body []byte) bool {
+	return bytes.Contains(body, []byte("-----BEGIN PGP SIGNED MESSAGE-----")) ||
+		bytes.Contains(body, []byte("-----BEGIN PGP SIGNATURE-----"))
 }
 
 func (ri *ReleaseInfo) Suites() []string {

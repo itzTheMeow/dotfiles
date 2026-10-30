@@ -4,8 +4,16 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
+	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha256"
+	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
+	"hash"
 	"io"
+	"path"
+	"strconv"
 	"strings"
 )
 
@@ -70,6 +78,121 @@ func parsePackages(data []byte) []PkgEntry {
 	}
 	endBlock()
 	return entries
+}
+
+// gzipIndex encodes a plain index body as gzip
+func gzipIndex(body []byte) []byte {
+	var buf bytes.Buffer
+	zw := gzip.NewWriter(&buf)
+	if _, err := zw.Write(body); err != nil {
+		zw.Close()
+		return nil
+	}
+	if err := zw.Close(); err != nil {
+		return nil
+	}
+	return buf.Bytes()
+}
+
+// indexReencode re-encodes a (rewritten) decompressed index body back to
+// the on-disk format its path implies. editable=false marks formats the
+// stdlib cannot regenerate (bz2/xz/lzma/zst) — with the external-URL
+// Filename rewrite active those variants are not mirrored at all
+func indexReencode(indexPath string, decoded []byte) ([]byte, bool) {
+	switch strings.TrimPrefix(path.Base(indexPath), "Packages") {
+	case "":
+		return decoded, true
+	case ".gz":
+		return gzipIndex(decoded), true
+	default:
+		return nil, false
+	}
+}
+
+// checksumHex is an apt grouping of hashlib writers for Release checksum
+// sections
+func checksumHex(name string, b []byte) string {
+	var h hash.Hash
+	switch name {
+	case "md5sum":
+		h = md5.New()
+	case "sha1":
+		h = sha1.New()
+	case "sha256":
+		h = sha256.New()
+	case "sha512":
+		h = sha512.New()
+	default:
+		return ""
+	}
+	h.Write(b)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// rewriteReleaseChecksums recomputes a mirrored Release body's checksum
+// lists to match what the mirror actually stores: updated maps an index's
+// path as the Release body lists it (branch-relative) to its final stored
+// bytes; dropped lists files intentionally not mirrored (compressed
+// variants the rewrite pass cannot regenerate), which are removed from
+// the lists. Unrelated lines pass through untouched
+func rewriteReleaseChecksums(relBody []byte, updated map[string][]byte, dropped map[string]bool) []byte {
+	if len(updated) == 0 && len(dropped) == 0 {
+		return relBody
+	}
+	lines := strings.Split(strings.ReplaceAll(string(relBody), "\r\n", "\n"), "\n")
+	algo := "" // current checksum section name, "" outside one
+	out := make([]string, 0, len(lines))
+	for _, line := range lines {
+		var curAlgo string
+		// header detection tolerates whitespace after the colon ("SHA256: "),
+		// which parseRelease already does (it keys on line[:colon+1])
+		switch strings.TrimSuffix(strings.ToLower(strings.TrimSpace(line)), ":") {
+		case "md5sum", "md5", "checksums-md5":
+			curAlgo = "md5sum"
+		case "sha1", "checksums-sha1":
+			curAlgo = "sha1"
+		case "sha256", "sha256sum", "checksums-sha256":
+			curAlgo = "sha256"
+		case "sha512", "checksums-sha512":
+			curAlgo = "sha512"
+		}
+		if curAlgo != "" {
+			// a checksum section header never begins with whitespace
+			algo = curAlgo
+			out = append(out, line)
+			continue
+		}
+		if line == "" || (line[0] != ' ' && line[0] != '\t') {
+			// unrelated top-level field (or blank line): reset so entries
+			// of a later unrecognized section can never inherit a stale
+			// algorithm (mirrors parseRelease's section tracking, which
+			// accepts both space- and tab-indented entries)
+			algo = ""
+			out = append(out, line)
+			continue
+		}
+		if algo == "" {
+			out = append(out, line)
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 3 {
+			out = append(out, line)
+			continue
+		}
+		pth := strings.TrimPrefix(fields[2], "./")
+		if dropped[pth] {
+			continue // removed from the listing: not mirrored
+		}
+		if body, ok := updated[pth]; ok {
+			lead := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
+			out = append(out, lead+checksumHex(algo, body)+" "+
+				strconv.FormatInt(int64(len(body)), 10)+" "+fields[2])
+			continue
+		}
+		out = append(out, line)
+	}
+	return []byte(strings.Join(out, "\n"))
 }
 
 // byMagic handles upstreams serving gzip/bzip2/xz content without a
