@@ -23,6 +23,7 @@
   baseImageUrl ? "https://cloud.debian.org/images/cloud/trixie/20261001-2618/debian-13-generic-amd64-20261001-2618.qcow2",
   baseImageHash ? "sha256-B/n+Bf58sXAgRwNIMBULrd1myL4G4jO7ImyEqoonUmM=",
   pkgs,
+  dns ? "9.9.9.9",
 }:
 let
   inherit (pkgs) lib;
@@ -323,7 +324,7 @@ let
           -machine q35,accel=kvm,memory-backend=mem -cpu host \
           -m "''${3:-$mem}" -smp "$cores" \
           -display none -monitor none -serial "file:$2" \
-          -nic "user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:$port-:22,dns=1.1.1.1" \
+          -nic "user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:$port-:22,dns=${dns}" \
           -drive "file=$1,if=virtio,format=qcow2,cache=unsafe" \
           -drive "file=$seed,if=virtio,format=raw,readonly=on" \
           -device virtio-rng-pci \

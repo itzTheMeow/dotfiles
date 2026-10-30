@@ -7,6 +7,7 @@
   host,
   lib,
   pkgs,
+  xelib,
   ...
 }:
 let
@@ -21,6 +22,7 @@ let
 
   vm = import ./vm.nix {
     inherit pkgs;
+    dns = xelib.dns.publicNS.default;
     username = host.username;
     cores = cfg.cores;
     diskSize = cfg.diskSize;

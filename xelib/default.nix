@@ -56,6 +56,22 @@ rec {
     _ns2 = "ns2.${domain}";
     Master = "ehrman"; # main ns1
 
+    # public nameservers
+    publicNS = rec {
+      v4 = [
+        "9.9.9.9"
+        "1.1.1.1"
+        "8.8.8.8"
+      ];
+      v6 = [
+        "2620:fe::fe" # 9.9.9.9
+        "2606:4700:4700::1111" # 1.1.1.1
+        "2001:4860:4860::8888" # 8.8.8.8
+      ];
+      default = builtins.elemAt v4 0;
+      all = v4 ++ v6;
+    };
+
     # IPs
     addr = {
       ehrman = "152.53.53.232"; # NS1

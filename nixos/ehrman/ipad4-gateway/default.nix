@@ -65,10 +65,9 @@ let
         # accepts packets arriving on tailscale0, but the iPad's queries arrive
         # via XFRM decapsulation (iif=eth0), so they'd be rejected
         "listen-address=${gatewayDns}"
-        "server=1.1.1.1"
-        "server=9.9.9.9"
         "cache-size=1000"
       ]
+      ++ map (ip: "server=${ip}") xelib.dns.publicNS.v4
       ++ map (r: "host-record=${r.name},${r.value}") (lib.filter (r: r.type == "A") dnsRecords)
     )
   );
