@@ -2,3 +2,7 @@
 !/var/cache/downloads
 !/var/lib/downloads-archive
 !/var/lib/recoll
+
+!/z/var/lib/forgejo/data/repo-archive
+!/z/var/lib/downloads-archive
+!/z/var/lib/recoll
