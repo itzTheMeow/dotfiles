@@ -4,8 +4,8 @@ final: prev: {
     src = final.unstable.fetchFromGitHub {
       owner = "itzTheMeow";
       repo = "btop";
-      rev = "2798cf48b85553986e39a1df9e4f496451f4c99a";
-      hash = "sha256-gXhOrUQvEIKEQn1ClzA98Vx8pndWycvUQqJ1m0GJqLo=";
+      rev = "2b939904cde0cd88943c4cfc158b0d00ed68aae3";
+      hash = "sha256-ElD/dghJZuMEjR6sctD/03LYFVttUZ4qNNqZ1jMgdc0=";
     };
   });
 }
