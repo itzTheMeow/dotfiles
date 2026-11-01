@@ -3,6 +3,6 @@
 !/var/lib/downloads-archive
 !/var/lib/recoll
 
-!/z/var/lib/forgejo/data/repo-archive
-!/z/var/lib/downloads-archive
-!/z/var/lib/recoll
+!/z/lib/var/lib/forgejo/data/repo-archive
+!/z/lib/var/lib/downloads-archive
+!/z/lib/var/lib/recoll
