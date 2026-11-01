@@ -2,6 +2,7 @@
   config,
   lib,
   modulesPath,
+  pkgs,
   ...
 }:
 let
@@ -22,6 +23,19 @@ in
 
   # bluetooth gets screwed during deep sleep so we have to sleep lighter
   boot.kernelParams = [ "mem_sleep_default=s2idle" ];
+
+  # resume can also wedge the bt firmware: hci0 stays up and reports powered,
+  # but every scan finds nothing until btusb is reloaded. the wifi half shares
+  # the card's firmware and spews h2c errors either way, so there is no usable
+  # signal to test for - just reload btusb after every resume.
+  powerManagement.resumeCommands = ''
+    ${pkgs.coreutils}/bin/sleep 2
+    for _ in 1 2 3; do
+      ${pkgs.kmod}/bin/modprobe -r btusb 2>/dev/null && break
+      ${pkgs.coreutils}/bin/sleep 1
+    done
+    ${pkgs.kmod}/bin/modprobe btusb 2>/dev/null || true
+  '';
 
   # decrypted luks partiton
   boot.initrd.luks.devices.${luksDevice} = {
