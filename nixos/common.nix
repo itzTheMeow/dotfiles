@@ -297,6 +297,7 @@ in
     ## performance
     speedtest-cli
 
+    kitty.kitten
     kitty.terminfo # needed so ssh will work from kitty
     rclone # used by some core services
     screen
