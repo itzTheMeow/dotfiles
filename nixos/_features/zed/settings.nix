@@ -165,6 +165,13 @@ in
           "source.fixAll" = true;
         };
       };
+      Go = {
+        formatter = "language_server";
+        code_actions_on_format = {
+          "source.organizeImports" = true;
+          "source.fixAll" = true;
+        };
+      };
       Java.code_actions_on_format."source.organizeImports" = true;
     };
 }
