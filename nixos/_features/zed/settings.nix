@@ -157,7 +157,14 @@ in
         ];
         formatter = savePipeline;
       };
-      Dart.formatter = "language_server";
+      Dart = {
+        formatter = "language_server";
+        rulers = [ 80 ];
+        code_actions_on_format = {
+          "source.organizeImports" = true;
+          "source.fixAll" = true;
+        };
+      };
       Java.code_actions_on_format."source.organizeImports" = true;
     };
 }
