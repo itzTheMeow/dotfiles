@@ -157,6 +157,7 @@ in
         ];
         formatter = savePipeline;
       };
+      Dart.formatter = "language_server";
       Java.code_actions_on_format."source.organizeImports" = true;
     };
 }
