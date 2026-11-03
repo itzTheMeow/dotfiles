@@ -137,6 +137,13 @@ in
   prettier.allowed = true;
   languages =
     let
+      defaultFormatting = {
+        formatter = "language_server";
+        code_actions_on_format = {
+          "source.organizeImports" = true;
+          "source.fixAll" = true;
+        };
+      };
       # ordered on-format pipeline for js/etc
       savePipeline = [
         { code_action = "source.organizeImports"; }
@@ -157,21 +164,10 @@ in
         ];
         formatter = savePipeline;
       };
-      Dart = {
-        formatter = "language_server";
+      Dart = defaultFormatting // {
         rulers = [ 80 ];
-        code_actions_on_format = {
-          "source.organizeImports" = true;
-          "source.fixAll" = true;
-        };
       };
-      Go = {
-        formatter = "language_server";
-        code_actions_on_format = {
-          "source.organizeImports" = true;
-          "source.fixAll" = true;
-        };
-      };
-      Java.code_actions_on_format."source.organizeImports" = true;
+      Go = defaultFormatting;
+      Java = defaultFormatting;
     };
 }
