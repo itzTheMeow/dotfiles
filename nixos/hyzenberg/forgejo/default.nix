@@ -65,6 +65,7 @@ in
         CRUD_ACTIONS = "always";
         MERGES = "approved, commitssigned";
       };
+      git.MAX_GIT_DIFF_LINE_CHARACTERS = 20000;
       "git.timeout" = {
         MIGRATE = 1800; # allow 30min for migrations
       };
