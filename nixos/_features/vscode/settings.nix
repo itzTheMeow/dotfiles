@@ -23,7 +23,7 @@
   explorer.confirmPasteNative = false;
   security.workspace.trust.untrustedFiles = "open";
   window.newWindowDimensions = "maximized";
-  workbench.colorTheme = "Zero Theme";
+  #workbench.colorTheme = "Zero Theme";
   workbench.editorAssociations = {
     "*.sqlite" = "default";
     "*.svg" = "default";
