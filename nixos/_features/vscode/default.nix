@@ -6,6 +6,12 @@
   ...
 }:
 {
+  # direnv CLI for .envrc support (the VS Code Direnv extension shells out to it)
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
   programs.vscode = {
     enable = true;
     extensions =
@@ -14,6 +20,7 @@
         nixpkgs.aaron-bond.better-comments # Better Comments #TODO: look into alternatives
         nixpkgs.docker.docker # Docker DX
         nixpkgs.editorconfig.editorconfig # EditorConfig
+        openvsx.mkhl.direnv # Direnv
         nixpkgs.esbenp.prettier-vscode # Prettier
         nixpkgs.github.vscode-github-actions # GitHub Actions
         nixpkgs.github.vscode-pull-request-github # GitHub Pull Requests
