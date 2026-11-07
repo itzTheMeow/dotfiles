@@ -37,6 +37,13 @@ let
           always-allow-substitutes = true
           build-users-group =
         '')
+        # symlink to the path non-nix tools expect instead of
+        # the nixos-style cacert path; without it some commands in
+        # CI fail with a TLS error when resolving URLs
+        (pkgs.runCommand "cacert-symlink" { } ''
+          mkdir -p $out/etc/ssl/certs
+          ln -s "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" $out/etc/ssl/certs/ca-certificates.crt
+        '')
       ];
       pathsToLink = [
         "/bin"
@@ -49,6 +56,7 @@ let
     config = {
       Env = [
         "NIX_SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+        "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
       ];
     };
   };
