@@ -98,7 +98,7 @@ in
             url = "${trawl.url}/mcp";
             path = "/mcp";
             auth_type = "none";
-            #key = "";
+            key = "";
             config.enable = true;
             info = {
               id = "trawl";
