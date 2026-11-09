@@ -187,6 +187,11 @@ final: prev: {
         nextH=""
 
         echo "our locked revs vs upstream channel tips ($nout of $total change)"
+        markers="~ = unstable pin"
+        if [ "$showNext" = "true" ]; then
+          markers="$markers  + = newer in NEXT"
+        fi
+        echo "symbols: $markers"
         if [ "$showNext" = "true" ]; then
           if [ "$nextSource" = "branch" ]; then
             nextRef=$(jq -r '.nextRef' <<<"$data")
@@ -205,8 +210,7 @@ final: prev: {
           def vs($v): if $v == null then "n/a" else $v end;
           def row($next):
             ((if .branch == "unstable" then .name + " ~" else .name end)
-             + (if .outdated then " *" else "" end)
-             + (if .nextChanged and (.outdated | not) then " +" else "" end)) as $n
+             + (if .nextChanged then " +" else "" end)) as $n
             | if $next then
                 [ $n, vs(.ours), vs(.tip), vs(.next), (.live | sort | join(" ")) ]
               else
