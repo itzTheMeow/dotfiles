@@ -95,7 +95,8 @@ in
         builtins.toJSON [
           {
             type = "mcp";
-            url = "${trawl.url}/mcp";
+            # URL has to be HTTP
+            url = "http://${trawl.ip}:${trawl.portString}/mcp";
             path = "/mcp";
             auth_type = "none";
             key = "";
