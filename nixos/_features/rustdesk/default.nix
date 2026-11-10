@@ -29,7 +29,7 @@ let
   # plaintext on disk is not a usable comparison
   setValue = key: delRegex: secretFile: ''
     actual=$(sha256sum '${secretFile}' | cut -d' ' -f1)
-    if [ "$(cat '$dir/.nix-${key}' 2>/dev/null)" != "$actual" ]; then
+    if [ "$(cat "$dir/.nix-${key}" 2>/dev/null)" != "$actual" ]; then
       value=$(tr -d '\n' < '${secretFile}')
       escaped=$(printf '%s' "$value" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
       sed -i -E '/^(${delRegex})[[:space:]]*=/d' "$rustdesk"
