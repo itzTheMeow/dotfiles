@@ -12,6 +12,7 @@
   "plex"
   "plezy"
   "rclone"
+  "rustdesk"
   "rustic"
   "siyuan"
   "thunderbird"
