@@ -158,6 +158,7 @@ in
 
     # mac, needs organized
     macintosh = {
+    ip = "100.64.0.4";
       accent = "#b4befe"; # Lavender
     };
   };
@@ -165,6 +166,7 @@ in
   trustedHosts = [
     "flynn"
     "pete"
+    "macintosh"
     "iphone"
     "ipadpro"
   ];
