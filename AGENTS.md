@@ -52,7 +52,7 @@ NixOS configuration for personal machines.
 - **SOPS secrets (`modules/sops.nix` + `xelib/opsecrets.nix`)**: two patterns —
   - `sops.envFiles.<name> = { KEY = "op://..." }` → a single dotenv secret file (`sops/<host>/<name>.env`), usable as `environmentFile`.
   - `sops.groups.<name>.<field> = "op://..."` (or `{ value = ...; ... }`) → individual secrets, resolves to `sops.groupPaths.<group>.<field>`. Access actual file via `config.sops.groupPaths.<group>.<field>` (placeholder via `groupPlaceholders`).
-  - **Always use the 1Password item ID (UUID) in `op://` URLs** (e.g. `op://Private/<uuid>/<field>`) — never the item name, which can change.
+  - **Use the 1Password item ID (UUID) in `op://` URLs** (e.g. `op://Private/<uuid>/<field>`) for secrets declared per-deployment — never the item name, which can change. Exception: secrets declared in shared multi-host code (`_features/`, `_common/`) may reference the item by name, since a feature module is evaluated on every host it's enabled for and can't hardcode per-host UUIDs ("common across hosts" items like `Beszel Hub Key` are the same thing read from the other side); optionally interpolate `${hostname}` into the item/field segment (see `_common/ntfy.nix` and `_features/rustdesk`).
   - These are declared in modules/hosts; the Go tool reads the evaluated `opSecrets` and writes the SOPS files. After adding a new 1Password-backed secret, run the go tool to regenerate.
   - `sops.opSecrets` exists on the **home-manager side too** (`xelib/opsecrets.nix`); secrets declared there get a `user_` filename prefix (`sops/<host>/user_<name>.yaml`, e.g. `user_rustic.yaml`). The Go tool reads both `conf.config.sops.opSecrets` and `conf.config.home-manager.users.*.sops.opSecrets`, so adding HM-side secrets also requires regenerating. Prefer the NixOS side for secrets shared across users/services (the ssh keys in `_common/ssh.nix` are a deliberate example).
 - **Custom packages**: live as overlays in `overlays/` (see layout above), so they're exposed directly on `pkgs`. There is no `xelpkgs` specialArg anymore.
@@ -143,4 +143,17 @@ NixOS configuration for personal machines.
     though builds are fine. To inspect persistence wiring, eval string-only views instead:
     `attrNames config.systemd.units` / `config.systemd.units.<name>.text`, glob `var-lib` /
     `home-walt`. Also: the flake tree only sees git-tracked files — a fresh `nixos/<host>/*.nix`
-    module silently doesn't load until `git add`ed (bit us with `impermanence.nix`).
+    Module silently doesn't load until `git add`ed (bit us with `impermanence.nix`). — The flake
+    tree only sees git-tracked files, and that includes the regenerated `sops/<host>/<group>.yaml`
+    files: a brand-new sops group won't resolve at eval until the generated file is `git add`ed.
+    New sops groups always need a `sops-build-secrets` regeneration before the eval can succeed.
+    `systemd.services.<name>.path` appends `/bin` to _every_ entry (including plain strings, via
+    `makeBinPath`), so a bare path like `/run/wrappers/bin` turns into `/run/wrappers/bin/bin` —
+    set `environment.PATH` explicitly instead when a plain directory is needed (see
+    `nixos/_features/rustdesk`). Helper snippets inline-expanded into a
+    `writeShellApplication`/systemd script body share one scope: they can't use `$1`/`$2`
+    positional args — reference the enclosing script's variables or interpolate the literal path.
+    - `requires = [ "some-oneshot.service" ]` tears the dependent service down when the oneshot
+      completes (`Requires` deactivates dependents once the required unit becomes inactive) — set
+      `serviceConfig.RemainAfterExit = true` on the oneshot, or use `after`/`wants` when failure
+      should only prevent startup, not stop the runtime service.
