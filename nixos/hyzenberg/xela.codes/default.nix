@@ -27,6 +27,9 @@ in
         www = pointHost hostname;
         github.CNAME = [ (cname (fqdn "itzthemeow.github.io")) ];
 
+        # verification
+        _discord.TXT = [ (txt "dh=03ddec0baddb17eda47210dda4bad0ef92247c91") ];
+
         # legacy domains
         hyzen = pointHost hostname;
         svolte = pointHost hostname;
