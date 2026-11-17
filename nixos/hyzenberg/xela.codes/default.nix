@@ -35,6 +35,10 @@ in
         ehrman = pointHost "ehrman";
         hyzenberg = pointHost "hyzenberg";
       };
+      TXT = [
+        # Google Search Console xela.codes Property
+        (txt "google-site-verification=ngL7UcuUKMBD0apb5ahcIr4XYDa8tKoBwCmGSrAAE44")
+      ];
     }
     # main website
     // (pointHost hostname);
