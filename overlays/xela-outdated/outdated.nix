@@ -109,6 +109,25 @@ let
     in
     if r.success then r.value else null;
 
+  # meta.homepage of `<pkgs>'.<attr>`, null when missing/unresolvable or not
+  # an absolute URL (scheme-less values would resolve as file:// links)
+  homepageOf =
+    pkgs': attr:
+    let
+      r = builtins.tryEval (
+        let
+          v = selectAttr pkgs' attr;
+        in
+        if !(lib.isDerivation v) then
+          null
+        else if v ? meta.homepage && lib.isString v.meta.homepage && lib.hasInfix "://" v.meta.homepage then
+          v.meta.homepage
+        else
+          null
+      );
+    in
+    if r.success then r.value else null;
+
   # group entries across hosts: attr -> { name, live = [{ host version source }] }
   grouped = lib.foldl' (
     acc: e:
@@ -162,6 +181,14 @@ let
           verOf tipNext attr;
       outdated = ours != null && tip != null && lib.versionOlder ours tip;
       nextChanged = ours != null && next != null && lib.versionOlder ours next;
+      # meta.homepage for the PACKAGE link column: the row's own instance
+      # first, unstable as fallback for attrs that don't resolve there
+      # (foreign pins, renames)
+      url =
+        let
+          u = homepageOf oursPkgs attr;
+        in
+        if u == null then homepageOf unstablePkgs attr else u;
     in
     {
       name = t.name;
@@ -173,6 +200,7 @@ let
         next
         nextChanged
         outdated
+        url
         ;
       live = map (l: l.host) t.live;
     }

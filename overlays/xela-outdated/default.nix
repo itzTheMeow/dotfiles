@@ -212,24 +212,42 @@ final: prev: {
             ((if .branch == "unstable" then .name + " ~" else .name end)
              + (if .nextChanged then " +" else "" end)) as $n
             | if $next then
-                [ $n, vs(.ours), vs(.tip), vs(.next), (.live | sort | join(" ")) ]
+                # field 2 is the link URL for the PACKAGE column ("" = none),
+                # a hidden field only the column formatter consumes
+                [ $n, (.url // ""), vs(.ours), vs(.tip), vs(.next), (.live | sort | join(" ")) ]
               else
-                [ $n, vs(.ours), vs(.tip), (.live | sort | join(" ")) ]
+                [ $n, (.url // ""), vs(.ours), vs(.tip), (.live | sort | join(" ")) ]
               end;
           (if $all == "true" then .packages
            else [ .packages[] | select(.outdated or .nextChanged) ] end)
-          | (if $showNext == "true" then [ "PACKAGE", $oursH, $tipH, $nextH, "LIVE" ]
-             else [ "PACKAGE", $oursH, $tipH, "LIVE" ] end),
+          | (if $showNext == "true" then [ "PACKAGE", "", $oursH, $tipH, $nextH, "LIVE" ]
+             else [ "PACKAGE", "", $oursH, $tipH, "LIVE" ] end),
             (.[ ] | row($showNext == "true"))
           | @tsv
         ' <<<"$data" | gawk -F'\t' '
-          { for (i = 1; i <= NF; i++) if (length($i) > w[i]) w[i] = length($i); lines[NR] = $0 }
+          # link(url, name): OSC 8 hyperlink around underlined text; terminals
+          # without OSC 8 support just render the plain name
+          function link(url, name) {
+            return sprintf("%c]8;;%s%c\\", 27, url, 27) \
+              sprintf("%c[4m%s%c[0m", 27, name, 27) \
+              sprintf("%c]8;;%c\\", 27, 27)
+          }
+          # column widths: field 2 is the hidden link URL - field 1 keeps its
+          # plain-text width so the escapes never skew the padding
+          {
+            if (length($1) > w[1]) w[1] = length($1)
+            for (i = 3; i <= NF; i++) if (length($i) > w[i]) w[i] = length($i)
+            lines[NR] = $0
+          }
           END {
             for (r = 1; r <= NR; r++) {
               n = split(lines[r], f, "\t")
               s = ""
-              for (i = 1; i <= n; i++)
-                s = s f[i] (i < n ? substr("                                ", 1, w[i] - length(f[i]) + 2) : "")
+              for (i = 1; i <= n; i++) {
+                if (i == 2) continue
+                c = ((i == 1 && f[2] != "") ? link(f[2], f[1]) : f[i])
+                s = s c (i < n ? sprintf("%*s", w[i] - length(f[i]) + 2, "") : "")
+              }
               print s
             }
           }'
