@@ -131,17 +131,25 @@ in
       PULSE_LATENCY_MSEC = "60";
       PIPEWIRE_LATENCY = "1024/48000";
       # the wrappers dir first so `sudo` is the configured wrapper; the rest are
-      # used by the rustdesk service itself (`ps`/`pkill`/`awk`, `run_as_user`)
-      PATH = lib.mkForce (
-        "/run/wrappers/bin:"
-        + lib.makeBinPath [
-          pkgs.coreutils
-          pkgs.findutils
-          pkgs.gawk
-          pkgs.procps
-          pkgs.util-linux
-        ]
-      );
+      # used by the rustdesk service itself (`ps`/`pkill`/`awk`, `run_as_user`).
+      # `systemd` provides `loginctl` (seat0 session detection) and `bash`
+      # provides `sh` (`run_cmds`/`stop_rustdesk_servers` spawn `sh -c`) — both
+      # are required for the service loop to ever spawn the user `--server`
+      # process, whose absence makes the client show as offline
+      PATH =
+        with pkgs;
+        lib.mkForce (
+          "/run/wrappers/bin:"
+          + lib.makeBinPath [
+            bash
+            coreutils
+            findutils
+            gawk
+            procps
+            systemd
+            util-linux
+          ]
+        );
     };
     serviceConfig = {
       ExecStart = "${pkgs.rustdesk-flutter}/bin/rustdesk --service";
