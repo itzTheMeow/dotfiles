@@ -27,9 +27,10 @@ let
     # download any asset
     dl =
       url: hash:
-      builtins.fetchurl {
+      pkgs.fetchurl {
         inherit url;
         sha256 = if hash == "" then lib.fakeHash else hash;
+        curlOpts = "--retry 5 --retry-delay 5 --retry-all-errors";
       };
     # download an asset from SteamGridDB by asset type + id
     #   type: "grid" | "hero" | "logo" | "icon"
