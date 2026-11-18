@@ -87,8 +87,8 @@ let
   };
 in
 {
-  #TODO:26.11 bump down
-  environment.systemPackages = [ pkgs.unstable.rustdesk-flutter ];
+  environment.systemPackages = [ pkgs.rustdesk-flutter ];
+  trackPackages.aliases."rustdesk" = "rustdesk-flutter";
 
   sops.groups.rustdesk = {
     id = "op://Private/RustDesk ${hostname}/username";
