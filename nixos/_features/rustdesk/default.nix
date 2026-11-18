@@ -131,11 +131,18 @@ in
       PULSE_LATENCY_MSEC = "60";
       PIPEWIRE_LATENCY = "1024/48000";
       # the wrappers dir first so `sudo` is the configured wrapper; the rest are
-      # used by the rustdesk service itself (`ps`/`pkill`/`awk`, `run_as_user`).
-      # `systemd` provides `loginctl` (seat0 session detection) and `bash`
-      # provides `sh` (`run_cmds`/`stop_rustdesk_servers` spawn `sh -c`) — both
-      # are required for the service loop to ever spawn the user `--server`
-      # process, whose absence makes the client show as offline
+      # binaries rustdesk shells out to (`sh -c` pipelines): `gnugrep` picks the
+      # ScreenCast portal in `is_server_running()` (`ps aux | grep rustdesk`),
+      # `gnused` ends the `get_env` pipeline that lifts
+      # DISPLAY/XAUTHORITY/WAYLAND_DISPLAY/DBUS_SESSION_BUS_ADDRESS from the
+      # portal processes' /proc environ (without it the spawned `--server` never
+      # sees WAYLAND_DISPLAY and mouse input falls back to XWayland),
+      # `getent` provides the `getent` binary (home/prelogin lookups) and
+      # `fuse3` `fusermount3` (file-transfer clipboard mount). `systemd` provides
+      # `loginctl` (seat0 session detection) and `bash` provides `sh`
+      # (`run_cmds`/`stop_rustdesk_servers` spawn `sh -c`) — both are required
+      # for the service loop to ever spawn the user `--server` process, whose
+      # absence makes the client show as offline
       PATH =
         with pkgs;
         lib.mkForce (
@@ -144,8 +151,11 @@ in
             bash
             coreutils
             findutils
+            fuse3
             gawk
+            getent
             gnugrep
+            gnused
             procps
             systemd
             util-linux
