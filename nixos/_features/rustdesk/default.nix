@@ -145,6 +145,7 @@ in
             coreutils
             findutils
             gawk
+            gnugrep
             procps
             systemd
             util-linux
