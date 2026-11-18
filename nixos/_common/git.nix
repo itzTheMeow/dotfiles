@@ -2,6 +2,7 @@
   config,
   host,
   lib,
+  pkgs,
   xelib,
   ...
 }:
@@ -49,6 +50,11 @@ in
   config = lib.mkMerge [
     gitSecrets
     {
+      # putting system-wide git-related packages here too
+      environment.systemPackages = with pkgs; [
+        lazygit
+      ];
+
       # system-wide so both user and root (nix daemon) git fetches can resolve the repo URL
       programs.ssh.extraConfig = ''
         Host nvstly-dotfiles
