@@ -108,7 +108,10 @@ in
   };
 
   # git
-  git.inline_blame.enabled = false;
+  git = {
+    auto_fetch.enabled = true;
+    inline_blame.enabled = false;
+  };
   git_panel = {
     folder_indicator = "both";
     group_by = "staging";
