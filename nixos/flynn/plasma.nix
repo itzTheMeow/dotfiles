@@ -2,7 +2,7 @@
   home-manager.importUser = [
     (_: {
       programs.plasma = {
-        launcherFavorites = [
+        kickoff.favorites = [
           "applications:kitty.desktop"
           "applications:org.kde.dolphin.desktop"
           "preferred://browser"
