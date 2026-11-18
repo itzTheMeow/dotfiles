@@ -20,7 +20,6 @@ in
   home = {
     packages = with pkgs; [
       # development
-      figma-linux
       gh
       mongodb-compass
       okteta
