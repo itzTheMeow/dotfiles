@@ -21,11 +21,11 @@ let
   stableRef = lock.nodes.${rootInputs.nixpkgs}.original.ref or "nixos-unknown";
   unstableRef = lock.nodes.${rootInputs."nixpkgs-unstable"}.original.ref or "nixos-unstable";
 
-  # the release *after* the current stable: nixos-26.05 -> nixos-26.11,
-  # nixos-26.11 -> nixos-27.05; null when the ref is not a release branch
+  # the release *after* the current stable: release-26.05 -> release-26.11,
+  # release-26.11 -> release-27.05; null when the ref is not a release branch
   nextRef =
     let
-      m = builtins.match "nixos-([0-9]{2})\\.([0-9]{2})" stableRef;
+      m = builtins.match "release-([0-9]{2})\\.([0-9]{2})" stableRef;
       yy = if m == null then "" else builtins.elemAt m 0;
       mm = if m == null then "" else builtins.elemAt m 1;
       nextYy =
@@ -34,9 +34,9 @@ let
     if m == null then
       null
     else if mm == "05" then
-      "nixos-${yy}.11"
+      "release-${yy}.11"
     else if mm == "11" then
-      "nixos-${nextYy}.05"
+      "release-${nextYy}.05"
     else
       null;
 

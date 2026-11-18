@@ -140,11 +140,11 @@ final: prev: {
         nextSource=""
         if [ "$showNext" = "true" ]; then
           case "$stable_ref" in
-            nixos-*.05) next="''${stable_ref%.05}.11" ;;
-            nixos-*.11)
-              yy=''${stable_ref#nixos-}
+            release-*.05) next="''${stable_ref%.05}.11" ;;
+            release-*.11)
+              yy=''${stable_ref#release-}
               yy=''${yy%.11}
-              next="nixos-$(printf '%02d' $((10#$yy + 1))).05"
+              next="release-$(printf '%02d' $((10#$yy + 1))).05"
               ;;
             *) next="" ;;
           esac
@@ -173,7 +173,7 @@ final: prev: {
         # column headers stating the rev/date they mean: OURS against the
         # locked stable rev, TIP against the upstream tip, NEXT (with
         # --upgrade) against the next release branch or unstable
-        ourRev="''${stable_ref#nixos-}"
+        ourRev="''${stable_ref#release-}"
         if [ -n "$oursDate" ]; then
           oursH="OURS (''$ourRev ''$oursDate)"
         else
