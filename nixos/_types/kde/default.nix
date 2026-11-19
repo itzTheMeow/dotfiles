@@ -50,6 +50,11 @@
     GTK_USE_PORTAL = "1";
   };
 
+  persist.ed.home.userFiles = [
+    # needs persisted so the favorites writer can read it on boot
+    ".config/plasma-org.kde.plasma.desktop-appletsrc"
+  ];
+
   # VNC server on Tailscale
   systemd.user.services.krfb = {
     description = "KDE Remote Frame Buffer (VNC Server)";
