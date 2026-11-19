@@ -22,7 +22,13 @@ in
   boot.kernelModules = [ "kvm-intel" ];
 
   # bluetooth gets screwed during deep sleep so we have to sleep lighter
-  boot.kernelParams = [ "mem_sleep_default=s2idle" ];
+  boot.kernelParams = [
+    "mem_sleep_default=s2idle"
+    "rtw88_core.disable_lps_deep=1"
+    "btusb.enable_autosuspend=0"
+  ];
+  # bluetooth also dies if this is on....
+  networking.networkmanager.wifi.powersave = false;
 
   # resume can also wedge the bt firmware: hci0 stays up and reports powered,
   # but every scan finds nothing until btusb is reloaded. the wifi half shares
