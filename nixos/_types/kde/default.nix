@@ -55,37 +55,43 @@
     ".config/plasma-org.kde.plasma.desktop-appletsrc"
   ];
 
-  # VNC server on Tailscale
-  systemd.user.services.krfb = {
-    description = "KDE Remote Frame Buffer (VNC Server)";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
-    environment = {
-      DISPLAY = ":0";
-      QT_QPA_PLATFORM = "wayland";
+  /*
+    disabled bc we have rustdesk now - will probably remove eventually
+    # VNC server on Tailscale
+    systemd.user.services.krfb = {
+      description = "KDE Remote Frame Buffer (VNC Server)";
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      environment = {
+        DISPLAY = ":0";
+        QT_QPA_PLATFORM = "wayland";
+      };
+      serviceConfig = {
+        ExecStart = "${pkgs.kdePackages.krfb}/bin/krfb --nodialog";
+        Restart = "on-failure";
+        RestartSec = "5s";
+        BusName = "org.kde.krfb";
+      };
     };
-    serviceConfig = {
-      ExecStart = "${pkgs.kdePackages.krfb}/bin/krfb --nodialog";
-      Restart = "on-failure";
-      RestartSec = "5s";
-      BusName = "org.kde.krfb";
+    systemd.user.services.flatpak-krfb-permissions = {
+      description = "Authorize KRFB for Remote Desktop";
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      path = [ pkgs.flatpak ];
+      # authorize the krfb service to connect to the desktop
+      # https://develop.kde.org/docs/administration/portal-permissions/
+      script = ''
+        flatpak permission-set kde-authorized remote-desktop org.kde.krfb yes
+        echo "Authorized."
+      '';
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
     };
-  };
-  systemd.user.services.flatpak-krfb-permissions = {
-    description = "Authorize KRFB for Remote Desktop";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    path = [ pkgs.flatpak ];
-    # authorize the krfb service to connect to the desktop
-    # https://develop.kde.org/docs/administration/portal-permissions/
-    script = ''
-      flatpak permission-set kde-authorized remote-desktop org.kde.krfb yes
-      echo "Authorized."
-    '';
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
-  };
+    plasma-manager:
+    # allow unattended access for krfb
+    configFile."krfbrc"."Security"."allowUnattendedAccess" = "true";
+  */
 }

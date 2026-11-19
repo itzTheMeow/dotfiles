@@ -84,8 +84,6 @@ in
 
     # disable screen edge effects
     configFile.kwinrc."Effect-overview".BorderActivate = "9";
-    # allow unattended access for krfb
-    configFile."krfbrc"."Security"."allowUnattendedAccess" = "true";
 
     #TODO: for some reason this doesnt work properly
     dataFile = {
