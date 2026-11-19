@@ -1,11 +1,11 @@
 {
+  config,
+  host,
   pkgs,
   xelib,
   ...
 }:
 {
-  home-manager.importUser = [ ./plasma.hm.nix ];
-
   # actually enable kde
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
@@ -50,9 +50,19 @@
     GTK_USE_PORTAL = "1";
   };
 
-  persist.ed.home.userFiles = [
+  home-manager.importUser = [
+    ./plasma.hm.nix
+
     # needs persisted so the favorites writer can read it on boot
-    ".config/plasma-org.kde.plasma.desktop-appletsrc"
+    # we need to persist this via a symlink so kconfig can write it
+    (hm: {
+      home.file.".config/plasma-org.kde.plasma.desktop-appletsrc".source =
+        hm.config.lib.file.mkOutOfStoreSymlink "${config.persist.ed.home.path}/home/${host.username}/.config/plasma-org.kde.plasma.desktop-appletsrc";
+    })
+  ];
+  # ignore this file from the orphan checker since its persisted a different way
+  persist.orphanIgnore = [
+    "home/home/${host.username}/.config/plasma-org.kde.plasma.desktop-appletsrc"
   ];
 
   /*
