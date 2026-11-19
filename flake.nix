@@ -43,7 +43,7 @@ rec {
       inputs.nixpkgs.follows = "nixpkgs";
     };
     plasma-manager = {
-      url = "github:nix-community/plasma-manager";
+      url = "github:itzTheMeow/plasma-manager/kickoff-favorites";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
