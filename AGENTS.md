@@ -157,3 +157,13 @@ NixOS configuration for personal machines.
       completes (`Requires` deactivates dependents once the required unit becomes inactive) — set
       `serviceConfig.RemainAfterExit = true` on the oneshot, or use `after`/`wants` when failure
       should only prevent startup, not stop the runtime service.
+  - **KConfig-managed files can't be persisted via impermanence file entries**: kconfig saves use
+    temp-file + `rename`, which fails against a file mountpoint (plasmashell logs
+    `Couldn't write ... Disk full?` and silently drops all panel state), and impermanence's `auto`
+    file mode symlinks while the storage file is absent then switches to a bind once it exists —
+    neither state is stable for kconfig files (a plain-file consumer `rm` also replaces a symlink
+    with a regular file on its next write, and the then-existing file makes the persist unit fail
+    with "A file already exists!"). Persist such files as an explicit home-manager out-of-store
+    symlink (`hm.config.lib.file.mkOutOfStoreSymlink`, dangling-safe on fresh hosts) plus the
+    storage path in `persist.orphanIgnore`, and make anything that deletes the file symlink-aware
+    (`rm -f "$(readlink -f ...)"`) — see `nixos/_types/kde/{default,plasma.hm}.nix` (appletsrc).
