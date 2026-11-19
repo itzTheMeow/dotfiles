@@ -79,4 +79,4 @@ hostname := env('HOSTNAME')
     vmout=$(nix build --no-link --print-out-paths .#nixosConfigurations.{{ host }}.config.system.build.vm); \
     export NIX_DISK_IMAGE="$HOME/.local/state/nx/vms/{{ host }}.qcow2"; \
     mkdir -p "$(dirname "$NIX_DISK_IMAGE")"; \
-    exec "$vmout/bin/run-{{ host }}-vm" {{ args }}
+    exec "$vmout/bin/run-*-vm" {{ args }}

@@ -118,9 +118,21 @@ in
   '';
 
   # VM settings
-  virtualisation.vmVariant.virtualisation = {
-    memorySize = 6 * 1024;
-    cores = 5;
+  virtualisation.vmVariant = {
+    virtualisation = {
+      memorySize = 6 * 1024;
+      cores = 5;
+    };
+    # qemu-vm.nix overrides fileSystems (mkOverride 10), so the host's
+    # btrfs/LUKS persistence stack cant exist in the VM; disable it wholesale
+    persist.settings.device = lib.mkVMOverride null;
+    # autoScrub derives its mount list from fileSystems (empty in the VM)
+    services.btrfs.autoScrub.enable = lib.mkVMOverride false;
+    # sops key isn't available in a VM, so use a throwaway password instead
+    users.users.${host.username} = {
+      hashedPasswordFile = lib.mkVMOverride null;
+      hashedPassword = "$6$Z6Ybkx.lhl89HAmY$wQwytvEkcYJ36224facMtxdP5UMHAoLXgegefqLURo.mrB7b2nUlElx6xs7j0u9qN4.5kXhy8eWXEtD7sjV94."; # "meep"
+    };
   };
 
   # timezone should be synced
