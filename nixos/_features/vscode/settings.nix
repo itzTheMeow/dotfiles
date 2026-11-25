@@ -2,6 +2,7 @@
 {
   # editor
   diffEditor.maxComputationTime = 0;
+  diffEditor.ignoreTrimWhitespace = false;
   editor.codeActionsOnSave.source.fixAll = "explicit";
   editor.defaultFormatter = "esbenp.prettier-vscode";
   editor.fontFamily = xelib.globals.fonts.code.name;
